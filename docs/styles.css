@@ -123,6 +123,58 @@ a {
   color: #fff;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+}
+
+.header-credit {
+  color: #dcebea;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.header-credit strong {
+  color: #fff;
+}
+
+.header-linkedin-link {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 7px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 9px;
+  background: #fff;
+  color: var(--brand-deep);
+  font-size: 0.8rem;
+  font-weight: 780;
+  text-decoration: none;
+  transition: transform 140ms ease, background-color 140ms ease;
+}
+
+.header-linkedin-link > span {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 4px;
+  background: #0a66c2;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.header-linkedin-link:hover {
+  background: var(--brand-soft);
+  transform: translateY(-1px);
+}
+
 .hero {
   overflow: hidden;
   padding: 64px 0 88px;
@@ -611,6 +663,55 @@ a:focus-visible {
   line-height: 1.65;
 }
 
+.creator-credit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+  color: #d6e5e3;
+  font-size: 0.83rem;
+}
+
+.creator-credit > span strong {
+  color: #fff;
+}
+
+.linkedin-link {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--brand-deep);
+  font-size: 0.8rem;
+  font-weight: 780;
+  text-decoration: none;
+  transition: transform 140ms ease, background-color 140ms ease;
+}
+
+.linkedin-link > span {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 5px;
+  background: #0a66c2;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.linkedin-link:hover {
+  background: var(--brand-soft);
+  transform: translateY(-1px);
+}
+
 .noscript {
   position: fixed;
   inset: auto 16px 16px;
@@ -657,8 +758,21 @@ a:focus-visible {
     width: min(100% - 22px, 1180px);
   }
 
+  .header-inner {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-block: 12px;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
   .source-link {
-    max-width: 110px;
+    margin-left: auto;
+    font-size: 0.78rem;
     text-align: right;
   }
 
@@ -751,6 +865,15 @@ a:focus-visible {
     grid-column: 1 / -1;
     grid-row: 1;
     text-align: center;
+  }
+
+  .creator-credit {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .linkedin-link {
+    width: 100%;
   }
 }
 
