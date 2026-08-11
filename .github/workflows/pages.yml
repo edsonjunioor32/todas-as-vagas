@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
   schedule:
     # 08h17 e 20h17 no horário de Brasília/Fortaleza (UTC-3).
-    - cron: "17 11,23 * * *"
+    - cron: "17 7,11,17 * * *"
 
 permissions:
   contents: write
@@ -86,7 +86,8 @@ jobs:
             echo "Nenhuma alteração para registrar."
           else
             git commit -m "Atualiza índice público de vagas [skip ci]"
-            git push
+            git pull --rebase origin main
+            git push origin HEAD:main
           fi
 
       - name: Configurar GitHub Pages
