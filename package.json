@@ -1,0 +1,14 @@
+{
+  "name": "radar-vagas-multiportal",
+  "version": "3.0.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "discover:inhire": "node busca_vagas/harvest_inhire_public.js",
+    "build:inhire": "node busca_vagas/build_public_inhire.js",
+    "validate:inhire": "node busca_vagas/validate_public_inhire.js",
+    "build:pages": "python jobs-dashboard/pipeline.py",
+    "validate:pages": "python jobs-dashboard/validate_snapshot.py",
+    "update:pages": "npm run build:inhire && npm run validate:inhire && npm run build:pages && npm run validate:pages"
+  }
+}

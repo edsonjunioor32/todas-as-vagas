@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <meta name="theme-color" content="#123b3f">
+    <meta name="referrer" content="no-referrer">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+    <meta name="description" content="Índice independente de vagas coletadas em vários portais públicos, com pesquisa e filtros por portal, modalidade, área e mercado.">
+    <meta property="og:title" content="Radar de Vagas — índice multiportal">
+    <meta property="og:description" content="Pesquise oportunidades da InHire, Empregare, Gupy e outros portais em uma base normalizada.">
+    <meta property="og:type" content="website">
+    <title>Radar de Vagas — índice multiportal</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./styles.css">
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#resultados">Pular para os resultados</a>
+
+    <header class="site-header">
+      <div class="shell header-inner">
+        <a class="brand" href="./" aria-label="Radar de Vagas — início">
+          <span class="brand-mark" aria-hidden="true">R</span>
+          <span>Radar de Vagas</span>
+        </a>
+        <a class="source-link" href="https://github.com/edsonjunioor32/vagas-inhire" target="_blank" rel="noopener noreferrer">
+          Ver projeto no GitHub
+        </a>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="shell hero-grid">
+          <div>
+            <p class="eyebrow">Índice público e independente</p>
+            <h1>Vagas de vários portais, em um só lugar.</h1>
+            <p class="hero-copy">
+              Pesquise oportunidades da InHire, Empregare, Gupy e portais internacionais. Combine filtros por origem, modalidade, área, senioridade, mercado e data.
+            </p>
+            <p class="updated" id="updatedLabel" aria-live="polite">Carregando a atualização mais recente…</p>
+            <p class="source-warning" id="sourceWarning" hidden></p>
+          </div>
+
+          <dl class="stats" aria-label="Resumo da consulta">
+            <div>
+              <dt>Vagas disponíveis</dt>
+              <dd id="totalJobs">—</dd>
+            </div>
+            <div>
+              <dt>Empresas</dt>
+              <dd id="totalCompanies">—</dd>
+            </div>
+            <div>
+              <dt>Portais</dt>
+              <dd id="totalSources">—</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <div class="shell content-grid">
+        <aside class="filters" aria-labelledby="filtersTitle">
+          <div class="filters-heading">
+            <div>
+              <p class="section-kicker">Refine a consulta</p>
+              <h2 id="filtersTitle">Filtros</h2>
+            </div>
+            <button class="text-button" id="clearFilters" type="button">Limpar</button>
+          </div>
+
+          <form id="filtersForm" autocomplete="off">
+            <div class="field field-search">
+              <label for="searchInput">Cargo, empresa ou palavra-chave</label>
+              <div class="search-control">
+                <span aria-hidden="true">⌕</span>
+                <input id="searchInput" name="busca" type="search" placeholder="Ex.: suporte, Java, cartões" spellcheck="false">
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="sourceFilter">Portal</label>
+              <select id="sourceFilter" name="portal">
+                <option value="">Todos os portais</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="workplaceFilter">Modalidade</label>
+              <select id="workplaceFilter" name="modalidade">
+                <option value="">Todas as modalidades</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="marketFilter">Mercado</label>
+              <select id="marketFilter" name="mercado">
+                <option value="">Todos os mercados</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="categoryFilter">Área</label>
+              <select id="categoryFilter" name="area">
+                <option value="">Todas as áreas</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="seniorityFilter">Senioridade</label>
+              <select id="seniorityFilter" name="senioridade">
+                <option value="">Todas as senioridades</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="periodFilter">Publicação</label>
+              <select id="periodFilter" name="periodo">
+                <option value="">Qualquer data</option>
+                <option value="1">Últimas 24 horas</option>
+                <option value="7">Últimos 7 dias</option>
+                <option value="30">Últimos 30 dias</option>
+              </select>
+            </div>
+
+            <label class="check-control" for="pcdOnly">
+              <input id="pcdOnly" name="pcd" type="checkbox">
+              <span>Somente vagas afirmativas para PcD</span>
+            </label>
+
+            <label class="check-control" for="duplicatesOnly">
+              <input id="duplicatesOnly" name="duplicadas" type="checkbox">
+              <span>Encontradas em mais de um portal</span>
+            </label>
+          </form>
+
+          <p class="filter-note">
+            As classificações são normalizadas a partir dos dados informados por cada portal. Confirme disponibilidade, localidade e requisitos no anúncio original.
+          </p>
+        </aside>
+
+        <section class="results" id="resultados" aria-labelledby="resultsTitle">
+          <div class="results-toolbar">
+            <div>
+              <p class="section-kicker">Oportunidades encontradas</p>
+              <h2 id="resultsTitle"><span id="resultCount">—</span> vagas</h2>
+            </div>
+            <div class="toolbar-actions">
+              <label class="compact-field" for="sortFilter">
+                <span>Ordenar</span>
+                <select id="sortFilter">
+                  <option value="recent">Mais recentes</option>
+                  <option value="portals">Mais portais</option>
+                  <option value="company">Empresa: A–Z</option>
+                  <option value="title">Cargo: A–Z</option>
+                </select>
+              </label>
+              <button class="secondary-button" id="downloadCsv" type="button">Baixar CSV</button>
+            </div>
+          </div>
+
+          <div class="status-message" id="statusMessage" role="status" aria-live="polite">
+            Carregando vagas…
+          </div>
+          <div class="job-list" id="jobList" aria-live="polite"></div>
+
+          <nav class="pagination" id="pagination" aria-label="Paginação dos resultados" hidden>
+            <button class="secondary-button" id="previousPage" type="button">← Anterior</button>
+            <span id="pageLabel">Página 1 de 1</span>
+            <button class="secondary-button" id="nextPage" type="button">Próxima →</button>
+          </nav>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="shell footer-grid">
+        <div>
+          <strong>Radar de Vagas</strong>
+          <p>Índice independente de oportunidades divulgadas em portais públicos.</p>
+        </div>
+        <p>
+          O projeto não possui vínculo com os portais ou empresas listados. Não republica descrições completas e direciona a candidatura para a página original.
+        </p>
+      </div>
+    </footer>
+
+    <noscript>
+      <div class="noscript">Ative o JavaScript para pesquisar e filtrar as vagas.</div>
+    </noscript>
+  </body>
+</html>

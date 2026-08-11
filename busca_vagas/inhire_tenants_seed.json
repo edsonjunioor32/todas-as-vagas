@@ -1,0 +1,1982 @@
+[
+  {
+    "slug": "180seguros",
+    "tenantName": "180 Seguros"
+  },
+  {
+    "slug": "2future",
+    "tenantName": "2Future"
+  },
+  {
+    "slug": "3cplusnow",
+    "tenantName": "Grupo 3C"
+  },
+  {
+    "slug": "5ccompany",
+    "tenantName": "5Ccompany"
+  },
+  {
+    "slug": "aarin",
+    "tenantName": "Aarin Techfin"
+  },
+  {
+    "slug": "adias",
+    "tenantName": "A.Dias"
+  },
+  {
+    "slug": "advbox",
+    "tenantName": "ADVBOX - Software Jurídico"
+  },
+  {
+    "slug": "adyen",
+    "tenantName": "Adyen"
+  },
+  {
+    "slug": "agrosearch",
+    "tenantName": "AGROSearch"
+  },
+  {
+    "slug": "agrotools",
+    "tenantName": "Agrotools"
+  },
+  {
+    "slug": "aiko",
+    "tenantName": "Aiko"
+  },
+  {
+    "slug": "aisolutions",
+    "tenantName": "AI Solutions"
+  },
+  {
+    "slug": "alana",
+    "tenantName": "Instituto Alana"
+  },
+  {
+    "slug": "alelo",
+    "tenantName": "Alelo"
+  },
+  {
+    "slug": "algar",
+    "tenantName": "Grupo Algar"
+  },
+  {
+    "slug": "alice",
+    "tenantName": "Alice"
+  },
+  {
+    "slug": "alicerce",
+    "tenantName": "Alicerce"
+  },
+  {
+    "slug": "alinemainericonsultoria",
+    "tenantName": "Aline Maineri Consultoria RH (TRD)"
+  },
+  {
+    "slug": "allintra",
+    "tenantName": "Allintra"
+  },
+  {
+    "slug": "alloyal",
+    "tenantName": "Alloyal"
+  },
+  {
+    "slug": "altoqi",
+    "tenantName": "AltoQi"
+  },
+  {
+    "slug": "alume",
+    "tenantName": "Alume"
+  },
+  {
+    "slug": "alun",
+    "tenantName": "FIAP/Alura/PM3"
+  },
+  {
+    "slug": "alura-fiap-pm3",
+    "tenantName": "FIAP"
+  },
+  {
+    "slug": "amaro",
+    "tenantName": "AMARO"
+  },
+  {
+    "slug": "amcom",
+    "tenantName": "AMcom"
+  },
+  {
+    "slug": "appfacilita",
+    "tenantName": "App Facilita"
+  },
+  {
+    "slug": "appmax",
+    "tenantName": "Appmax"
+  },
+  {
+    "slug": "aprix",
+    "tenantName": "Aprix"
+  },
+  {
+    "slug": "arquivei",
+    "tenantName": "Arquivei"
+  },
+  {
+    "slug": "asa",
+    "tenantName": "ASA"
+  },
+  {
+    "slug": "ascasconsultoria",
+    "tenantName": "ASCAS"
+  },
+  {
+    "slug": "ascsolutions",
+    "tenantName": "ASC Solutions"
+  },
+  {
+    "slug": "asper",
+    "tenantName": "Asper"
+  },
+  {
+    "slug": "astrainfra",
+    "tenantName": "Astrainfra"
+  },
+  {
+    "slug": "ateliware",
+    "tenantName": "Ateliware"
+  },
+  {
+    "slug": "atip",
+    "tenantName": "aTip"
+  },
+  {
+    "slug": "atlantico",
+    "tenantName": "Atlântico"
+  },
+  {
+    "slug": "atlastechnol",
+    "tenantName": "Atlas"
+  },
+  {
+    "slug": "autoglass",
+    "tenantName": "Grupo Autoglass"
+  },
+  {
+    "slug": "autom",
+    "tenantName": "Autom"
+  },
+  {
+    "slug": "automind",
+    "tenantName": "Automind"
+  },
+  {
+    "slug": "autopass",
+    "tenantName": "Autopass"
+  },
+  {
+    "slug": "auvotecnologia",
+    "tenantName": "Auvo Tecnologia"
+  },
+  {
+    "slug": "avel",
+    "tenantName": "Ável"
+  },
+  {
+    "slug": "avenue",
+    "tenantName": "Avenue"
+  },
+  {
+    "slug": "avivatec",
+    "tenantName": "Avivatec"
+  },
+  {
+    "slug": "azos",
+    "tenantName": "Azos"
+  },
+  {
+    "slug": "bancopine",
+    "tenantName": "Banco Pine"
+  },
+  {
+    "slug": "bancotoyota",
+    "tenantName": "Banco Toyota do Brasil"
+  },
+  {
+    "slug": "bankme",
+    "tenantName": "Bankme."
+  },
+  {
+    "slug": "banni",
+    "tenantName": "Banni"
+  },
+  {
+    "slug": "barrosadvogados",
+    "tenantName": "Barros & Advogados"
+  },
+  {
+    "slug": "bemobi",
+    "tenantName": "Bemobi"
+  },
+  {
+    "slug": "benup",
+    "tenantName": "benup"
+  },
+  {
+    "slug": "bequestdigital",
+    "tenantName": "Bequest Academy"
+  },
+  {
+    "slug": "bernhoeft",
+    "tenantName": "Bernhoeft"
+  },
+  {
+    "slug": "betaonline",
+    "tenantName": "BETA ONLINE"
+  },
+  {
+    "slug": "betha",
+    "tenantName": "Betha"
+  },
+  {
+    "slug": "betmgm",
+    "tenantName": "BetMGM Brasil"
+  },
+  {
+    "slug": "bibliotecacatolica",
+    "tenantName": "MBC"
+  },
+  {
+    "slug": "bigdata",
+    "tenantName": "Big Data"
+  },
+  {
+    "slug": "bionexo",
+    "tenantName": "Bionexo"
+  },
+  {
+    "slug": "bipa",
+    "tenantName": "Bipa"
+  },
+  {
+    "slug": "bixtecnologia",
+    "tenantName": "BIX Tecnologia - Consultoria de Dados"
+  },
+  {
+    "slug": "blumeohaagua",
+    "tenantName": "Blume Alimentos | OH! A Água"
+  },
+  {
+    "slug": "bradesco",
+    "tenantName": "Bradesco"
+  },
+  {
+    "slug": "brangemedia",
+    "tenantName": "Brange Media"
+  },
+  {
+    "slug": "brasilparalelo",
+    "tenantName": "Brasil Paralelo"
+  },
+  {
+    "slug": "breezyseguros",
+    "tenantName": "Breezy Seguros"
+  },
+  {
+    "slug": "bridge",
+    "tenantName": "Bridge & Co."
+  },
+  {
+    "slug": "brivia",
+    "tenantName": "Brivia"
+  },
+  {
+    "slug": "brmediagroup",
+    "tenantName": "BR Media Group"
+  },
+  {
+    "slug": "brms",
+    "tenantName": "BR MotorSport"
+  },
+  {
+    "slug": "brq",
+    "tenantName": "BRQ"
+  },
+  {
+    "slug": "brqdigitalsolutions",
+    "tenantName": "BRQ"
+  },
+  {
+    "slug": "cactus",
+    "tenantName": "Cactus Gaming"
+  },
+  {
+    "slug": "cadmus",
+    "tenantName": "Cadmus"
+  },
+  {
+    "slug": "caf",
+    "tenantName": "CAF"
+  },
+  {
+    "slug": "capef",
+    "tenantName": "CAPEF"
+  },
+  {
+    "slug": "carbigdata",
+    "tenantName": "Carbigdata"
+  },
+  {
+    "slug": "cardapioweb",
+    "tenantName": "Cardápio Web"
+  },
+  {
+    "slug": "carreiras",
+    "tenantName": "InHire"
+  },
+  {
+    "slug": "casabugre",
+    "tenantName": "Casa Bugre"
+  },
+  {
+    "slug": "cashme",
+    "tenantName": "CashMe"
+  },
+  {
+    "slug": "catarse",
+    "tenantName": "Catarse"
+  },
+  {
+    "slug": "cayena",
+    "tenantName": "Cayena"
+  },
+  {
+    "slug": "celcoin",
+    "tenantName": "Celcoin"
+  },
+  {
+    "slug": "celero",
+    "tenantName": "Celero"
+  },
+  {
+    "slug": "centraldevagas",
+    "tenantName": "Trinuscool"
+  },
+  {
+    "slug": "cerc",
+    "tenantName": "CERC"
+  },
+  {
+    "slug": "certta",
+    "tenantName": "CAF"
+  },
+  {
+    "slug": "cesconbarrieu",
+    "tenantName": "Cescon Barrieu"
+  },
+  {
+    "slug": "chatguru",
+    "tenantName": "ChatGuru"
+  },
+  {
+    "slug": "cidadaniaja",
+    "tenantName": "Cidadania Já"
+  },
+  {
+    "slug": "cielo",
+    "tenantName": "Cielo"
+  },
+  {
+    "slug": "cinga",
+    "tenantName": "Cinga Tech"
+  },
+  {
+    "slug": "cirandacultural",
+    "tenantName": "Grupo Ciranda Cultural"
+  },
+  {
+    "slug": "clam",
+    "tenantName": "Clam"
+  },
+  {
+    "slug": "clavis",
+    "tenantName": "Clavis"
+  },
+  {
+    "slug": "clickbus",
+    "tenantName": "ClickBus"
+  },
+  {
+    "slug": "coaktion",
+    "tenantName": "coaktion"
+  },
+  {
+    "slug": "cobli",
+    "tenantName": "Cobli"
+  },
+  {
+    "slug": "cogna",
+    "tenantName": "Cogna Educação"
+  },
+  {
+    "slug": "construtoraelevacao",
+    "tenantName": "Construtora Elevação"
+  },
+  {
+    "slug": "construtorapatriani",
+    "tenantName": "Construtora Patriani"
+  },
+  {
+    "slug": "contaazul",
+    "tenantName": "Conta Azul"
+  },
+  {
+    "slug": "contabilizei",
+    "tenantName": "Contabilizei"
+  },
+  {
+    "slug": "contasimples",
+    "tenantName": "Conta Simples"
+  },
+  {
+    "slug": "convenia",
+    "tenantName": "Convênia"
+  },
+  {
+    "slug": "conxconstrutora",
+    "tenantName": "Conx"
+  },
+  {
+    "slug": "cora",
+    "tenantName": "Cora"
+  },
+  {
+    "slug": "credaluga",
+    "tenantName": "CredAluga"
+  },
+  {
+    "slug": "credipronto",
+    "tenantName": "CrediPronto"
+  },
+  {
+    "slug": "creditas",
+    "tenantName": "Creditas"
+  },
+  {
+    "slug": "crmbonus",
+    "tenantName": "CRMBonus"
+  },
+  {
+    "slug": "crown",
+    "tenantName": "Crown"
+  },
+  {
+    "slug": "csptecnologia",
+    "tenantName": "CSP Tecnologia"
+  },
+  {
+    "slug": "csu",
+    "tenantName": "CSU"
+  },
+  {
+    "slug": "ctctech",
+    "tenantName": "CTC"
+  },
+  {
+    "slug": "cubos",
+    "tenantName": "Cubos Tecnologia"
+  },
+  {
+    "slug": "cubosacademy",
+    "tenantName": "Cubos Academy"
+  },
+  {
+    "slug": "dafiti",
+    "tenantName": "Dafiti"
+  },
+  {
+    "slug": "dartz",
+    "tenantName": "Dartz Ideal Recruitment"
+  },
+  {
+    "slug": "db1",
+    "tenantName": "DB1 Group"
+  },
+  {
+    "slug": "dbservices",
+    "tenantName": "DBServices"
+  },
+  {
+    "slug": "deal",
+    "tenantName": "Deal Group"
+  },
+  {
+    "slug": "dealersites",
+    "tenantName": "Dealer Space"
+  },
+  {
+    "slug": "deloitte",
+    "tenantName": "Deloitte"
+  },
+  {
+    "slug": "demo",
+    "tenantName": "Demo"
+  },
+  {
+    "slug": "dhg",
+    "tenantName": "Ocean Health"
+  },
+  {
+    "slug": "digix",
+    "tenantName": "Digix"
+  },
+  {
+    "slug": "dock",
+    "tenantName": "Dock"
+  },
+  {
+    "slug": "dotgroup",
+    "tenantName": "DOT Group"
+  },
+  {
+    "slug": "dqrtech",
+    "tenantName": "DQR Tech"
+  },
+  {
+    "slug": "dtidigital",
+    "tenantName": "dti digital"
+  },
+  {
+    "slug": "dtlabs",
+    "tenantName": "dtLabs"
+  },
+  {
+    "slug": "duxcompany",
+    "tenantName": "DUX Company"
+  },
+  {
+    "slug": "ebanx",
+    "tenantName": "EBANX"
+  },
+  {
+    "slug": "eclipseworks",
+    "tenantName": "Eclipseworks"
+  },
+  {
+    "slug": "ecore",
+    "tenantName": "e-Core"
+  },
+  {
+    "slug": "ecx",
+    "tenantName": "ecx"
+  },
+  {
+    "slug": "edenred",
+    "tenantName": "Edenred"
+  },
+  {
+    "slug": "edge",
+    "tenantName": "EDGE"
+  },
+  {
+    "slug": "eiti",
+    "tenantName": "Eiti Gestão de Ti"
+  },
+  {
+    "slug": "elements",
+    "tenantName": "Elements"
+  },
+  {
+    "slug": "elogroup",
+    "tenantName": "EloGroup"
+  },
+  {
+    "slug": "emergeventures",
+    "tenantName": "Emerge Ventures"
+  },
+  {
+    "slug": "enjoei",
+    "tenantName": "Enjoei"
+  },
+  {
+    "slug": "enzrossi",
+    "tenantName": "EnzRossi"
+  },
+  {
+    "slug": "eqi",
+    "tenantName": "EQI"
+  },
+  {
+    "slug": "erural",
+    "tenantName": "erural"
+  },
+  {
+    "slug": "escoladnc",
+    "tenantName": "Escola DNC"
+  },
+  {
+    "slug": "essenceit",
+    "tenantName": "Essence"
+  },
+  {
+    "slug": "essencialnutricao",
+    "tenantName": "Essencial Nutrição"
+  },
+  {
+    "slug": "estapar-trial",
+    "tenantName": "Estapar"
+  },
+  {
+    "slug": "estrelabet",
+    "tenantName": "EstrelaBet"
+  },
+  {
+    "slug": "eveo",
+    "tenantName": "EVEO"
+  },
+  {
+    "slug": "exa",
+    "tenantName": "EXA"
+  },
+  {
+    "slug": "exati",
+    "tenantName": "Exati"
+  },
+  {
+    "slug": "extremegroup",
+    "tenantName": "Extreme Digital Solutions"
+  },
+  {
+    "slug": "eyxo",
+    "tenantName": "Eyxo Content Co."
+  },
+  {
+    "slug": "facilitapay",
+    "tenantName": "FacilitaPay"
+  },
+  {
+    "slug": "falconi",
+    "tenantName": "Falconi"
+  },
+  {
+    "slug": "farmtech",
+    "tenantName": "Farmtech"
+  },
+  {
+    "slug": "fbiz",
+    "tenantName": "Fbiz"
+  },
+  {
+    "slug": "fcamara",
+    "tenantName": "FCamara"
+  },
+  {
+    "slug": "fiberhome",
+    "tenantName": "FiberHome Brasil"
+  },
+  {
+    "slug": "finallevel",
+    "tenantName": "Final Level"
+  },
+  {
+    "slug": "findup",
+    "tenantName": "FindUP"
+  },
+  {
+    "slug": "fintalk",
+    "tenantName": "Fintalk"
+  },
+  {
+    "slug": "fitenergia",
+    "tenantName": "FIT Energia"
+  },
+  {
+    "slug": "fitting",
+    "tenantName": "Fitting"
+  },
+  {
+    "slug": "flash",
+    "tenantName": "Flash"
+  },
+  {
+    "slug": "flemingeducacao",
+    "tenantName": "Fleming Educação"
+  },
+  {
+    "slug": "floraconsultoria",
+    "tenantName": "floraconsultoria"
+  },
+  {
+    "slug": "fluke",
+    "tenantName": "fluke"
+  },
+  {
+    "slug": "flutterbrazil",
+    "tenantName": "Flutter Brazil"
+  },
+  {
+    "slug": "fmu",
+    "tenantName": "FMU"
+  },
+  {
+    "slug": "foxbit",
+    "tenantName": "Foxbit"
+  },
+  {
+    "slug": "frameworkdigital",
+    "tenantName": "Framework"
+  },
+  {
+    "slug": "fretadao",
+    "tenantName": "Fretadão"
+  },
+  {
+    "slug": "frete",
+    "tenantName": "frete.com"
+  },
+  {
+    "slug": "fricon",
+    "tenantName": "FRICON Brasil"
+  },
+  {
+    "slug": "fsbholding",
+    "tenantName": "FSB Holding"
+  },
+  {
+    "slug": "gauge",
+    "tenantName": "Gauge"
+  },
+  {
+    "slug": "gcservicos",
+    "tenantName": "GC Serviços"
+  },
+  {
+    "slug": "genyo",
+    "tenantName": "Genyo"
+  },
+  {
+    "slug": "geo3d",
+    "tenantName": "GEO3D ENGENHARIA DE MAPEAMENTO"
+  },
+  {
+    "slug": "gerdau",
+    "tenantName": "Gerdau"
+  },
+  {
+    "slug": "gex",
+    "tenantName": "GEX"
+  },
+  {
+    "slug": "globalsystem",
+    "tenantName": "Global System"
+  },
+  {
+    "slug": "gobravo",
+    "tenantName": "Go Bravo"
+  },
+  {
+    "slug": "goflow",
+    "tenantName": "GoFlow Consultoria"
+  },
+  {
+    "slug": "gogroup",
+    "tenantName": "Gogroup"
+  },
+  {
+    "slug": "grupoagcapital",
+    "tenantName": "Grupo AG Capital"
+  },
+  {
+    "slug": "grupoboticario",
+    "tenantName": "Grupo Boticário"
+  },
+  {
+    "slug": "grupocentral",
+    "tenantName": "Grupo Central"
+  },
+  {
+    "slug": "grupocomolatti",
+    "tenantName": "Grupo Comolatti"
+  },
+  {
+    "slug": "grupoeximio",
+    "tenantName": "Grupo Eximio"
+  },
+  {
+    "slug": "grupofoodnation",
+    "tenantName": "Grupo Food Nation"
+  },
+  {
+    "slug": "grupofour",
+    "tenantName": "Grupo Four"
+  },
+  {
+    "slug": "grupogcb",
+    "tenantName": "GCB"
+  },
+  {
+    "slug": "grupogcbinvestimentos",
+    "tenantName": "Grupo GCB"
+  },
+  {
+    "slug": "grupogopwr",
+    "tenantName": "GOPWR"
+  },
+  {
+    "slug": "grupoguiainvest",
+    "tenantName": "GuiaInvest"
+  },
+  {
+    "slug": "grupogvc",
+    "tenantName": "GVC"
+  },
+  {
+    "slug": "grupolider",
+    "tenantName": "Grupo Lider"
+  },
+  {
+    "slug": "grupolos",
+    "tenantName": "Grupo LOS"
+  },
+  {
+    "slug": "grupomedeiros",
+    "tenantName": "Dunorte"
+  },
+  {
+    "slug": "grupopermaneo",
+    "tenantName": "Grupo Permaneo"
+  },
+  {
+    "slug": "grupoprotege",
+    "tenantName": "Grupo Protege"
+  },
+  {
+    "slug": "gruposaga",
+    "tenantName": "Grupo Saga"
+  },
+  {
+    "slug": "gruposrm",
+    "tenantName": "SRM"
+  },
+  {
+    "slug": "grupotaking",
+    "tenantName": "Grupo Taking"
+  },
+  {
+    "slug": "grupothink",
+    "tenantName": "Think IT"
+  },
+  {
+    "slug": "guaracamp",
+    "tenantName": "Guaracamp"
+  },
+  {
+    "slug": "gx2",
+    "tenantName": "Vem ser GX2"
+  },
+  {
+    "slug": "harpia",
+    "tenantName": "Harpia"
+  },
+  {
+    "slug": "heads",
+    "tenantName": "Heads"
+  },
+  {
+    "slug": "hh-escolaconquer",
+    "tenantName": "Escola Conquer"
+  },
+  {
+    "slug": "hh-lello",
+    "tenantName": "Lello Condomínios"
+  },
+  {
+    "slug": "hh-uello",
+    "tenantName": "Uello"
+  },
+  {
+    "slug": "hiltonbrasil",
+    "tenantName": "Hilton Brasil"
+  },
+  {
+    "slug": "icatu",
+    "tenantName": "Icatu Seguros"
+  },
+  {
+    "slug": "icatuseguros",
+    "tenantName": "Icatu Seguros"
+  },
+  {
+    "slug": "icherry",
+    "tenantName": "icherry"
+  },
+  {
+    "slug": "iconit",
+    "tenantName": "ICON Solutions do Brasil"
+  },
+  {
+    "slug": "idg",
+    "tenantName": "IDG"
+  },
+  {
+    "slug": "idwall",
+    "tenantName": "idwall"
+  },
+  {
+    "slug": "ifood",
+    "tenantName": "iFood"
+  },
+  {
+    "slug": "ihunters",
+    "tenantName": "iHunters"
+  },
+  {
+    "slug": "imaflora",
+    "tenantName": "Imaflora"
+  },
+  {
+    "slug": "impulsogov",
+    "tenantName": "ImpulsoGov"
+  },
+  {
+    "slug": "indicium",
+    "tenantName": "Indicium"
+  },
+  {
+    "slug": "industriasanhembi",
+    "tenantName": "Anhembi"
+  },
+  {
+    "slug": "infleet",
+    "tenantName": "Infleet"
+  },
+  {
+    "slug": "infotecbrasil",
+    "tenantName": "Infotec Brasil"
+  },
+  {
+    "slug": "innoveahub",
+    "tenantName": "iNNOVEA HUB"
+  },
+  {
+    "slug": "insiderstore",
+    "tenantName": "Insider Store"
+  },
+  {
+    "slug": "instacarro",
+    "tenantName": "InstaCarro"
+  },
+  {
+    "slug": "intera",
+    "tenantName": "Intera"
+  },
+  {
+    "slug": "intertechne",
+    "tenantName": "Intertechne"
+  },
+  {
+    "slug": "involves",
+    "tenantName": "Involves"
+  },
+  {
+    "slug": "iorq",
+    "tenantName": "IORQ"
+  },
+  {
+    "slug": "ipnet",
+    "tenantName": "IPNET by Vivo"
+  },
+  {
+    "slug": "isystems",
+    "tenantName": "iSystems"
+  },
+  {
+    "slug": "iteris",
+    "tenantName": "Iteris"
+  },
+  {
+    "slug": "itriad",
+    "tenantName": "ITRIAD"
+  },
+  {
+    "slug": "iventis",
+    "tenantName": "IVENTIS"
+  },
+  {
+    "slug": "jae",
+    "tenantName": "Jaé"
+  },
+  {
+    "slug": "jassy",
+    "tenantName": "J.Assy"
+  },
+  {
+    "slug": "jeitto",
+    "tenantName": "Jeitto"
+  },
+  {
+    "slug": "jota",
+    "tenantName": "JOTA"
+  },
+  {
+    "slug": "justos",
+    "tenantName": "Justos"
+  },
+  {
+    "slug": "kamino",
+    "tenantName": "Kamino"
+  },
+  {
+    "slug": "kanastra",
+    "tenantName": "Kanastra"
+  },
+  {
+    "slug": "kife",
+    "tenantName": "Kife"
+  },
+  {
+    "slug": "kiwify",
+    "tenantName": "Kiwify"
+  },
+  {
+    "slug": "klavi",
+    "tenantName": "klavi"
+  },
+  {
+    "slug": "kobe",
+    "tenantName": "Kobe Apps"
+  },
+  {
+    "slug": "kooperecooperativa",
+    "tenantName": "Koopere"
+  },
+  {
+    "slug": "kpmg",
+    "tenantName": "KPMG"
+  },
+  {
+    "slug": "kstack",
+    "tenantName": "Kstack"
+  },
+  {
+    "slug": "labiexames",
+    "tenantName": "Labi Exames"
+  },
+  {
+    "slug": "labisaude",
+    "tenantName": "Labi Saúde"
+  },
+  {
+    "slug": "laboclin",
+    "tenantName": "Laboclin"
+  },
+  {
+    "slug": "labwarebrasil",
+    "tenantName": "LabWare"
+  },
+  {
+    "slug": "lastlink",
+    "tenantName": "Lastlink"
+  },
+  {
+    "slug": "leaderetalent",
+    "tenantName": "Leader & Talent"
+  },
+  {
+    "slug": "lello",
+    "tenantName": "Lello"
+  },
+  {
+    "slug": "lemonenergia",
+    "tenantName": "Lemon Energia"
+  },
+  {
+    "slug": "letrus",
+    "tenantName": "Letrus"
+  },
+  {
+    "slug": "lfaadvogados",
+    "tenantName": "LFA Advogados"
+  },
+  {
+    "slug": "liber",
+    "tenantName": "Líber"
+  },
+  {
+    "slug": "liggatelecom",
+    "tenantName": "Ligga"
+  },
+  {
+    "slug": "lightfarmstudios",
+    "tenantName": "Lightfarm"
+  },
+  {
+    "slug": "limaconsulting",
+    "tenantName": "Lima Consulting Group"
+  },
+  {
+    "slug": "link2pump",
+    "tenantName": "CTA Smart"
+  },
+  {
+    "slug": "linx",
+    "tenantName": "Linx"
+  },
+  {
+    "slug": "listo",
+    "tenantName": "Listo"
+  },
+  {
+    "slug": "livelo",
+    "tenantName": "Livelo"
+  },
+  {
+    "slug": "livemode",
+    "tenantName": "LiveMode"
+  },
+  {
+    "slug": "livup",
+    "tenantName": "Liv Up"
+  },
+  {
+    "slug": "loft",
+    "tenantName": "Loft"
+  },
+  {
+    "slug": "loggi",
+    "tenantName": "Loggi"
+  },
+  {
+    "slug": "lotussolution",
+    "tenantName": "RH Lótus Solution"
+  },
+  {
+    "slug": "luby",
+    "tenantName": "Luby"
+  },
+  {
+    "slug": "lumine",
+    "tenantName": "Lumine"
+  },
+  {
+    "slug": "luzandreyaconsultoria",
+    "tenantName": "Luzandreya Consultoria e Assessoria de RH"
+  },
+  {
+    "slug": "lwsa",
+    "tenantName": "LWSA"
+  },
+  {
+    "slug": "lyncas",
+    "tenantName": "Lyncas"
+  },
+  {
+    "slug": "magazineluiza",
+    "tenantName": "Magazine Luiza"
+  },
+  {
+    "slug": "magazord",
+    "tenantName": "Magazord"
+  },
+  {
+    "slug": "magnasearch",
+    "tenantName": "Magna Executive Search"
+  },
+  {
+    "slug": "mapahds",
+    "tenantName": "Mapa HDS"
+  },
+  {
+    "slug": "match-mt",
+    "tenantName": "match.mt"
+  },
+  {
+    "slug": "matera",
+    "tenantName": "Matera"
+  },
+  {
+    "slug": "mathgroup",
+    "tenantName": "MATH"
+  },
+  {
+    "slug": "mazzatech",
+    "tenantName": "mazzatech"
+  },
+  {
+    "slug": "mb",
+    "tenantName": "Mercado Bitcoin"
+  },
+  {
+    "slug": "mediahero",
+    "tenantName": "Media Hero"
+  },
+  {
+    "slug": "medway",
+    "tenantName": "Medway"
+  },
+  {
+    "slug": "meliuz",
+    "tenantName": "Méliuz"
+  },
+  {
+    "slug": "melnick",
+    "tenantName": "Melnick"
+  },
+  {
+    "slug": "mena",
+    "tenantName": "MENA"
+  },
+  {
+    "slug": "midhaus",
+    "tenantName": "Midhaus"
+  },
+  {
+    "slug": "minertecnologia",
+    "tenantName": "Miner Tecnologia"
+  },
+  {
+    "slug": "mirum",
+    "tenantName": "Mirum"
+  },
+  {
+    "slug": "mjv",
+    "tenantName": "MJV INNOVATION"
+  },
+  {
+    "slug": "mksolutions",
+    "tenantName": "MK Solutions"
+  },
+  {
+    "slug": "monkey",
+    "tenantName": "Monkey"
+  },
+  {
+    "slug": "motim",
+    "tenantName": "MOTIM"
+  },
+  {
+    "slug": "mottu",
+    "tenantName": "Mottu"
+  },
+  {
+    "slug": "movecta",
+    "tenantName": "Movecta"
+  },
+  {
+    "slug": "mspestudios",
+    "tenantName": "VEM PRA TURMA"
+  },
+  {
+    "slug": "multi7",
+    "tenantName": "M7 Soluções Financeiras"
+  },
+  {
+    "slug": "mundiale",
+    "tenantName": "Mundiale"
+  },
+  {
+    "slug": "mutant",
+    "tenantName": "Mutant"
+  },
+  {
+    "slug": "neogrid",
+    "tenantName": "Neogrid"
+  },
+  {
+    "slug": "neoway",
+    "tenantName": "Neoway"
+  },
+  {
+    "slug": "nexaas",
+    "tenantName": "Nexaas"
+  },
+  {
+    "slug": "nibo",
+    "tenantName": "Nibo"
+  },
+  {
+    "slug": "ninecon",
+    "tenantName": "Ninecon"
+  },
+  {
+    "slug": "nomadglobal",
+    "tenantName": "Nomad"
+  },
+  {
+    "slug": "nts",
+    "tenantName": "NTS Brasil"
+  },
+  {
+    "slug": "nubank",
+    "tenantName": "Nubank"
+  },
+  {
+    "slug": "nuclea",
+    "tenantName": "Núclea"
+  },
+  {
+    "slug": "nuvemshop-tiendanube",
+    "tenantName": "Nuvemshop"
+  },
+  {
+    "slug": "nuvidio",
+    "tenantName": "Nuvidio"
+  },
+  {
+    "slug": "objective",
+    "tenantName": "Objective"
+  },
+  {
+    "slug": "oceandrop",
+    "tenantName": "Ocean Drop"
+  },
+  {
+    "slug": "octafy",
+    "tenantName": "Octafy"
+  },
+  {
+    "slug": "olgari-hipokee",
+    "tenantName": "OVAL"
+  },
+  {
+    "slug": "olist",
+    "tenantName": "Olist"
+  },
+  {
+    "slug": "oliveiraeantunes",
+    "tenantName": "Oliveira & Antunes Advogados Associados"
+  },
+  {
+    "slug": "openlabs",
+    "tenantName": "Open Labs"
+  },
+  {
+    "slug": "orbia",
+    "tenantName": "Orbia"
+  },
+  {
+    "slug": "orizon",
+    "tenantName": "Orizon"
+  },
+  {
+    "slug": "paipe",
+    "tenantName": "Paipe"
+  },
+  {
+    "slug": "pantheon",
+    "tenantName": "Pantheon"
+  },
+  {
+    "slug": "paytrack",
+    "tenantName": "Paytrack"
+  },
+  {
+    "slug": "pedraagroindustrial",
+    "tenantName": "Pedra Agroindustrial"
+  },
+  {
+    "slug": "peers",
+    "tenantName": "Peers"
+  },
+  {
+    "slug": "petitrh",
+    "tenantName": "Petit.RH"
+  },
+  {
+    "slug": "pier",
+    "tenantName": "Pier Seguradora"
+  },
+  {
+    "slug": "piposaude",
+    "tenantName": "Pipo Saúde"
+  },
+  {
+    "slug": "pitang",
+    "tenantName": "Pitang"
+  },
+  {
+    "slug": "platformbuilders",
+    "tenantName": "Platform Builders"
+  },
+  {
+    "slug": "pmfo",
+    "tenantName": "Portofino Multi    Family Office"
+  },
+  {
+    "slug": "poliedroeducacao",
+    "tenantName": "Poliedro Educação"
+  },
+  {
+    "slug": "pottencial",
+    "tenantName": "Pottencial"
+  },
+  {
+    "slug": "praso",
+    "tenantName": "Praso"
+  },
+  {
+    "slug": "pravaler",
+    "tenantName": "Pravaler"
+  },
+  {
+    "slug": "premiersoft",
+    "tenantName": "Premiersoft"
+  },
+  {
+    "slug": "principia",
+    "tenantName": "Principia"
+  },
+  {
+    "slug": "priner",
+    "tenantName": "Priner"
+  },
+  {
+    "slug": "pris",
+    "tenantName": "Pris"
+  },
+  {
+    "slug": "prizmamidia",
+    "tenantName": "Prizma Mídia"
+  },
+  {
+    "slug": "procfit",
+    "tenantName": "Procfit"
+  },
+  {
+    "slug": "programmers",
+    "tenantName": "Programmers - AI, Data & Software"
+  },
+  {
+    "slug": "prospertechtalents",
+    "tenantName": "Prosper Tech Talents"
+  },
+  {
+    "slug": "qeevo",
+    "tenantName": "Qeevo"
+  },
+  {
+    "slug": "qitech",
+    "tenantName": "QI Tech"
+  },
+  {
+    "slug": "qive",
+    "tenantName": "Qive"
+  },
+  {
+    "slug": "querodelivery",
+    "tenantName": "Querodelivery"
+  },
+  {
+    "slug": "queroeducacao",
+    "tenantName": "Qeevo"
+  },
+  {
+    "slug": "queropassagem",
+    "tenantName": "Quero Passagem"
+  },
+  {
+    "slug": "quicksoft",
+    "tenantName": "QuickSoft"
+  },
+  {
+    "slug": "radix",
+    "tenantName": "Radix"
+  },
+  {
+    "slug": "rankmyapp",
+    "tenantName": "RankMyApp"
+  },
+  {
+    "slug": "rarolabs",
+    "tenantName": "Raro Labs"
+  },
+  {
+    "slug": "reag",
+    "tenantName": "REAG"
+  },
+  {
+    "slug": "reclameaqui",
+    "tenantName": "Reclame AQUI"
+  },
+  {
+    "slug": "reidopitaco",
+    "tenantName": "Rei do Pitaco"
+  },
+  {
+    "slug": "remessaonline",
+    "tenantName": "Remessa Online"
+  },
+  {
+    "slug": "rentbrella",
+    "tenantName": "Rentbrella"
+  },
+  {
+    "slug": "rentcars",
+    "tenantName": "Rentcars"
+  },
+  {
+    "slug": "residclub",
+    "tenantName": "Resid Club"
+  },
+  {
+    "slug": "rhitmotech",
+    "tenantName": "Rhitmo Tech"
+  },
+  {
+    "slug": "riogaleao",
+    "tenantName": "RIOgaleão"
+  },
+  {
+    "slug": "rnp",
+    "tenantName": "Rede RNP"
+  },
+  {
+    "slug": "rpo-abinbev",
+    "tenantName": "AB InBev"
+  },
+  {
+    "slug": "rpo-brmediagroup",
+    "tenantName": "BR Media Group - RPO"
+  },
+  {
+    "slug": "rpo-contasimples",
+    "tenantName": "Conta Simples - RPO"
+  },
+  {
+    "slug": "rpo-olist",
+    "tenantName": "Olist"
+  },
+  {
+    "slug": "same-engenharia",
+    "tenantName": "Same Engenharia"
+  },
+  {
+    "slug": "samsung",
+    "tenantName": "Samsung"
+  },
+  {
+    "slug": "sanar",
+    "tenantName": "Sanar"
+  },
+  {
+    "slug": "sancorsegurosbrasil",
+    "tenantName": "Sancor Seguros"
+  },
+  {
+    "slug": "schulze",
+    "tenantName": "Schulze"
+  },
+  {
+    "slug": "seazone",
+    "tenantName": "Seazone"
+  },
+  {
+    "slug": "segura",
+    "tenantName": "Segura®"
+  },
+  {
+    "slug": "segurossura",
+    "tenantName": "Seguros SURA"
+  },
+  {
+    "slug": "semantix",
+    "tenantName": "Semantix"
+  },
+  {
+    "slug": "senhasegura",
+    "tenantName": "Segura®"
+  },
+  {
+    "slug": "seuestagio",
+    "tenantName": "Seu Estágio"
+  },
+  {
+    "slug": "seventh",
+    "tenantName": "Seventh"
+  },
+  {
+    "slug": "shapedigital",
+    "tenantName": "Shape Digital"
+  },
+  {
+    "slug": "sharepeoplehub",
+    "tenantName": "Share People Hub"
+  },
+  {
+    "slug": "sicredi",
+    "tenantName": "Sicredi"
+  },
+  {
+    "slug": "sidia",
+    "tenantName": "Sidia"
+  },
+  {
+    "slug": "silicon",
+    "tenantName": "Silicon"
+  },
+  {
+    "slug": "simdigital",
+    "tenantName": "sim.digital"
+  },
+  {
+    "slug": "skeelo",
+    "tenantName": "Skeelo"
+  },
+  {
+    "slug": "skyone",
+    "tenantName": "Skyone"
+  },
+  {
+    "slug": "softvaro",
+    "tenantName": "Softvaro"
+  },
+  {
+    "slug": "solfacil",
+    "tenantName": "Solfácil"
+  },
+  {
+    "slug": "solutis",
+    "tenantName": "Solutis"
+  },
+  {
+    "slug": "sotran",
+    "tenantName": "Sotran"
+  },
+  {
+    "slug": "stone",
+    "tenantName": "Stone"
+  },
+  {
+    "slug": "stoque",
+    "tenantName": "Stoque"
+  },
+  {
+    "slug": "strm-music",
+    "tenantName": "Strm Music"
+  },
+  {
+    "slug": "sunne",
+    "tenantName": "Sunne"
+  },
+  {
+    "slug": "superfrete",
+    "tenantName": "SuperFrete"
+  },
+  {
+    "slug": "superlogica",
+    "tenantName": "Superlógica Tecnologias"
+  },
+  {
+    "slug": "sylvamo",
+    "tenantName": "Sylvamo"
+  },
+  {
+    "slug": "sympla",
+    "tenantName": "Sympla"
+  },
+  {
+    "slug": "talentt",
+    "tenantName": "Talentt"
+  },
+  {
+    "slug": "talentx",
+    "tenantName": "TalentX Digital"
+  },
+  {
+    "slug": "tc",
+    "tenantName": "TC"
+  },
+  {
+    "slug": "tecer",
+    "tenantName": "tecer"
+  },
+  {
+    "slug": "techlead",
+    "tenantName": "Techlead"
+  },
+  {
+    "slug": "tecsul",
+    "tenantName": "Tecsul"
+  },
+  {
+    "slug": "tegra",
+    "tenantName": "Tegra"
+  },
+  {
+    "slug": "tela",
+    "tenantName": "Saúde do TEA"
+  },
+  {
+    "slug": "telavita",
+    "tenantName": "Telavita"
+  },
+  {
+    "slug": "tembici",
+    "tenantName": "Tembici"
+  },
+  {
+    "slug": "tempest",
+    "tenantName": "Tempest"
+  },
+  {
+    "slug": "tera",
+    "tenantName": "Tera"
+  },
+  {
+    "slug": "thewolvescompany",
+    "tenantName": "The Wolves Company"
+  },
+  {
+    "slug": "thunderstecnologia",
+    "tenantName": "Thunders Tecnologia"
+  },
+  {
+    "slug": "ticket360",
+    "tenantName": "Ticket360"
+  },
+  {
+    "slug": "tinnova",
+    "tenantName": "Tinnova"
+  },
+  {
+    "slug": "toroinvestimentos",
+    "tenantName": "Toro Investimentos"
+  },
+  {
+    "slug": "totvs",
+    "tenantName": "TOTVS"
+  },
+  {
+    "slug": "townsq",
+    "tenantName": "TownSq"
+  },
+  {
+    "slug": "tpgroup",
+    "tenantName": "TPGROUP"
+  },
+  {
+    "slug": "tqi",
+    "tenantName": "TQI"
+  },
+  {
+    "slug": "trampay",
+    "tenantName": "Trampay"
+  },
+  {
+    "slug": "transfero",
+    "tenantName": "Transfero"
+  },
+  {
+    "slug": "tray",
+    "tenantName": "Tray"
+  },
+  {
+    "slug": "trinca",
+    "tenantName": "Trinca"
+  },
+  {
+    "slug": "trinnus",
+    "tenantName": "Trinnus RH"
+  },
+  {
+    "slug": "tripla",
+    "tenantName": "Tripla"
+  },
+  {
+    "slug": "turbi",
+    "tenantName": "Turbi"
+  },
+  {
+    "slug": "turbo",
+    "tenantName": "Turbo"
+  },
+  {
+    "slug": "ubots",
+    "tenantName": "Ubots"
+  },
+  {
+    "slug": "ume",
+    "tenantName": "Ume"
+  },
+  {
+    "slug": "unico",
+    "tenantName": "Unico"
+  },
+  {
+    "slug": "unimar",
+    "tenantName": "Unimar"
+  },
+  {
+    "slug": "uninter",
+    "tenantName": "Grupo UNINTER"
+  },
+  {
+    "slug": "unionit",
+    "tenantName": "Union IT"
+  },
+  {
+    "slug": "unitech",
+    "tenantName": "Unitech"
+  },
+  {
+    "slug": "upda",
+    "tenantName": "UPDA"
+  },
+  {
+    "slug": "upflux",
+    "tenantName": "UpFlux"
+  },
+  {
+    "slug": "v360",
+    "tenantName": "V360"
+  },
+  {
+    "slug": "v4company",
+    "tenantName": "V4 Company"
+  },
+  {
+    "slug": "vagasbyintera",
+    "tenantName": "Vagas by Intera"
+  },
+  {
+    "slug": "vagasconfidenciais2",
+    "tenantName": "Vagas Confidenciais2"
+  },
+  {
+    "slug": "vatto",
+    "tenantName": "Vatto"
+  },
+  {
+    "slug": "venturus",
+    "tenantName": "Venturus"
+  },
+  {
+    "slug": "verticalrh",
+    "tenantName": "VerticalRH"
+  },
+  {
+    "slug": "vertigo",
+    "tenantName": "Vertigo Tecnologia"
+  },
+  {
+    "slug": "vhsys",
+    "tenantName": "vhsys"
+  },
+  {
+    "slug": "via",
+    "tenantName": "Via"
+  },
+  {
+    "slug": "vinta",
+    "tenantName": "Vinta"
+  },
+  {
+    "slug": "viseu",
+    "tenantName": "Viseu Secondment"
+  },
+  {
+    "slug": "vitru",
+    "tenantName": "Vitru Educação"
+  },
+  {
+    "slug": "vivopcd",
+    "tenantName": "Vivo (Telefônica Brasil)"
+  },
+  {
+    "slug": "vixtra",
+    "tenantName": "Vixtra"
+  },
+  {
+    "slug": "vobi",
+    "tenantName": "Vobi"
+  },
+  {
+    "slug": "vocedm",
+    "tenantName": "vocedm"
+  },
+  {
+    "slug": "vockan",
+    "tenantName": "Vockan"
+  },
+  {
+    "slug": "volttaenergy",
+    "tenantName": "Voltta"
+  },
+  {
+    "slug": "vortx",
+    "tenantName": "Vórtx"
+  },
+  {
+    "slug": "votorantim",
+    "tenantName": "Votorantim"
+  },
+  {
+    "slug": "vrental",
+    "tenantName": "VRental"
+  },
+  {
+    "slug": "warren",
+    "tenantName": "Warren"
+  },
+  {
+    "slug": "wavin",
+    "tenantName": "Orbia Amanco Wavin"
+  },
+  {
+    "slug": "wehandle",
+    "tenantName": "wehandle"
+  },
+  {
+    "slug": "wellz",
+    "tenantName": "Wellz by Wellhub"
+  },
+  {
+    "slug": "westwing",
+    "tenantName": "Westwing Brasil"
+  },
+  {
+    "slug": "wevy-cloud",
+    "tenantName": "Wevy"
+  },
+  {
+    "slug": "willbank",
+    "tenantName": "will bank"
+  },
+  {
+    "slug": "windcraft",
+    "tenantName": "WINDCRAFT"
+  },
+  {
+    "slug": "winnin",
+    "tenantName": "Winnin"
+  },
+  {
+    "slug": "wsut",
+    "tenantName": "Wilson Sons Offshore"
+  },
+  {
+    "slug": "yandeh",
+    "tenantName": "Yandeh"
+  },
+  {
+    "slug": "yolo",
+    "tenantName": "Yolo Recruit"
+  },
+  {
+    "slug": "zallpy",
+    "tenantName": "Zallpy Digital"
+  },
+  {
+    "slug": "zappts",
+    "tenantName": "Zappts"
+  },
+  {
+    "slug": "zerezes",
+    "tenantName": "Zerezes"
+  },
+  {
+    "slug": "zig",
+    "tenantName": "Zig"
+  },
+  {
+    "slug": "zup",
+    "tenantName": "Zup"
+  }
+]
