@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """SQLite history plus a compact, public-safe JSON snapshot."""
+import calendar
 import json
 import os
 import re
@@ -66,6 +67,22 @@ def dedupe_key(title, company):
     return f"{_norm(title)}|{_norm(company)}"
 
 
+def months_ago(value, months):
+    """Return the same day ``months`` earlier, clamped to the target month."""
+    year = value.year
+    month = value.month - months
+    while month <= 0:
+        year -= 1
+        month += 12
+    day = min(value.day, calendar.monthrange(year, month)[1])
+    return date(year, month, day)
+
+
+def publication_cutoff(today=None, max_age_months=3):
+    today_value = date.fromisoformat(today) if isinstance(today, str) else (today or date.today())
+    return months_ago(today_value, max(0, max_age_months)).isoformat()
+
+
 def connect(db_path):
     os.makedirs(os.path.dirname(db_path), exist_ok=True)
     conn = sqlite3.connect(db_path)
@@ -116,15 +133,21 @@ def upsert(conn, jobs, today=None):
     conn.commit()
 
 
-def prune(conn, keep_days=120, today=None):
+def prune(conn, keep_days=120, today=None, max_age_months=3):
     today = today or date.today().isoformat()
-    cutoff = (date.fromisoformat(today) - timedelta(days=keep_days)).isoformat()
-    cursor = conn.execute("DELETE FROM jobs WHERE last_seen_date < ?", (cutoff,))
+    seen_cutoff = (date.fromisoformat(today) - timedelta(days=keep_days)).isoformat()
+    age_cutoff = publication_cutoff(today, max_age_months)
+    cursor = conn.execute("""
+        DELETE FROM jobs
+        WHERE last_seen_date < ?
+           OR COALESCE(NULLIF(published_date, ''), first_seen_date) < ?
+    """, (seen_cutoff, age_cutoff))
     conn.commit()
     return cursor.rowcount
 
 
 def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=50000,
+                    max_age_months=3,
                     max_raw_mb=18, source_counts=None, failed_sources=None):
     """Export jobs seen in a recent successful collection window.
 
@@ -133,6 +156,7 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=50000,
     """
     today = today or date.today().isoformat()
     cutoff = (date.fromisoformat(today) - timedelta(days=max(0, fresh_days - 1))).isoformat()
+    age_cutoff = publication_cutoff(today, max_age_months)
     rows = conn.execute("""
         SELECT source, title, company, area, seniority, work_model, city, state,
                country, market, salary_min, salary_max, salary_currency,
@@ -141,14 +165,17 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=50000,
         FROM jobs
         WHERE last_seen_date >= ?
           AND (expires_date IS NULL OR expires_date = '' OR expires_date >= ?)
+          AND COALESCE(NULLIF(published_date, ''), first_seen_date) >= ?
         ORDER BY MAX(COALESCE(published_date,''), first_seen_date) DESC,
                  last_seen_date DESC
         LIMIT ?
-    """, (cutoff, today, max_jobs)).fetchall()
+    """, (cutoff, today, age_cutoff, max_jobs)).fetchall()
 
     portal_sets = {}
+    snapshot_source_counts = {}
     for row in rows:
         portal_sets.setdefault(row[19], set()).add(row[0])
+        snapshot_source_counts[row[0]] = snapshot_source_counts.get(row[0], 0) + 1
 
     dictionaries = {name: [] for name in (
         "source", "company", "area", "seniority", "work_model", "market",
@@ -200,9 +227,12 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=50000,
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "generated_date": today,
         "fresh_days": fresh_days,
+        "max_age_months": max_age_months,
+        "publication_cutoff": age_cutoff,
         "count": len(rows),
         "total_base": conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0],
-        "source_counts": source_counts,
+        "source_counts": dict(sorted(snapshot_source_counts.items())),
+        "collected_source_counts": source_counts,
         "failed_sources": failed_sources or [],
         "companies": len({row[2] for row in rows if row[2]}),
         "pcd_count": sum(1 for row in rows if row[20]),

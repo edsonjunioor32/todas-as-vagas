@@ -58,6 +58,22 @@ def dedupe_native(rows):
     return list(unique.values())
 
 
+def discard_old_publications(rows, cutoff):
+    """Drop rows whose normalized publication date is older than the cutoff.
+
+    Rows without a portal-supplied date are retained here. The database uses
+    their first-seen date as the fallback and expires them after three months.
+    """
+    kept, dropped = [], 0
+    for row in rows:
+        published = str(row.get("published_date") or "")[:10]
+        if published and published < cutoff:
+            dropped += 1
+        else:
+            kept.append(row)
+    return kept, dropped
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--dry-run", action="store_true", help="collect without writing files")
@@ -65,6 +81,8 @@ def main():
                         help="comma-separated source names for a partial run")
     parser.add_argument("--fresh-days", type=int, default=3,
                         help="keep jobs seen in this many recent collection dates")
+    parser.add_argument("--max-age-months", type=int, default=3,
+                        help="discard jobs published more than this many months ago")
     args = parser.parse_args()
 
     registry = selected_registry(args.sources)
@@ -73,9 +91,12 @@ def main():
     print("=" * 72)
     rows, failed = collect(registry)
     rows = dedupe_native(rows)
+    publication_cutoff = storage.publication_cutoff(max_age_months=max(0, args.max_age_months))
+    rows, old_dropped = discard_old_publications(rows, publication_cutoff)
     counts = Counter(row["source"] for row in rows)
     print("-" * 72)
     print(f"  coletadas: {len(rows)} vagas · fontes: {len(registry)-len(failed)}/{len(registry)}")
+    print(f"  corte: publicadas desde {publication_cutoff} · {old_dropped} antigas descartadas")
     print(f"  por portal: {dict(sorted(counts.items()))}")
     if failed:
         print(f"  fontes indisponíveis: {', '.join(failed)}")
@@ -96,12 +117,13 @@ def main():
     conn = storage.connect(str(DB_PATH))
     before = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
     storage.upsert(conn, rows)
-    pruned = storage.prune(conn, keep_days=120)
+    pruned = storage.prune(conn, keep_days=120, max_age_months=max(0, args.max_age_months))
     after = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
     count, size_mb = storage.export_snapshot(
         conn,
         str(JSON_PATH),
         fresh_days=max(1, args.fresh_days),
+        max_age_months=max(0, args.max_age_months),
         source_counts=dict(sorted(counts.items())),
         failed_sources=failed,
     )

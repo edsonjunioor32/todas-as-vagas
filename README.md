@@ -2,13 +2,21 @@
 
 Este projeto consulta fontes públicas de vagas, converte os formatos diferentes para uma base única e publica um painel pesquisável no GitHub Pages. A atualização ocorre duas vezes por dia e continua mesmo quando um portal isolado fica temporariamente indisponível.
 
+O painel publica somente vagas anunciadas nos **últimos três meses**. Quando um portal não fornece uma data de publicação confiável, o sistema usa a primeira data em que encontrou o anúncio e o remove após três meses.
+
 ## Portais incluídos
 
-- Brasil: **InHire, Empregare e Gupy**;
+- Brasil: **InHire, Empregare, Gupy, Sólides e GeekHunter**;
 - globais: **The Muse, Remotive, Jobicy, Remote OK, Himalayas, Working Nomads, Arbeitnow e We Work Remotely**;
 - páginas públicas de empresas: **Greenhouse, Lever e Ashby**.
 
-O painel permite combinar pesquisa livre com filtros de portal, modalidade, mercado, área, senioridade, data, vagas afirmativas para PcD e oportunidades encontradas em mais de um portal. A exportação CSV respeita os filtros selecionados.
+O painel permite combinar pesquisa livre com filtros de cidade, portal, modalidade, mercado, área, senioridade, data, vagas afirmativas para PcD e oportunidades encontradas em mais de um portal. O campo de cidade oferece sugestões a partir das localidades presentes na base e também aceita digitação livre. A exportação CSV respeita os filtros selecionados.
+
+## Sólides e GeekHunter
+
+A Sólides é consultada pelo catálogo público utilizado pelo próprio portal. Como a interface pública limita cada página a 10 registros e o catálogo possui dezenas de milhares de anúncios, cada atualização percorre até as **3.000 vagas mais recentes**. O limite pode ser alterado pela variável `SOLIDES_MAX_PAGES`; aumentar muito esse valor também aumenta o tempo e a carga da coleta. A deduplicação pode reduzir a quantidade efetivamente incorporada.
+
+A GeekHunter é consultada pelas páginas públicas de vagas, que já entregam dados estruturados no HTML. O adaptador percorre todas as páginas disponíveis, normaliza modalidade, localização, senioridade, remuneração e tecnologias e não publica a descrição integral.
 
 ## Empregare: API e MCP
 
@@ -38,7 +46,7 @@ O MCP aceita no máximo 50 resultados por página. Por isso ele é usado para co
 ## Publicar no repositório atual
 
 1. Extraia o ZIP no computador.
-2. Envie os itens internos para a raiz do repositório `vagas-inhire`, substituindo a versão anterior.
+2. Envie os itens internos para a raiz do repositório `todas-as-vagas`, substituindo a versão anterior.
 3. Preserve as pastas `.github`, `busca_vagas`, `jobs-dashboard` e `docs`.
 4. No GitHub, abra **Settings → Pages**.
 5. Em **Build and deployment → Source**, selecione **GitHub Actions**.
@@ -47,7 +55,7 @@ O MCP aceita no máximo 50 resultados por página. Por isso ele é usado para co
 Mantendo o nome atual do repositório, o endereço esperado continua sendo:
 
 ```text
-https://edsonjunioor32.github.io/vagas-inhire/
+https://edsonjunioor32.github.io/todas-as-vagas/
 ```
 
 ### Se a pasta `.github` não puder ser enviada
@@ -68,7 +76,7 @@ O workflow é executado diariamente às **08h17** e **20h17**, no horário de Br
 2. coleta cada portal de forma isolada;
 3. normaliza área, senioridade, modalidade, localização, salário e indicadores PcD;
 4. elimina duplicidades nativas e identifica anúncios equivalentes entre portais;
-5. atualiza o histórico SQLite;
+5. descarta anúncios publicados há mais de três meses e atualiza o histórico SQLite;
 6. gera um JSON compacto para o navegador;
 7. valida links, contagens e privacidade;
 8. publica o diretório `docs` no GitHub Pages.
@@ -102,4 +110,4 @@ Depois acesse `http://localhost:8000`. O arquivo `index.html` não deve ser aber
 
 ## Origem e créditos
 
-A arquitetura multiportal foi adaptada do projeto público [Job-Market Explorer, de Rodrigo Carvalho](https://github.com/rodrigo-carfon/rodrigo-carfon.github.io/tree/master/jobs-dashboard), disponibilizado sob Unlicense. A integração InHire e a interface em português foram incorporadas ao mesmo fluxo, e a Empregare foi adicionada por sua API REST e MCP oficiais.
+A arquitetura multiportal foi adaptada do projeto público [Job-Market Explorer, de Rodrigo Carvalho](https://github.com/rodrigo-carfon/rodrigo-carfon.github.io/tree/master/jobs-dashboard), disponibilizado sob Unlicense. A integração InHire e a interface em português foram incorporadas ao mesmo fluxo; Empregare, Sólides e GeekHunter foram acrescentadas por suas interfaces públicas.

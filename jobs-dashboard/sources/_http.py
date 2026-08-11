@@ -16,6 +16,29 @@ DEFAULT_HEADERS = {
 }
 
 
+def get_text(url, headers=None, timeout=25, retries=3, backoff=2.0):
+    """GET a URL as UTF-8 text, retrying transient failures."""
+    h = dict(DEFAULT_HEADERS)
+    h["Accept"] = "text/html,application/xhtml+xml"
+    if headers:
+        h.update(headers)
+    last_err = None
+    for attempt in range(1, retries + 1):
+        try:
+            req = urllib.request.Request(url, headers=h)
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                return resp.read().decode("utf-8", "replace")
+        except urllib.error.HTTPError as error:
+            last_err = error
+            if error.code < 500 and error.code != 429:
+                raise
+        except Exception as error:  # timeout and URLError
+            last_err = error
+        if attempt < retries:
+            time.sleep(backoff * attempt)
+    raise RuntimeError(f"get_text failed after {retries} attempts: {last_err}") from last_err
+
+
 def get_json(url, headers=None, timeout=25, retries=3, backoff=2.0):
     """GET a URL and parse JSON, retrying transient errors. Raises on final failure."""
     h = dict(DEFAULT_HEADERS)

@@ -1,11 +1,23 @@
 # -*- coding: utf-8 -*-
 """Registry of public, key-free job sources."""
-from . import ats_boards, empregare, gupy, inhire, remote_boards, themuse, wwr
+from . import (
+    ats_boards,
+    empregare,
+    geekhunter,
+    gupy,
+    inhire,
+    remote_boards,
+    solides,
+    themuse,
+    wwr,
+)
 
 REGISTRY = [
     ("inhire", inhire.fetch),
     ("empregare", empregare.fetch),
     ("gupy", gupy.fetch),
+    ("solides", solides.fetch),
+    ("geekhunter", geekhunter.fetch),
     ("themuse", themuse.fetch),
     ("remotive", remote_boards.fetch_remotive),
     ("jobicy", remote_boards.fetch_jobicy),

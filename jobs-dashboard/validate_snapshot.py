@@ -3,7 +3,10 @@
 import json
 import os
 import sys
+from datetime import date
 from pathlib import Path
+
+import storage
 
 ROOT = Path(__file__).resolve().parent.parent
 SNAPSHOT = ROOT / "docs" / "data" / "vagas.json"
@@ -46,9 +49,21 @@ def main():
     for index, url in enumerate(columns["url"]):
         if not str(url).startswith("https://"):
             fail(f"URL inválida na linha {index}: {url}")
+    max_age_months = int(data.get("max_age_months") or 0)
+    expected_cutoff = storage.publication_cutoff(
+        data.get("generated_date") or date.today().isoformat(), max_age_months
+    )
+    if data.get("publication_cutoff") != expected_cutoff:
+        fail("data de corte de publicação ausente ou inconsistente")
+    old_dates = [value for value in columns["pub"] if value and value < expected_cutoff]
+    if old_dates:
+        fail(f"há {len(old_dates)} vagas publicadas antes do corte {expected_cutoff}")
     if any("<script" in str(title).lower() for title in columns["title"]):
         fail("título contém marcação de script")
-    print(f"OK: {count} vagas, {len(dictionaries['source'])} portais, sem descrições completas")
+    print(
+        f"OK: {count} vagas, {len(dictionaries['source'])} portais, "
+        f"publicadas desde {expected_cutoff}, sem descrições completas"
+    )
 
 
 if __name__ == "__main__":

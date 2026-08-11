@@ -1,6 +1,6 @@
 {
-  "name": "radar-vagas-multiportal",
-  "version": "3.0.0",
+  "name": "todas-as-vagas-multiportal",
+  "version": "3.2.0",
   "private": true,
   "type": "commonjs",
   "scripts": {
