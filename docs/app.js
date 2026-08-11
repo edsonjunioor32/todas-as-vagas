@@ -20,6 +20,8 @@
     inhire: 'InHire',
     empregare: 'Empregare',
     gupy: 'Gupy',
+    solides: 'Sólides',
+    geekhunter: 'GeekHunter',
     themuse: 'The Muse',
     remotive: 'Remotive',
     jobicy: 'Jobicy',
@@ -44,6 +46,8 @@
     searchInput: document.querySelector('#searchInput'),
     sourceFilter: document.querySelector('#sourceFilter'),
     workplaceFilter: document.querySelector('#workplaceFilter'),
+    cityFilter: document.querySelector('#cityFilter'),
+    cityOptions: document.querySelector('#cityOptions'),
     marketFilter: document.querySelector('#marketFilter'),
     categoryFilter: document.querySelector('#categoryFilter'),
     seniorityFilter: document.querySelector('#seniorityFilter'),
@@ -85,6 +89,20 @@
     return value || 'Não informado';
   }
 
+  function extractCityNames(value) {
+    const genericLocations = new Set([
+      'anywhere', 'br', 'brasil', 'brazil', 'global', 'hybrid', 'hibrido',
+      'nao informada', 'presencial', 'remote', 'remoto', 'united states',
+      'usa', 'worldwide'
+    ]);
+    return String(value || '')
+      .split(/\s+[·|;]\s+/)
+      .map(part => part.trim())
+      .filter(Boolean)
+      .map(part => part.split(',')[0].trim().replace(/^(?:br|us|usa)\s*-\s*/i, ''))
+      .filter(city => city && !genericLocations.has(normalize(city)));
+  }
+
   function toTime(value) {
     if (!value) return 0;
     const text = /^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value}T12:00:00Z` : value;
@@ -119,6 +137,7 @@
     for (let index = 0; index < data.count; index += 1) {
       const source = get('source', jobs.src[index]);
       const contracts = String(jobs.ct[index] || '').split(' · ').filter(Boolean);
+      const rawLocation = jobs.city[index] || '';
       const item = {
         title: jobs.title[index] || '',
         source,
@@ -129,7 +148,8 @@
         workplaceType: workplaceLabel(get('work_model', jobs.wm[index])),
         market: marketLabel(get('market', jobs.mk[index])),
         country: get('country', jobs.co[index]),
-        location: jobs.city[index] || get('country', jobs.co[index]) || 'Local não informado',
+        location: rawLocation || get('country', jobs.co[index]) || 'Local não informado',
+        cities: extractCityNames(rawLocation),
         publishedAt: jobs.pub[index] || '',
         lastSeenAt: jobs.seen[index] || '',
         expiresAt: jobs.exp[index] || '',
@@ -143,6 +163,7 @@
         blindSelection: Boolean(jobs.blind[index]),
         contractTypes: contracts
       };
+      item._location = normalize(rawLocation);
       item._search = normalize([
         item.title, item.company, item.sourceLabel, item.category, item.seniority,
         item.workplaceType, item.market, item.location, item.skills, ...contracts
@@ -165,12 +186,40 @@
     return [...counts.entries()].sort((a, b) => b[1] - a[1] || collator.compare(a[0], b[0]));
   }
 
+  function countCities(jobs) {
+    const cities = new Map();
+    for (const job of jobs) {
+      const seen = new Set();
+      for (const city of job.cities) {
+        const key = normalize(city);
+        if (!key || seen.has(key)) continue;
+        seen.add(key);
+        const current = cities.get(key);
+        if (!current) {
+          cities.set(key, { label: city, count: 1 });
+          continue;
+        }
+        current.count += 1;
+        const currentAccents = (current.label.match(/[^\x00-\x7F]/g) || []).length;
+        const candidateAccents = (city.match(/[^\x00-\x7F]/g) || []).length;
+        if (candidateAccents > currentAccents) current.label = city;
+      }
+    }
+    return [...cities.values()].sort((a, b) => collator.compare(a.label, b.label));
+  }
+
   function populateFilters() {
     for (const [value, count] of countValues(state.jobs.map(job => job.source))) {
       appendOption(elements.sourceFilter, value, `${sourceLabel(value)} (${numberFormatter.format(count)})`);
     }
     for (const [value, count] of countValues(state.jobs.map(job => job.workplaceType))) {
       appendOption(elements.workplaceFilter, value, `${value} (${numberFormatter.format(count)})`);
+    }
+    for (const city of countCities(state.jobs)) {
+      const option = document.createElement('option');
+      option.value = city.label;
+      option.label = `${numberFormatter.format(city.count)} ${city.count === 1 ? 'vaga' : 'vagas'}`;
+      elements.cityOptions.append(option);
     }
     for (const [value, count] of countValues(state.jobs.map(job => job.market))) {
       appendOption(elements.marketFilter, value, `${value} (${numberFormatter.format(count)})`);
@@ -188,6 +237,7 @@
     elements.searchInput.value = params.get('q') || '';
     elements.sourceFilter.value = params.get('portal') || '';
     elements.workplaceFilter.value = params.get('modalidade') || '';
+    elements.cityFilter.value = params.get('cidade') || '';
     elements.marketFilter.value = params.get('mercado') || '';
     elements.categoryFilter.value = params.get('area') || '';
     elements.seniorityFilter.value = params.get('senioridade') || '';
@@ -205,6 +255,7 @@
       ['q', elements.searchInput.value.trim()],
       ['portal', elements.sourceFilter.value],
       ['modalidade', elements.workplaceFilter.value],
+      ['cidade', elements.cityFilter.value.trim()],
       ['mercado', elements.marketFilter.value],
       ['area', elements.categoryFilter.value],
       ['senioridade', elements.seniorityFilter.value],
@@ -223,6 +274,7 @@
     const queryTokens = normalize(elements.searchInput.value).split(/\s+/).filter(Boolean);
     const source = elements.sourceFilter.value;
     const workplace = elements.workplaceFilter.value;
+    const city = normalize(elements.cityFilter.value);
     const market = elements.marketFilter.value;
     const category = elements.categoryFilter.value;
     const seniority = elements.seniorityFilter.value;
@@ -233,6 +285,7 @@
       if (queryTokens.length && !queryTokens.every(token => job._search.includes(token))) return false;
       if (source && job.source !== source) return false;
       if (workplace && job.workplaceType !== workplace) return false;
+      if (city && !job._location.includes(city)) return false;
       if (market && job.market !== market) return false;
       if (category && job.category !== category) return false;
       if (seniority && job.seniority !== seniority) return false;
@@ -380,11 +433,14 @@
   }
 
   let searchTimer;
+  function scheduleRender() {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => { state.page = 1; render(); }, 180);
+  }
+
   function bindEvents() {
-    elements.searchInput.addEventListener('input', () => {
-      clearTimeout(searchTimer);
-      searchTimer = setTimeout(() => { state.page = 1; render(); }, 180);
-    });
+    elements.searchInput.addEventListener('input', scheduleRender);
+    elements.cityFilter.addEventListener('input', scheduleRender);
     elements.filtersForm.addEventListener('change', () => { state.page = 1; render(); });
     elements.sortFilter.addEventListener('change', () => { state.page = 1; render(); });
     elements.clearFilters.addEventListener('click', resetFilters);

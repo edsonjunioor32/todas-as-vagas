@@ -7,9 +7,9 @@
     <meta name="theme-color" content="#123b3f">
     <meta name="referrer" content="no-referrer">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
-    <meta name="description" content="Índice independente de vagas coletadas em vários portais públicos, com pesquisa e filtros por portal, modalidade, área e mercado.">
+    <meta name="description" content="Índice independente de vagas coletadas em vários portais públicos, com pesquisa e filtros por cidade, portal, modalidade, área e mercado.">
     <meta property="og:title" content="Radar de Vagas — índice multiportal">
-    <meta property="og:description" content="Pesquise oportunidades da InHire, Empregare, Gupy e outros portais em uma base normalizada.">
+    <meta property="og:description" content="Pesquise oportunidades da InHire, Empregare, Gupy, Sólides, GeekHunter e outros portais em uma base normalizada.">
     <meta property="og:type" content="website">
     <title>Radar de Vagas — índice multiportal</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml">
@@ -25,7 +25,7 @@
           <span class="brand-mark" aria-hidden="true">R</span>
           <span>Radar de Vagas</span>
         </a>
-        <a class="source-link" href="https://github.com/edsonjunioor32/vagas-inhire" target="_blank" rel="noopener noreferrer">
+        <a class="source-link" href="https://github.com/edsonjunioor32/todas-as-vagas" target="_blank" rel="noopener noreferrer">
           Ver projeto no GitHub
         </a>
       </div>
@@ -38,7 +38,7 @@
             <p class="eyebrow">Índice público e independente</p>
             <h1>Vagas de vários portais, em um só lugar.</h1>
             <p class="hero-copy">
-              Pesquise oportunidades da InHire, Empregare, Gupy e portais internacionais. Combine filtros por origem, modalidade, área, senioridade, mercado e data.
+              Pesquise oportunidades da InHire, Empregare, Gupy, Sólides, GeekHunter e portais internacionais. Combine filtros por cidade, origem, modalidade, área, senioridade, mercado e data.
             </p>
             <p class="updated" id="updatedLabel" aria-live="polite">Carregando a atualização mais recente…</p>
             <p class="source-warning" id="sourceWarning" hidden></p>
@@ -92,6 +92,12 @@
               <select id="workplaceFilter" name="modalidade">
                 <option value="">Todas as modalidades</option>
               </select>
+            </div>
+
+            <div class="field">
+              <label for="cityFilter">Cidade</label>
+              <input id="cityFilter" name="cidade" type="search" list="cityOptions" placeholder="Ex.: João Pessoa" spellcheck="false">
+              <datalist id="cityOptions"></datalist>
             </div>
 
             <div class="field">
