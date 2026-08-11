@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
   schedule:
     # 08h17 e 20h17 no horário de Brasília/Fortaleza (UTC-3).
-    - cron: "17 7,11,17 * * *"
+    - cron: "17 8,11,23 * * *"
 
 permissions:
   contents: write
@@ -26,7 +26,7 @@ concurrency:
 jobs:
   atualizar-e-publicar:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 120
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -69,6 +69,10 @@ jobs:
           fi
 
       - name: Coletar, normalizar e consolidar todos os portais
+        env:
+          SOLIDES_MAX_PAGES: "300"
+          SOLIDES_WORKERS: "6"
+          GEEKHUNTER_WORKERS: "4"
         run: python jobs-dashboard/pipeline.py
 
       - name: Validar privacidade e integridade
@@ -86,8 +90,7 @@ jobs:
             echo "Nenhuma alteração para registrar."
           else
             git commit -m "Atualiza índice público de vagas [skip ci]"
-            git pull --rebase origin main
-            git push origin HEAD:main
+            git push
           fi
 
       - name: Configurar GitHub Pages
