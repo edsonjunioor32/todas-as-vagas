@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Multi-portal ETL: collect, normalize, classify, store and export."""
+# General collection can be triggered manually through the GitHub workflow.
 import argparse
 import os
 import sys
