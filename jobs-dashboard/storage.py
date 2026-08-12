@@ -172,6 +172,7 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=50000,
         FROM jobs
         WHERE last_seen_date >= ?
           AND (expires_date IS NULL OR expires_date = '' OR expires_date >= ?)
+          AND COALESCE(NULLIF(market, ''), 'Não informado') <> 'Não informado'
           AND COALESCE(NULLIF(published_date, ''), first_seen_date) >= ?
         ORDER BY MAX(COALESCE(published_date,''), first_seen_date) DESC,
                  last_seen_date DESC

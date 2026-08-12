@@ -67,6 +67,15 @@ def dedupe_native(rows):
     return list(unique.values())
 
 
+
+def discard_unknown_market(rows):
+    """Exclude vacancies whose market could not be identified."""
+    kept = [
+        row for row in rows
+        if str(row.get("market") or "").strip() not in {"", "Não informado"}
+    ]
+    return kept, len(rows) - len(kept)
+
 def discard_old_publications(rows, cutoff):
     """Drop rows whose normalized publication date is older than the cutoff.
 
@@ -117,6 +126,8 @@ def main():
 
     for row in rows:
         classify.classify(row)
+    rows, unknown_market_dropped = discard_unknown_market(rows)
+    print(f"  mercado não informado: {unknown_market_dropped} vagas descartadas")
 
     if args.dry_run:
         sample = dict(rows[0])
