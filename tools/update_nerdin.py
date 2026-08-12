@@ -3,6 +3,7 @@
 """Atualiza somente a fonte Nerdin, preservando todos os demais portais."""
 import concurrent.futures
 import html
+import json
 import re
 import sys
 from pathlib import Path
@@ -56,7 +57,7 @@ def parse_card(block):
     summary = first(r'<p[^>]*class=["\'][^"\']*vaga-resumo-linha[^"\']*["\'][^>]*>(.*?)</p>', block)
     meta = first(r'<p[^>]*class=["\'][^"\']*vaga-meta-extra[^"\']*["\'][^>]*>(.*?)</p>', block)
     published = ""
-    datetime_match = re.search(r'<time[^>]+datetime=["\'](\d{4}-\d{2}-\d{2})', block, re.I)
+    datetime_match = re.search(r'<time[^>]+datetime=["\'](\d{4}-\d{2}-\d{2}(?:T[0-9:+-]+)?)', block, re.I)
     if datetime_match:
         published = datetime_match.group(1)
     if not title or not company:
@@ -123,6 +124,27 @@ def fetch_all():
     return list(unique.values()), total_pages
 
 
+def add_published_times(conn, json_path):
+    """Keep Nerdin's portal-provided clock in the public compact snapshot."""
+    rows = conn.execute(
+        "SELECT url, published_date FROM jobs WHERE source = ? AND published_date LIKE '%T%'",
+        (SOURCE,),
+    ).fetchall()
+    times_by_url = {url: published for url, published in rows if url and published}
+    if not times_by_url:
+        return
+    payload = json.loads(json_path.read_text(encoding="utf-8"))
+    source_codes = payload.get("dict", {}).get("source", [])
+    jobs = payload.get("jobs", {})
+    for index, url in enumerate(jobs.get("url", [])):
+        source_index = jobs.get("src", [])[index]
+        if source_codes[source_index] == SOURCE and url in times_by_url:
+            jobs["pub"][index] = times_by_url[url]
+    temporary = json_path.with_suffix(".json.tmp")
+    temporary.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    temporary.replace(json_path)
+
+
 def main():
     rows, pages = fetch_all()
     cutoff = storage.publication_cutoff(max_age_months=2)
@@ -140,6 +162,7 @@ def main():
         conn, str(json_path), fresh_days=3, max_age_months=2,
         source_counts={SOURCE: len(rows)}, failed_sources=[]
     )
+    add_published_times(conn, json_path)
     conn.close()
     print(f"Nerdin: {len(rows)} vagas recentes em {pages} páginas.")
     print(f"Painel: {count} vagas · {size_mb:.2f} MB.")

@@ -5,10 +5,11 @@ on:
     branches: [main]
     paths:
       - "docs/**"
+      - "!docs/app.js"
+      - "!docs/index.html"
       - "jobs-dashboard/**"
       - "busca_vagas/**"
       - "package.json"
-      - ".github/workflows/pages.yml"
   workflow_dispatch:
   schedule:
     # 05h17, 08h17 e 20h17 no horário de Brasília/Fortaleza (UTC-3).

@@ -136,6 +136,11 @@
     return toTime(job.publishedAt) || toTime(job.lastSeenAt);
   }
 
+  function publicationClock(value) {
+    const match = String(value || '').match(/T(\d{2}:\d{2})/);
+    return match ? ` às ${match[1]}` : '';
+  }
+
   function activityLabel(job) {
     const time = activityTime(job);
     if (!time) return 'Data não informada';
@@ -145,8 +150,9 @@
     current.setHours(12, 0, 0, 0);
     const days = Math.round((today - current) / 86400000);
     const prefix = job.publishedAt ? 'Publicada' : 'Vista';
-    if (days === 0) return `${prefix} hoje`;
-    if (days === 1) return `${prefix} ontem`;
+    const clock = job.publishedAt ? publicationClock(job.publishedAt) : '';
+    if (days === 0) return `${prefix} hoje${clock}`;
+    if (days === 1) return `${prefix} ontem${clock}`;
     if (days > 1 && days < 7) return `${prefix} há ${days} dias`;
     return `${prefix} em ${dateFormatter.format(time)}`;
   }

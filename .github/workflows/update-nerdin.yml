@@ -6,6 +6,8 @@ on:
     paths:
       - "tools/update_nerdin.py"
       - ".github/workflows/update-nerdin.yml"
+      - "docs/app.js"
+      - "docs/index.html"
   workflow_dispatch:
 
 permissions:
