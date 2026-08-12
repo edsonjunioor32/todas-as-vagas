@@ -158,7 +158,9 @@ def _normalize(item):
         city=location,
         state=state,
         country=country,
-        market="BR" if country == "BR" else "Global",
+        # GeekHunter publica vagas voltadas ao mercado brasileiro. Alguns
+        # anúncios omitem o país na carga estruturada, mas continuam nacionais.
+        market="BR",
         salary_min=salary_min,
         salary_max=salary_max,
         salary_currency=currency,

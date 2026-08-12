@@ -65,10 +65,9 @@ def _bool(value):
 def _normalize(item):
     locations = [str(x).strip() for x in (item.get("cidades") or []) if str(x).strip()]
     city, state, country = split_location(locations[0] if locations else "")
-    if any(loc.upper().endswith(", BR") for loc in locations):
-        country, market = "BR", "BR"
-    else:
-        market = "Global"
+    # Empregare é um portal brasileiro; a ausência de cidade estruturada não
+    # transforma a vaga em oportunidade global.
+    market = "BR"
 
     tags = []
     for entry in item.get("tags") or []:
