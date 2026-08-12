@@ -15,7 +15,11 @@
     year: 'numeric',
     timeZone: 'America/Fortaleza'
   });
-  const CONTRACT_MODELS = ['CLT', 'PJ', 'Cooperado'];
+  const CONTRACT_MODELS = [
+    { value: 'CLT', sourceValue: 'CLT' },
+    { value: 'CNPJ', sourceValue: 'PJ' },
+    { value: 'Cooperado', sourceValue: 'Cooperado' }
+  ];
 
   const SOURCE_LABELS = {
     inhire: 'InHire',
@@ -103,6 +107,10 @@
     return value || 'Não informado';
   }
 
+  function contractLabel(value) {
+    return normalize(value) === 'pj' ? 'CNPJ' : String(value || '');
+  }
+
   function extractCityNames(value) {
     const genericLocations = new Set([
       'anywhere', 'br', 'brasil', 'brazil', 'global', 'hybrid', 'hibrido',
@@ -180,7 +188,8 @@
       item._location = normalize(rawLocation);
       item._search = normalize([
         item.title, item.company, item.sourceLabel, item.category, item.seniority,
-        item.workplaceType, item.market, item.location, item.skills, ...contracts
+        item.workplaceType, item.market, item.location, item.skills,
+        ...contracts, ...contracts.map(contractLabel)
       ].join(' '));
       output.push(item);
     }
@@ -230,9 +239,9 @@
       appendOption(elements.workplaceFilter, value, `${value} (${numberFormatter.format(count)})`);
     }
     for (const model of CONTRACT_MODELS) {
-      const key = normalize(model);
+      const key = normalize(model.sourceValue);
       const count = state.jobs.filter(job => job.contractTypes.some(type => normalize(type) === key)).length;
-      appendOption(elements.contractFilter, model, `${model} (${numberFormatter.format(count)})`);
+      appendOption(elements.contractFilter, model.value, `${model.value} (${numberFormatter.format(count)})`);
     }
     for (const city of countCities(state.jobs)) {
       const option = document.createElement('option');
@@ -256,7 +265,8 @@
     elements.searchInput.value = params.get('q') || '';
     elements.sourceFilter.value = params.get('portal') || '';
     elements.workplaceFilter.value = params.get('modalidade') || '';
-    elements.contractFilter.value = params.get('contratacao') || '';
+    const requestedContract = params.get('contratacao') || '';
+    elements.contractFilter.value = normalize(requestedContract) === 'pj' ? 'CNPJ' : requestedContract;
     elements.cityFilter.value = params.get('cidade') || '';
     elements.marketFilter.value = params.get('mercado') || '';
     elements.categoryFilter.value = params.get('area') || '';
@@ -295,7 +305,8 @@
     const queryTokens = normalize(elements.searchInput.value).split(/\s+/).filter(Boolean);
     const source = elements.sourceFilter.value;
     const workplace = elements.workplaceFilter.value;
-    const contract = normalize(elements.contractFilter.value);
+    const requestedContract = normalize(elements.contractFilter.value);
+    const contract = requestedContract === 'cnpj' ? 'pj' : requestedContract;
     const city = normalize(elements.cityFilter.value);
     const market = elements.marketFilter.value;
     const category = elements.categoryFilter.value;
@@ -377,7 +388,7 @@
       tag(job.seniority)
     );
     if (job.location && job.location !== 'Local não informado') tags.append(tag(job.location));
-    for (const contract of job.contractTypes) tags.append(tag(contract));
+    for (const contract of job.contractTypes) tags.append(tag(contractLabel(contract)));
     if (job.pcd) tags.append(tag('Afirmativa PcD', 'tag-pcd'));
     if (job.blindSelection) tags.append(tag('Seleção às cegas', 'tag-pcd'));
     if (job.portals > 1) tags.append(tag(`Encontrada em ${job.portals} portais`, 'tag-source'));

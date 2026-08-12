@@ -20,7 +20,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: github-pages
+  group: vagas-main-writer
   cancel-in-progress: false
 
 jobs:
@@ -92,7 +92,8 @@ jobs:
             echo "Nenhuma alteração para registrar."
           else
             git commit -m "Atualiza índice público de vagas [skip ci]"
-            git push
+            git pull --rebase origin main
+            git push origin HEAD:main
           fi
 
       - name: Configurar GitHub Pages
