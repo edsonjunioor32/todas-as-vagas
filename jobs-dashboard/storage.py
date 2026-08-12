@@ -7,6 +7,9 @@ import re
 import sqlite3
 import unicodedata
 from datetime import date, datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
+
+LOCAL_TIMEZONE = ZoneInfo("America/Fortaleza")
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS jobs (
@@ -78,8 +81,12 @@ def months_ago(value, months):
     return date(year, month, day)
 
 
-def publication_cutoff(today=None, max_age_months=3):
-    today_value = date.fromisoformat(today) if isinstance(today, str) else (today or date.today())
+def local_today():
+    return datetime.now(LOCAL_TIMEZONE).date()
+
+
+def publication_cutoff(today=None, max_age_months=2):
+    today_value = date.fromisoformat(today) if isinstance(today, str) else (today or local_today())
     return months_ago(today_value, max(0, max_age_months)).isoformat()
 
 
@@ -96,7 +103,7 @@ def connect(db_path):
 
 
 def upsert(conn, jobs, today=None):
-    today = today or date.today().isoformat()
+    today = today or local_today().isoformat()
     for item in jobs:
         uid = f"{item['source']}:{item['native_id'] or item['url']}"
         skills = " · ".join(dict.fromkeys(item.get("skills") or []))[:500]
@@ -133,8 +140,8 @@ def upsert(conn, jobs, today=None):
     conn.commit()
 
 
-def prune(conn, keep_days=120, today=None, max_age_months=3):
-    today = today or date.today().isoformat()
+def prune(conn, keep_days=120, today=None, max_age_months=2):
+    today = today or local_today().isoformat()
     seen_cutoff = (date.fromisoformat(today) - timedelta(days=keep_days)).isoformat()
     age_cutoff = publication_cutoff(today, max_age_months)
     cursor = conn.execute("""
@@ -147,14 +154,14 @@ def prune(conn, keep_days=120, today=None, max_age_months=3):
 
 
 def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=50000,
-                    max_age_months=3,
+                    max_age_months=2,
                     max_raw_mb=18, source_counts=None, failed_sources=None):
     """Export jobs seen in a recent successful collection window.
 
     A three-day tolerance prevents a temporary portal outage from instantly
     removing all of that portal's vacancies from the public page.
     """
-    today = today or date.today().isoformat()
+    today = today or local_today().isoformat()
     cutoff = (date.fromisoformat(today) - timedelta(days=max(0, fresh_days - 1))).isoformat()
     age_cutoff = publication_cutoff(today, max_age_months)
     rows = conn.execute("""

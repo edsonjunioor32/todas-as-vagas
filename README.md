@@ -1,14 +1,14 @@
 # Radar de Vagas — índice multiportal no GitHub Pages
 
-Este projeto consulta fontes públicas de vagas, converte os formatos diferentes para uma base única e publica um painel pesquisável no GitHub Pages. A atualização ocorre duas vezes por dia e continua mesmo quando um portal isolado fica temporariamente indisponível.
+Este projeto consulta fontes públicas de vagas, converte os formatos diferentes para uma base única e publica um painel pesquisável no GitHub Pages. A atualização ocorre três vezes por dia e continua mesmo quando um portal isolado fica temporariamente indisponível.
 
-O painel publica somente vagas anunciadas nos **últimos três meses**. Quando um portal não fornece uma data de publicação confiável, o sistema usa a primeira data em que encontrou o anúncio e o remove após três meses.
+O painel publica somente vagas anunciadas nos **últimos dois meses**. Quando um portal não fornece uma data de publicação confiável, o sistema usa a primeira data em que encontrou o anúncio e o remove após dois meses.
 
 ## Portais incluídos
 
 - Brasil: **InHire, Empregare, Gupy, Sólides e GeekHunter**;
 - globais: **The Muse, Remotive, Jobicy, Remote OK, Himalayas, Working Nomads, Arbeitnow e We Work Remotely**;
-- páginas públicas de empresas: **Greenhouse, Lever e Ashby**.
+- páginas públicas de empresas: **Stone, iFood, PicPay, Banco Original, Braskem, GM Financial, Dell Technologies, ArcelorMittal, Grupo Mateus, AutoZone, NOV, Arcor Brasil, Greenhouse, Lever e Ashby**.
 
 O painel permite combinar pesquisa livre com filtros de cidade, portal, modalidade, mercado, área, senioridade, data, vagas afirmativas para PcD e oportunidades encontradas em mais de um portal. O campo de cidade oferece sugestões a partir das localidades presentes na base e também aceita digitação livre. A exportação CSV respeita os filtros selecionados.
 
@@ -17,6 +17,16 @@ O painel permite combinar pesquisa livre com filtros de cidade, portal, modalida
 A Sólides é consultada pelo catálogo público utilizado pelo próprio portal. Como a interface pública limita cada página a 10 registros e o catálogo possui dezenas de milhares de anúncios, cada atualização percorre até as **3.000 vagas mais recentes**. O limite pode ser alterado pela variável `SOLIDES_MAX_PAGES`; aumentar muito esse valor também aumenta o tempo e a carga da coleta. A deduplicação pode reduzir a quantidade efetivamente incorporada.
 
 A GeekHunter é consultada pelas páginas públicas de vagas, que já entregam dados estruturados no HTML. O adaptador percorre todas as páginas disponíveis, normaliza modalidade, localização, senioridade, remuneração e tecnologias e não publica a descrição integral.
+
+## Stone e iFood
+
+As páginas de carreiras da **Stone** e do **iFood** utilizam o Greenhouse. O pipeline consulta a API pública dos dois quadros e mantém cada empresa como uma origem própria no filtro de portal. São importados cargo, localidade, modalidade, data original de publicação, área, tipo de contrato quando informado e o link oficial da candidatura. A descrição é usada somente em memória para classificação e não é publicada no painel.
+
+## Empresas no Oracle Recruiting Cloud
+
+O painel consulta páginas públicas no Oracle Recruiting Cloud de **PicPay, Banco Original, Braskem, GM Financial, Dell Technologies, ArcelorMittal, Grupo Mateus, AutoZone, NOV e Arcor Brasil**. Cada empresa permanece como uma origem própria no filtro de portal. O adaptador importa cargo, localidade, modalidade quando informada, data de publicação, categorias estruturadas e o link oficial da candidatura.
+
+A consulta usa páginas de até 200 registros ordenadas da publicação mais recente para a mais antiga. Até quatro páginas são consultadas em paralelo e, ao alcançar uma vaga anterior ao corte de dois meses, a paginação daquela empresa é encerrada imediatamente. Isso reduz o tempo da atualização sem retirar vagas que ainda estejam dentro do período solicitado. O paralelismo pode ser ajustado por `ORACLE_WORKERS` entre 1 e 6. Descrições e outros textos integrais não são gravados na fotografia pública.
 
 ## Empregare: API e MCP
 
@@ -70,13 +80,13 @@ Copie para ele todo o conteúdo do arquivo visível `WORKFLOW_PARA_COPIAR.yml` e
 
 ## Atualização automática
 
-O workflow é executado diariamente às **08h17** e **20h17**, no horário de Brasília/Fortaleza, além de permitir execução manual. A rotina:
+O workflow é executado diariamente às **05h17**, **08h17** e **20h17**, no horário de Brasília/Fortaleza, além de permitir execução manual. A rotina:
 
 1. atualiza a descoberta de páginas públicas da InHire;
 2. coleta cada portal de forma isolada;
 3. normaliza área, senioridade, modalidade, localização, salário e indicadores PcD;
 4. elimina duplicidades nativas e identifica anúncios equivalentes entre portais;
-5. descarta anúncios publicados há mais de três meses e atualiza o histórico SQLite;
+5. descarta anúncios publicados há mais de dois meses e atualiza o histórico SQLite;
 6. gera um JSON compacto para o navegador;
 7. valida links, contagens e privacidade;
 8. publica o diretório `docs` no GitHub Pages.
@@ -110,4 +120,4 @@ Depois acesse `http://localhost:8000`. O arquivo `index.html` não deve ser aber
 
 ## Origem e créditos
 
-A arquitetura multiportal foi adaptada do projeto público [Job-Market Explorer, de Rodrigo Carvalho](https://github.com/rodrigo-carfon/rodrigo-carfon.github.io/tree/master/jobs-dashboard), disponibilizado sob Unlicense. A integração InHire e a interface em português foram incorporadas ao mesmo fluxo; Empregare, Sólides e GeekHunter foram acrescentadas por suas interfaces públicas.
+A arquitetura multiportal foi adaptada do projeto público [Job-Market Explorer, de Rodrigo Carvalho](https://github.com/rodrigo-carfon/rodrigo-carfon.github.io/tree/master/jobs-dashboard), disponibilizado sob Unlicense. A integração InHire e a interface em português foram incorporadas ao mesmo fluxo; Empregare, Sólides, GeekHunter, Stone, iFood e as páginas de empresas no Oracle Recruiting Cloud foram acrescentadas por suas interfaces públicas.

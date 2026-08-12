@@ -11,8 +11,8 @@ on:
       - ".github/workflows/pages.yml"
   workflow_dispatch:
   schedule:
-    # 08h17 e 20h17 no horário de Brasília/Fortaleza (UTC-3).
-    - cron: "17 11,23 * * *"
+    # 05h17, 08h17 e 20h17 no horário de Brasília/Fortaleza (UTC-3).
+    - cron: "17 8,11,23 * * *"
 
 permissions:
   contents: write
@@ -73,7 +73,8 @@ jobs:
           SOLIDES_MAX_PAGES: "300"
           SOLIDES_WORKERS: "6"
           GEEKHUNTER_WORKERS: "4"
-        run: python jobs-dashboard/pipeline.py
+          ORACLE_WORKERS: "4"
+        run: python jobs-dashboard/pipeline.py --max-age-months 2
 
       - name: Validar privacidade e integridade
         env:

@@ -62,7 +62,7 @@ def discard_old_publications(rows, cutoff):
     """Drop rows whose normalized publication date is older than the cutoff.
 
     Rows without a portal-supplied date are retained here. The database uses
-    their first-seen date as the fallback and expires them after three months.
+    their first-seen date as the fallback and expires them after two months.
     """
     kept, dropped = [], 0
     for row in rows:
@@ -81,10 +81,11 @@ def main():
                         help="comma-separated source names for a partial run")
     parser.add_argument("--fresh-days", type=int, default=3,
                         help="keep jobs seen in this many recent collection dates")
-    parser.add_argument("--max-age-months", type=int, default=3,
+    parser.add_argument("--max-age-months", type=int, default=2,
                         help="discard jobs published more than this many months ago")
     args = parser.parse_args()
 
+    os.environ["JOBS_MAX_AGE_MONTHS"] = str(max(0, args.max_age_months))
     registry = selected_registry(args.sources)
     print("=" * 72)
     print(f"  Radar de Vagas — coleta de {len(registry)} fontes públicas")
