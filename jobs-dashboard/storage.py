@@ -215,7 +215,7 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=50000,
         columns["mk"].append(code("market", market))
         columns["co"].append(code("country", country))
         columns["city"].append(city or state or "")
-        columns["pub"].append((published or first_seen or "")[:10])
+        columns["pub"].append(published or first_seen or "")
         columns["seen"].append((last_seen or first_seen or "")[:10])
         columns["exp"].append((expires or "")[:10])
         columns["url"].append(url or "")

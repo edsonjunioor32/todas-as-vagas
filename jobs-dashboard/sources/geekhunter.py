@@ -71,7 +71,7 @@ def _epoch_ms_date(value):
         number = int(value)
         if number > 10_000_000_000:
             number /= 1000
-        return datetime.fromtimestamp(number, tz=timezone.utc).strftime("%Y-%m-%d")
+        return datetime.fromtimestamp(number, tz=timezone.utc).isoformat(timespec="seconds")
     except (TypeError, ValueError, OverflowError, OSError):
         return ""
 

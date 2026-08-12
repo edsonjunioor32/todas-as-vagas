@@ -22,7 +22,7 @@ H = {"User-Agent": "Mozilla/5.0 (compatible; jobs-market-explorer/1.0)"}
 
 def _rfc822(s):
     try:
-        return parsedate_to_datetime(s).strftime("%Y-%m-%d")
+        return parsedate_to_datetime(s).isoformat(timespec="seconds")
     except Exception:
         return ""
 
