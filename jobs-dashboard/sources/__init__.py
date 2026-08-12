@@ -3,6 +3,7 @@
 from . import (
     ats_boards,
     company_careers,
+    digisystem,
     empregare,
     geekhunter,
     gupy,
@@ -17,6 +18,7 @@ from . import (
 REGISTRY = [
     ("inhire", inhire.fetch),
     ("empregare", empregare.fetch),
+    ("digisystem", digisystem.fetch),
     ("gupy", gupy.fetch),
     ("solides", solides.fetch),
     ("geekhunter", geekhunter.fetch),
