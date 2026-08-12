@@ -1,10 +1,11 @@
 {
   "name": "todas-as-vagas-multiportal",
-  "version": "3.5.0",
+  "version": "3.6.0",
   "private": true,
   "type": "commonjs",
   "scripts": {
     "discover:inhire": "node busca_vagas/harvest_inhire_public.js",
+    "discover:greenhouse-br": "python jobs-dashboard/discover_greenhouse_br.py",
     "build:inhire": "node busca_vagas/build_public_inhire.js",
     "validate:inhire": "node busca_vagas/validate_public_inhire.js",
     "build:pages": "python jobs-dashboard/pipeline.py",

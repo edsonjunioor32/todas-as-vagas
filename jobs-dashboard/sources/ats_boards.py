@@ -6,18 +6,41 @@ verified to respond), capped per company so no single board floods the dataset.
 Adds named-company variety and depth on top of the aggregators. Extend the lists
 below with any company slug that returns jobs on its ATS.
 """
+import json
+import os
+import re
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
 from ._http import get_json
 from ._common import strip_html, iso_date, work_model_label, job
 
-PER_COMPANY = 120   # cap so one big board can't dominate
+PER_COMPANY = 120   # cap for global Lever/Ashby boards
 
-# Verified slugs (return >0 jobs). BR-relevant: ebanx, wildlifestudios, thoughtworks.
-GREENHOUSE = ["stripe", "databricks", "datadog", "cloudflare", "airbnb", "coinbase",
-              "brex", "pinterest", "reddit", "elastic", "gitlab", "asana", "samsara",
-              "thoughtworks", "discord", "dropbox", "ebanx", "wildlifestudios"]
 LEVER = ["spotify", "veeva"]
 ASHBY = ["openai", "ramp", "notion", "replit", "watershed", "linear"]
+
+HERE = Path(__file__).resolve().parent
+GREENHOUSE_BR_CATALOG = HERE.parent / "data" / "greenhouse_br_companies.json"
+GREENHOUSE_API = "https://boards-api.greenhouse.io/v1/boards/{board}/jobs?content=false"
+PCD_PATTERN = re.compile(r"\bpcd\b|pessoa(?:s)?\s+com\s+defici", re.I)
+BRAZIL_NAME_RE = re.compile(
+    r"(?:\bbrasil\b|\bbrazil\b|\bs[aã]o paulo\b|\brio de janeiro\b|"
+    r"\bbelo horizonte\b|\bbras[ií]lia\b|\bcuritiba\b|\bporto alegre\b|"
+    r"\brecife\b|\bfortaleza\b|\bsalvador\b|\bflorian[oó]polis\b|"
+    r"\bcampinas\b|\bgoi[aâ]nia\b|\bvit[oó]ria\b|\bjo[aã]o pessoa\b|"
+    r"\bmanaus\b|\bbel[eé]m\b|\bnatal\b|\bmacei[oó]\b|\baracaju\b|"
+    r"\bcuiab[aá]\b|\bcampo grande\b|\bjoinville\b|\buberl[aâ]ndia\b)",
+    re.I,
+)
+BRAZIL_UF_RE = re.compile(
+    r"(?:^|[,/()\s-])(?:AC|AL|AP|AM|BA|CE|DF|ES|GO|MA|MT|MS|MG|PA|PB|PR|"
+    r"PE|PI|RJ|RN|RS|RO|RR|SC|SP|SE|TO)(?:$|[,/()\s-])"
+)
+
+
+def _is_brazil_location(location):
+    return bool(BRAZIL_NAME_RE.search(location) or BRAZIL_UF_RE.search(location))
 
 
 def _market(loc):
@@ -31,23 +54,54 @@ def _market(loc):
 
 
 def fetch_greenhouse():
+    with open(GREENHOUSE_BR_CATALOG, encoding="utf-8") as handle:
+        configs = json.load(handle).get("companies") or []
+
+    def fetch_board(config):
+        board = config["board"]
+        payload = get_json(GREENHOUSE_API.format(board=board), timeout=35, retries=2)
+        rows = []
+        for item in payload.get("jobs") or []:
+            loc = str((item.get("location") or {}).get("name") or "").strip()
+            if not _is_brazil_location(loc):
+                continue
+            depts = [d.get("name", "") for d in (item.get("departments") or [])]
+            metadata = item.get("metadata") or []
+            contracts = []
+            for field in metadata:
+                name = str(field.get("name") or "").strip().rstrip(":").casefold()
+                if name not in {"tipo de contrato", "employment type", "contract type"}:
+                    continue
+                value = field.get("value")
+                contracts.extend(value if isinstance(value, list) else [value])
+            title = item.get("title", "")
+            rows.append(job(
+                "greenhouse", item.get("id") or item.get("internal_job_id"),
+                title=title,
+                company=item.get("company_name") or config.get("company") or board,
+                url=item.get("absolute_url", ""),
+                work_model=work_model_label(raw=f"{title} {loc}"),
+                city=loc,
+                country="BR",
+                market="BR",
+                published_date=iso_date(item.get("first_published") or item.get("updated_at")),
+                expires_date=iso_date(item.get("application_deadline")),
+                categories=[d for d in depts if d],
+                contract_types=[str(value).strip() for value in contracts if str(value or "").strip()],
+                pcd=bool(PCD_PATTERN.search(title)),
+            ))
+        return rows
+
     out = []
-    for c in GREENHOUSE:
-        try:
-            jobs = get_json(f"https://boards-api.greenhouse.io/v1/boards/{c}/jobs?content=false").get("jobs", [])
-        except Exception as e:
-            print(f"    [gh:{c}] {str(e)[:40]}"); continue
-        for j in jobs[:PER_COMPANY]:
-            loc = (j.get("location", {}) or {}).get("name", "")
-            country, market = _market(loc)
-            depts = [d.get("name", "") for d in (j.get("departments") or [])]
-            out.append(job("greenhouse", j.get("id"),
-                title=j.get("title", ""), company=c.replace("wildlifestudios", "Wildlife Studios").title(),
-                url=j.get("absolute_url", ""), work_model=work_model_label(raw=loc),
-                city=loc, country=country, market=market,
-                published_date=iso_date(j.get("updated_at") or j.get("first_published")),
-                categories=[d for d in depts if d]))
-        time.sleep(0.2)
+    workers = min(20, max(1, int(os.environ.get("GREENHOUSE_WORKERS", "12"))))
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        futures = {executor.submit(fetch_board, config): config for config in configs}
+        for future in as_completed(futures):
+            config = futures[future]
+            try:
+                out.extend(future.result())
+            except Exception as error:
+                print(f"    [gh:{config.get('board')}] {str(error)[:60]}")
     return out
 
 

@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-11T00:00:00+00:00",
+  "candidate_count": 8333,
+  "company_count": 21,
+  "companies": [
+    {"board": "abinbev", "company": "AB InBev | Growth Group", "brazil_jobs": 50},
+    {"board": "capco", "company": "Capco", "brazil_jobs": 182},
+    {"board": "classpass", "company": "ClassPass", "brazil_jobs": 5},
+    {"board": "coinbase", "company": "Coinbase", "brazil_jobs": 4},
+    {"board": "deliveryassociates", "company": "Delivery Associates", "brazil_jobs": 3},
+    {"board": "ebanx", "company": "EBANX", "brazil_jobs": 24},
+    {"board": "figma", "company": "Figma", "brazil_jobs": 4},
+    {"board": "gitlab", "company": "GitLab", "brazil_jobs": 3},
+    {"board": "newsela", "company": "Newsela", "brazil_jobs": 3},
+    {"board": "parsebiosciences", "company": "Parse Biosciences", "brazil_jobs": 1},
+    {"board": "pieinsuranceinternationalcontracts", "company": "Pie Insurance", "brazil_jobs": 1},
+    {"board": "pinterest", "company": "Pinterest", "brazil_jobs": 8},
+    {"board": "rdstation", "company": "RD Station", "brazil_jobs": 15},
+    {"board": "realtimeboardglobal", "company": "Miro", "brazil_jobs": 1},
+    {"board": "ripple", "company": "Ripple", "brazil_jobs": 4},
+    {"board": "roofr", "company": "Roofr", "brazil_jobs": 1},
+    {"board": "smartlyio", "company": "Smartly", "brazil_jobs": 3},
+    {"board": "sumup", "company": "SumUp", "brazil_jobs": 26},
+    {"board": "vtex", "company": "VTEX", "brazil_jobs": 21},
+    {"board": "wildlifestudios", "company": "Wildlife Studios", "brazil_jobs": 21},
+    {"board": "wizinc", "company": "Wiz", "brazil_jobs": 3}
+  ]
+}

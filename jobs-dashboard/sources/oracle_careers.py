@@ -301,7 +301,13 @@ def _fetch(source):
         key = str(item.get("Id") or "")
         if key:
             unique[key] = item
-    return [_normalize(source, config, item) for item in unique.values()]
+    normalized = [_normalize(source, config, item) for item in unique.values()]
+    if source == "autozone":
+        # AutoZone shares one global Oracle board. The dashboard is focused on
+        # Brazil, so never publish jobs from the US, Mexico, India, or entries
+        # whose country cannot be confirmed by Oracle.
+        normalized = [row for row in normalized if row.get("country") == "BR"]
+    return normalized
 
 
 def fetch_picpay():

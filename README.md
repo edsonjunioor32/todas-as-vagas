@@ -8,7 +8,7 @@ O painel publica somente vagas anunciadas nos **últimos dois meses**. Quando um
 
 - Brasil: **InHire, Empregare, Gupy, Sólides e GeekHunter**;
 - globais: **The Muse, Remotive, Jobicy, Remote OK, Himalayas, Working Nomads, Arbeitnow e We Work Remotely**;
-- páginas públicas de empresas: **Stone, iFood, PicPay, Banco Original, Braskem, GM Financial, Dell Technologies, ArcelorMittal, Grupo Mateus, AutoZone, NOV, Arcor Brasil, Greenhouse, Lever e Ashby**.
+- páginas públicas de empresas: **Stone, iFood, PicPay, Banco Original, Braskem, GM Financial, Dell Technologies, ArcelorMittal, Grupo Mateus, AutoZone, NOV, Arcor Brasil, Greenhouse Brasil, Lever e Ashby**.
 
 O painel permite combinar pesquisa livre com filtros de cidade, portal, modalidade, mercado, área, senioridade, data, vagas afirmativas para PcD e oportunidades encontradas em mais de um portal. O campo de cidade oferece sugestões a partir das localidades presentes na base e também aceita digitação livre. A exportação CSV respeita os filtros selecionados.
 
@@ -22,9 +22,22 @@ A GeekHunter é consultada pelas páginas públicas de vagas, que já entregam d
 
 As páginas de carreiras da **Stone** e do **iFood** utilizam o Greenhouse. O pipeline consulta a API pública dos dois quadros e mantém cada empresa como uma origem própria no filtro de portal. São importados cargo, localidade, modalidade, data original de publicação, área, tipo de contrato quando informado e o link oficial da candidatura. A descrição é usada somente em memória para classificação e não é publicada no painel.
 
+## Greenhouse com vagas brasileiras
+
+O Greenhouse não oferece um endpoint público que enumere todas as empresas. A API oficial exige conhecer previamente o identificador de cada página. Para ampliar a cobertura sem tornar as atualizações diárias pesadas, o projeto usa duas rotinas separadas:
+
+- a coleta normal consulta somente o catálogo já validado de empresas que possuem vagas localizadas explicitamente no Brasil;
+- aos domingos, uma descoberta independente verifica um catálogo amplo de identificadores públicos e atualiza a lista brasileira.
+
+O catálogo inicial inclui RD Station, AB InBev, Capco, ClassPass, Coinbase, Delivery Associates, EBANX, Figma, GitLab, Miro, Newsela, Parse Biosciences, Pie Insurance, Pinterest, Ripple, Roofr, Smartly, SumUp, VTEX, Wildlife Studios e Wiz. Stone e iFood continuam como fontes próprias, evitando duplicidades.
+
+Somente anúncios cuja localidade mencione Brasil, Brazil, uma cidade brasileira reconhecida ou uma UF válida entram no painel. Vagas descritas apenas como “Global”, “Worldwide” ou “LATAM” não são importadas. O corte geral de dois meses continua sendo aplicado depois dessa seleção.
+
+A descoberta semanal está em `.github/workflows/discover-greenhouse-br.yml` e também pode ser iniciada manualmente em **Actions**. A lista resultante fica em `jobs-dashboard/data/greenhouse_br_companies.json`; as atualizações normais não refazem as milhares de consultas de descoberta.
+
 ## Empresas no Oracle Recruiting Cloud
 
-O painel consulta páginas públicas no Oracle Recruiting Cloud de **PicPay, Banco Original, Braskem, GM Financial, Dell Technologies, ArcelorMittal, Grupo Mateus, AutoZone, NOV e Arcor Brasil**. Cada empresa permanece como uma origem própria no filtro de portal. O adaptador importa cargo, localidade, modalidade quando informada, data de publicação, categorias estruturadas e o link oficial da candidatura.
+O painel consulta páginas públicas no Oracle Recruiting Cloud de **PicPay, Banco Original, Braskem, GM Financial, Dell Technologies, ArcelorMittal, Grupo Mateus, AutoZone, NOV e Arcor Brasil**. Cada empresa permanece como uma origem própria no filtro de portal. O adaptador importa cargo, localidade, modalidade quando informada, data de publicação, categorias estruturadas e o link oficial da candidatura. Como a AutoZone utiliza uma página global, somente anúncios cujo país é confirmado como Brasil são publicados no painel.
 
 A consulta usa páginas de até 200 registros ordenadas da publicação mais recente para a mais antiga. Até quatro páginas são consultadas em paralelo e, ao alcançar uma vaga anterior ao corte de dois meses, a paginação daquela empresa é encerrada imediatamente. Isso reduz o tempo da atualização sem retirar vagas que ainda estejam dentro do período solicitado. O paralelismo pode ser ajustado por `ORACLE_WORKERS` entre 1 e 6. Descrições e outros textos integrais não são gravados na fotografia pública.
 
@@ -82,7 +95,7 @@ Copie para ele todo o conteúdo do arquivo visível `WORKFLOW_PARA_COPIAR.yml` e
 
 O workflow é executado diariamente às **05h17**, **08h17** e **20h17**, no horário de Brasília/Fortaleza, além de permitir execução manual. A rotina:
 
-1. atualiza a descoberta de páginas públicas da InHire;
+1. atualiza a descoberta de páginas públicas da InHire e usa o catálogo brasileiro já validado do Greenhouse;
 2. coleta cada portal de forma isolada;
 3. normaliza área, senioridade, modalidade, localização, salário e indicadores PcD;
 4. elimina duplicidades nativas e identifica anúncios equivalentes entre portais;
@@ -120,4 +133,4 @@ Depois acesse `http://localhost:8000`. O arquivo `index.html` não deve ser aber
 
 ## Origem e créditos
 
-A arquitetura multiportal foi adaptada do projeto público [Job-Market Explorer, de Rodrigo Carvalho](https://github.com/rodrigo-carfon/rodrigo-carfon.github.io/tree/master/jobs-dashboard), disponibilizado sob Unlicense. A integração InHire e a interface em português foram incorporadas ao mesmo fluxo; Empregare, Sólides, GeekHunter, Stone, iFood e as páginas de empresas no Oracle Recruiting Cloud foram acrescentadas por suas interfaces públicas.
+A arquitetura multiportal foi adaptada do projeto público [Job-Market Explorer, de Rodrigo Carvalho](https://github.com/rodrigo-carfon/rodrigo-carfon.github.io/tree/master/jobs-dashboard), disponibilizado sob Unlicense. A integração InHire e a interface em português foram incorporadas ao mesmo fluxo; Empregare, Sólides, GeekHunter, Stone, iFood, Greenhouse Brasil e as páginas de empresas no Oracle Recruiting Cloud foram acrescentadas por suas interfaces públicas.

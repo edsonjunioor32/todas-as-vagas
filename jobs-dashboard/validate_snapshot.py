@@ -58,6 +58,15 @@ def main():
     old_dates = [value for value in columns["pub"] if value and value < expected_cutoff]
     if old_dates:
         fail(f"há {len(old_dates)} vagas publicadas antes do corte {expected_cutoff}")
+    source_names = dictionaries["source"]
+    country_names = dictionaries["country"]
+    autozone_foreign = [
+        index for index in range(count)
+        if source_names[columns["src"][index]] == "autozone"
+        and country_names[columns["co"][index]] != "BR"
+    ]
+    if autozone_foreign:
+        fail(f"há {len(autozone_foreign)} vagas estrangeiras da AutoZone")
     if any("<script" in str(title).lower() for title in columns["title"]):
         fail("título contém marcação de script")
     print(

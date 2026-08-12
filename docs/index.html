@@ -7,14 +7,14 @@
     <meta name="theme-color" content="#123b3f">
     <meta name="referrer" content="no-referrer">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
-    <meta name="description" content="Índice independente de vagas coletadas em vários portais públicos, com pesquisa e filtros por cidade, portal, modalidade, área e mercado.">
+    <meta name="description" content="Índice independente de vagas coletadas em vários portais públicos, com pesquisa e filtros por cidade, portal, modalidade, contratação, área e mercado.">
     <meta property="og:title" content="Todas as Vagas — índice multiportal">
     <meta property="og:description" content="Pesquise oportunidades da InHire, Gupy, Sólides, Stone, iFood, empresas no Oracle Recruiting Cloud e outras fontes em uma base normalizada.">
     <meta property="og:type" content="website">
     <title>Todas as Vagas — índice multiportal</title>
     <link rel="icon" href="./favicon.svg?v=2" type="image/svg+xml">
     <link rel="stylesheet" href="./styles.css?v=3">
-    <script src="./app.js?v=3" defer></script>
+    <script src="./app.js?v=4" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#resultados">Pular para os resultados</a>
@@ -45,7 +45,7 @@
             <p class="eyebrow">Índice público e independente</p>
             <h1>Vagas de vários portais, em um só lugar.</h1>
             <p class="hero-copy">
-              Pesquise oportunidades da InHire, Empregare, Gupy, Sólides, GeekHunter, Stone, iFood, PicPay e outras empresas no Oracle Recruiting Cloud. Combine filtros por cidade, origem, modalidade, área, senioridade, mercado e data.
+              Pesquise oportunidades da InHire, Empregare, Gupy, Sólides, GeekHunter, Stone, iFood, PicPay e outras empresas no Oracle Recruiting Cloud. Combine filtros por cidade, origem, modalidade, modelo de contratação, área, senioridade, mercado e data.
             </p>
             <p class="updated" id="updatedLabel" aria-live="polite">Carregando a atualização mais recente…</p>
             <p class="source-warning" id="sourceWarning" hidden></p>
@@ -102,6 +102,13 @@
             </div>
 
             <div class="field">
+              <label for="contractFilter">Modelo de contratação</label>
+              <select id="contractFilter" name="contratacao">
+                <option value="">Todos os modelos</option>
+              </select>
+            </div>
+
+            <div class="field">
               <label for="cityFilter">Cidade</label>
               <input id="cityFilter" name="cidade" type="search" list="cityOptions" placeholder="Ex.: João Pessoa" spellcheck="false">
               <datalist id="cityOptions"></datalist>
@@ -150,7 +157,7 @@
           </form>
 
           <p class="filter-note">
-            A base mantém somente anúncios dos dois meses mais recentes. As classificações são normalizadas a partir dos dados informados por cada portal. Confirme disponibilidade, localidade e requisitos no anúncio original.
+            A base mantém somente anúncios dos dois meses mais recentes. Modalidade, contratação e demais classificações usam os dados informados por cada portal. Quando o contrato não é divulgado, a vaga aparece apenas em “Todos os modelos”. Confirme disponibilidade, localidade e requisitos no anúncio original.
           </p>
         </aside>
 

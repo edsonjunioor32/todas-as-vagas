@@ -15,6 +15,7 @@
     year: 'numeric',
     timeZone: 'America/Fortaleza'
   });
+  const CONTRACT_MODELS = ['CLT', 'PJ', 'Cooperado'];
 
   const SOURCE_LABELS = {
     inhire: 'InHire',
@@ -58,6 +59,7 @@
     searchInput: document.querySelector('#searchInput'),
     sourceFilter: document.querySelector('#sourceFilter'),
     workplaceFilter: document.querySelector('#workplaceFilter'),
+    contractFilter: document.querySelector('#contractFilter'),
     cityFilter: document.querySelector('#cityFilter'),
     cityOptions: document.querySelector('#cityOptions'),
     marketFilter: document.querySelector('#marketFilter'),
@@ -227,6 +229,11 @@
     for (const [value, count] of countValues(state.jobs.map(job => job.workplaceType))) {
       appendOption(elements.workplaceFilter, value, `${value} (${numberFormatter.format(count)})`);
     }
+    for (const model of CONTRACT_MODELS) {
+      const key = normalize(model);
+      const count = state.jobs.filter(job => job.contractTypes.some(type => normalize(type) === key)).length;
+      appendOption(elements.contractFilter, model, `${model} (${numberFormatter.format(count)})`);
+    }
     for (const city of countCities(state.jobs)) {
       const option = document.createElement('option');
       option.value = city.label;
@@ -249,6 +256,7 @@
     elements.searchInput.value = params.get('q') || '';
     elements.sourceFilter.value = params.get('portal') || '';
     elements.workplaceFilter.value = params.get('modalidade') || '';
+    elements.contractFilter.value = params.get('contratacao') || '';
     elements.cityFilter.value = params.get('cidade') || '';
     elements.marketFilter.value = params.get('mercado') || '';
     elements.categoryFilter.value = params.get('area') || '';
@@ -267,6 +275,7 @@
       ['q', elements.searchInput.value.trim()],
       ['portal', elements.sourceFilter.value],
       ['modalidade', elements.workplaceFilter.value],
+      ['contratacao', elements.contractFilter.value],
       ['cidade', elements.cityFilter.value.trim()],
       ['mercado', elements.marketFilter.value],
       ['area', elements.categoryFilter.value],
@@ -286,6 +295,7 @@
     const queryTokens = normalize(elements.searchInput.value).split(/\s+/).filter(Boolean);
     const source = elements.sourceFilter.value;
     const workplace = elements.workplaceFilter.value;
+    const contract = normalize(elements.contractFilter.value);
     const city = normalize(elements.cityFilter.value);
     const market = elements.marketFilter.value;
     const category = elements.categoryFilter.value;
@@ -297,6 +307,7 @@
       if (queryTokens.length && !queryTokens.every(token => job._search.includes(token))) return false;
       if (source && job.source !== source) return false;
       if (workplace && job.workplaceType !== workplace) return false;
+      if (contract && !job.contractTypes.some(type => normalize(type) === contract)) return false;
       if (city && !job._location.includes(city)) return false;
       if (market && job.market !== market) return false;
       if (category && job.category !== category) return false;
