@@ -50,6 +50,15 @@ def collect(registry):
     return rows, failed
 
 
+
+def normalize_market(rows):
+    """Classify a vacancy located only in Brazil as part of the Brazilian market."""
+    for row in rows:
+        location = str(row.get("city") or "").strip().casefold()
+        if location in {"brazil", "brasil"}:
+            row["market"] = "BR"
+    return rows
+
 def dedupe_native(rows):
     unique = {}
     for row in rows:
@@ -91,6 +100,7 @@ def main():
     print(f"  Radar de Vagas — coleta de {len(registry)} fontes públicas")
     print("=" * 72)
     rows, failed = collect(registry)
+    rows = normalize_market(rows)
     rows = dedupe_native(rows)
     publication_cutoff = storage.publication_cutoff(max_age_months=max(0, args.max_age_months))
     rows, old_dropped = discard_old_publications(rows, publication_cutoff)
