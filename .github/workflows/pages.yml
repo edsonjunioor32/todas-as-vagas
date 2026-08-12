@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
   schedule:
     # 05h17, 08h17 e 20h17 no horário de Brasília/Fortaleza (UTC-3).
-    - cron: "17 8,15,23 * * *"
+    - cron: "17 8,11,23 * * *"
 
 permissions:
   contents: write
@@ -74,6 +74,7 @@ jobs:
           SOLIDES_WORKERS: "6"
           GEEKHUNTER_WORKERS: "4"
           ORACLE_WORKERS: "4"
+          GREENHOUSE_WORKERS: "12"
         run: python jobs-dashboard/pipeline.py --max-age-months 2
 
       - name: Validar privacidade e integridade
