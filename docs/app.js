@@ -140,8 +140,12 @@
   function publicationClock(value) {
     const time = toTime(value);
     if (!time || time > Date.now()) return '';
-    const match = String(value || '').match(/T(\d{2}:\d{2})/);
-    return match ? ` às ${match[1]}` : '';
+    return ` às ${new Intl.DateTimeFormat('pt-BR', {
+      timeZone: 'America/Fortaleza',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+    }).format(time)}`;
   }
 
   function activityLabel(job) {
