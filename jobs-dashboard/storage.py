@@ -219,7 +219,7 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=50000,
         columns["pub"].append(published or first_seen or "")
         columns["seen"].append((last_seen or first_seen or "")[:10])
         columns["exp"].append((expires or "")[:10])
-        columns["url"].append(url or "")
+        columns["url"].append((url or "").replace("http://", "https://", 1))
         columns["np"].append(len(portal_sets.get(duplicate, {source})))
         columns["sk"].append(skills or "")
         columns["smin"].append(round(salary_min, 2) if salary_min else None)
