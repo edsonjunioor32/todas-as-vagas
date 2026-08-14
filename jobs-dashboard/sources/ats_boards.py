@@ -13,7 +13,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from ._http import get_json
-from ._common import strip_html, iso_date, work_model_label, job
+from ._common import strip_html, iso_date, work_model_label, is_brazil_location, job
 
 PER_COMPANY = 120   # cap for global Lever/Ashby boards
 
@@ -24,25 +24,6 @@ HERE = Path(__file__).resolve().parent
 GREENHOUSE_BR_CATALOG = HERE.parent / "data" / "greenhouse_br_companies.json"
 GREENHOUSE_API = "https://boards-api.greenhouse.io/v1/boards/{board}/jobs?content=false"
 PCD_PATTERN = re.compile(r"\bpcd\b|pessoa(?:s)?\s+com\s+defici", re.I)
-BRAZIL_NAME_RE = re.compile(
-    r"(?:\bbrasil\b|\bbrazil\b|\bs[aã]o paulo\b|\brio de janeiro\b|"
-    r"\bbelo horizonte\b|\bbras[ií]lia\b|\bcuritiba\b|\bporto alegre\b|"
-    r"\brecife\b|\bfortaleza\b|\bsalvador\b|\bflorian[oó]polis\b|"
-    r"\bcampinas\b|\bgoi[aâ]nia\b|\bvit[oó]ria\b|\bjo[aã]o pessoa\b|"
-    r"\bmanaus\b|\bbel[eé]m\b|\bnatal\b|\bmacei[oó]\b|\baracaju\b|"
-    r"\bcuiab[aá]\b|\bcampo grande\b|\bjoinville\b|\buberl[aâ]ndia\b)",
-    re.I,
-)
-BRAZIL_UF_RE = re.compile(
-    r"(?:^|[,/()\s-])(?:AC|AL|AP|AM|BA|CE|DF|ES|GO|MA|MT|MS|MG|PA|PB|PR|"
-    r"PE|PI|RJ|RN|RS|RO|RR|SC|SP|SE|TO)(?:$|[,/()\s-])"
-)
-
-
-def _is_brazil_location(location):
-    return bool(BRAZIL_NAME_RE.search(location) or BRAZIL_UF_RE.search(location))
-
-
 def _market(loc):
     t = (loc or "").lower()
     if any(k in t for k in ("bras", "brazil", "são paulo", "sao paulo", "rio de janeiro",
@@ -63,7 +44,7 @@ def fetch_greenhouse():
         rows = []
         for item in payload.get("jobs") or []:
             loc = str((item.get("location") or {}).get("name") or "").strip()
-            if not _is_brazil_location(loc):
+            if not is_brazil_location(loc):
                 continue
             depts = [d.get("name", "") for d in (item.get("departments") or [])]
             metadata = item.get("metadata") or []

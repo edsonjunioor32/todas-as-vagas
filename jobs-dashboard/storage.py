@@ -140,6 +140,27 @@ def upsert(conn, jobs, today=None):
     conn.commit()
 
 
+
+_BRAZIL_LOCATION_RE = re.compile(
+    r"\\b(?:brasil|brazil|s[aã]o paulo|rio de janeiro|belo horizonte|bras[ií]lia|"
+    r"curitiba|porto alegre|recife|fortaleza|salvador|florian[oó]polis|campinas|"
+    r"goi[aâ]nia|vit[oó]ria|jo[aã]o pessoa|manaus|bel[eé]m|natal|macei[oó]|"
+    r"aracaju|cuiab[aá]|campo grande|joinville|uberl[aâ]ndia)\\b",
+    re.I,
+)
+
+
+def purge_greenhouse_non_brazil(conn):
+    """Remove legacy Greenhouse rows admitted by ambiguous US state abbreviations."""
+    candidates = conn.execute(
+        "SELECT job_uid, city FROM jobs WHERE source = 'greenhouse'"
+    ).fetchall()
+    invalid = [uid for uid, city in candidates if not _BRAZIL_LOCATION_RE.search(str(city or ""))]
+    if invalid:
+        conn.executemany("DELETE FROM jobs WHERE job_uid = ?", [(uid,) for uid in invalid])
+        conn.commit()
+    return len(invalid)
+
 def prune(conn, keep_days=120, today=None, max_age_months=2):
     today = today or local_today().isoformat()
     seen_cutoff = (date.fromisoformat(today) - timedelta(days=keep_days)).isoformat()

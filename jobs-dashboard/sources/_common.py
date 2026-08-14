@@ -31,6 +31,20 @@ def iso_date(value):
     match = re.match(r"(\d{4}-\d{2}-\d{2})", text)
     return match.group(1) if match else ""
 
+BRAZIL_LOCATION_RE = re.compile(
+    r"\\b(?:brasil|brazil|s[aã]o paulo|rio de janeiro|belo horizonte|bras[ií]lia|"
+    r"curitiba|porto alegre|recife|fortaleza|salvador|florian[oó]polis|campinas|"
+    r"goi[aâ]nia|vit[oó]ria|jo[aã]o pessoa|manaus|bel[eé]m|natal|macei[oó]|"
+    r"aracaju|cuiab[aá]|campo grande|joinville|uberl[aâ]ndia)\\b",
+    re.I,
+)
+
+
+def is_brazil_location(value):
+    """Require an explicit country or Brazilian city, never an ambiguous UF code."""
+    return bool(BRAZIL_LOCATION_RE.search(str(value or "")))
+
+
 def work_model_label(remote_flag=None, raw=None):
     if remote_flag is True:
         return "remote"
