@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-08-13T20:26:14.971202+00:00",
+  "generated_at": "2026-08-14T12:43:11.326656+00:00",
   "candidate_count": 8331,
-  "company_count": 623,
+  "company_count": 718,
   "companies": [
     {
       "board": "143studiosinc",
@@ -107,7 +107,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 208
+      "brazil_jobs": 203
     },
     {
       "board": "agilityrobotics",
@@ -217,7 +217,7 @@
     {
       "board": "apexcompanies",
       "company": "Apex Companies",
-      "brazil_jobs": 43
+      "brazil_jobs": 42
     },
     {
       "board": "apexcompaniescsw",
@@ -257,7 +257,7 @@
     {
       "board": "arcoeducacao",
       "company": "Arco Educação",
-      "brazil_jobs": 62
+      "brazil_jobs": 59
     },
     {
       "board": "arctouch",
@@ -297,7 +297,7 @@
     {
       "board": "aspirehealthalliance",
       "company": "Aspire Health and Community Services",
-      "brazil_jobs": 56
+      "brazil_jobs": 57
     },
     {
       "board": "allinc",
@@ -322,12 +322,12 @@
     {
       "board": "auctane",
       "company": "Auctane",
-      "brazil_jobs": 1
+      "brazil_jobs": 2
     },
     {
       "board": "audaxgroup",
       "company": "Audax Group",
-      "brazil_jobs": 6
+      "brazil_jobs": 7
     },
     {
       "board": "authenticx",
@@ -387,7 +387,7 @@
     {
       "board": "azuritypharmaceuticals",
       "company": "Azurity Pharmaceuticals - US",
-      "brazil_jobs": 10
+      "brazil_jobs": 13
     },
     {
       "board": "blab",
@@ -418,6 +418,11 @@
       "board": "barrfoundation",
       "company": "Barr Foundation",
       "brazil_jobs": 1
+    },
+    {
+      "board": "bayada",
+      "company": "BAYADA Home Health Care",
+      "brazil_jobs": 874
     },
     {
       "board": "bbyo",
@@ -492,7 +497,7 @@
     {
       "board": "blip-global",
       "company": "Blip Global",
-      "brazil_jobs": 14
+      "brazil_jobs": 13
     },
     {
       "board": "block",
@@ -527,7 +532,7 @@
     {
       "board": "bozzuto",
       "company": "Bozzuto",
-      "brazil_jobs": 21
+      "brazil_jobs": 20
     },
     {
       "board": "bracebridgecapital",
@@ -557,12 +562,12 @@
     {
       "board": "braze",
       "company": "Braze",
-      "brazil_jobs": 17
+      "brazil_jobs": 18
     },
     {
       "board": "brex",
       "company": "Brex",
-      "brazil_jobs": 12
+      "brazil_jobs": 13
     },
     {
       "board": "broadsign",
@@ -572,12 +577,12 @@
     {
       "board": "brookecharterschools",
       "company": "Brooke Charter Schools",
-      "brazil_jobs": 7
+      "brazil_jobs": 6
     },
     {
       "board": "bruntworkwear",
       "company": "BRUNT Workwear",
-      "brazil_jobs": 11
+      "brazil_jobs": 10
     },
     {
       "board": "bugcrowd",
@@ -607,7 +612,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 166
+      "brazil_jobs": 167
     },
     {
       "board": "cadwell",
@@ -687,7 +692,7 @@
     {
       "board": "caylent",
       "company": "Caylent",
-      "brazil_jobs": 19
+      "brazil_jobs": 18
     },
     {
       "board": "cellsignalingtechnology79",
@@ -697,7 +702,7 @@
     {
       "board": "centessapharmaceuticalsinc",
       "company": "Centessa Pharmaceuticals, a wholly owned subsidiary of Eli Lilly and Company",
-      "brazil_jobs": 10
+      "brazil_jobs": 9
     },
     {
       "board": "ceribell",
@@ -797,7 +802,7 @@
     {
       "board": "collegiumpharma",
       "company": "Collegium Pharmaceutical",
-      "brazil_jobs": 7
+      "brazil_jobs": 8
     },
     {
       "board": "comptechcomputertechnologies",
@@ -807,7 +812,7 @@
     {
       "board": "conga",
       "company": "Conga",
-      "brazil_jobs": 17
+      "brazil_jobs": 16
     },
     {
       "board": "constantcontact",
@@ -842,7 +847,7 @@
     {
       "board": "allcareers",
       "company": "Cortica - Neurodevelopmental",
-      "brazil_jobs": 17
+      "brazil_jobs": 16
     },
     {
       "board": "counterpart",
@@ -853,11 +858,6 @@
       "board": "coursera",
       "company": "Coursera",
       "brazil_jobs": 1
-    },
-    {
-      "board": "crescent",
-      "company": "Crescent",
-      "brazil_jobs": 7
     },
     {
       "board": "crescolabs",
@@ -873,6 +873,11 @@
       "board": "croihealth",
       "company": "Croí Health",
       "brazil_jobs": 16
+    },
+    {
+      "board": "zenput",
+      "company": "Crunchtime",
+      "brazil_jobs": 1
     },
     {
       "board": "curaleaf",
@@ -1012,12 +1017,12 @@
     {
       "board": "ebanx",
       "company": "EBANX",
-      "brazil_jobs": 26
+      "brazil_jobs": 27
     },
     {
       "board": "ebury",
       "company": "Ebury",
-      "brazil_jobs": 13
+      "brazil_jobs": 12
     },
     {
       "board": "eclinicalsolutions",
@@ -1052,7 +1057,7 @@
     {
       "board": "encora10",
       "company": "Encora",
-      "brazil_jobs": 20
+      "brazil_jobs": 21
     },
     {
       "board": "encoura",
@@ -1082,7 +1087,7 @@
     {
       "board": "ennoblecare",
       "company": "Ennoble Care",
-      "brazil_jobs": 26
+      "brazil_jobs": 27
     },
     {
       "board": "enova",
@@ -1127,7 +1132,12 @@
     {
       "board": "eqtcorporation",
       "company": "EQT Corporation",
-      "brazil_jobs": 13
+      "brazil_jobs": 14
+    },
+    {
+      "board": "equipmentsharecom",
+      "company": "EquipmentShare",
+      "brazil_jobs": 88
     },
     {
       "board": "esri",
@@ -1152,12 +1162,12 @@
     {
       "board": "externaljobboards",
       "company": "Exadel",
-      "brazil_jobs": 41
+      "brazil_jobs": 39
     },
     {
       "board": "exadelinc",
       "company": "Exadel Inc (Website)",
-      "brazil_jobs": 31
+      "brazil_jobs": 30
     },
     {
       "board": "examplecorpsandbox",
@@ -1242,7 +1252,7 @@
     {
       "board": "flagshippioneeringinc",
       "company": "Flagship Pioneering, Inc.",
-      "brazil_jobs": 77
+      "brazil_jobs": 79
     },
     {
       "board": "focusfinancialpartners",
@@ -1417,7 +1427,7 @@
     {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 73
+      "brazil_jobs": 76
     },
     {
       "board": "guardianrestoration",
@@ -1497,7 +1507,7 @@
     {
       "board": "himarley",
       "company": "Hi Marley",
-      "brazil_jobs": 12
+      "brazil_jobs": 11
     },
     {
       "board": "hiper",
@@ -1512,7 +1522,7 @@
     {
       "board": "holisticindustries",
       "company": "Holistic Industries",
-      "brazil_jobs": 23
+      "brazil_jobs": 22
     },
     {
       "board": "homemarketfoods",
@@ -1532,7 +1542,7 @@
     {
       "board": "hotmartcareersbr",
       "company": "Hotmart",
-      "brazil_jobs": 18
+      "brazil_jobs": 19
     },
     {
       "board": "housebuyersofamerica",
@@ -1682,7 +1692,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 156
+      "brazil_jobs": 152
     },
     {
       "board": "interbrand",
@@ -1702,7 +1712,7 @@
     {
       "board": "intowngolfclub",
       "company": "Intown Golf Club",
-      "brazil_jobs": 2
+      "brazil_jobs": 3
     },
     {
       "board": "invgate",
@@ -1717,7 +1727,7 @@
     {
       "board": "iovancebiotherapeutics",
       "company": "Iovance Biotherapeutics",
-      "brazil_jobs": 16
+      "brazil_jobs": 14
     },
     {
       "board": "ironmountainsolutions",
@@ -1800,6 +1810,11 @@
       "brazil_jobs": 7
     },
     {
+      "board": "kardigan",
+      "company": "Kardigan",
+      "brazil_jobs": 2
+    },
+    {
       "board": "krollbondratingagency",
       "company": "KBRA",
       "brazil_jobs": 1
@@ -1867,7 +1882,7 @@
     {
       "board": "latitude",
       "company": "Latitude AI",
-      "brazil_jobs": 39
+      "brazil_jobs": 38
     },
     {
       "board": "launch2",
@@ -1917,7 +1932,7 @@
     {
       "board": "lilasciences",
       "company": "Lila Sciences",
-      "brazil_jobs": 117
+      "brazil_jobs": 118
     },
     {
       "board": "lpc",
@@ -2032,7 +2047,7 @@
     {
       "board": "marksman",
       "company": "Marksman Security LLC",
-      "brazil_jobs": 11
+      "brazil_jobs": 10
     },
     {
       "board": "marqueeig1",
@@ -2075,6 +2090,11 @@
       "brazil_jobs": 8
     },
     {
+      "board": "metroveincenters",
+      "company": "Metro Vein Centers",
+      "brazil_jobs": 2
+    },
+    {
       "board": "mgac",
       "company": "MGAC",
       "brazil_jobs": 2
@@ -2097,7 +2117,7 @@
     {
       "board": "mishimoto",
       "company": "Mishimoto",
-      "brazil_jobs": 6
+      "brazil_jobs": 5
     },
     {
       "board": "mississippititleloansinc",
@@ -2155,6 +2175,11 @@
       "brazil_jobs": 11
     },
     {
+      "board": "themuseumofscience",
+      "company": "Museum of Science",
+      "brazil_jobs": 18
+    },
+    {
       "board": "mutato",
       "company": "Mutato",
       "brazil_jobs": 1
@@ -2183,6 +2208,11 @@
       "board": "natera",
       "company": "Natera",
       "brazil_jobs": 6
+    },
+    {
+      "board": "tripactions",
+      "company": "Navan",
+      "brazil_jobs": 10
     },
     {
       "board": "neoris",
@@ -2250,6 +2280,11 @@
       "brazil_jobs": 2
     },
     {
+      "board": "usenourish",
+      "company": "Nourish",
+      "brazil_jobs": 1
+    },
+    {
       "board": "nuvalent",
       "company": "Nuvalent, Inc.",
       "brazil_jobs": 1
@@ -2277,7 +2312,7 @@
     {
       "board": "oldcastlebuildingenvelope",
       "company": "Oldcastle BuildingEnvelope",
-      "brazil_jobs": 29
+      "brazil_jobs": 28
     },
     {
       "board": "oliverbrazil",
@@ -2365,11 +2400,6 @@
       "brazil_jobs": 6
     },
     {
-      "board": "packardculliganwater",
-      "company": "Packard Culligan Water",
-      "brazil_jobs": 8
-    },
-    {
       "board": "paperlessparts",
       "company": "Paperless Parts",
       "brazil_jobs": 14
@@ -2388,11 +2418,6 @@
       "board": "parsebiosciences",
       "company": "Parse Biosciences",
       "brazil_jobs": 1
-    },
-    {
-      "board": "pathai",
-      "company": "PathAI",
-      "brazil_jobs": 6
     },
     {
       "board": "patterndata",
@@ -2443,6 +2468,11 @@
       "board": "phynetdermatology",
       "company": "PhyNet Dermatology LLC (External)",
       "brazil_jobs": 17
+    },
+    {
+      "board": "try-picnic",
+      "company": "Picnic Delivery",
+      "brazil_jobs": 2
     },
     {
       "board": "pinterest",
@@ -2742,7 +2772,7 @@
     {
       "board": "saxbys",
       "company": "Saxbys",
-      "brazil_jobs": 27
+      "brazil_jobs": 26
     },
     {
       "board": "schonfeld",
@@ -2777,7 +2807,7 @@
     {
       "board": "securityscorecard",
       "company": "SecurityScorecard",
-      "brazil_jobs": 5
+      "brazil_jobs": 6
     },
     {
       "board": "sertradingsa",
@@ -2802,12 +2832,12 @@
     {
       "board": "sharkninjaoperatingllc",
       "company": "SharkNinja",
-      "brazil_jobs": 95
+      "brazil_jobs": 94
     },
     {
       "board": "shieldshealthsolutions",
       "company": "Shields Health Solutions",
-      "brazil_jobs": 8
+      "brazil_jobs": 10
     },
     {
       "board": "shifttechnology",
@@ -2952,7 +2982,7 @@
     {
       "board": "stackav",
       "company": "Stack AV",
-      "brazil_jobs": 10
+      "brazil_jobs": 9
     },
     {
       "board": "starburst",
@@ -3037,12 +3067,17 @@
     {
       "board": "superluminalrx",
       "company": "Superluminal Medicines, Inc.",
-      "brazil_jobs": 10
+      "brazil_jobs": 9
     },
     {
       "board": "supportingstrategies",
       "company": "Supporting Strategies",
       "brazil_jobs": 3
+    },
+    {
+      "board": "svetness",
+      "company": "Svetness Personal Training",
+      "brazil_jobs": 592
     },
     {
       "board": "sweetgreen",
@@ -3090,13 +3125,53 @@
       "brazil_jobs": 5
     },
     {
+      "board": "tecovas",
+      "company": "Tecovas",
+      "brazil_jobs": 7
+    },
+    {
+      "board": "tegnainc",
+      "company": "TEGNA Inc.",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "teletrackingtechnologiesinc",
+      "company": "TeleTracking Technologies, Inc.",
+      "brazil_jobs": 11
+    },
+    {
+      "board": "telnyx54",
+      "company": "Telnyx",
+      "brazil_jobs": 3
+    },
+    {
+      "board": "tenableinc",
+      "company": "Tenable, Inc.",
+      "brazil_jobs": 5
+    },
+    {
       "board": "hellotend",
       "company": "Tend",
       "brazil_jobs": 6
     },
     {
+      "board": "textio",
+      "company": "Textio",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "thanx",
+      "company": "Thanx",
+      "brazil_jobs": 2
+    },
+    {
       "board": "tdg",
       "company": "The Dermatology Group",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "theknotworldwide",
+      "company": "The Knot Worldwide",
       "brazil_jobs": 1
     },
     {
@@ -3105,14 +3180,414 @@
       "brazil_jobs": 49
     },
     {
+      "board": "thenuclearcompany",
+      "company": "The Nuclear Company",
+      "brazil_jobs": 28
+    },
+    {
+      "board": "theorchard",
+      "company": "The Orchard",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "theperfectworkout",
+      "company": "The Perfect Workout",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "theperiscopegroup",
+      "company": "The Periscope Group",
+      "brazil_jobs": 7
+    },
+    {
+      "board": "thesciongroupllc",
+      "company": "The Scion Group",
+      "brazil_jobs": 2
+    },
+    {
+      "board": "unitedfirm",
+      "company": "The United Firm | La Liga Defensora, APC",
+      "brazil_jobs": 5
+    },
+    {
+      "board": "theweathercompany",
+      "company": "The Weather Company",
+      "brazil_jobs": 3
+    },
+    {
+      "board": "theoriamedical",
+      "company": "Theoria Medical",
+      "brazil_jobs": 9
+    },
+    {
+      "board": "thirdpoleinc",
+      "company": "Third Pole, Inc.",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "thrivedigital",
+      "company": "Thrive Digital",
+      "brazil_jobs": 4
+    },
+    {
+      "board": "thrivemarket",
+      "company": "Thrive Market",
+      "brazil_jobs": 2
+    },
+    {
+      "board": "thunes",
+      "company": "Thunes",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "tines",
+      "company": "Tines",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "tsg",
+      "company": "Titan Security Group",
+      "brazil_jobs": 5
+    },
+    {
+      "board": "toast",
+      "company": "Toast",
+      "brazil_jobs": 31
+    },
+    {
+      "board": "tonixpharmaceuticals",
+      "company": "Tonix Pharmaceuticals",
+      "brazil_jobs": 2
+    },
+    {
+      "board": "toradex",
+      "company": "Toradex",
+      "brazil_jobs": 8
+    },
+    {
+      "board": "torq",
+      "company": "Torq",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "toshibaglobalcommercesolutions",
+      "company": "Toshiba Global Commerce Solutions - External",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "townsquaremedia",
+      "company": "Townsquare Media",
+      "brazil_jobs": 12
+    },
+    {
+      "board": "trace3",
+      "company": "Trace3",
+      "brazil_jobs": 2
+    },
+    {
+      "board": "tracelinkinc",
+      "company": "TraceLink, Inc",
+      "brazil_jobs": 2
+    },
+    {
+      "board": "tpcengineeringholdingsllc",
+      "company": "Trexon",
+      "brazil_jobs": 12
+    },
+    {
+      "board": "trinks",
+      "company": "Trinks",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "tripadvisor",
+      "company": "Tripadvisor",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "triumvirateenvironmental",
+      "company": "Triumvirate Environmental",
+      "brazil_jobs": 29
+    },
+    {
+      "board": "trustedhealth",
+      "company": "Trusted Health",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "tulip",
+      "company": "Tulip Interfaces",
+      "brazil_jobs": 44
+    },
+    {
+      "board": "turing",
+      "company": "Turing",
+      "brazil_jobs": 4
+    },
+    {
+      "board": "twistbioscience",
+      "company": "Twist Bioscience",
+      "brazil_jobs": 2
+    },
+    {
+      "board": "tysonmendesllp",
+      "company": "Tyson & Mendes LLP",
+      "brazil_jobs": 2
+    },
+    {
+      "board": "ultragenyxpharmaceutical",
+      "company": "Ultragenyx Pharmaceutical",
+      "brazil_jobs": 3
+    },
+    {
+      "board": "umistone",
+      "company": "UMI Stone/Opustone",
+      "brazil_jobs": 4
+    },
+    {
+      "board": "unlimitedtechnology",
+      "company": "Unlimited Technology",
+      "brazil_jobs": 2
+    },
+    {
+      "board": "urpt",
+      "company": "Upstream Rehabilitation",
+      "brazil_jobs": 245
+    },
+    {
+      "board": "urgentcareforchildren",
+      "company": "Urgent Care for Children",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "valtech",
+      "company": "Valtech",
+      "brazil_jobs": 8
+    },
+    {
+      "board": "vanleeuwenicecream",
+      "company": "Van Leeuwen Ice Cream",
+      "brazil_jobs": 14
+    },
+    {
+      "board": "vanmetre",
+      "company": "Van Metre Companies",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "vedantabiosciences",
+      "company": "Vedanta Biosciences",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "veratherapeuticsinc",
+      "company": "Vera Therapeutics, Inc.",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "veracode",
+      "company": "Veracode",
+      "brazil_jobs": 3
+    },
+    {
+      "board": "veristainc",
+      "company": "Verista, Inc.",
+      "brazil_jobs": 7
+    },
+    {
+      "board": "verkada",
+      "company": "Verkada",
+      "brazil_jobs": 5
+    },
+    {
+      "board": "verve",
+      "company": "Verve",
+      "brazil_jobs": 2
+    },
+    {
+      "board": "vesalius",
+      "company": "Vesalius Therapeutics",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "vestmark",
+      "company": "Vestmark, Inc.",
+      "brazil_jobs": 3
+    },
+    {
+      "board": "vestwell",
+      "company": "Vestwell",
+      "brazil_jobs": 14
+    },
+    {
+      "board": "veterinarypracticepartners",
+      "company": "Veterinary Practice Partners",
+      "brazil_jobs": 34
+    },
+    {
+      "board": "vetevolve",
+      "company": "VetEvolve",
+      "brazil_jobs": 3
+    },
+    {
+      "board": "via",
+      "company": "Via",
+      "brazil_jobs": 4
+    },
+    {
+      "board": "vitta",
+      "company": "Vitta",
+      "brazil_jobs": 2
+    },
+    {
+      "board": "vivodyne",
+      "company": "Vivodyne",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "vivvi",
+      "company": "Vivvi Early Learning",
+      "brazil_jobs": 5
+    },
+    {
+      "board": "wundermanthompson",
+      "company": "VML",
+      "brazil_jobs": 36
+    },
+    {
+      "board": "vorbiopharma",
+      "company": "Vor Bio",
+      "brazil_jobs": 10
+    },
+    {
+      "board": "voyagertechnologiesinc",
+      "company": "Voyager Technologies, Inc.",
+      "brazil_jobs": 7
+    },
+    {
+      "board": "vtex",
+      "company": "VTEX",
+      "brazil_jobs": 22
+    },
+    {
+      "board": "vulncheck",
+      "company": "VulnCheck",
+      "brazil_jobs": 7
+    },
+    {
+      "board": "walleyecapital-external-students",
+      "company": "Walleye Capital Internships",
+      "brazil_jobs": 2
+    },
+    {
+      "board": "watershed",
+      "company": "Watershed Informatics",
+      "brazil_jobs": 4
+    },
+    {
+      "board": "welearn",
+      "company": "WeLearn",
+      "brazil_jobs": 1
+    },
+    {
       "board": "gympass",
       "company": "Wellhub",
-      "brazil_jobs": 51
+      "brazil_jobs": 50
+    },
+    {
+      "board": "wellist",
+      "company": "Wellist",
+      "brazil_jobs": 5
+    },
+    {
+      "board": "westcancercenter",
+      "company": "West Cancer Center",
+      "brazil_jobs": 2
+    },
+    {
+      "board": "wildlifestudios",
+      "company": "Wildlife Studios",
+      "brazil_jobs": 22
+    },
+    {
+      "board": "withcoverage",
+      "company": "WithCoverage",
+      "brazil_jobs": 2
     },
     {
       "board": "agencywithin",
       "company": "WITHIN",
       "brazil_jobs": 2
+    },
+    {
+      "board": "withmeinc",
+      "company": "WithMe, Inc.",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "wizinc",
+      "company": "Wiz, Inc.",
+      "brazil_jobs": 3
+    },
+    {
+      "board": "wongdoody",
+      "company": "WongDoody",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "woolpert",
+      "company": "Woolpert",
+      "brazil_jobs": 14
+    },
+    {
+      "board": "workrightnw",
+      "company": "Work Right NW",
+      "brazil_jobs": 2
+    },
+    {
+      "board": "worksite",
+      "company": "Worksite Field Sales",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "worldsurfleague",
+      "company": "World Surf League",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "wpp",
+      "company": "WPP",
+      "brazil_jobs": 8
+    },
+    {
+      "board": "wppmedia",
+      "company": "WPP Media",
+      "brazil_jobs": 34
+    },
+    {
+      "board": "xometry",
+      "company": "Xometry",
+      "brazil_jobs": 58
+    },
+    {
+      "board": "xpinc",
+      "company": "XP Inc.",
+      "brazil_jobs": 171
+    },
+    {
+      "board": "yld",
+      "company": "YLD",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "zenasbio",
+      "company": "Zenas BioPharma",
+      "brazil_jobs": 14
+    },
+    {
+      "board": "zoominfo",
+      "company": "ZoomInfo Technologies LLC",
+      "brazil_jobs": 1
     },
     {
       "board": "ilia",
