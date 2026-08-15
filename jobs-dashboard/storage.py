@@ -191,6 +191,21 @@ def purge_greenhouse_non_brazil(conn):
         conn.commit()
     return len(invalid)
 
+
+def purge_source_rows_not_in_urls(conn, source, current_urls):
+    """Remove stale or invalid rows after a complete source catalog succeeds."""
+    allowed = {str(url or "").strip() for url in current_urls if str(url or "").strip()}
+    if not allowed:
+        return 0
+    candidates = conn.execute(
+        "SELECT job_uid, url FROM jobs WHERE source = ?", (source,)
+    ).fetchall()
+    invalid = [uid for uid, url in candidates if str(url or "").strip() not in allowed]
+    if invalid:
+        conn.executemany("DELETE FROM jobs WHERE job_uid = ?", [(uid,) for uid in invalid])
+        conn.commit()
+    return len(invalid)
+
 def prune(conn, keep_days=120, today=None, max_age_months=2):
     today = today or local_today().isoformat()
     seen_cutoff = (date.fromisoformat(today) - timedelta(days=keep_days)).isoformat()

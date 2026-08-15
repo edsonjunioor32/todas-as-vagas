@@ -9,11 +9,14 @@ on:
       - "!docs/index.html"
       - "jobs-dashboard/**"
       - "busca_vagas/**"
+      - "tools/**"
       - "package.json"
   workflow_dispatch:
   schedule:
     # 05h17, 08h17 e 20h17 no horário de Brasília/Fortaleza (UTC-3).
     - cron: "17 8,11,23 * * *"
+    # Atualização semanal do catálogo Greenhouse: domingo às 04h37 (UTC-3).
+    - cron: "37 7 * * 0"
 
 permissions:
   contents: write
@@ -51,6 +54,11 @@ jobs:
       - name: Instalar dependências
         run: pip install -r jobs-dashboard/requirements.txt
 
+      - name: Atualizar catálogo brasileiro da Greenhouse
+        if: github.event_name == 'workflow_dispatch' || github.event.schedule == '37 7 * * 0'
+        continue-on-error: true
+        run: python jobs-dashboard/discover_greenhouse_br.py --workers 32 --timeout 8
+
       - name: Descobrir novas empresas InHire
         continue-on-error: true
         run: node busca_vagas/harvest_inhire_public.js
@@ -68,6 +76,10 @@ jobs:
           else
             echo "A InHire será ignorada nesta execução; os outros portais continuarão."
           fi
+
+      - name: Coletar e integrar o Nerdin
+        continue-on-error: true
+        run: python tools/update_nerdin.py
 
       - name: Coletar, normalizar e consolidar todos os portais
         env:
@@ -88,7 +100,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add jobs-dashboard/data/jobs.db docs/data/vagas.json
+          git add jobs-dashboard/data/greenhouse_br_companies.json jobs-dashboard/data/jobs.db docs/data/vagas.json
           if git diff --cached --quiet; then
             echo "Nenhuma alteração para registrar."
           else
