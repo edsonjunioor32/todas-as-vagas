@@ -141,6 +141,36 @@ def upsert(conn, jobs, today=None):
 
 
 
+def infer_missing_work_models(conn):
+    """Infer the modality only when the portal did not provide it.
+
+    A vacancy whose only location is Brazil is nationwide remote. A Brazilian
+    city/location is treated as on-site unless the source explicitly said
+    remote or hybrid.
+    """
+    rows = conn.execute(
+        "SELECT job_uid, work_model, city, state, country, market FROM jobs"
+    ).fetchall()
+    updates = []
+    for uid, work_model, city, state, country, market in rows:
+        if str(work_model or "").strip():
+            continue
+        location = str(city or "").strip().casefold()
+        country_value = str(country or "").strip().casefold()
+        market_value = str(market or "").strip().casefold()
+        is_brazil = country_value in {"br", "brasil", "brazil"} or market_value == "br"
+        if not is_brazil:
+            continue
+        if location in {"br", "brasil", "brazil"} or (not location and country_value in {"brasil", "brazil"}):
+            updates.append(("remote", uid))
+        elif location:
+            updates.append(("on-site", uid))
+    if updates:
+        conn.executemany("UPDATE jobs SET work_model = ? WHERE job_uid = ?", updates)
+        conn.commit()
+    return len(updates)
+
+
 _BRAZIL_LOCATION_RE = re.compile(
     r"\\b(?:brasil|brazil|s[aã]o paulo|rio de janeiro|belo horizonte|bras[ií]lia|"
     r"curitiba|porto alegre|recife|fortaleza|salvador|florian[oó]polis|campinas|"

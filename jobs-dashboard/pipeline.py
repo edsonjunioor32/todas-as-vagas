@@ -140,6 +140,7 @@ def main():
     conn = storage.connect(str(DB_PATH))
     before = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
     storage.upsert(conn, rows)
+    modality_inferred = storage.infer_missing_work_models(conn)
     greenhouse_removed = storage.purge_greenhouse_non_brazil(conn)
     pruned = storage.prune(conn, keep_days=120, max_age_months=max(0, args.max_age_months))
     after = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
@@ -152,7 +153,7 @@ def main():
         failed_sources=failed,
     )
     conn.close()
-    print(f"  base histórica: {after} vagas ({after-before+pruned:+d} nesta execução; {pruned} removidas; {greenhouse_removed} Greenhouse fora do Brasil)")
+    print(f"  base histórica: {after} vagas ({after-before+pruned:+d} nesta execução; {pruned} removidas; {greenhouse_removed} Greenhouse fora do Brasil; {modality_inferred} modalidades inferidas)")
     print(f"  base pública: {count} vagas · {size_mb:.2f} MB · {JSON_PATH.relative_to(ROOT)}")
     print("=" * 72)
 

@@ -157,6 +157,7 @@ def main():
     json_path = ROOT / "docs" / "data" / "vagas.json"
     conn = storage.connect(str(db_path))
     storage.upsert(conn, rows)
+    storage.infer_missing_work_models(conn)
     storage.prune(conn, keep_days=120, max_age_months=2)
     count, size_mb = storage.export_snapshot(
         conn, str(json_path), fresh_days=3, max_age_months=2,
