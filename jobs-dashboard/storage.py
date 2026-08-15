@@ -192,15 +192,15 @@ def purge_greenhouse_non_brazil(conn):
     return len(invalid)
 
 
-def purge_source_rows_not_in_urls(conn, source, current_urls):
-    """Remove stale or invalid rows after a complete source catalog succeeds."""
-    allowed = {str(url or "").strip() for url in current_urls if str(url or "").strip()}
+def purge_source_rows_not_in_uids(conn, source, current_uids):
+    """Remove stale, invalid or legacy-identified rows after a complete catalog succeeds."""
+    allowed = {str(uid or "").strip() for uid in current_uids if str(uid or "").strip()}
     if not allowed:
         return 0
     candidates = conn.execute(
-        "SELECT job_uid, url FROM jobs WHERE source = ?", (source,)
+        "SELECT job_uid FROM jobs WHERE source = ?", (source,)
     ).fetchall()
-    invalid = [uid for uid, url in candidates if str(url or "").strip() not in allowed]
+    invalid = [uid for (uid,) in candidates if str(uid or "").strip() not in allowed]
     if invalid:
         conn.executemany("DELETE FROM jobs WHERE job_uid = ?", [(uid,) for uid in invalid])
         conn.commit()

@@ -142,10 +142,14 @@ def main():
     storage.upsert(conn, rows)
     totvs_removed = 0
     if "totvs" not in failed:
-        totvs_removed = storage.purge_source_rows_not_in_urls(
+        totvs_removed = storage.purge_source_rows_not_in_uids(
             conn,
             "totvs",
-            [row["url"] for row in rows if row["source"] == "totvs"],
+            [
+                f"totvs:{row.get('native_id') or row['url']}"
+                for row in rows
+                if row["source"] == "totvs"
+            ],
         )
     modality_inferred = storage.infer_missing_work_models(conn)
     greenhouse_removed = storage.purge_greenhouse_non_brazil(conn)
@@ -167,4 +171,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
