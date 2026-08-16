@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-08-15T22:22:29.927424+00:00",
+  "generated_at": "2026-08-16T08:58:52.847897+00:00",
   "candidate_count": 8331,
-  "company_count": 718,
+  "company_count": 719,
   "companies": [
     {
       "board": "143studiosinc",
@@ -413,6 +413,11 @@
       "board": "barrfoundation",
       "company": "Barr Foundation",
       "brazil_jobs": 1
+    },
+    {
+      "board": "bayada",
+      "company": "BAYADA Home Health Care",
+      "brazil_jobs": 876
     },
     {
       "board": "bbyo",
@@ -2667,7 +2672,7 @@
     {
       "board": "reltio",
       "company": "Reltio",
-      "brazil_jobs": 2
+      "brazil_jobs": 3
     },
     {
       "board": "remixtherapeutics",
