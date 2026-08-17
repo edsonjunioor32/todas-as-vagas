@@ -23,6 +23,7 @@ ASHBY = ["openai", "ramp", "notion", "replit", "watershed", "linear"]
 HERE = Path(__file__).resolve().parent
 GREENHOUSE_BR_CATALOG = HERE.parent / "data" / "greenhouse_br_companies.json"
 GREENHOUSE_API = "https://boards-api.greenhouse.io/v1/boards/{board}/jobs?content=false"
+REQUIRED_GREENHOUSE_BOARDS = {"c6bank": "C6 Bank"}
 PCD_PATTERN = re.compile(r"\bpcd\b|pessoa(?:s)?\s+com\s+defici", re.I)
 def _market(loc):
     t = (loc or "").lower()
@@ -37,6 +38,12 @@ def _market(loc):
 def fetch_greenhouse():
     with open(GREENHOUSE_BR_CATALOG, encoding="utf-8") as handle:
         configs = json.load(handle).get("companies") or []
+    configured = {str(config.get("board") or "").strip() for config in configs}
+    configs.extend(
+        {"board": board, "company": company}
+        for board, company in REQUIRED_GREENHOUSE_BOARDS.items()
+        if board not in configured
+    )
 
     def fetch_board(config):
         board = config["board"]

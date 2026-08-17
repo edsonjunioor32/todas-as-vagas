@@ -172,10 +172,10 @@ def infer_missing_work_models(conn):
 
 
 _BRAZIL_LOCATION_RE = re.compile(
-    r"\\b(?:brasil|brazil|s[aã]o paulo|rio de janeiro|belo horizonte|bras[ií]lia|"
+    r"\b(?:brasil|brazil|s[aã]o paulo|rio de janeiro|belo horizonte|bras[ií]lia|"
     r"curitiba|porto alegre|recife|fortaleza|salvador|florian[oó]polis|campinas|"
     r"goi[aâ]nia|vit[oó]ria|jo[aã]o pessoa|manaus|bel[eé]m|natal|macei[oó]|"
-    r"aracaju|cuiab[aá]|campo grande|joinville|uberl[aâ]ndia)\\b",
+    r"aracaju|cuiab[aá]|campo grande|joinville|uberl[aâ]ndia)\b",
     re.I,
 )
 
