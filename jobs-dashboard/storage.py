@@ -213,9 +213,15 @@ def prune(conn, keep_days=120, today=None, max_age_months=2):
     cursor = conn.execute("""
         DELETE FROM jobs
         WHERE last_seen_date < ?
-           OR COALESCE(NULLIF(published_date, ''), first_seen_date) < ?
+           OR (
+               COALESCE(NULLIF(published_date, ''), first_seen_date) < ?
+               AND NOT (
+                   source = 'gupy'
+                   AND COALESCE(NULLIF(expires_date, ''), '') >= ?
+               )
+           )
            OR (source = 'greenhouse' AND COALESCE(market, '') <> 'BR')
-    """, (seen_cutoff, age_cutoff))
+    """, (seen_cutoff, age_cutoff, today))
     conn.commit()
     return cursor.rowcount
 
@@ -241,11 +247,17 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=50000,
           AND (expires_date IS NULL OR expires_date = '' OR expires_date >= ?)
           AND COALESCE(NULLIF(market, ''), 'Não informado') <> 'Não informado'
           AND (source <> 'greenhouse' OR market = 'BR')
-          AND COALESCE(NULLIF(published_date, ''), first_seen_date) >= ?
+          AND (
+              COALESCE(NULLIF(published_date, ''), first_seen_date) >= ?
+              OR (
+                  source = 'gupy'
+                  AND COALESCE(NULLIF(expires_date, ''), '') >= ?
+              )
+          )
         ORDER BY MAX(COALESCE(published_date,''), first_seen_date) DESC,
                  last_seen_date DESC
         LIMIT ?
-    """, (cutoff, today, age_cutoff, max_jobs)).fetchall()
+    """, (cutoff, today, age_cutoff, today, max_jobs)).fetchall()
 
     portal_sets = {}
     snapshot_source_counts = {}

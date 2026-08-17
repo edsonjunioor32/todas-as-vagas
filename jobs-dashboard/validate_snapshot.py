@@ -55,10 +55,19 @@ def main():
     )
     if data.get("publication_cutoff") != expected_cutoff:
         fail("data de corte de publicação ausente ou inconsistente")
-    old_dates = [value for value in columns["pub"] if value and value < expected_cutoff]
-    if old_dates:
-        fail(f"há {len(old_dates)} vagas publicadas antes do corte {expected_cutoff}")
     source_names = dictionaries["source"]
+    generated_date = data.get("generated_date") or date.today().isoformat()
+    old_indexes = [
+        index for index, value in enumerate(columns["pub"])
+        if value and value < expected_cutoff
+        and not (
+            source_names[columns["src"][index]] == "gupy"
+            and columns["exp"][index]
+            and columns["exp"][index] >= generated_date
+        )
+    ]
+    if old_indexes:
+        fail(f"há {len(old_indexes)} vagas publicadas antes do corte {expected_cutoff}")
     country_names = dictionaries["country"]
     autozone_foreign = [
         index for index in range(count)

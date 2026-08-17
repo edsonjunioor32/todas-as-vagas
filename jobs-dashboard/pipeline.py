@@ -77,16 +77,21 @@ def discard_unknown_market(rows):
     ]
     return kept, len(rows) - len(kept)
 
-def discard_old_publications(rows, cutoff):
+def discard_old_publications(rows, cutoff, today=None):
     """Drop rows whose normalized publication date is older than the cutoff.
 
     Rows without a portal-supplied date are retained here. The database uses
     their first-seen date as the fallback and expires them after two months.
+    A Gupy vacancy with a current application deadline remains eligible even
+    when the portal keeps its original publication date after reopening it.
     """
+    today = today or storage.local_today().isoformat()
     kept, dropped = [], 0
     for row in rows:
         published = str(row.get("published_date") or "")[:10]
-        if published and published < cutoff:
+        expires = str(row.get("expires_date") or "")[:10]
+        active_gupy = row.get("source") == "gupy" and expires and expires >= today
+        if published and published < cutoff and not active_gupy:
             dropped += 1
         else:
             kept.append(row)
@@ -117,7 +122,7 @@ def main():
     counts = Counter(row["source"] for row in rows)
     print("-" * 72)
     print(f"  coletadas: {len(rows)} vagas · fontes: {len(registry)-len(failed)}/{len(registry)}")
-    print(f"  corte: publicadas desde {publication_cutoff} · {old_dropped} antigas descartadas")
+    print(f"  corte: publicadas desde {publication_cutoff} ou Gupy com prazo vigente · {old_dropped} antigas descartadas")
     print(f"  por portal: {dict(sorted(counts.items()))}")
     if failed:
         print(f"  fontes indisponíveis: {', '.join(failed)}")
