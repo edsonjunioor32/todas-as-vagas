@@ -9,6 +9,7 @@ import json
 import time
 import urllib.request
 import urllib.error
+import urllib.parse
 
 DEFAULT_HEADERS = {
     "User-Agent": "Mozilla/5.0 (compatible; jobs-market-explorer/1.0)",
@@ -60,3 +61,27 @@ def get_json(url, headers=None, timeout=25, retries=3, backoff=2.0):
         if attempt < retries:
             time.sleep(backoff * attempt)
     raise RuntimeError(f"get_json failed after {retries} attempts: {last_err}") from last_err
+
+
+def post_form_json(url, data, headers=None, timeout=25, retries=3, backoff=2.0):
+    """POST URL-encoded form data and parse JSON, retrying transient failures."""
+    h = dict(DEFAULT_HEADERS)
+    h["Content-Type"] = "application/x-www-form-urlencoded; charset=UTF-8"
+    if headers:
+        h.update(headers)
+    body = urllib.parse.urlencode(data).encode("utf-8")
+    last_err = None
+    for attempt in range(1, retries + 1):
+        try:
+            req = urllib.request.Request(url, data=body, headers=h, method="POST")
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                return json.loads(resp.read().decode("utf-8", "replace"))
+        except urllib.error.HTTPError as error:
+            last_err = error
+            if error.code < 500 and error.code != 429:
+                raise
+        except Exception as error:
+            last_err = error
+        if attempt < retries:
+            time.sleep(backoff * attempt)
+    raise RuntimeError(f"post_form_json failed after {retries} attempts: {last_err}") from last_err
