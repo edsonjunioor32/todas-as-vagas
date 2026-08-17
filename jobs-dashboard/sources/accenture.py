@@ -3,7 +3,7 @@
 import json
 import re
 
-from ._common import iso_date, job, strip_html, work_model_label
+from ._common import iso_date, job, strip_html
 from ._http import post_form_json
 
 
@@ -18,6 +18,13 @@ LEVEL_MAP = {
     "early career": "Júnior/Assistente",
     "mid-level": "Pleno",
     "senior level": "Sênior/Especialista",
+}
+COUNTRY_ONLY_LOCATIONS = {"br", "brasil", "brazil"}
+MULTIPLE_LOCATION_LABELS = {
+    "multiple locations",
+    "multiple location",
+    "múltiplas localidades",
+    "multiplas localidades",
 }
 
 
@@ -58,33 +65,38 @@ def _values(value):
     return list(dict.fromkeys(str(entry).strip() for entry in entries if str(entry).strip()))
 
 
-def _work_model(item, locations, description):
-    model = work_model_label(raw=item.get("remoteType"))
-    if model:
-        return model
-    model = work_model_label(raw=f"{item.get('title', '')} {description}")
-    if model:
-        return model
-    # Global dashboard rule: Brazil without a city is remote; a named city is
-    # on-site when the source supplies no explicit workplace arrangement.
+def _work_model(locations):
+    """Apply the Accenture-specific location rule used by the dashboard.
+
+    The portal represents a broad, multi-city vacancy as “Multiple Locations”.
+    Those rows are remote. A vacancy tied to one named city is on-site, even
+    when the API's generic ``remoteType`` says “Remote” or “Hybrid Eligible”.
+    """
     meaningful = [
         value for value in locations
-        if value.casefold() not in {"br", "brasil", "brazil"}
+        if value.casefold() not in COUNTRY_ONLY_LOCATIONS
     ]
+    multiple_locations = (
+        len(meaningful) > 1
+        or any(value.casefold() in MULTIPLE_LOCATION_LABELS for value in meaningful)
+    )
+    if multiple_locations:
+        return "remote"
     return "on-site" if meaningful else "remote"
 
 
 def _display_location(locations, work_model):
     if not locations or all(
-        value.casefold() in {"br", "brasil", "brazil"} for value in locations
+        value.casefold() in COUNTRY_ONLY_LOCATIONS for value in locations
     ):
         return "Brasil"
-    if work_model == "remote" and len(locations) > 1:
+    if work_model == "remote":
         return "Brasil"
-    if len(locations) == 1:
-        return locations[0]
-    visible = " · ".join(locations[:3])
-    return f"{visible} · +{len(locations) - 3} localidades" if len(locations) > 3 else visible
+    named_locations = [
+        value for value in locations
+        if value.casefold() not in COUNTRY_ONLY_LOCATIONS | MULTIPLE_LOCATION_LABELS
+    ]
+    return named_locations[0] if named_locations else "Brasil"
 
 
 def _normalize(item):
@@ -106,7 +118,7 @@ def _normalize(item):
             )
         )
     )
-    work_model = _work_model(item, locations, description)
+    work_model = _work_model(locations)
     raw_url = str(item.get("jobDetailUrl") or "")
     url = raw_url.replace("{0}", "br-pt")
     if not url.startswith(DETAIL_BASE):
