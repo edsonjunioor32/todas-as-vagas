@@ -11,6 +11,7 @@ on:
       - "busca_vagas/**"
       - "tools/**"
       - "package.json"
+      - ".github/workflows/pages.yml"
   workflow_dispatch:
   schedule:
     # 05h17, 08h17 e 20h17 no horário de Brasília/Fortaleza (UTC-3).
@@ -38,6 +39,11 @@ jobs:
     steps:
       - name: Baixar o repositório
         uses: actions/checkout@v4
+        with:
+          # A queued push run otherwise checks out the event SHA, which may be
+          # older than a data commit produced by the preceding serialized run.
+          ref: main
+          fetch-depth: 0
 
       - name: Preparar Node.js
         uses: actions/setup-node@v4
