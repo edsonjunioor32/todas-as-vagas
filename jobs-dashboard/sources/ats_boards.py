@@ -23,7 +23,29 @@ ASHBY = ["openai", "ramp", "notion", "replit", "watershed", "linear"]
 HERE = Path(__file__).resolve().parent
 GREENHOUSE_BR_CATALOG = HERE.parent / "data" / "greenhouse_br_companies.json"
 GREENHOUSE_API = "https://boards-api.greenhouse.io/v1/boards/{board}/jobs?content=false"
-REQUIRED_GREENHOUSE_BOARDS = {"c6bank": "C6 Bank"}
+# Boards requested explicitly by the project owner must not depend on the
+# external discovery catalog. ``brazil_only`` is limited to boards whose live
+# catalog was verified to contain only Brazilian locations; it lets values such
+# as "Remoto", "Barueri/SP" and "Paraná" pass the country filter.
+# iFood (ifoodcarreiras) is guaranteed separately as a named source in
+# company_careers.py, avoiding duplicate rows under the generic Greenhouse tag.
+REQUIRED_GREENHOUSE_BOARDS = {
+    "c6bank": {"company": "C6 Bank"},
+    "bees": {"company": "BEES"},
+    "abinbev": {"company": "AB InBev | Growth Group"},
+    "clara": {"company": "Clara"},
+    "exame": {"company": "EXAME", "brazil_only": True},
+    "xpinc": {"company": "XP Inc.", "brazil_only": True},
+    "sertradingsa": {"company": "SERTRADING", "brazil_only": True},
+    "elo": {"company": "Elo", "brazil_only": True},
+    "arcoeducacao": {"company": "Arco Educação", "brazil_only": True},
+    "gympass": {"company": "Wellhub"},
+    "ilia": {"company": "ília", "brazil_only": True},
+    "jusbrasil": {"company": "Jusbrasil", "brazil_only": True},
+    "getnet": {"company": "Getnet"},
+    "agilize": {"company": "Agilize", "brazil_only": True},
+    "inter": {"company": "Inter"},
+}
 PCD_PATTERN = re.compile(r"\bpcd\b|pessoa(?:s)?\s+com\s+defici", re.I)
 def _market(loc):
     t = (loc or "").lower()
@@ -38,12 +60,19 @@ def _market(loc):
 def fetch_greenhouse():
     with open(GREENHOUSE_BR_CATALOG, encoding="utf-8") as handle:
         configs = json.load(handle).get("companies") or []
-    configured = {str(config.get("board") or "").strip() for config in configs}
-    configs.extend(
-        {"board": board, "company": company}
-        for board, company in REQUIRED_GREENHOUSE_BOARDS.items()
-        if board not in configured
-    )
+    configured = {
+        str(config.get("board") or "").strip(): config
+        for config in configs
+        if str(config.get("board") or "").strip()
+    }
+    for board, required in REQUIRED_GREENHOUSE_BOARDS.items():
+        config = configured.get(board)
+        if config is None:
+            config = {"board": board}
+            configs.append(config)
+            configured[board] = config
+        for name, value in required.items():
+            config.setdefault(name, value)
 
     def fetch_board(config):
         board = config["board"]
@@ -51,7 +80,7 @@ def fetch_greenhouse():
         rows = []
         for item in payload.get("jobs") or []:
             loc = str((item.get("location") or {}).get("name") or "").strip()
-            if not is_brazil_location(loc):
+            if not config.get("brazil_only") and not is_brazil_location(loc):
                 continue
             depts = [d.get("name", "") for d in (item.get("departments") or [])]
             metadata = item.get("metadata") or []
