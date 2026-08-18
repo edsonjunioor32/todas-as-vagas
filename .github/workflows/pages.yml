@@ -13,6 +13,7 @@ on:
       - "package.json"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
+  # Último acionamento manual: 18/08/2026 às 15h21 (Fortaleza).
   schedule:
     # 05h17, 08h17 e 20h17 no horário de Brasília/Fortaleza (UTC-3).
     - cron: "17 8,11,23 * * *"
