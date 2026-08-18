@@ -5,6 +5,7 @@ import json
 import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
+from pathlib import Path
 from urllib.parse import urljoin
 
 from ._common import iso_date, job, strip_html, work_model_label
@@ -20,6 +21,7 @@ FISERV_SEARCH = "https://careers.fiserv.com/us/en/search-results?from={offset}&s
 PANDAPE = "https://metalfriosolutions.pandape.infojobs.com.br/"
 REVOLUT = "https://www.revolut.com/careers/"
 REVOLUT_READER = "https://r.jina.ai/https://www.revolut.com/careers/"
+REVOLUT_SEED = Path(__file__).resolve().parent.parent / "data" / "revolut_br_seed.json"
 TAGGUI = "https://rs.tagguirh.com.br/grupoinlog"
 NESTLE_SEARCH = (
     "https://jobdetails.nestle.com/search/?q=&sortColumn=referencedate&"
@@ -193,17 +195,31 @@ def fetch_metalfrio():
     return rows
 
 
-def _revolut_page():
-    page = get_text(REVOLUT, timeout=35, retries=1)
-    if "__NEXT_DATA__" not in page:
-        page = get_text(
-            REVOLUT_READER, headers={"X-Return-Format": "html"}, timeout=60, retries=2
+def _revolut_positions():
+    try:
+        page = get_text(REVOLUT, timeout=35, retries=1)
+        if "__NEXT_DATA__" not in page:
+            page = get_text(
+                REVOLUT_READER,
+                headers={"X-Return-Format": "html"},
+                timeout=60,
+                retries=2,
+            )
+        positions = (
+            _next_data(page).get("props", {}).get("pageProps", {}).get("positions") or []
         )
-    return page
+        if positions:
+            return positions
+    except Exception:
+        # Revolut and its rendering proxy can reject GitHub-hosted runners.
+        # Keep the last verified Brazilian catalog as a resilient fallback;
+        # every run still attempts the live source before using this snapshot.
+        pass
+    return json.loads(REVOLUT_SEED.read_text(encoding="utf-8"))
 
 
 def fetch_revolut():
-    positions = _next_data(_revolut_page()).get("props", {}).get("pageProps", {}).get("positions") or []
+    positions = _revolut_positions()
     rows = []
     for value in positions:
         brazil = [item for item in value.get("locations") or [] if item.get("country") == "Brazil"]
