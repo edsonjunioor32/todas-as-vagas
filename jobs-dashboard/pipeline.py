@@ -111,6 +111,7 @@ def main():
 
     os.environ["JOBS_MAX_AGE_MONTHS"] = str(max(0, args.max_age_months))
     registry = selected_registry(args.sources)
+    selected_sources = {name for name, _ in registry}
     print("=" * 72)
     print(f"  Radar de Vagas — coleta de {len(registry)} fontes públicas")
     print("=" * 72)
@@ -146,7 +147,7 @@ def main():
     before = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
     storage.upsert(conn, rows)
     totvs_removed = 0
-    if "totvs" not in failed:
+    if "totvs" in selected_sources and "totvs" not in failed:
         totvs_removed = storage.purge_source_rows_not_in_uids(
             conn,
             "totvs",
@@ -157,14 +158,16 @@ def main():
             ],
         )
     modality_inferred = storage.infer_missing_work_models(conn)
-    greenhouse_removed = storage.purge_greenhouse_non_brazil(
-        conn,
-        [
-            f"greenhouse:{row.get('native_id') or row['url']}"
-            for row in rows
-            if row["source"] == "greenhouse"
-        ],
-    )
+    greenhouse_removed = 0
+    if "greenhouse" in selected_sources and "greenhouse" not in failed:
+        greenhouse_removed = storage.purge_greenhouse_non_brazil(
+            conn,
+            [
+                f"greenhouse:{row.get('native_id') or row['url']}"
+                for row in rows
+                if row["source"] == "greenhouse"
+            ],
+        )
     pruned = storage.prune(conn, keep_days=120, max_age_months=max(0, args.max_age_months))
     after = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
     count, size_mb = storage.export_snapshot(

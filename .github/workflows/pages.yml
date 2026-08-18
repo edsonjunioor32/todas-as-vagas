@@ -30,6 +30,7 @@ concurrency:
 
 jobs:
   atualizar-e-publicar:
+    if: github.event_name != 'push' || !contains(github.event.head_commit.message, '[new-portals-only]')
     runs-on: ubuntu-latest
     timeout-minutes: 120
     environment:
