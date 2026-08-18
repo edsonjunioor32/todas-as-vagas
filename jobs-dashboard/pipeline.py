@@ -157,7 +157,14 @@ def main():
             ],
         )
     modality_inferred = storage.infer_missing_work_models(conn)
-    greenhouse_removed = storage.purge_greenhouse_non_brazil(conn)
+    greenhouse_removed = storage.purge_greenhouse_non_brazil(
+        conn,
+        [
+            f"greenhouse:{row.get('native_id') or row['url']}"
+            for row in rows
+            if row["source"] == "greenhouse"
+        ],
+    )
     pruned = storage.prune(conn, keep_days=120, max_age_months=max(0, args.max_age_months))
     after = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
     count, size_mb = storage.export_snapshot(

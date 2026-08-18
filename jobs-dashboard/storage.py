@@ -180,12 +180,26 @@ _BRAZIL_LOCATION_RE = re.compile(
 )
 
 
-def purge_greenhouse_non_brazil(conn):
-    """Remove legacy Greenhouse rows admitted by ambiguous US state abbreviations."""
+def purge_greenhouse_non_brazil(conn, current_uids=None):
+    """Remove invalid legacy rows without discarding freshly validated jobs.
+
+    The current Greenhouse collector already applies the board-aware Brazil
+    filter. Its accepted UIDs are authoritative even when the location is a
+    valid value that the generic legacy regex cannot recognize, such as
+    ``Barueri/SP`` or ``Remoto``.
+    """
+    current = {
+        str(uid or "").strip()
+        for uid in (current_uids or [])
+        if str(uid or "").strip()
+    }
     candidates = conn.execute(
         "SELECT job_uid, city FROM jobs WHERE source = 'greenhouse'"
     ).fetchall()
-    invalid = [uid for uid, city in candidates if not _BRAZIL_LOCATION_RE.search(str(city or ""))]
+    invalid = [
+        uid for uid, city in candidates
+        if uid not in current and not _BRAZIL_LOCATION_RE.search(str(city or ""))
+    ]
     if invalid:
         conn.executemany("DELETE FROM jobs WHERE job_uid = ?", [(uid,) for uid in invalid])
         conn.commit()
