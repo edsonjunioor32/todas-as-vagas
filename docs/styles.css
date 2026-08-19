@@ -140,6 +140,24 @@ a {
   color: #fff;
 }
 
+.header-support {
+  display: grid;
+  gap: 1px;
+  padding: 5px 9px;
+  border: 1px solid rgba(242, 174, 53, 0.45);
+  border-radius: 9px;
+  background: rgba(242, 174, 53, 0.12);
+  color: #fff4d8;
+  font-size: 0.7rem;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.header-support strong {
+  color: #fff;
+  font-size: 0.72rem;
+}
+
 .header-linkedin-link {
   min-height: 38px;
   display: inline-flex;
@@ -712,6 +730,36 @@ a:focus-visible {
   transform: translateY(-1px);
 }
 
+.support-card {
+  margin-top: 24px;
+  padding: 16px;
+  border: 1px solid rgba(242, 174, 53, 0.44);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.support-card h2 {
+  margin: 0;
+  color: #fff4d8;
+  font-size: 0.98rem;
+  letter-spacing: -0.01em;
+}
+
+.support-card p {
+  margin-top: 8px;
+  color: #d6e5e3;
+}
+
+.support-pix {
+  margin-bottom: 0;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  color: #fff4d8 !important;
+  font-size: 0.86rem !important;
+  font-weight: 720;
+  overflow-wrap: anywhere;
+}
+
 .noscript {
   position: fixed;
   inset: auto 16px 16px;
@@ -766,8 +814,15 @@ a:focus-visible {
 
   .header-actions {
     width: 100%;
-    justify-content: space-between;
+    flex-wrap: wrap;
+    justify-content: flex-start;
     gap: 10px;
+  }
+
+  .header-support {
+    order: 3;
+    width: 100%;
+    white-space: normal;
   }
 
   .source-link {
