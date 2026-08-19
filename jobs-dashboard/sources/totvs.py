@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
-"""TOTVS public careers listing from the official Vem Pra TOTVS catalog."""
+"""Public career portals hosted on the TOTVS Atração de Talentos platform.
+
+The main Vem Pra TOTVS catalog and the requested customer career pages share
+the same public card/detail markup. Individual customer pages can be retired
+without affecting the remaining companies or the regular portal update.
+"""
 import concurrent.futures
 import os
 import re
@@ -11,25 +16,53 @@ from ._http import get_text
 
 
 BASE_URL = "https://atracaodetalentos.totvs.app"
-CATALOG_URL = f"{BASE_URL}/vempratotvs/extended"
-JOB_URL_RE = re.compile(
-    r"^https://atracaodetalentos\.totvs\.app/vempratotvs/(\d+)/[^/?#]+/?$",
-    re.I,
-)
-MIN_EXPECTED_JOBS = 20
+MIN_EXPECTED_TOTVS_JOBS = 20
 MAX_WORKERS = max(1, int(os.environ.get("TOTVS_WORKERS", "10")))
+
+# The first entry is the primary, official TOTVS board. The remaining pages
+# were explicitly requested and are retried on every general update.
+BOARDS = {
+    "vempratotvs": {"company": "TOTVS", "catalog": "extended", "required": True},
+    "universoecommerce": {"company": "Universo E-commerce"},
+    "vidya": {"company": "Vidya"},
+    "grupobridger": {"company": "Grupo Bridger"},
+    "vagasolor": {"company": "Solor Tecnologia"},
+    "cesed": {"company": "CESED"},
+    "oncomed": {"company": "Oncomed"},
+    "bramoffshore": {"company": "Bram Offshore"},
+    "vagashtri": {"company": "HTRI"},
+    "trabalhenagnatus": {"company": "Gnatus"},
+    "einscricao": {"company": "eInscrição"},
+    "afin": {"company": "AFIN Assessoria Fiscal e Contábil"},
+    "vempratechfin": {"company": "Techfin"},
+    "estuda": {"company": "Estuda"},
+    "om30": {"company": "OM30"},
+    "vagaconfidencialbrasil": {"company": "Empresa confidencial"},
+    "facapartedogrupoconsulth": {"company": "Grupo Consulth"},
+    "concremat": {"company": "Concremat"},
+    "vagasavaeducacao": {"company": "AVA Educação"},
+    "selbetti": {"company": "Selbetti"},
+    "netratecnologia": {"company": "Netra Tecnologia"},
+    "vagasecomex": {"company": "eCOMEX"},
+}
 
 
 class CatalogParser(HTMLParser):
-    """Read only official job cards; institutional navigation links are ignored."""
+    """Read only public job cards from one configured TOTVS board."""
 
-    def __init__(self):
+    def __init__(self, board, company):
         super().__init__(convert_charrefs=True)
+        self.board = board
+        self.company = company
         self.rows = []
         self.item = None
         self.depth = 0
         self.in_job_link = False
         self.link_parts = []
+        self.job_url_re = re.compile(
+            rf"^https://atracaodetalentos\\.totvs\\.app/{re.escape(board)}/(\\d+)/[^/?#]+/?$",
+            re.I,
+        )
 
     def handle_starttag(self, tag, attrs):
         values = dict(attrs)
@@ -46,7 +79,7 @@ class CatalogParser(HTMLParser):
             self.depth += 1
         elif tag == "a" and values.get("data-cy") == "job-opportunity-link":
             href = urljoin(BASE_URL, values.get("href", ""))
-            if JOB_URL_RE.match(href):
+            if self.job_url_re.match(href):
                 self.item["job_url"] = href
                 self.item["link_title"] = values.get("data-title", "")
                 self.in_job_link = True
@@ -67,7 +100,7 @@ class CatalogParser(HTMLParser):
 
     def _finish_item(self):
         href = self.item.get("job_url", "")
-        match = JOB_URL_RE.match(href)
+        match = self.job_url_re.match(href)
         title = self.item.get("data-title") or self.item.get("link_title") or " ".join(self.link_parts)
         if match and title.strip():
             remote = self.item.get("data-hide-location", "").lower() == "true"
@@ -76,9 +109,9 @@ class CatalogParser(HTMLParser):
             self.rows.append(
                 job(
                     "totvs",
-                    match.group(1),
+                    f"{self.board}:{match.group(1)}",
                     title=title.strip(),
-                    company="TOTVS",
+                    company=self.company,
                     url=href,
                     work_model=work_model_label(
                         remote_flag=True if remote else None,
@@ -99,7 +132,7 @@ class CatalogParser(HTMLParser):
 
 def _tag_text(markup, attribute_pattern):
     match = re.search(
-        rf"<(?:p|div)\b(?=[^>]*{attribute_pattern})[^>]*>(.*?)</(?:p|div)>",
+        rf"<(?:p|div)\\b(?=[^>]*{attribute_pattern})[^>]*>(.*?)</(?:p|div)>",
         markup or "",
         re.I | re.S,
     )
@@ -109,8 +142,8 @@ def _tag_text(markup, attribute_pattern):
 def _contracts(regime):
     values = []
     patterns = (
-        ("CLT", r"\bclt\b"),
-        ("PJ", r"\bpj\b|pessoa jur[ií]dica"),
+        ("CLT", r"\\bclt\\b"),
+        ("PJ", r"\\bpj\\b|pessoa jur[ií]dica"),
         ("Cooperado", r"cooperad"),
         ("Freelancer", r"freelanc"),
         ("Temporário", r"tempor[aá]ri"),
@@ -124,12 +157,12 @@ def _contracts(regime):
 
 
 def parse_detail(markup):
-    subtitle = _tag_text(markup, r'class=["\'][^"\']*job-opportunity__subtitle[^"\']*["\']')
-    regime = _tag_text(markup, r'data-cy=["\']mobile-regime["\']')
+    subtitle = _tag_text(markup, r'class=["\\'][^"\\']*job-opportunity__subtitle[^"\\']*["\\']')
+    regime = _tag_text(markup, r'data-cy=["\\']mobile-regime["\\']')
     work_model = work_model_label(raw=subtitle)
     city = state = ""
     for part in [value.strip() for value in subtitle.split("|")]:
-        match = re.match(r"^(.+?)\s*-\s*([A-Z]{2})$", part)
+        match = re.match(r"^(.+?)\\s*-\\s*([A-Z]{2})$", part)
         if match:
             city, state = match.group(1).strip(), match.group(2)
             break
@@ -156,12 +189,42 @@ def _enrich(row):
     return row, bool(details["work_model"] or details["city"] or details["contract_types"])
 
 
+def _catalog_url(board, config):
+    suffix = config.get("catalog")
+    return f"{BASE_URL}/{board}/{suffix}" if suffix else f"{BASE_URL}/{board}/"
+
+
+def _fetch_board(board, config):
+    parser = CatalogParser(board, config["company"])
+    parser.feed(get_text(_catalog_url(board, config), timeout=45, retries=3))
+    return parser.rows
+
+
 def fetch():
-    parser = CatalogParser()
-    parser.feed(get_text(CATALOG_URL, timeout=45, retries=3))
-    rows = parser.rows
-    if len(rows) < MIN_EXPECTED_JOBS:
-        raise RuntimeError(f"TOTVS returned only {len(rows)} official job links; refusing a partial catalog")
+    rows = []
+    primary_rows = None
+
+    for board, config in BOARDS.items():
+        try:
+            board_rows = _fetch_board(board, config)
+        except Exception as error:
+            if config.get("required"):
+                raise RuntimeError(f"TOTVS primary catalog failed: {error}") from error
+            print(f"    [totvs:{board}] {str(error)[:80]}")
+            continue
+
+        if config.get("required"):
+            primary_rows = board_rows
+        elif not board_rows:
+            print(f"    [totvs:{board}] no active public jobs")
+
+        rows.extend(board_rows)
+
+    if primary_rows is None or len(primary_rows) < MIN_EXPECTED_TOTVS_JOBS:
+        count = len(primary_rows or [])
+        raise RuntimeError(
+            f"TOTVS returned only {count} official job links; refusing a partial primary catalog"
+        )
 
     enriched = []
     details_ok = 0
@@ -171,6 +234,8 @@ def fetch():
             row, parsed = future.result()
             enriched.append(row)
             details_ok += int(parsed)
+
     if not details_ok:
         raise RuntimeError("TOTVS job details did not expose location, modality or contract type")
-    return sorted(enriched, key=lambda row: int(row["native_id"]))
+
+    return sorted(enriched, key=lambda row: (row["company"].casefold(), row["native_id"]))
