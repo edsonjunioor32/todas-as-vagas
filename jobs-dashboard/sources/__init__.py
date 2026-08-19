@@ -18,6 +18,7 @@ from . import (
     solides,
     themuse,
     wwr,
+    wise,
 )
 
 REGISTRY = [
@@ -58,6 +59,7 @@ REGISTRY = [
     ("workingnomads", remote_boards.fetch_workingnomads),
     ("arbeitnow", remote_boards.fetch_arbeitnow),
     ("weworkremotely", wwr.fetch),
+    ("wise", wise.fetch),
     ("greenhouse", ats_boards.fetch_greenhouse),
     ("lever", ats_boards.fetch_lever),
     ("ashby", ats_boards.fetch_ashby),
