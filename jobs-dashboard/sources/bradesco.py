@@ -35,18 +35,18 @@ API_REGIONS = (
 def _bootstrap():
     markup = get_text(CAREERS_URL, timeout=45, retries=3)
     token = re.search(
-        r'(?:"token"|"accessToken"|"jwtToken")\\s*:\\s*"(eyJ[^"]+)"',
+        r'(?:"token"|"accessToken"|"jwtToken")\s*:\s*"(eyJ[^"]+)"',
         markup,
         re.I,
     )
     cloud = re.search(
-        r'(?:"cloud"|"cloudEndpoint"|"apiEndpoint")\\s*:\\s*"([^"]+)"',
+        r'(?:"cloud"|"cloudEndpoint"|"apiEndpoint")\s*:\s*"([^"]+)"',
         markup,
         re.I,
     )
     if not token:
         raise RuntimeError("CSOD did not expose the public careers token")
-    endpoint = cloud.group(1).replace(r"\\/", "/").rstrip("/") if cloud else ""
+    endpoint = cloud.group(1).replace(r"\/", "/").rstrip("/") if cloud else ""
     return token.group(1), endpoint
 
 
