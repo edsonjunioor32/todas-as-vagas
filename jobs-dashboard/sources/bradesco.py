@@ -5,7 +5,6 @@ import re
 import time
 import urllib.error
 import urllib.request
-from urllib.parse import urljoin
 
 from ._common import (
     is_brazil_location,
@@ -29,13 +28,13 @@ PAGE_SIZE = 50
 
 def _bootstrap():
     markup = get_text(CAREERS_URL, timeout=45, retries=3)
-    token = re.search(r'"token"\\s*:\\s*"(eyJ[^"]+)"', markup)
-    cloud = re.search(r'"cloud"\\s*:\\s*"([^"]+)"', markup)
+    token = re.search(r'"token"\s*:\s*"(eyJ[^"]+)"', markup)
+    cloud = re.search(r'"cloud"\s*:\s*"([^"]+)"', markup)
     if not token:
         raise RuntimeError("CSOD did not expose the public careers token")
     if not cloud:
         raise RuntimeError("CSOD did not expose the public API region")
-    return token.group(1), cloud.group(1).replace(r"\\/", "/").rstrip("/")
+    return token.group(1), cloud.group(1).replace(r"\/", "/").rstrip("/")
 
 
 def _post_json(url, payload, headers, retries=3):
