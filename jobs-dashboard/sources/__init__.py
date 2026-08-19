@@ -2,6 +2,7 @@
 """Registry of public, key-free job sources."""
 from . import (
     accenture,
+    bradesco,
     ats_boards,
     company_careers,
     recrutei,
@@ -27,6 +28,7 @@ REGISTRY = [
     ("recrutei", recrutei.fetch),
     ("totvs", totvs.fetch),
     ("accenture", accenture.fetch),
+    ("bradesco", bradesco.fetch),
     ("gupy", gupy.fetch),
     ("solides", solides.fetch),
     ("geekhunter", geekhunter.fetch),
