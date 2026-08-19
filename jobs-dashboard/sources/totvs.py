@@ -60,7 +60,7 @@ class CatalogParser(HTMLParser):
         self.in_job_link = False
         self.link_parts = []
         self.job_url_re = re.compile(
-            rf"^https://atracaodetalentos\\.totvs\\.app/{re.escape(board)}/(\\d+)/[^/?#]+/?$",
+            rf"^https://atracaodetalentos\.totvs\.app/{re.escape(board)}/(\d+)/[^/?#]+/?$",
             re.I,
         )
 
@@ -132,7 +132,7 @@ class CatalogParser(HTMLParser):
 
 def _tag_text(markup, attribute_pattern):
     match = re.search(
-        rf"<(?:p|div)\\b(?=[^>]*{attribute_pattern})[^>]*>(.*?)</(?:p|div)>",
+        rf"<(?:p|div)\b(?=[^>]*{attribute_pattern})[^>]*>(.*?)</(?:p|div)>",
         markup or "",
         re.I | re.S,
     )
@@ -142,8 +142,8 @@ def _tag_text(markup, attribute_pattern):
 def _contracts(regime):
     values = []
     patterns = (
-        ("CLT", r"\\bclt\\b"),
-        ("PJ", r"\\bpj\\b|pessoa jur[ií]dica"),
+        ("CLT", r"\bclt\b"),
+        ("PJ", r"\bpj\b|pessoa jur[ií]dica"),
         ("Cooperado", r"cooperad"),
         ("Freelancer", r"freelanc"),
         ("Temporário", r"tempor[aá]ri"),
@@ -157,12 +157,12 @@ def _contracts(regime):
 
 
 def parse_detail(markup):
-    subtitle = _tag_text(markup, r'class=["\\'][^"\\']*job-opportunity__subtitle[^"\\']*["\\']')
-    regime = _tag_text(markup, r'data-cy=["\\']mobile-regime["\\']')
+    subtitle = _tag_text(markup, r'class=["\'][^"\']*job-opportunity__subtitle[^"\']*["\']')
+    regime = _tag_text(markup, r'data-cy=["\']mobile-regime["\']')
     work_model = work_model_label(raw=subtitle)
     city = state = ""
     for part in [value.strip() for value in subtitle.split("|")]:
-        match = re.match(r"^(.+?)\\s*-\\s*([A-Z]{2})$", part)
+        match = re.match(r"^(.+?)\s*-\s*([A-Z]{2})$", part)
         if match:
             city, state = match.group(1).strip(), match.group(2)
             break
