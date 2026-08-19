@@ -7,6 +7,7 @@ from . import (
     company_careers,
     recrutei,
     empregare,
+    experian,
     geekhunter,
     github_boards,
     requested_careers,
@@ -25,6 +26,7 @@ from . import (
 REGISTRY = [
     ("inhire", inhire.fetch),
     ("empregare", empregare.fetch),
+    ("experian", experian.fetch),
     ("recrutei", recrutei.fetch),
     ("totvs", totvs.fetch),
     ("accenture", accenture.fetch),
