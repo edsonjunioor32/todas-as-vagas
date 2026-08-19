@@ -24,17 +24,30 @@ CAREERS_URL = (
     "https://bradesco.csod.com/ux/ats/careersite/1/home?c=bradesco"
 )
 PAGE_SIZE = 50
+API_REGIONS = (
+    "https://api.csod.com",
+    "https://us.api.csod.com",
+    "https://eu-fra.api.csod.com",
+    "https://uk.api.csod.com",
+)
 
 
 def _bootstrap():
     markup = get_text(CAREERS_URL, timeout=45, retries=3)
-    token = re.search(r'"token"\s*:\s*"(eyJ[^"]+)"', markup)
-    cloud = re.search(r'"cloud"\s*:\s*"([^"]+)"', markup)
+    token = re.search(
+        r'(?:"token"|"accessToken"|"jwtToken")\\s*:\\s*"(eyJ[^"]+)"',
+        markup,
+        re.I,
+    )
+    cloud = re.search(
+        r'(?:"cloud"|"cloudEndpoint"|"apiEndpoint")\\s*:\\s*"([^"]+)"',
+        markup,
+        re.I,
+    )
     if not token:
         raise RuntimeError("CSOD did not expose the public careers token")
-    if not cloud:
-        raise RuntimeError("CSOD did not expose the public API region")
-    return token.group(1), cloud.group(1).replace(r"\/", "/").rstrip("/")
+    endpoint = cloud.group(1).replace(r"\\/", "/").rstrip("/") if cloud else ""
+    return token.group(1), endpoint
 
 
 def _post_json(url, payload, headers, retries=3):
@@ -109,7 +122,7 @@ def _row(item):
 
 
 def fetch():
-    token, cloud = _bootstrap()
+    token, preferred_cloud = _bootstrap()
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json",
@@ -118,38 +131,54 @@ def fetch():
         "Csod-Accept-Language": "pt-BR",
     }
     rows, seen = [], set()
-    for page in range(1, 100):
-        payload = {
-            "careerSiteId": SITE_ID,
-            "careerSitePageId": 1,
-            "pageNumber": page,
-            "pageSize": PAGE_SIZE,
-            "cultureId": 1,
-            "cultureName": "pt-BR",
-            "searchText": "",
-            "states": [],
-            "countryCodes": [],
-            "cities": [],
-            "placeID": "",
-            "radius": None,
-            "postingsWithinDays": None,
-            "customFieldCheckboxKeys": [],
-            "customFieldDropdowns": [],
-            "customFieldRadios": [],
-        }
-        response = _post_json(f"{cloud}/rec-job-search/external/jobs", payload, headers)
-        data = response.get("data", {})
-        requisitions = data.get("requisitions", [])
-        if not requisitions:
-            break
-        for item in requisitions:
-            row = _row(item)
-            if row and row["native_id"] not in seen:
-                seen.add(row["native_id"])
-                rows.append(row)
-        total = int(data.get("totalCount") or 0)
-        if page * PAGE_SIZE >= total:
-            break
+    regions = []
+    for region in (preferred_cloud, *API_REGIONS):
+        if region and region not in regions:
+            regions.append(region)
+
+    last_error = None
+    for cloud in regions:
+        try:
+            for page in range(1, 100):
+                payload = {
+                    "careerSiteId": SITE_ID,
+                    "careerSitePageId": 1,
+                    "pageNumber": page,
+                    "pageSize": PAGE_SIZE,
+                    "cultureId": 1,
+                    "cultureName": "pt-BR",
+                    "searchText": "",
+                    "states": [],
+                    "countryCodes": [],
+                    "cities": [],
+                    "placeID": "",
+                    "radius": None,
+                    "postingsWithinDays": None,
+                    "customFieldCheckboxKeys": [],
+                    "customFieldDropdowns": [],
+                    "customFieldRadios": [],
+                }
+                response = _post_json(f"{cloud}/rec-job-search/external/jobs", payload, headers)
+                if response.get("status") != "Success":
+                    raise RuntimeError(f"CSOD search returned {response.get('status') or 'an invalid response'}")
+                data = response.get("data", {})
+                requisitions = data.get("requisitions", [])
+                if not requisitions:
+                    break
+                for item in requisitions:
+                    row = _row(item)
+                    if row and row["native_id"] not in seen:
+                        seen.add(row["native_id"])
+                        rows.append(row)
+                total = int(data.get("totalCount") or 0)
+                if page * PAGE_SIZE >= total:
+                    break
+            if rows:
+                break
+        except Exception as error:
+            last_error = error
+            continue
     if not rows:
-        raise RuntimeError("Bradesco CSOD returned no public Brazil requisitions")
+        detail = f": {last_error}" if last_error else ""
+        raise RuntimeError(f"Bradesco CSOD returned no public Brazil requisitions{detail}")
     return rows
