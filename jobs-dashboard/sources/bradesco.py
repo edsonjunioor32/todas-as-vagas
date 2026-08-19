@@ -29,6 +29,9 @@ API_REGIONS = (
     "https://us.api.csod.com",
     "https://eu-fra.api.csod.com",
     "https://uk.api.csod.com",
+    "https://eu.api.csod.com",
+    "https://apac.api.csod.com",
+    "https://ca.api.csod.com",
 )
 
 
@@ -46,8 +49,12 @@ def _bootstrap():
     )
     if not token:
         raise RuntimeError("CSOD did not expose the public careers token")
-    endpoint = cloud.group(1).replace(r"\/", "/").rstrip("/") if cloud else ""
-    return token.group(1), endpoint
+    endpoint = cloud.group(1).replace(r"\\/", "/").rstrip("/") if cloud else ""
+    if not token:
+        token = re.search(r"(eyJ[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+)", markup)
+    discovered_regions = re.findall(r"https?:\\\\?/\\\\?/[^\\\"' ]*api\\.csod\\.com", markup, re.I)
+    discovered_regions = [value.replace(r"\\/", "/").rstrip("/") for value in discovered_regions]
+    return token.group(1), endpoint, discovered_regions
 
 
 def _post_json(url, payload, headers, retries=3):
@@ -122,7 +129,7 @@ def _row(item):
 
 
 def fetch():
-    token, preferred_cloud = _bootstrap()
+    token, preferred_cloud, discovered_regions = _bootstrap()
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json",
@@ -132,7 +139,7 @@ def fetch():
     }
     rows, seen = [], set()
     regions = []
-    for region in (preferred_cloud, *API_REGIONS):
+    for region in (preferred_cloud, *discovered_regions, *API_REGIONS):
         if region and region not in regions:
             regions.append(region)
 
