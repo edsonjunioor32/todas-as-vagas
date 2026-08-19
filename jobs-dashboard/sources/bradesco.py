@@ -42,18 +42,19 @@ def _bootstrap():
         markup,
         re.I,
     )
+    if not token:
+        token = re.search(r"(eyJ[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)", markup)
+    if not token:
+        raise RuntimeError("CSOD did not expose the public careers token")
+
     cloud = re.search(
         r'(?:"cloud"|"cloudEndpoint"|"apiEndpoint")\s*:\s*"([^"]+)"',
         markup,
         re.I,
     )
-    if not token:
-        raise RuntimeError("CSOD did not expose the public careers token")
-    endpoint = cloud.group(1).replace(r"\\/", "/").rstrip("/") if cloud else ""
-    if not token:
-        token = re.search(r"(eyJ[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+)", markup)
-    discovered_regions = re.findall(r"https?:\\\\?/\\\\?/[^\\\"' ]*api\\.csod\\.com", markup, re.I)
-    discovered_regions = [value.replace(r"\\/", "/").rstrip("/") for value in discovered_regions]
+    endpoint = cloud.group(1).replace(r"\/", "/").rstrip("/") if cloud else ""
+    discovered_regions = re.findall(r"https?:\/\/[^\"' ]*api\.csod\.com", markup, re.I)
+    discovered_regions = [value.replace(r"\/", "/").rstrip("/") for value in discovered_regions]
     return token.group(1), endpoint, discovered_regions
 
 
