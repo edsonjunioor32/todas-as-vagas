@@ -94,6 +94,8 @@ jobs:
           GEEKHUNTER_WORKERS: "4"
           ORACLE_WORKERS: "4"
           GREENHOUSE_WORKERS: "12"
+          INFOJOBS_MAX_JOBS: "200"
+          INFOJOBS_MAX_SCROLLS: "20"
         run: python jobs-dashboard/pipeline.py --max-age-months 2
 
       - name: Validar privacidade e integridade

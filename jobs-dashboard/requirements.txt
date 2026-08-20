@@ -1,3 +1,3 @@
-# The pipeline is standard-library only (urllib, json, sqlite3) — no third-party
-# packages required. This file exists so the GitHub Actions `pip install -r` step
-# is a no-op and stays consistent with the commodity workflow.
+# Selenium drives the Chrome installation already available on GitHub-hosted
+# runners for public pages that require JavaScript rendering (InfoJobs).
+selenium>=4.25,<5
