@@ -25,37 +25,53 @@ CAREERS_URL = (
 )
 PAGE_SIZE = 50
 API_REGIONS = (
-    "https://api.csod.com",
     "https://us.api.csod.com",
-    "https://eu-fra.api.csod.com",
-    "https://uk.api.csod.com",
     "https://eu.api.csod.com",
-    "https://apac.api.csod.com",
-    "https://ca.api.csod.com",
+    "https://uk.api.csod.com",
+    "https://au.api.csod.com",
 )
 
 
 def _bootstrap():
     markup = get_text(CAREERS_URL, timeout=45, retries=3)
-    token = re.search(
-        r'(?:"token"|"accessToken"|"jwtToken")\s*:\s*"(eyJ[^"]+)"',
+    context_match = re.search(
+        r"csod\.context\s*=\s*(\{.*?\})\s*;",
         markup,
-        re.I,
+        re.DOTALL,
     )
-    if not token:
-        token = re.search(r"(eyJ[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)", markup)
-    if not token:
-        raise RuntimeError("CSOD did not expose the public careers token")
+    if not context_match:
+        raise RuntimeError("CSOD did not expose the public careers context")
 
-    cloud = re.search(
-        r'(?:"cloud"|"cloudEndpoint"|"apiEndpoint")\s*:\s*"([^"]+)"',
-        markup,
+    try:
+        context = json.loads(context_match.group(1))
+    except (json.JSONDecodeError, ValueError) as error:
+        raise RuntimeError("CSOD exposed an invalid public careers context") from error
+    if not isinstance(context, dict):
+        raise RuntimeError("CSOD public careers context is not an object")
+
+    token = context.get("token")
+    culture_id = context.get("cultureID")
+    culture_name = str(context.get("cultureName") or "en-US").strip() or "en-US"
+    endpoint = str((context.get("endpoints") or {}).get("cloud") or "").rstrip("/")
+    if not token:
+        raise RuntimeError("CSOD public careers context did not include a token")
+    if culture_id is None:
+        raise RuntimeError("CSOD public careers context did not include cultureID")
+    if endpoint and not re.fullmatch(
+        r"https://(?:[a-z0-9-]+\.)?api\.csod\.com",
+        endpoint,
+        re.I,
+    ):
+        raise RuntimeError(f"CSOD exposed an unexpected cloud endpoint: {endpoint}")
+
+    normalized = markup.replace(r"\/", "/")
+    discovered_regions = re.findall(
+        r"https://(?:[a-z0-9-]+\.)?api\.csod\.com",
+        normalized,
         re.I,
     )
-    endpoint = cloud.group(1).replace(r"\/", "/").rstrip("/") if cloud else ""
-    discovered_regions = re.findall(r"https?:\/\/[^\"' ]*api\.csod\.com", markup, re.I)
-    discovered_regions = [value.replace(r"\/", "/").rstrip("/") for value in discovered_regions]
-    return token.group(1), endpoint, discovered_regions
+    discovered_regions = list(dict.fromkeys(value.rstrip("/") for value in discovered_regions))
+    return token, endpoint, discovered_regions, culture_id, culture_name
 
 
 def _post_json(url, payload, headers, retries=3):
@@ -96,11 +112,18 @@ def _field(item, *names):
 
 def _row(item):
     native_id = _field(item, "requisitionId", "requisitionID", "id", "jobId")
-    title = _field(item, "title", "requisitionTitle", "jobTitle")
+    title = _field(
+        item,
+        "displayJobTitle",
+        "postingTitle",
+        "title",
+        "requisitionTitle",
+        "jobTitle",
+    )
     if not native_id or not title:
         return None
 
-    description = strip_html(_field(item, "description", "jobDescription", "externalDescription"))
+    description = strip_html(_field(item, "externalDescription", "description", "jobDescription"))
     location = _location_text(_field(item, "locations", "location", "locationName"))
     if location and not is_brazil_location(location):
         return None
@@ -121,8 +144,12 @@ def _row(item):
         state=state,
         country="BR",
         market="BR",
-        published_date=iso_date(_field(item, "postedDate", "postingDate", "datePosted")),
-        expires_date=iso_date(_field(item, "closingDate", "expirationDate", "endDate")),
+        published_date=iso_date(
+            _field(item, "postingEffectiveDate", "postedDate", "postingDate", "datePosted")
+        ),
+        expires_date=iso_date(
+            _field(item, "postingExpirationDate", "closingDate", "expirationDate", "endDate")
+        ),
         description=description,
         categories=[str(_field(item, "category", "jobCategory", "jobFamily"))] if _field(item, "category", "jobCategory", "jobFamily") else [],
         pcd=bool(re.search(r"\b(?:pcd|pessoa com defici)", raw, re.I)),
@@ -130,13 +157,14 @@ def _row(item):
 
 
 def fetch():
-    token, preferred_cloud, discovered_regions = _bootstrap()
+    token, preferred_cloud, discovered_regions, culture_id, culture_name = _bootstrap()
     headers = {
         "Authorization": f"Bearer {token}",
+        "Accept": "application/json",
         "Content-Type": "application/json",
         "Origin": "https://bradesco.csod.com",
         "Referer": CAREERS_URL,
-        "Csod-Accept-Language": "pt-BR",
+        "Csod-Accept-Language": culture_name,
     }
     rows, seen = [], set()
     regions = []
@@ -153,15 +181,15 @@ def fetch():
                     "careerSitePageId": 1,
                     "pageNumber": page,
                     "pageSize": PAGE_SIZE,
-                    "cultureId": 1,
-                    "cultureName": "pt-BR",
+                    "cultureId": culture_id,
+                    "cultureName": culture_name,
                     "searchText": "",
                     "states": [],
                     "countryCodes": [],
                     "cities": [],
                     "placeID": "",
-                    "radius": None,
-                    "postingsWithinDays": None,
+                    "radius": "",
+                    "postingsWithinDays": "",
                     "customFieldCheckboxKeys": [],
                     "customFieldDropdowns": [],
                     "customFieldRadios": [],
