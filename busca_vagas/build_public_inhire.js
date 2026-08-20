@@ -26,6 +26,14 @@ const INFRA = new Set([
   'email', 'lp', 'hub', 'webinar', 'analytics', 'analytics-ss'
 ]);
 const DEMO_TENANTS = new Set(['demo']);
+const DETAIL_TTL_HOURS = Math.min(
+  168,
+  Math.max(1, Number(process.env.INHIRE_DETAIL_TTL_HOURS) || 24)
+);
+const DETAIL_WORKERS = Math.min(
+  32,
+  Math.max(1, Number(process.env.INHIRE_DETAIL_WORKERS) || 24)
+);
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -293,8 +301,33 @@ function validIso(value) {
   return new Date(value).toISOString();
 }
 
+function cachedJobs() {
+  const file = path.join(OUTPUT_DIR, 'vagas.json');
+  try {
+    const rows = JSON.parse(fs.readFileSync(file, 'utf8').replace(/^\uFEFF/, ''));
+    return Array.isArray(rows) ? rows : [];
+  } catch {
+    return [];
+  }
+}
+
+function canReuseDetail(cached, tenant, job, now) {
+  if (!cached || !cached.detailFetchedAt) return false;
+  const fetchedAt = Date.parse(cached.detailFetchedAt);
+  if (!Number.isFinite(fetchedAt) || now - fetchedAt >= DETAIL_TTL_HOURS * 3600000) return false;
+  const listingTitle = cleanText(job.displayName, 260);
+  const listingLocation = cleanText(job.location, 140);
+  const listingWorkplace = workplaceTypeFor(job.workplaceType);
+  if (listingTitle && normalize(cached.title) !== normalize(listingTitle)) return false;
+  if (listingLocation && normalize(cached.location) !== normalize(listingLocation)) return false;
+  if (listingWorkplace !== 'Não informada' && cached.workplaceType !== listingWorkplace) return false;
+  return normalize(cached.company) === normalize(tenant.tenantName);
+}
+
 (async () => {
   const startedAt = new Date();
+  const now = Date.now();
+  const cache = new Map(cachedJobs().map(item => [item.id, item]));
   const candidateSlugs = collectSlugs();
   if (!candidateSlugs.length) throw new Error('Nenhum tenant candidato foi encontrado.');
 
@@ -323,18 +356,36 @@ function validIso(value) {
   console.log(`Vagas publicadas para detalhar: ${uniqueCandidates.length}`);
 
   let detailCount = 0;
+  let detailsFetched = 0;
+  let detailsReused = 0;
   const jobs = await pool(uniqueCandidates, async ({ tenant, job }, index) => {
+    const id = `${tenant.slug}:${cleanText(job.jobId, 80)}`;
+    const cached = cache.get(id);
+    if (canReuseDetail(cached, tenant, job, now)) {
+      detailCount += 1;
+      detailsReused += 1;
+      return {
+        ...cached,
+        id,
+        url: `https://${tenant.slug}.inhire.app/vagas/${encodeURIComponent(job.jobId)}/${slugify(cached.title)}`,
+        careerPage: `https://${tenant.slug}.inhire.app/vagas`
+      };
+    }
+
     const detail = await fetchDetail(tenant.slug, job.jobId);
     const title = cleanText((detail && detail.displayName) || job.displayName, 260);
     const company = cleanText((detail && detail.tenantName) || tenant.tenantName, 180);
     const location = cleanText((detail && detail.location) || job.location, 140);
     const workplaceType = workplaceTypeFor((detail && detail.workplaceType) || job.workplaceType);
     const description = detail ? decodeHtml(detail.description) : '';
-    if (detail) detailCount += 1;
+    if (detail) {
+      detailCount += 1;
+      detailsFetched += 1;
+    }
     if ((index + 1) % 100 === 0) console.log(`  Detalhes ${index + 1}/${uniqueCandidates.length}`);
 
     return {
-      id: `${tenant.slug}:${cleanText(job.jobId, 80)}`,
+      id,
       company,
       title,
       category: categoryFor(title),
@@ -346,11 +397,12 @@ function validIso(value) {
       publishedAt: validIso(detail && (detail.publishedAt || detail.createdAt)),
       lastPublishedAt: validIso(detail && (detail.lastPublishedAt || detail.publishedAt || detail.createdAt)),
       updatedAt: validIso(detail && detail.updatedAt),
+      detailFetchedAt: detail ? new Date().toISOString() : '',
       alerts: alertsFor(title, location, description, workplaceType, Boolean(detail)),
       url: `https://${tenant.slug}.inhire.app/vagas/${encodeURIComponent(job.jobId)}/${slugify(title)}`,
       careerPage: `https://${tenant.slug}.inhire.app/vagas`
     };
-  }, 20);
+  }, DETAIL_WORKERS);
 
   jobs.sort((a, b) => {
     const dateA = a.lastPublishedAt || a.publishedAt;
@@ -383,6 +435,9 @@ function validIso(value) {
     totalJobs: jobs.length,
     companies: companies.size,
     detailsLoaded: detailCount,
+    detailsFetched,
+    detailsReused,
+    detailCacheHours: DETAIL_TTL_HOURS,
     jobsWithAlerts: jobs.filter(job => job.alerts.length).length,
     excludedDemoJobs,
     source: 'Páginas públicas de carreiras da InHire',

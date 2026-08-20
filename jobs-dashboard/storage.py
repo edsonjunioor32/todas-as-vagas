@@ -104,39 +104,44 @@ def connect(db_path):
 
 def upsert(conn, jobs, today=None):
     today = today or local_today().isoformat()
-    for item in jobs:
-        uid = f"{item['source']}:{item['native_id'] or item['url']}"
-        skills = " · ".join(dict.fromkeys(item.get("skills") or []))[:500]
-        contracts = " · ".join(dict.fromkeys(item.get("contract_types") or []))[:240]
-        row = (
-            uid, item["source"], item["title"], item["company"], item.get("area", ""),
-            item.get("seniority", ""), item.get("work_model", ""), item.get("city", ""),
-            item.get("state", ""), item.get("country", ""), item.get("market", ""),
-            item.get("salary_min"), item.get("salary_max"), item.get("salary_currency"),
-            item.get("published_date", ""), item.get("expires_date", ""), today, today,
-            item.get("url", ""), skills, contracts, int(bool(item.get("pcd"))),
-            int(bool(item.get("blind_selection"))), "", dedupe_key(item["title"], item["company"]),
-        )
-        conn.execute("""
-            INSERT INTO jobs (
-                job_uid, source, title, company, area, seniority, work_model, city,
-                state, country, market, salary_min, salary_max, salary_currency,
-                published_date, expires_date, first_seen_date, last_seen_date, url,
-                skills, contract_types, pcd, blind_selection, description, dedupe_key
-            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-            ON CONFLICT(job_uid) DO UPDATE SET
-                last_seen_date=excluded.last_seen_date,
-                title=excluded.title, company=excluded.company, area=excluded.area,
-                seniority=excluded.seniority, work_model=excluded.work_model,
-                city=excluded.city, state=excluded.state, country=excluded.country,
-                market=excluded.market, salary_min=excluded.salary_min,
-                salary_max=excluded.salary_max, salary_currency=excluded.salary_currency,
-                published_date=excluded.published_date, expires_date=excluded.expires_date,
-                url=excluded.url, skills=excluded.skills,
-                contract_types=excluded.contract_types, pcd=excluded.pcd,
-                blind_selection=excluded.blind_selection, description='',
-                dedupe_key=excluded.dedupe_key
-        """, row)
+
+    def values():
+        for item in jobs:
+            uid = f"{item['source']}:{item['native_id'] or item['url']}"
+            skills = " · ".join(dict.fromkeys(item.get("skills") or []))[:500]
+            contracts = " · ".join(dict.fromkeys(item.get("contract_types") or []))[:240]
+            yield (
+                uid, item["source"], item["title"], item["company"], item.get("area", ""),
+                item.get("seniority", ""), item.get("work_model", ""), item.get("city", ""),
+                item.get("state", ""), item.get("country", ""), item.get("market", ""),
+                item.get("salary_min"), item.get("salary_max"), item.get("salary_currency"),
+                item.get("published_date", ""), item.get("expires_date", ""), today, today,
+                item.get("url", ""), skills, contracts, int(bool(item.get("pcd"))),
+                int(bool(item.get("blind_selection"))), "",
+                dedupe_key(item["title"], item["company"]),
+            )
+
+    conn.executemany("""
+        INSERT INTO jobs (
+            job_uid, source, title, company, area, seniority, work_model, city,
+            state, country, market, salary_min, salary_max, salary_currency,
+            published_date, expires_date, first_seen_date, last_seen_date, url,
+            skills, contract_types, pcd, blind_selection, description, dedupe_key
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        ON CONFLICT(job_uid) DO UPDATE SET
+            last_seen_date=excluded.last_seen_date,
+            title=excluded.title, company=excluded.company, area=excluded.area,
+            seniority=excluded.seniority,
+            work_model=COALESCE(NULLIF(excluded.work_model, ''), jobs.work_model),
+            city=excluded.city, state=excluded.state, country=excluded.country,
+            market=excluded.market, salary_min=excluded.salary_min,
+            salary_max=excluded.salary_max, salary_currency=excluded.salary_currency,
+            published_date=excluded.published_date, expires_date=excluded.expires_date,
+            url=excluded.url, skills=excluded.skills,
+            contract_types=excluded.contract_types, pcd=excluded.pcd,
+            blind_selection=excluded.blind_selection, description='',
+            dedupe_key=excluded.dedupe_key
+    """, values())
     conn.commit()
 
 
@@ -168,27 +173,38 @@ def infer_missing_work_models(conn):
     city/location is treated as on-site unless the source explicitly said
     remote or hybrid.
     """
-    rows = conn.execute(
-        "SELECT job_uid, work_model, city, state, country, market FROM jobs"
-    ).fetchall()
-    updates = []
-    for uid, work_model, city, state, country, market in rows:
-        if str(work_model or "").strip():
-            continue
-        location = str(city or "").strip().casefold()
-        country_value = str(country or "").strip().casefold()
-        market_value = str(market or "").strip().casefold()
-        is_brazil = country_value in {"br", "brasil", "brazil"} or market_value == "br"
-        if not is_brazil:
-            continue
-        if location in {"br", "brasil", "brazil"} or (not location and country_value in {"brasil", "brazil"}):
-            updates.append(("remote", uid))
-        elif location:
-            updates.append(("on-site", uid))
-    if updates:
-        conn.executemany("UPDATE jobs SET work_model = ? WHERE job_uid = ?", updates)
+    remote = conn.execute("""
+        UPDATE jobs
+        SET work_model = 'remote'
+        WHERE TRIM(COALESCE(work_model, '')) = ''
+          AND (
+              LOWER(TRIM(COALESCE(country, ''))) IN ('br', 'brasil', 'brazil')
+              OR LOWER(TRIM(COALESCE(market, ''))) = 'br'
+          )
+          AND (
+              LOWER(TRIM(COALESCE(city, ''))) IN (
+                  'br', 'brasil', 'brazil', 'remoto', 'remote', 'home office'
+              )
+              OR (
+                  TRIM(COALESCE(city, '')) = ''
+                  AND LOWER(TRIM(COALESCE(country, ''))) IN ('brasil', 'brazil')
+              )
+          )
+    """).rowcount
+    on_site = conn.execute("""
+        UPDATE jobs
+        SET work_model = 'on-site'
+        WHERE TRIM(COALESCE(work_model, '')) = ''
+          AND TRIM(COALESCE(city, '')) <> ''
+          AND (
+              LOWER(TRIM(COALESCE(country, ''))) IN ('br', 'brasil', 'brazil')
+              OR LOWER(TRIM(COALESCE(market, ''))) = 'br'
+          )
+    """).rowcount
+    changed = max(0, remote) + max(0, on_site)
+    if changed:
         conn.commit()
-    return len(updates)
+    return changed
 
 
 _BRAZIL_LOCATION_RE = re.compile(

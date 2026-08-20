@@ -26,7 +26,9 @@ permissions:
 
 concurrency:
   group: vagas-main-writer
-  cancel-in-progress: false
+  # A newer refresh supersedes an older one because generated files are only
+  # committed at the end. This prevents equivalent schedule/push runs queuing.
+  cancel-in-progress: true
 
 jobs:
   atualizar-e-publicar:
@@ -66,11 +68,23 @@ jobs:
         run: python jobs-dashboard/discover_greenhouse_br.py --workers 32 --timeout 8
 
       - name: Descobrir novas empresas InHire
+        if: github.event_name == 'workflow_dispatch' || github.event.schedule == '37 7 * * 0'
         continue-on-error: true
         run: node busca_vagas/harvest_inhire_public.js
 
+      - name: Restaurar cache de detalhes InHire
+        uses: actions/cache@v4
+        with:
+          path: jobs-dashboard/data/inhire
+          key: inhire-details-v1-${{ github.run_id }}
+          restore-keys: |
+            inhire-details-v1-
+
       - name: Coletar a InHire
         continue-on-error: true
+        env:
+          INHIRE_DETAIL_TTL_HOURS: "24"
+          INHIRE_DETAIL_WORKERS: "24"
         run: node busca_vagas/build_public_inhire.js
 
       - name: Validar a coleta da InHire
@@ -83,14 +97,12 @@ jobs:
             echo "A InHire será ignorada nesta execução; os outros portais continuarão."
           fi
 
-      - name: Coletar e integrar o Nerdin
-        continue-on-error: true
-        run: python tools/update_nerdin.py
-
       - name: Coletar, normalizar e consolidar todos os portais
         env:
+          JOBS_SOURCE_WORKERS: "5"
           SOLIDES_MAX_PAGES: "300"
-          SOLIDES_WORKERS: "6"
+          SOLIDES_WORKERS: "8"
+          NERDIN_WORKERS: "6"
           GEEKHUNTER_WORKERS: "4"
           ORACLE_WORKERS: "4"
           GREENHOUSE_WORKERS: "12"
