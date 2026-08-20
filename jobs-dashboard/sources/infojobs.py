@@ -291,34 +291,66 @@ def _load_more(driver, max_jobs, max_scrolls):
             break
 
 
-def _next_page_url(driver):
-    """Return the enabled next-result link exposed by the public paginator."""
-    return driver.execute_script(
+def _job_identifier(row):
+    match = JOB_ID_RE.search(_canonical_url(row.get("href")))
+    return match.group(1) if match else ""
+
+
+def _job_identifiers(rows):
+    return {identifier for identifier in map(_job_identifier, rows) if identifier}
+
+
+def _advance_page(driver, previous_ids, timeout_seconds):
+    """Click InfoJobs' real pagination control and wait for new vacancy cards.
+
+    The public listing uses different paginator implementations over time. Some
+    versions expose an ordinary link, while others use a JavaScript button or
+    an icon-only control. Clicking the visible control avoids depending on one
+    particular URL format and works with either implementation.
+    """
+    clicked = driver.execute_script(
         r"""
-        const selectors = [
-          'a[rel="next"]',
-          'a[aria-label*="Próxima"]', 'a[aria-label*="Proxima"]',
-          '.pagination a.next', '.pagination a[title*="Próxima"]',
-          '.pagination a[title*="Proxima"]'
-        ];
-        for (const selector of selectors) {
-          for (const anchor of document.querySelectorAll(selector)) {
-            const disabled = anchor.getAttribute('aria-disabled') === 'true' ||
-              anchor.classList.contains('disabled') || anchor.parentElement?.classList.contains('disabled');
-            if (!disabled && anchor.href && anchor.href !== location.href) return anchor.href;
-          }
+        const visible = element => {
+          const style = window.getComputedStyle(element);
+          const rect = element.getBoundingClientRect();
+          return style.display !== 'none' && style.visibility !== 'hidden' && rect.width > 0 && rect.height > 0;
+        };
+        const disabled = element => element.getAttribute('aria-disabled') === 'true' ||
+          element.disabled || element.classList.contains('disabled') ||
+          element.parentElement?.classList.contains('disabled');
+        const controls = Array.from(document.querySelectorAll(
+          'a, button, [role="button"], [role="link"]'
+        ));
+        for (const control of controls) {
+          if (!visible(control) || disabled(control)) continue;
+          const label = [
+            control.innerText, control.textContent, control.getAttribute('aria-label'),
+            control.getAttribute('title'), control.getAttribute('data-testid'),
+            control.className,
+          ].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
+          const hasPaginationContext = Boolean(control.closest(
+            '[class*="pagin" i], [id*="pagin" i], [data-pagination], nav[aria-label*="pagin" i]'
+          ));
+          const isNext = /(?:pr[óo]xim|next|seguinte|(?:ver|carregar|mostrar)\s+mais)/i.test(label) ||
+            /^(?:>|›|»|→)$/.test((control.innerText || control.textContent || '').trim());
+          if (!isNext || (!hasPaginationContext && !/pr[óo]xim|next|seguinte/i.test(label))) continue;
+          control.scrollIntoView({block: 'center'});
+          control.click();
+          return true;
         }
-        for (const anchor of document.querySelectorAll('a[href]')) {
-          const label = [anchor.innerText, anchor.getAttribute('aria-label'), anchor.title]
-            .filter(Boolean).join(' ').trim();
-          if (!/^(?:pr[óo]xima|next|›|»)/i.test(label)) continue;
-          const disabled = anchor.getAttribute('aria-disabled') === 'true' ||
-            anchor.classList.contains('disabled') || anchor.parentElement?.classList.contains('disabled');
-          if (!disabled && anchor.href && anchor.href !== location.href) return anchor.href;
-        }
-        return '';
+        return false;
         """
     )
+    if not clicked:
+        return False
+
+    deadline = time.monotonic() + timeout_seconds
+    while time.monotonic() < deadline:
+        current_ids = _job_identifiers(_raw_cards(driver))
+        if current_ids - previous_ids:
+            return True
+        time.sleep(0.75)
+    return False
 
 
 def _raw_cards(driver):
@@ -369,20 +401,21 @@ def fetch():
         except Exception as error:
             if error.__class__.__name__ != "TimeoutException":
                 raise
-        raw_rows, visited_pages = [], set()
+        raw_rows, known_ids = [], set()
         for _ in range(max_pages):
             _wait_for_results(driver, timeout)
             _load_more(driver, max_jobs=max_jobs, max_scrolls=max_scrolls)
-            raw_rows.extend(_raw_cards(driver))
-            if len({JOB_ID_RE.search(_canonical_url(row.get("href"))).group(1)
-                    for row in raw_rows
-                    if JOB_ID_RE.search(_canonical_url(row.get("href")))}) >= max_jobs:
+            current_rows = _raw_cards(driver)
+            current_ids = _job_identifiers(current_rows)
+            raw_rows.extend(
+                row for row in current_rows
+                if _job_identifier(row) not in known_ids
+            )
+            known_ids.update(current_ids)
+            if len(known_ids) >= max_jobs:
                 break
-            next_url = _next_page_url(driver)
-            if not next_url or next_url in visited_pages:
+            if not _advance_page(driver, current_ids, timeout):
                 break
-            visited_pages.add(next_url)
-            driver.get(next_url)
         raw_rows = raw_rows[:max_jobs]
     finally:
         driver.quit()
