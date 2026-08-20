@@ -10,7 +10,7 @@ from pathlib import Path
 
 import classify
 import storage
-from sources import REGISTRY
+from sources import REGISTRY, solides as solides_source
 
 try:
     sys.stdout.reconfigure(encoding="utf-8")
@@ -146,6 +146,11 @@ def main():
     conn = storage.connect(str(DB_PATH))
     before = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
     storage.upsert(conn, rows)
+    solides_urls_repaired = storage.rewrite_source_urls(
+        conn,
+        "solides",
+        solides_source.canonical_url,
+    )
     totvs_removed = 0
     if "totvs" in selected_sources and "totvs" not in failed:
         totvs_removed = storage.purge_source_rows_not_in_uids(
@@ -179,7 +184,7 @@ def main():
         failed_sources=failed,
     )
     conn.close()
-    print(f"  base histórica: {after} vagas ({after-before+pruned:+d} nesta execução; {pruned} removidas; {greenhouse_removed} Greenhouse fora do Brasil; {totvs_removed} TOTVS obsoletas/inválidas; {modality_inferred} modalidades inferidas)")
+    print(f"  base histórica: {after} vagas ({after-before+pruned:+d} nesta execução; {pruned} removidas; {greenhouse_removed} Greenhouse fora do Brasil; {totvs_removed} TOTVS obsoletas/inválidas; {solides_urls_repaired} links Sólides corrigidos; {modality_inferred} modalidades inferidas)")
     print(f"  base pública: {count} vagas · {size_mb:.2f} MB · {JSON_PATH.relative_to(ROOT)}")
     print("=" * 72)
 

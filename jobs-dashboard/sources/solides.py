@@ -7,6 +7,8 @@ the 3,000 most recent records. SOLIDES_MAX_PAGES can tune that window without
 changing the adapter; bounded concurrency keeps the scheduled run practical.
 """
 import os
+import re
+import unicodedata
 import urllib.parse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -16,6 +18,19 @@ from ._http import get_json
 API = "https://apigw.solides.com.br/jobs/v3/portal-vacancies-new"
 PAGE_SIZE = 10
 DEFAULT_MAX_PAGES = 300
+PORTAL = "https://vagas.solides.com.br/vaga"
+
+
+def _job_slug(value):
+    text = unicodedata.normalize("NFKD", str(value or ""))
+    text = text.encode("ascii", "ignore").decode().lower()
+    text = re.sub(r"[^a-z0-9]+", "-", text).strip("-")
+    return (text[:120].rstrip("-") or "vaga")
+
+
+def canonical_url(vacancy_id, title):
+    encoded_id = urllib.parse.quote(str(vacancy_id or "").strip(), safe="")
+    return f"{PORTAL}/{encoded_id}/{_job_slug(title)}"
 
 
 def _url(page):
@@ -69,7 +84,9 @@ def _normalize(item):
     categories = _names(item.get("occupationAreas"))
     contracts = _names(item.get("recruitmentContractType"))
     vacancy_id = item.get("id")
-    url = item.get("redirectLink") or f"https://vagas.solides.com.br/vaga/{vacancy_id}"
+    # The API still returns legacy *.solides.jobs links whose DNS was retired.
+    # The current portal requires a third path segment after the vacancy id.
+    url = canonical_url(vacancy_id, item.get("title"))
     raw_model = item.get("jobType") or ("remoto" if item.get("homeOffice") else "")
 
     return job(

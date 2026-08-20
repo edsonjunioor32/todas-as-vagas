@@ -141,6 +141,26 @@ def upsert(conn, jobs, today=None):
 
 
 
+def rewrite_source_urls(conn, source, url_builder):
+    """Rewrite stored links for a source after its public URL contract changes."""
+    candidates = conn.execute(
+        "SELECT job_uid, title, url FROM jobs WHERE source = ?",
+        (source,),
+    ).fetchall()
+    updates = []
+    for job_uid, title, current_url in candidates:
+        prefix, separator, native_id = str(job_uid or "").partition(":")
+        if not separator or prefix != source or not native_id:
+            continue
+        new_url = str(url_builder(native_id, title) or "").strip()
+        if new_url and new_url != str(current_url or "").strip():
+            updates.append((new_url, job_uid))
+    if updates:
+        conn.executemany("UPDATE jobs SET url = ? WHERE job_uid = ?", updates)
+        conn.commit()
+    return len(updates)
+
+
 def infer_missing_work_models(conn):
     """Infer the modality only when the portal did not provide it.
 
