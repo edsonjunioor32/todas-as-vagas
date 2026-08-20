@@ -118,6 +118,15 @@ class NerdinTests(unittest.TestCase):
 
 
 class InfoJobsTests(unittest.TestCase):
+    def test_job_identifiers_deduplicates_and_ignores_invalid_urls(self):
+        identifiers = infojobs._job_identifiers([
+            {"href": "https://www.infojobs.com.br/vaga-de-emprego-a__101.aspx"},
+            {"href": "https://www.infojobs.com.br/vaga-de-emprego-a__101.aspx?ref=x"},
+            {"href": "https://www.infojobs.com.br/empregos.aspx"},
+            {"href": "https://www.infojobs.com.br/vaga-de-emprego-b__202.aspx"},
+        ])
+        self.assertEqual(identifiers, {"101", "202"})
+
     def test_general_listing_keeps_non_remote_vacancies_and_parses_modality(self):
         raw = {
             "href": "https://www.infojobs.com.br/vaga-de-emprego-analista__987654.aspx?x=1",
