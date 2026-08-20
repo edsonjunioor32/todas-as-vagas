@@ -93,13 +93,44 @@ def _location_text(value):
     if isinstance(value, str):
         return value
     if isinstance(value, dict):
-        return " ".join(
-            str(value.get(key) or "")
-            for key in ("locationName", "name", "city", "state", "country", "countryName")
-        ).strip()
+        parts = []
+        for key in (
+            "locationName",
+            "name",
+            "title",
+            "city",
+            "state",
+            "country",
+            "countryName",
+        ):
+            part = str(value.get(key) or "").strip()
+            if part and part not in parts:
+                parts.append(part)
+        return ", ".join(parts)
     if isinstance(value, list):
         return " | ".join(_location_text(item) for item in value if _location_text(item))
     return ""
+
+
+def _structured_locations(value):
+    if isinstance(value, dict):
+        return [value]
+    if isinstance(value, list):
+        return [item for item in value if isinstance(item, dict)]
+    return []
+
+
+def _country_value(location):
+    return str(
+        location.get("country")
+        or location.get("countryCode")
+        or location.get("countryName")
+        or ""
+    ).strip()
+
+
+def _is_brazil_country(value):
+    return str(value or "").strip().upper() in {"BR", "BRA", "BRASIL", "BRAZIL"}
 
 
 def _field(item, *names):
@@ -108,6 +139,17 @@ def _field(item, *names):
         if value not in (None, ""):
             return value
     return ""
+
+
+def _csod_date(value):
+    parsed = iso_date(value)
+    if parsed:
+        return parsed
+    text = str(value or "").strip()
+    try:
+        return time.strftime("%Y-%m-%d", time.strptime(text[:10], "%d/%m/%Y"))
+    except ValueError:
+        return ""
 
 
 def _row(item):
@@ -124,10 +166,34 @@ def _row(item):
         return None
 
     description = strip_html(_field(item, "externalDescription", "description", "jobDescription"))
-    location = _location_text(_field(item, "locations", "location", "locationName"))
-    if location and not is_brazil_location(location):
-        return None
-    city, state, _country = split_location(location)
+    location_value = _field(item, "locations", "location", "locationName")
+    location = _location_text(location_value)
+    structured_locations = _structured_locations(location_value)
+    countries = [_country_value(item) for item in structured_locations if _country_value(item)]
+    primary_location = None
+    if countries:
+        brazil_locations = [
+            item for item in structured_locations if _is_brazil_country(_country_value(item))
+        ]
+        if not brazil_locations:
+            return None
+        primary_location = brazil_locations[0]
+    else:
+        if location and not is_brazil_location(location):
+            return None
+        if structured_locations:
+            primary_location = structured_locations[0]
+
+    if primary_location:
+        city = str(
+            primary_location.get("city")
+            or primary_location.get("locationName")
+            or primary_location.get("name")
+            or ""
+        ).strip()
+        state = str(primary_location.get("state") or "").strip()
+    else:
+        city, state, _country = split_location(location)
     url = (
         f"https://bradesco.csod.com/ux/ats/careersite/{SITE_ID}"
         f"/home/requisition/{native_id}?c={TENANT}"
@@ -144,10 +210,10 @@ def _row(item):
         state=state,
         country="BR",
         market="BR",
-        published_date=iso_date(
+        published_date=_csod_date(
             _field(item, "postingEffectiveDate", "postedDate", "postingDate", "datePosted")
         ),
-        expires_date=iso_date(
+        expires_date=_csod_date(
             _field(item, "postingExpirationDate", "closingDate", "expirationDate", "endDate")
         ),
         description=description,
