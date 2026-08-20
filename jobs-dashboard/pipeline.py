@@ -2,6 +2,7 @@
 """Multi-portal ETL: collect, normalize, classify, store and export."""
 # General collection can be triggered manually through the GitHub workflow.
 import argparse
+import concurrent.futures
 import os
 import sys
 import time
@@ -34,21 +35,83 @@ def selected_registry(names):
     return selected
 
 
+def _env_int(name, default, minimum=1, maximum=16):
+    try:
+        value = int(os.environ.get(name) or default)
+    except (TypeError, ValueError):
+        value = default
+    return min(maximum, max(minimum, value))
+
+
+def _collect_source(index, name, fetch):
+    started = time.perf_counter()
+    try:
+        fetched = fetch()
+        if fetched is None:
+            fetched = []
+        if isinstance(fetched, dict):
+            raise TypeError("the adapter returned an object instead of a job list")
+        fetched = list(fetched)
+        valid = [
+            row for row in fetched
+            if isinstance(row, dict) and row.get("title") and row.get("url")
+        ]
+        return {
+            "index": index,
+            "name": name,
+            "rows": valid,
+            "dropped": len(fetched) - len(valid),
+            "seconds": time.perf_counter() - started,
+            "error": "",
+        }
+    except Exception as error:
+        return {
+            "index": index,
+            "name": name,
+            "rows": [],
+            "dropped": 0,
+            "seconds": time.perf_counter() - started,
+            "error": str(error)[:180],
+        }
+
+
 def collect(registry):
-    rows, failed = [], []
-    for name, fetch in registry:
-        started = time.time()
-        try:
-            fetched = fetch()
-            valid = [row for row in fetched if row.get("title") and row.get("url")]
-            rows.extend(valid)
-            dropped = len(fetched) - len(valid)
-            suffix = f" · {dropped} invalid dropped" if dropped else ""
-            print(f"  [{name:14}] ok    {len(valid):>6} vagas ({time.time()-started:.1f}s){suffix}")
-        except Exception as error:
-            failed.append(name)
-            print(f"  [{name:14}] FALHA {str(error)[:120]}")
-    return rows, failed
+    """Collect independent sources concurrently while preserving registry order."""
+    if not registry:
+        return [], [], []
+    workers = min(len(registry), _env_int("JOBS_SOURCE_WORKERS", 5, maximum=8))
+    print(f"  concorrência entre fontes: {workers}")
+    results = [None] * len(registry)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
+        futures = {
+            executor.submit(_collect_source, index, name, fetch): index
+            for index, (name, fetch) in enumerate(registry)
+        }
+        for future in concurrent.futures.as_completed(futures):
+            result = future.result()
+            results[result["index"]] = result
+            if result["error"]:
+                print(f"  [{result['name']:14}] FALHA {result['error']} ({result['seconds']:.1f}s)")
+                continue
+            suffix = f" · {result['dropped']} inválidas descartadas" if result["dropped"] else ""
+            status = "ok" if result["rows"] else "vazio"
+            print(
+                f"  [{result['name']:14}] {status:5} {len(result['rows']):>6} vagas "
+                f"({result['seconds']:.1f}s){suffix}"
+            )
+
+    rows = [row for result in results for row in result["rows"]]
+    failed = [result["name"] for result in results if result["error"]]
+    metrics = [
+        {
+            "name": result["name"],
+            "status": "falha" if result["error"] else ("ok" if result["rows"] else "vazio"),
+            "jobs": len(result["rows"]),
+            "seconds": result["seconds"],
+        }
+        for result in results
+    ]
+    return rows, failed, metrics
 
 
 
@@ -59,6 +122,31 @@ def normalize_market(rows):
         if location in {"brazil", "brasil"}:
             row["market"] = "BR"
     return rows
+
+
+def infer_work_models(rows):
+    """Infer a missing Brazilian modality once, before writing the database."""
+    inferred = 0
+    remote_locations = {"br", "brasil", "brazil", "remoto", "remote", "home office"}
+    for row in rows:
+        if str(row.get("work_model") or "").strip():
+            continue
+        location = str(row.get("city") or "").strip().casefold()
+        country = str(row.get("country") or "").strip().casefold()
+        market = str(row.get("market") or "").strip().casefold()
+        is_brazil = country in {"br", "brasil", "brazil"} or market == "br"
+        if not is_brazil:
+            continue
+        if location in remote_locations or (
+            not location and country in {"brasil", "brazil"}
+        ):
+            row["work_model"] = "remote"
+        elif location:
+            row["work_model"] = "on-site"
+        else:
+            continue
+        inferred += 1
+    return inferred
 
 def dedupe_native(rows):
     unique = {}
@@ -98,7 +186,46 @@ def discard_old_publications(rows, cutoff, today=None):
     return kept, dropped
 
 
+def write_actions_summary(source_metrics, phases, total_jobs, failed):
+    """Expose timing and source health in the GitHub Actions run summary."""
+    summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if not summary_path:
+        return
+    ordered = sorted(source_metrics, key=lambda item: item["seconds"], reverse=True)
+    lines = [
+        "## Atualização do Portal Todas as Vagas",
+        "",
+        f"- **Vagas consolidadas:** {total_jobs:,}".replace(",", "."),
+        f"- **Fontes com falha:** {', '.join(failed) if failed else 'nenhuma'}",
+        f"- **Tempo total do pipeline Python:** {phases.get('total', 0):.1f}s",
+        "",
+        "### Tempos por etapa",
+        "",
+        "| Etapa | Tempo |",
+        "|---|---:|",
+    ]
+    lines.extend(f"| {name} | {seconds:.1f}s |" for name, seconds in phases.items())
+    lines.extend([
+        "",
+        "### Fontes mais demoradas",
+        "",
+        "| Fonte | Situação | Vagas | Tempo |",
+        "|---|---|---:|---:|",
+    ])
+    lines.extend(
+        f"| {item['name']} | {item['status']} | {item['jobs']} | {item['seconds']:.1f}s |"
+        for item in ordered
+    )
+    try:
+        with open(summary_path, "a", encoding="utf-8") as summary:
+            summary.write("\n".join(lines) + "\n")
+    except OSError as error:
+        print(f"  aviso: não foi possível gravar o resumo da execução: {error}")
+
+
 def main():
+    pipeline_started = time.perf_counter()
+    phases = {}
     parser = argparse.ArgumentParser()
     parser.add_argument("--dry-run", action="store_true", help="collect without writing files")
     parser.add_argument("--sources", default=os.environ.get("JOBS_SOURCES", ""),
@@ -115,7 +242,10 @@ def main():
     print("=" * 72)
     print(f"  Radar de Vagas — coleta de {len(registry)} fontes públicas")
     print("=" * 72)
-    rows, failed = collect(registry)
+    stage_started = time.perf_counter()
+    rows, failed, source_metrics = collect(registry)
+    phases["Coleta das fontes"] = time.perf_counter() - stage_started
+    stage_started = time.perf_counter()
     rows = normalize_market(rows)
     rows = dedupe_native(rows)
     publication_cutoff = storage.publication_cutoff(max_age_months=max(0, args.max_age_months))
@@ -131,18 +261,26 @@ def main():
     if not rows:
         raise SystemExit("No jobs were collected; refusing to overwrite the public snapshot")
 
+    work_models_inferred = infer_work_models(rows)
     for row in rows:
         classify.classify(row)
     rows, unknown_market_dropped = discard_unknown_market(rows)
-    print(f"  mercado não informado: {unknown_market_dropped} vagas descartadas")
+    phases["Normalização e classificação"] = time.perf_counter() - stage_started
+    print(
+        f"  mercado não informado: {unknown_market_dropped} vagas descartadas · "
+        f"{work_models_inferred} modalidades inferidas antes da gravação"
+    )
 
     if args.dry_run:
         sample = dict(rows[0])
         sample.pop("description", None)
         print(f"  amostra pública: {sample}")
         print("  dry-run: nenhum arquivo foi alterado")
+        phases["total"] = time.perf_counter() - pipeline_started
+        write_actions_summary(source_metrics, phases, len(rows), failed)
         return
 
+    stage_started = time.perf_counter()
     conn = storage.connect(str(DB_PATH))
     before = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
     storage.upsert(conn, rows)
@@ -184,8 +322,15 @@ def main():
         failed_sources=failed,
     )
     conn.close()
+    phases["Banco e fotografia pública"] = time.perf_counter() - stage_started
+    phases["total"] = time.perf_counter() - pipeline_started
     print(f"  base histórica: {after} vagas ({after-before+pruned:+d} nesta execução; {pruned} removidas; {greenhouse_removed} Greenhouse fora do Brasil; {totvs_removed} TOTVS obsoletas/inválidas; {solides_urls_repaired} links Sólides corrigidos; {modality_inferred} modalidades inferidas)")
     print(f"  base pública: {count} vagas · {size_mb:.2f} MB · {JSON_PATH.relative_to(ROOT)}")
+    print(
+        "  tempos: "
+        + " · ".join(f"{name}: {seconds:.1f}s" for name, seconds in phases.items())
+    )
+    write_actions_summary(source_metrics, phases, count, failed)
     print("=" * 72)
 
 

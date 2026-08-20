@@ -2,6 +2,8 @@
   'use strict';
 
   const PAGE_SIZE = 24;
+  const THEME_KEY = 'todas-as-vagas-theme';
+  const themePreference = window.matchMedia('(prefers-color-scheme: dark)');
   const collator = new Intl.Collator('pt-BR', { sensitivity: 'base', numeric: true });
   const numberFormatter = new Intl.NumberFormat('pt-BR');
   const dateTimeFormatter = new Intl.DateTimeFormat('pt-BR', {
@@ -59,6 +61,9 @@
     totalSources: document.querySelector('#totalSources'),
     updatedLabel: document.querySelector('#updatedLabel'),
     sourceWarning: document.querySelector('#sourceWarning'),
+    themeToggle: document.querySelector('#themeToggle'),
+    themeIcon: document.querySelector('#themeIcon'),
+    themeLabel: document.querySelector('#themeLabel'),
     filtersForm: document.querySelector('#filtersForm'),
     searchInput: document.querySelector('#searchInput'),
     sourceFilter: document.querySelector('#sourceFilter'),
@@ -87,6 +92,53 @@
 
   function normalize(value) {
     return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+  }
+
+  function storedTheme() {
+    try {
+      const value = localStorage.getItem(THEME_KEY);
+      return value === 'dark' || value === 'light' ? value : '';
+    } catch {
+      return '';
+    }
+  }
+
+  function applyTheme(theme, persist = false) {
+    const selected = theme === 'dark' ? 'dark' : 'light';
+    const dark = selected === 'dark';
+    document.documentElement.dataset.theme = selected;
+    elements.themeToggle.setAttribute('aria-pressed', String(dark));
+    elements.themeToggle.setAttribute('aria-label', dark ? 'Ativar tema claro' : 'Ativar tema escuro');
+    elements.themeIcon.textContent = dark ? '☀' : '☾';
+    elements.themeLabel.textContent = dark ? 'Tema claro' : 'Tema escuro';
+    const themeColor = document.querySelector('meta[name="theme-color"]');
+    if (themeColor) themeColor.content = dark ? '#08191b' : '#123b3f';
+    if (persist) {
+      try {
+        localStorage.setItem(THEME_KEY, selected);
+      } catch {
+        // The choice still applies to the current page when storage is blocked.
+      }
+    }
+  }
+
+  function initTheme() {
+    const initial = document.documentElement.dataset.theme
+      || storedTheme()
+      || (themePreference.matches ? 'dark' : 'light');
+    applyTheme(initial);
+    elements.themeToggle.addEventListener('click', () => {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      applyTheme(next, true);
+    });
+    const followSystem = event => {
+      if (!storedTheme()) applyTheme(event.matches ? 'dark' : 'light');
+    };
+    if (typeof themePreference.addEventListener === 'function') {
+      themePreference.addEventListener('change', followSystem);
+    } else if (typeof themePreference.addListener === 'function') {
+      themePreference.addListener(followSystem);
+    }
   }
 
   function sourceLabel(value) {
@@ -538,5 +590,6 @@
     }
   }
 
+  initTheme();
   init();
 })();

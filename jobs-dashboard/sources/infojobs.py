@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Recent public home-office vacancies from InfoJobs Brasil.
+"""Recent public vacancies from InfoJobs Brasil.
 
 InfoJobs protects its public result pages with a JavaScript WAF challenge, so
 plain ``urllib``/``requests`` calls receive HTTP 403.  This adapter uses the
@@ -18,10 +18,7 @@ from ._common import job
 
 
 SOURCE = "infojobs"
-LIST_URL = (
-    "https://www.infojobs.com.br/empregos-trabalho-home-office.aspx"
-    "?campo=griddate&orden=desc"
-)
+LIST_URL = "https://www.infojobs.com.br/empregos.aspx?campo=griddate&orden=desc"
 LOCAL_TIMEZONE = ZoneInfo("America/Sao_Paulo")
 
 MONTHS = {
@@ -48,6 +45,7 @@ LOCATION_RE = re.compile(
     r"^(.+?)\s+-\s+([A-Z]{2}),\s*\d+(?:[,.]\d+)?\s*Km de você\.?$",
     re.I,
 )
+SIMPLE_LOCATION_RE = re.compile(r"^(.+?)\s+-\s+([A-Z]{2})$", re.I)
 JOB_ID_RE = re.compile(r"__(\d+)\.aspx(?:$|[?#])", re.I)
 REMOTE_RE = re.compile(r"\b(?:home\s*-?\s*office|remot[oa])\b", re.I)
 RATING_RE = re.compile(r"^\d(?:[,.]\d)?$")
@@ -107,14 +105,17 @@ def _location_from_lines(lines, date_index):
     start = date_index + 1 if date_index >= 0 else 0
     for line in lines[start:]:
         if line.casefold() in {"todo brasil", "brasil"}:
-            return "Brasil", ""
-        match = LOCATION_RE.match(line)
+            # A nationwide search result is not evidence that the role is remote.
+            return "", ""
+        match = LOCATION_RE.match(line) or SIMPLE_LOCATION_RE.match(line)
         if match:
             city = match.group(1).strip(" ,.-")
             state = match.group(2).upper()
-            if city and city.casefold() not in {"home office", "remoto"}:
+            if city and city.casefold() not in {
+                "home office", "remoto", "remota", "híbrido", "hibrido", "presencial",
+            }:
                 return city, state
-    return "Brasil", ""
+    return "", ""
 
 
 def _company_from_lines(lines, date_index):
@@ -132,7 +133,8 @@ def _company_from_lines(lines, date_index):
         folded = line.casefold()
         if folded in ignored or RATING_RE.match(line) or SALARY_RE.match(line):
             continue
-        if LOCATION_RE.match(line) or folded in {"todo brasil", "brasil"}:
+        if (LOCATION_RE.match(line) or SIMPLE_LOCATION_RE.match(line)
+                or folded in {"todo brasil", "brasil"}):
             continue
         if DATE_RE.match(folded):
             continue
@@ -160,17 +162,12 @@ def _contract_types(text):
 
 
 def _description_from_lines(lines):
-    remote_index = next(
-        (index for index, line in enumerate(lines) if REMOTE_RE.fullmatch(line)),
-        -1,
-    )
-    candidates = lines[remote_index + 1:] if remote_index >= 0 else lines
     excluded = {
         "vagas semelhantes",
         "candidatar-me",
         "candidatura enviada",
     }
-    parts = [line for line in candidates if line.casefold() not in excluded]
+    parts = [line for line in lines if line.casefold() not in excluded]
     return " ".join(parts)[:3000]
 
 
@@ -180,7 +177,10 @@ def _canonical_url(value):
 
 
 def _title_from_lines(title_lines, card_lines):
-    ignored = {"nova", "contratação urgente", "home office", "remoto"}
+    ignored = {
+        "nova", "contratação urgente", "home office", "remoto", "remota",
+        "híbrido", "hibrido", "presencial",
+    }
     for line in title_lines + card_lines[:12]:
         folded = line.casefold()
         if folded in ignored or DATE_RE.match(folded) or RATING_RE.match(line):
@@ -197,8 +197,7 @@ def _normalize(raw, today):
     title_lines = _lines(raw.get("title"))
     card_lines = _lines(raw.get("text"))
     title = _title_from_lines(title_lines, card_lines)
-    has_remote_modality = any(REMOTE_RE.fullmatch(line) for line in card_lines)
-    if not identifier or not title or not has_remote_modality:
+    if not identifier or not title:
         return None
 
     published_date, date_index = _date_from_lines(card_lines, today)
@@ -211,7 +210,7 @@ def _normalize(raw, today):
         title=title,
         company=company,
         url=url,
-        work_model="remote",
+        work_model=_work_model_from_lines(card_lines),
         city=city,
         state=state,
         country="BR",
@@ -221,6 +220,17 @@ def _normalize(raw, today):
         contract_types=_contract_types(" ".join(card_lines)),
         blind_selection="confidencial" in company.casefold(),
     )
+
+
+def _work_model_from_lines(lines):
+    text = " ".join(lines)
+    if REMOTE_RE.search(text):
+        return "remote"
+    if re.search(r"\bh[ií]brid[oa]\b", text, re.I):
+        return "hybrid"
+    if re.search(r"\b(?:presencial|on[ -]?site)\b", text, re.I):
+        return "on-site"
+    return ""
 
 
 def _new_driver():
@@ -281,6 +291,36 @@ def _load_more(driver, max_jobs, max_scrolls):
             break
 
 
+def _next_page_url(driver):
+    """Return the enabled next-result link exposed by the public paginator."""
+    return driver.execute_script(
+        r"""
+        const selectors = [
+          'a[rel="next"]',
+          'a[aria-label*="Próxima"]', 'a[aria-label*="Proxima"]',
+          '.pagination a.next', '.pagination a[title*="Próxima"]',
+          '.pagination a[title*="Proxima"]'
+        ];
+        for (const selector of selectors) {
+          for (const anchor of document.querySelectorAll(selector)) {
+            const disabled = anchor.getAttribute('aria-disabled') === 'true' ||
+              anchor.classList.contains('disabled') || anchor.parentElement?.classList.contains('disabled');
+            if (!disabled && anchor.href && anchor.href !== location.href) return anchor.href;
+          }
+        }
+        for (const anchor of document.querySelectorAll('a[href]')) {
+          const label = [anchor.innerText, anchor.getAttribute('aria-label'), anchor.title]
+            .filter(Boolean).join(' ').trim();
+          if (!/^(?:pr[óo]xima|next|›|»)/i.test(label)) continue;
+          const disabled = anchor.getAttribute('aria-disabled') === 'true' ||
+            anchor.classList.contains('disabled') || anchor.parentElement?.classList.contains('disabled');
+          if (!disabled && anchor.href && anchor.href !== location.href) return anchor.href;
+        }
+        return '';
+        """
+    )
+
+
 def _raw_cards(driver):
     return driver.execute_script(
         r"""
@@ -296,7 +336,7 @@ def _raw_cards(driver):
           if (!card) {
             let node = anchor;
             for (let level = 0; level < 7 && node; level++, node = node.parentElement) {
-              if (/home\s*-?\s*office|remot[oa]/i.test(node.innerText || '')) {
+              if ((node.innerText || '').trim().length > 40) {
                 card = node;
                 break;
               }
@@ -317,8 +357,9 @@ def _raw_cards(driver):
 
 
 def fetch():
-    max_jobs = _integer_env("INFOJOBS_MAX_JOBS", 200, 20, 500)
-    max_scrolls = _integer_env("INFOJOBS_MAX_SCROLLS", 20, 0, 50)
+    max_jobs = _integer_env("INFOJOBS_MAX_JOBS", 500, 20, 500)
+    max_pages = _integer_env("INFOJOBS_MAX_PAGES", 30, 1, 60)
+    max_scrolls = _integer_env("INFOJOBS_MAX_SCROLLS", 4, 0, 20)
     timeout = _integer_env("INFOJOBS_RENDER_TIMEOUT", 50, 15, 90)
     driver = _new_driver()
     try:
@@ -328,9 +369,21 @@ def fetch():
         except Exception as error:
             if error.__class__.__name__ != "TimeoutException":
                 raise
-        _wait_for_results(driver, timeout)
-        _load_more(driver, max_jobs=max_jobs, max_scrolls=max_scrolls)
-        raw_rows = _raw_cards(driver)[:max_jobs]
+        raw_rows, visited_pages = [], set()
+        for _ in range(max_pages):
+            _wait_for_results(driver, timeout)
+            _load_more(driver, max_jobs=max_jobs, max_scrolls=max_scrolls)
+            raw_rows.extend(_raw_cards(driver))
+            if len({JOB_ID_RE.search(_canonical_url(row.get("href"))).group(1)
+                    for row in raw_rows
+                    if JOB_ID_RE.search(_canonical_url(row.get("href")))}) >= max_jobs:
+                break
+            next_url = _next_page_url(driver)
+            if not next_url or next_url in visited_pages:
+                break
+            visited_pages.add(next_url)
+            driver.get(next_url)
+        raw_rows = raw_rows[:max_jobs]
     finally:
         driver.quit()
 
@@ -342,5 +395,5 @@ def fetch():
             seen.add(row["native_id"])
             rows.append(row)
     if not rows:
-        raise RuntimeError("InfoJobs rendered the page but returned no home-office vacancies")
+        raise RuntimeError("InfoJobs rendered the page but returned no public vacancies")
     return rows

@@ -6,11 +6,11 @@ O painel publica somente vagas anunciadas nos **últimos dois meses**. Quando um
 
 ## Portais incluídos
 
-- Brasil: **InHire, Empregare, Gupy, Sólides, GeekHunter e InfoJobs (Home office)**;
+- Brasil: **InHire, Empregare, Gupy, Sólides, GeekHunter, Nerdin e InfoJobs**;
 - globais: **The Muse, Remotive, Jobicy, Remote OK, Himalayas, Working Nomads, Arbeitnow e We Work Remotely**;
 - páginas públicas de empresas: **Stone, iFood, PicPay, Banco Original, Braskem, GM Financial, Dell Technologies, ArcelorMittal, Grupo Mateus, AutoZone, NOV, Arcor Brasil, Greenhouse Brasil, Lever e Ashby**.
 
-O painel permite combinar pesquisa livre com filtros de cidade, portal, modalidade, mercado, área, senioridade, data, vagas afirmativas para PcD e oportunidades encontradas em mais de um portal. O campo de cidade oferece sugestões a partir das localidades presentes na base e também aceita digitação livre. A exportação CSV respeita os filtros selecionados.
+O painel permite combinar pesquisa livre com filtros de cidade, portal, modalidade, mercado, área, senioridade, data, vagas afirmativas para PcD e oportunidades encontradas em mais de um portal. O campo de cidade oferece sugestões a partir das localidades presentes na base e também aceita digitação livre. A exportação CSV respeita os filtros selecionados. O botão de tema no cabeçalho alterna entre os modos claro e escuro, salva a escolha no navegador e, na primeira visita, respeita a preferência do sistema.
 
 ## Sólides, GeekHunter e InfoJobs
 
@@ -18,7 +18,7 @@ A Sólides é consultada pelo catálogo público utilizado pelo próprio portal.
 
 A GeekHunter é consultada pelas páginas públicas de vagas, que já entregam dados estruturados no HTML. O adaptador percorre todas as páginas disponíveis, normaliza modalidade, localização, senioridade, remuneração e tecnologias e não publica a descrição integral.
 
-O InfoJobs é consultado pela busca pública de vagas **Home office**, ordenada pelas mais recentes. Como o portal exige JavaScript e protege requisições HTTP simples com WAF, a atualização usa o Chrome já disponível no executor do GitHub Actions, sem login e sem acessar dados de candidatos. A quantidade por execução pode ser ajustada por `INFOJOBS_MAX_JOBS`.
+O InfoJobs é consultado pela busca pública geral, ordenada pelas mais recentes. A integração percorre a paginação pública até o limite configurado, preserva as modalidades indicadas em cada anúncio e deixa o filtro global de dois meses remover vagas antigas. Como o portal exige JavaScript e protege requisições HTTP simples com WAF, a atualização usa o Chrome já disponível no executor do GitHub Actions, sem login e sem acessar dados de candidatos. Os limites podem ser ajustados por `INFOJOBS_MAX_JOBS` e `INFOJOBS_MAX_PAGES`.
 
 ## Stone e iFood
 
@@ -35,7 +35,7 @@ O catálogo inicial inclui RD Station, AB InBev, Capco, ClassPass, Coinbase, Del
 
 Somente anúncios cuja localidade mencione Brasil, Brazil, uma cidade brasileira reconhecida ou uma UF válida entram no painel. Vagas descritas apenas como “Global”, “Worldwide” ou “LATAM” não são importadas. O corte geral de dois meses continua sendo aplicado depois dessa seleção.
 
-A descoberta semanal está em `.github/workflows/discover-greenhouse-br.yml` e também pode ser iniciada manualmente em **Actions**. A lista resultante fica em `jobs-dashboard/data/greenhouse_br_companies.json`; as atualizações normais não refazem as milhares de consultas de descoberta.
+A descoberta semanal faz parte do workflow `.github/workflows/pages.yml` e também é executada quando a atualização é iniciada manualmente em **Actions**. A lista resultante fica em `jobs-dashboard/data/greenhouse_br_companies.json`; as atualizações normais não refazem as milhares de consultas de descoberta.
 
 ## Empresas no Oracle Recruiting Cloud
 
@@ -97,8 +97,8 @@ Copie para ele todo o conteúdo do arquivo visível `WORKFLOW_PARA_COPIAR.yml` e
 
 O workflow é executado diariamente às **08h17**, **11h17**, **15h17** e **20h17**, no horário de Brasília/Fortaleza, além de permitir execução manual. A rotina:
 
-1. atualiza a descoberta de páginas públicas da InHire e usa o catálogo brasileiro já validado do Greenhouse;
-2. coleta cada portal de forma isolada;
+1. usa os catálogos já validados da InHire e do Greenhouse, atualizando as descobertas pesadas semanalmente ou sob acionamento manual;
+2. coleta portais independentes com concorrência limitada e isolamento de falhas;
 3. normaliza área, senioridade, modalidade, localização, salário e indicadores PcD;
 4. elimina duplicidades nativas e identifica anúncios equivalentes entre portais;
 5. descarta anúncios publicados há mais de dois meses e atualiza o histórico SQLite;
@@ -107,6 +107,15 @@ O workflow é executado diariamente às **08h17**, **11h17**, **15h17** e **20h1
 8. publica o diretório `docs` no GitHub Pages.
 
 Se um portal falhar, os demais continuam. Resultados vistos recentemente podem permanecer no painel por até três dias, evitando que uma indisponibilidade momentânea esvazie uma fonte inteira.
+
+### Otimizações do pipeline
+
+- até cinco fontes independentes são consultadas em paralelo, sem alterar a ordem determinística da consolidação;
+- a Sólides mantém a cobertura das 3.000 vagas mais recentes e usa até oito requisições simultâneas;
+- detalhes da InHire são reutilizados por até 24 horas por meio do cache do GitHub Actions; vagas novas ou com título, local ou modalidade alterados são consultadas imediatamente;
+- o Nerdin participa da coleta geral e, por isso, usa a mesma transação SQLite e a mesma exportação JSON das demais fontes;
+- uma atualização nova cancela outra ainda em andamento antes do commit, evitando a fila de execuções equivalentes;
+- cada execução mostra no resumo do GitHub Actions o tempo por etapa, a duração de cada fonte, suas contagens e eventuais falhas.
 
 ## Privacidade e conteúdo
 
@@ -123,6 +132,7 @@ node busca_vagas\build_public_inhire.js
 node busca_vagas\validate_public_inhire.js
 python jobs-dashboard\pipeline.py
 python jobs-dashboard\validate_snapshot.py
+python -m unittest discover -s jobs-dashboard\tests -v
 ```
 
 Para abrir o painel:
