@@ -3,6 +3,7 @@ import os
 import sys
 import tempfile
 import time
+from datetime import date
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -13,7 +14,7 @@ sys.path.insert(0, str(DASHBOARD))
 
 import pipeline  # noqa: E402
 import storage  # noqa: E402
-from sources import nerdin  # noqa: E402
+from sources import infojobs, nerdin  # noqa: E402
 
 
 def sample_job(source, native_id, *, work_model="", city="São Paulo", country="BR"):
@@ -114,6 +115,30 @@ class NerdinTests(unittest.TestCase):
         self.assertEqual(rows[0]["native_id"], "123")
         self.assertEqual(rows[0]["work_model"], "on-site")
         self.assertEqual(rows[0]["contract_types"], ["CLT"])
+
+
+class InfoJobsTests(unittest.TestCase):
+    def test_general_listing_keeps_non_remote_vacancies_and_parses_modality(self):
+        raw = {
+            "href": "https://www.infojobs.com.br/vaga-de-emprego-analista__987654.aspx?x=1",
+            "title": "Analista de Dados",
+            "text": "Analista de Dados\nHoje\nEmpresa Teste\nSão Paulo - SP\nPresencial\nCLT",
+        }
+        row = infojobs._normalize(raw, today=date(2026, 8, 20))
+        self.assertIsNotNone(row)
+        self.assertEqual(row["native_id"], "987654")
+        self.assertEqual(row["work_model"], "on-site")
+        self.assertEqual((row["city"], row["state"]), ("São Paulo", "SP"))
+
+    def test_nationwide_result_is_not_labeled_remote_without_an_explicit_tag(self):
+        raw = {
+            "href": "https://www.infojobs.com.br/vaga-de-emprego-consultor__123456.aspx",
+            "title": "Consultor Comercial",
+            "text": "Consultor Comercial\nOntem\nEmpresa Teste\nTodo Brasil\nCLT",
+        }
+        row = infojobs._normalize(raw, today=date(2026, 8, 20))
+        self.assertEqual(row["work_model"], "")
+        self.assertEqual((row["city"], row["state"]), ("", ""))
 
 
 if __name__ == "__main__":

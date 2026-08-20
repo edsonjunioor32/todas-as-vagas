@@ -6,7 +6,7 @@ O painel publica somente vagas anunciadas nos **últimos dois meses**. Quando um
 
 ## Portais incluídos
 
-- Brasil: **InHire, Empregare, Gupy, Sólides, GeekHunter, Nerdin e InfoJobs (Home office)**;
+- Brasil: **InHire, Empregare, Gupy, Sólides, GeekHunter, Nerdin e InfoJobs**;
 - globais: **The Muse, Remotive, Jobicy, Remote OK, Himalayas, Working Nomads, Arbeitnow e We Work Remotely**;
 - páginas públicas de empresas: **Stone, iFood, PicPay, Banco Original, Braskem, GM Financial, Dell Technologies, ArcelorMittal, Grupo Mateus, AutoZone, NOV, Arcor Brasil, Greenhouse Brasil, Lever e Ashby**.
 
@@ -18,7 +18,7 @@ A Sólides é consultada pelo catálogo público utilizado pelo próprio portal.
 
 A GeekHunter é consultada pelas páginas públicas de vagas, que já entregam dados estruturados no HTML. O adaptador percorre todas as páginas disponíveis, normaliza modalidade, localização, senioridade, remuneração e tecnologias e não publica a descrição integral.
 
-O InfoJobs é consultado pela busca pública de vagas **Home office**, ordenada pelas mais recentes. Como o portal exige JavaScript e protege requisições HTTP simples com WAF, a atualização usa o Chrome já disponível no executor do GitHub Actions, sem login e sem acessar dados de candidatos. A quantidade por execução pode ser ajustada por `INFOJOBS_MAX_JOBS`.
+O InfoJobs é consultado pela busca pública geral, ordenada pelas mais recentes. A integração percorre a paginação pública até o limite configurado, preserva as modalidades indicadas em cada anúncio e deixa o filtro global de dois meses remover vagas antigas. Como o portal exige JavaScript e protege requisições HTTP simples com WAF, a atualização usa o Chrome já disponível no executor do GitHub Actions, sem login e sem acessar dados de candidatos. Os limites podem ser ajustados por `INFOJOBS_MAX_JOBS` e `INFOJOBS_MAX_PAGES`.
 
 ## Stone e iFood
 
