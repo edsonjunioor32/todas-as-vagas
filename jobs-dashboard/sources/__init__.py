@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Registry of public, key-free job sources."""
 from . import (
+    abler,
     accenture,
     bradesco,
     ats_boards,
@@ -27,6 +28,7 @@ REGISTRY = [
     ("inhire", inhire.fetch),
     ("empregare", empregare.fetch),
     ("experian", experian.fetch),
+    ("abler", abler.fetch),
     ("recrutei", recrutei.fetch),
     ("totvs", totvs.fetch),
     ("accenture", accenture.fetch),
