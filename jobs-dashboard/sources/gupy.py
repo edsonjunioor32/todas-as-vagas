@@ -33,6 +33,7 @@ PAGE = 100                       # the endpoint accepts up to 100/page
 MAX_OFFSET = 400                 # offset genuinely advances → 5 pages of 100 per term
 MONITORED_CAREER_PAGES = (
     "https://voxtecnologia.gupy.io/",
+    "https://creditas.gupy.io/",
 )
 NEXT_DATA_RE = re.compile(
     r'<script[^>]+id="__NEXT_DATA__"[^>]*>(.*?)</script>',
