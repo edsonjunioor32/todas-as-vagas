@@ -51,6 +51,15 @@
     if (results) results.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  function ensureRedesignStyles() {
+    if (document.querySelector('link[data-redesign="2026"]')) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = './redesign.css?v=1';
+    link.dataset.redesign = '2026';
+    document.head.append(link);
+  }
+
   function enhanceHeroTitle() {
     const title = document.querySelector('.hero h1');
     if (!title || title.querySelector('.hero-accent')) return;
@@ -154,6 +163,7 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
+    ensureRedesignStyles();
     enhanceHeroTitle();
     renderRecentCompanies();
     observeJobs();
