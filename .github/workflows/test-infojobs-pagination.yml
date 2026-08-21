@@ -1,0 +1,52 @@
+name: Testar paginação do InfoJobs
+
+on:
+  push:
+    branches: [test/infojobs-pagination]
+
+permissions:
+  contents: read
+
+jobs:
+  testar-infojobs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar Selenium
+        run: pip install -r jobs-dashboard/requirements.txt
+
+      - name: Coletar até 500 vagas sem publicar dados
+        env:
+          INFOJOBS_MAX_JOBS: "500"
+          INFOJOBS_MAX_PAGES: "30"
+          INFOJOBS_MAX_SCROLLS: "4"
+          INFOJOBS_RENDER_TIMEOUT: "50"
+          PYTHONPATH: jobs-dashboard
+        run: |
+          python - <<'PY'
+          from sources import infojobs
+
+          original_raw_cards = infojobs._raw_cards
+          calls = 0
+
+          def observed_raw_cards(driver):
+              global calls
+              calls += 1
+              rows = original_raw_cards(driver)
+              print(f"InfoJobs leitura {calls}: {len(rows)} cartões visíveis")
+              return rows
+
+          infojobs._raw_cards = observed_raw_cards
+          rows = infojobs.fetch()
+          print(f"RESULTADO_INFOJOBS={len(rows)}")
+          if len(rows) < 500:
+              raise SystemExit(
+                  f"A paginação parou em {len(rows)} vagas; esperado: 500 ou mais."
+              )
+          PY
