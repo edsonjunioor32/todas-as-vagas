@@ -65,6 +65,32 @@ jobs:
                   """
               )
               print("CONTROLES_INFOJOBS=" + json.dumps(controls, ensure_ascii=False))
+              structure = driver.execute_script(
+                  """
+                  const links = Array.from(document.querySelectorAll('a[href]'))
+                    .map(element => ({
+                      text: (element.innerText || element.textContent || '').trim(),
+                      href: element.href,
+                      classes: String(element.className || ''),
+                      rel: element.getAttribute('rel'),
+                    }))
+                    .filter(item => /emprego|vaga|page|pagin|busca|search/i.test(
+                      [item.text, item.href, item.classes, item.rel].filter(Boolean).join(' ')
+                    ));
+                  const buttons = Array.from(document.querySelectorAll('button, [role="button"]'))
+                    .map(element => ({
+                      text: (element.innerText || element.textContent || '').trim(),
+                      classes: String(element.className || ''),
+                      aria: element.getAttribute('aria-label'),
+                      title: element.getAttribute('title'),
+                    }));
+                  const resources = performance.getEntriesByType('resource')
+                    .map(entry => entry.name)
+                    .filter(url => /api|search|vaga|emprego|job/i.test(url));
+                  return {url: location.href, links, buttons, resources};
+                  """
+              )
+              print("ESTRUTURA_INFOJOBS=" + json.dumps(structure, ensure_ascii=False))
               advanced = original_advance_page(driver, previous_ids, timeout_seconds)
               print(f"AVANCO_INFOJOBS={advanced}")
               return advanced
