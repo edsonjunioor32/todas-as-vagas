@@ -21,7 +21,7 @@ jobs:
       - name: Instalar Selenium
         run: pip install -r jobs-dashboard/requirements.txt
 
-      - name: Testar cobertura estadual até 500 vagas sem publicar dados
+      - name: Testar cobertura nacional por estados e cidades sem publicar dados
         env:
           INFOJOBS_MAX_JOBS: "500"
           INFOJOBS_MAX_PAGES: "30"
@@ -39,19 +39,34 @@ jobs:
               "amazonas", "maranhao", "paraiba", "rio-grande-do-norte", "alagoas", "piaui",
               "sergipe", "rondonia", "tocantins", "acre", "amapa", "roraima",
           ]
+          cities = [
+              "sao-paulo,-sp", "guarulhos,-sp", "osasco,-sp", "barueri,-sp",
+              "santo-andre,-sp", "sao-bernardo-do-campo,-sp", "sao-caetano-do-sul,-sp",
+              "campinas,-sp", "sorocaba,-sp", "jundiai,-sp", "santos,-sp",
+              "ribeirao-preto,-sp", "sao-jose-dos-campos,-sp", "mogi-das-cruzes,-sp",
+              "cotia,-sp", "cajamar,-sp", "taboao-da-serra,-sp", "diadema,-sp",
+              "rio-de-janeiro,-rj", "niteroi,-rj", "duque-de-caxias,-rj",
+              "belo-horizonte,-mg", "contagem,-mg", "betim,-mg", "uberlandia,-mg",
+              "curitiba,-pr", "londrina,-pr", "sao-jose-dos-pinhais,-pr",
+              "porto-alegre,-rs", "caxias-do-sul,-rs", "canoas,-rs",
+              "florianopolis,-sc", "joinville,-sc", "blumenau,-sc",
+              "salvador,-ba", "feira-de-santana,-ba", "recife,-pe", "jaboatao-dos-guararapes,-pe",
+              "fortaleza,-ce", "goiania,-go", "brasilia,-df", "belem,-pa", "manaus,-am",
+              "joao-pessoa,-pb", "natal,-rn", "maceio,-al", "aracaju,-se", "teresina,-pi",
+          ]
           known_ids = set()
           driver = infojobs._new_driver()
           try:
               driver.set_page_load_timeout(50)
-              for state in states:
-                  url = f"https://www.infojobs.com.br/empregos-em-{state}.aspx?campo=griddate&orden=desc"
+              for location in states + cities:
+                  url = f"https://www.infojobs.com.br/empregos-em-{location}.aspx?campo=griddate&orden=desc"
                   driver.get(url)
                   infojobs._wait_for_results(driver, 40)
                   rows = infojobs._raw_cards(driver)
                   ids = infojobs._job_identifiers(rows)
                   known_ids.update(ids)
                   print(
-                      f"ESTADO_INFOJOBS={state}; cartões={len(ids)}; "
+                      f"LOCAL_INFOJOBS={location}; cartões={len(ids)}; "
                       f"acumulado={len(known_ids)}; url_final={driver.current_url}"
                   )
           finally:
@@ -60,6 +75,6 @@ jobs:
           print(f"RESULTADO_INFOJOBS={len(known_ids)}")
           if len(known_ids) < 500:
               raise SystemExit(
-                  f"A cobertura estadual retornou {len(known_ids)} vagas; esperado: 500 ou mais."
+                  f"A cobertura nacional retornou {len(known_ids)} vagas; esperado: 500 ou mais."
               )
           PY
