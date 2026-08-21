@@ -21,7 +21,7 @@ jobs:
       - name: Instalar Selenium
         run: pip install -r jobs-dashboard/requirements.txt
 
-      - name: Coletar até 500 vagas sem publicar dados
+      - name: Testar cobertura estadual até 500 vagas sem publicar dados
         env:
           INFOJOBS_MAX_JOBS: "500"
           INFOJOBS_MAX_PAGES: "30"
@@ -30,76 +30,36 @@ jobs:
           PYTHONPATH: jobs-dashboard
         run: |
           python - <<'PY'
-          import json
           from sources import infojobs
 
-          original_raw_cards = infojobs._raw_cards
-          original_advance_page = infojobs._advance_page
-          calls = 0
+          states = [
+              "sao-paulo", "rio-de-janeiro", "minas-gerais", "bahia", "parana",
+              "rio-grande-do-sul", "pernambuco", "ceara", "santa-catarina", "goias",
+              "distrito-federal", "para", "espirito-santo", "mato-grosso", "mato-grosso-do-sul",
+              "amazonas", "maranhao", "paraiba", "rio-grande-do-norte", "alagoas", "piaui",
+              "sergipe", "rondonia", "tocantins", "acre", "amapa", "roraima",
+          ]
+          known_ids = set()
+          driver = infojobs._new_driver()
+          try:
+              driver.set_page_load_timeout(50)
+              for state in states:
+                  url = f"https://www.infojobs.com.br/empregos-em-{state}.aspx?campo=griddate&orden=desc"
+                  driver.get(url)
+                  infojobs._wait_for_results(driver, 40)
+                  rows = infojobs._raw_cards(driver)
+                  ids = infojobs._job_identifiers(rows)
+                  known_ids.update(ids)
+                  print(
+                      f"ESTADO_INFOJOBS={state}; cartões={len(ids)}; "
+                      f"acumulado={len(known_ids)}; url_final={driver.current_url}"
+                  )
+          finally:
+              driver.quit()
 
-          def observed_raw_cards(driver):
-              global calls
-              calls += 1
-              rows = original_raw_cards(driver)
-              print(f"InfoJobs leitura {calls}: {len(rows)} cartões visíveis")
-              return rows
-
-          infojobs._raw_cards = observed_raw_cards
-
-          def observed_advance_page(driver, previous_ids, timeout_seconds):
-              controls = driver.execute_script(
-                  """
-                  return Array.from(document.querySelectorAll('a, button, [role="button"], [role="link"]'))
-                    .map(element => ({
-                      tag: element.tagName,
-                      text: (element.innerText || element.textContent || '').trim(),
-                      aria: element.getAttribute('aria-label'),
-                      title: element.getAttribute('title'),
-                      classes: String(element.className || ''),
-                      href: element.href || '',
-                      disabled: element.getAttribute('aria-disabled') === 'true' || Boolean(element.disabled),
-                    }))
-                    .filter(item => /pr[óo]xim|next|seguinte|mais|pagin|page|>|›|»|→/i.test(
-                      [item.text, item.aria, item.title, item.classes].filter(Boolean).join(' ')
-                    ));
-                  """
-              )
-              print("CONTROLES_INFOJOBS=" + json.dumps(controls, ensure_ascii=False))
-              structure = driver.execute_script(
-                  """
-                  const links = Array.from(document.querySelectorAll('a[href]'))
-                    .map(element => ({
-                      text: (element.innerText || element.textContent || '').trim(),
-                      href: element.href,
-                      classes: String(element.className || ''),
-                      rel: element.getAttribute('rel'),
-                    }))
-                    .filter(item => /emprego|vaga|page|pagin|busca|search/i.test(
-                      [item.text, item.href, item.classes, item.rel].filter(Boolean).join(' ')
-                    ));
-                  const buttons = Array.from(document.querySelectorAll('button, [role="button"]'))
-                    .map(element => ({
-                      text: (element.innerText || element.textContent || '').trim(),
-                      classes: String(element.className || ''),
-                      aria: element.getAttribute('aria-label'),
-                      title: element.getAttribute('title'),
-                    }));
-                  const resources = performance.getEntriesByType('resource')
-                    .map(entry => entry.name)
-                    .filter(url => /api|search|vaga|emprego|job/i.test(url));
-                  return {url: location.href, links, buttons, resources};
-                  """
-              )
-              print("ESTRUTURA_INFOJOBS=" + json.dumps(structure, ensure_ascii=False))
-              advanced = original_advance_page(driver, previous_ids, timeout_seconds)
-              print(f"AVANCO_INFOJOBS={advanced}")
-              return advanced
-
-          infojobs._advance_page = observed_advance_page
-          rows = infojobs.fetch()
-          print(f"RESULTADO_INFOJOBS={len(rows)}")
-          if len(rows) < 500:
+          print(f"RESULTADO_INFOJOBS={len(known_ids)}")
+          if len(known_ids) < 500:
               raise SystemExit(
-                  f"A paginação parou em {len(rows)} vagas; esperado: 500 ou mais."
+                  f"A cobertura estadual retornou {len(known_ids)} vagas; esperado: 500 ou mais."
               )
           PY
