@@ -54,7 +54,7 @@
     ashby: 'Ashby'
   };
 
-  const state = { jobs: [], filtered: [], meta: null, page: 1 };
+  const state = { jobs: [], filtered: [], meta: null, page: 1, showingAllRecentCompanies: false };
   const elements = {
     totalJobs: document.querySelector('#totalJobs'),
     totalCompanies: document.querySelector('#totalCompanies'),
@@ -87,7 +87,10 @@
     previousPage: document.querySelector('#previousPage'),
     nextPage: document.querySelector('#nextPage'),
     pageLabel: document.querySelector('#pageLabel'),
-    resultsTitle: document.querySelector('#resultsTitle')
+    resultsTitle: document.querySelector('#resultsTitle'),
+    recentCompanies: document.querySelector('#recentCompanies'),
+    recentCompaniesList: document.querySelector('#recentCompaniesList'),
+    recentCompaniesMore: document.querySelector('#recentCompaniesMore')
   };
 
   function normalize(value) {
@@ -104,33 +107,34 @@
   }
 
   function applyTheme(theme, persist = false) {
-    const selected = theme === 'dark' ? 'dark' : 'light';
+    const selected = theme === 'light' ? 'light' : 'dark';
     const dark = selected === 'dark';
     document.documentElement.dataset.theme = selected;
-    elements.themeToggle.setAttribute('aria-pressed', String(dark));
-    elements.themeToggle.setAttribute('aria-label', dark ? 'Ativar tema claro' : 'Ativar tema escuro');
-    elements.themeIcon.textContent = dark ? '☀' : '☾';
-    elements.themeLabel.textContent = dark ? 'Tema claro' : 'Tema escuro';
+    if (elements.themeToggle) {
+      elements.themeToggle.setAttribute('aria-pressed', String(dark));
+      elements.themeToggle.setAttribute('aria-label', dark ? 'Ativar tema claro' : 'Ativar tema escuro');
+    }
+    if (elements.themeIcon) elements.themeIcon.textContent = dark ? '☾' : '☀';
+    if (elements.themeLabel) elements.themeLabel.textContent = 'Mudar Tema';
     const themeColor = document.querySelector('meta[name="theme-color"]');
-    if (themeColor) themeColor.content = dark ? '#08191b' : '#123b3f';
+    if (themeColor) themeColor.content = dark ? '#061317' : '#ffffff';
     if (persist) {
       try {
         localStorage.setItem(THEME_KEY, selected);
       } catch {
-        // The choice still applies to the current page when storage is blocked.
+        // ignore
       }
     }
   }
 
   function initTheme() {
-    const initial = document.documentElement.dataset.theme
-      || storedTheme()
-      || (themePreference.matches ? 'dark' : 'light');
+    const initial = document.documentElement.dataset.theme || storedTheme() || (themePreference.matches ? 'dark' : 'light');
     applyTheme(initial);
-    elements.themeToggle.addEventListener('click', () => {
-      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
-      applyTheme(next, true);
-    });
+    if (elements.themeToggle) {
+      elements.themeToggle.addEventListener('click', () => {
+        applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark', true);
+      });
+    }
     const followSystem = event => {
       if (!storedTheme()) applyTheme(event.matches ? 'dark' : 'light');
     };
@@ -164,11 +168,7 @@
   }
 
   function extractCityNames(value) {
-    const genericLocations = new Set([
-      'anywhere', 'br', 'brasil', 'brazil', 'global', 'hybrid', 'hibrido',
-      'nao informada', 'presencial', 'remote', 'remoto', 'united states',
-      'usa', 'worldwide'
-    ]);
+    const genericLocations = new Set(['anywhere', 'br', 'brasil', 'brazil', 'global', 'hybrid', 'hibrido', 'nao informada', 'presencial', 'remote', 'remoto', 'united states', 'usa', 'worldwide']);
     return String(value || '')
       .split(/\s+[·|;]\s+/)
       .map(part => part.trim())
@@ -196,7 +196,7 @@
       timeZone: 'America/Fortaleza',
       hour: '2-digit',
       minute: '2-digit',
-      hourCycle: 'h23',
+      hourCycle: 'h23'
     }).format(time)}`;
   }
 
@@ -288,9 +288,6 @@
           continue;
         }
         current.count += 1;
-        const currentAccents = (current.label.match(/[^\x00-\x7F]/g) || []).length;
-        const candidateAccents = (city.match(/[^\x00-\x7F]/g) || []).length;
-        if (candidateAccents > currentAccents) current.label = city;
       }
     }
     return [...cities.values()].sort((a, b) => collator.compare(a.label, b.label));
@@ -346,75 +343,73 @@
 
   function updateParams() {
     const params = new URLSearchParams();
-    const mappings = [
-      ['q', elements.searchInput.value.trim()],
-      ['portal', elements.sourceFilter.value],
-      ['modalidade', elements.workplaceFilter.value],
-      ['contratacao', elements.contractFilter.value],
-      ['cidade', elements.cityFilter.value.trim()],
-      ['mercado', elements.marketFilter.value],
-      ['area', elements.categoryFilter.value],
-      ['senioridade', elements.seniorityFilter.value],
-      ['dias', elements.periodFilter.value],
-      ['ordem', elements.sortFilter.value === 'recent' ? '' : elements.sortFilter.value],
-      ['pagina', state.page > 1 ? String(state.page) : '']
-    ];
-    for (const [key, value] of mappings) if (value) params.set(key, value);
-    if (elements.pcdOnly.checked) params.set('pcd', '1');
-    if (elements.duplicatesOnly.checked) params.set('duplicadas', '1');
-    const query = params.toString();
-    history.replaceState(null, '', `${window.location.pathname}${query ? `?${query}` : ''}${window.location.hash}`);
+    const values = {
+      q: elements.searchInput.value.trim(),
+      portal: elements.sourceFilter.value,
+      modalidade: elements.workplaceFilter.value,
+      contratacao: elements.contractFilter.value,
+      cidade: elements.cityFilter.value.trim(),
+      mercado: elements.marketFilter.value,
+      area: elements.categoryFilter.value,
+      senioridade: elements.seniorityFilter.value,
+      dias: elements.periodFilter.value,
+      pcd: elements.pcdOnly.checked ? '1' : '',
+      duplicadas: elements.duplicatesOnly.checked ? '1' : '',
+      ordem: elements.sortFilter.value !== 'recent' ? elements.sortFilter.value : '',
+      pagina: state.page > 1 ? String(state.page) : ''
+    };
+    for (const [key, value] of Object.entries(values)) {
+      if (value) params.set(key, value);
+    }
+    const url = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
+    window.history.replaceState({}, '', url);
   }
 
   function filterJobs() {
-    const queryTokens = normalize(elements.searchInput.value).split(/\s+/).filter(Boolean);
+    const search = normalize(elements.searchInput.value);
     const source = elements.sourceFilter.value;
     const workplace = elements.workplaceFilter.value;
-    const requestedContract = normalize(elements.contractFilter.value);
-    const contract = requestedContract === 'cnpj' ? 'pj' : requestedContract;
+    const contract = elements.contractFilter.value;
     const city = normalize(elements.cityFilter.value);
     const market = elements.marketFilter.value;
     const category = elements.categoryFilter.value;
     const seniority = elements.seniorityFilter.value;
-    const days = Number(elements.periodFilter.value);
-    const threshold = days ? Date.now() - days * 86400000 : 0;
+    const days = Number(elements.periodFilter.value || 60);
+    const pcdOnly = elements.pcdOnly.checked;
+    const duplicatesOnly = elements.duplicatesOnly.checked;
+    const now = Date.now();
 
     state.filtered = state.jobs.filter(job => {
-      if (queryTokens.length && !queryTokens.every(token => job._search.includes(token))) return false;
+      if (search && !job._search.includes(search)) return false;
       if (source && job.source !== source) return false;
       if (workplace && job.workplaceType !== workplace) return false;
-      if (contract && !job.contractTypes.some(type => normalize(type) === contract)) return false;
-      if (city && !job._location.includes(city)) return false;
+      if (contract) {
+        const target = normalize(contract === 'CNPJ' ? 'PJ' : contract);
+        if (!job.contractTypes.some(type => normalize(type) === target)) return false;
+      }
+      if (city) {
+        const cityMatch = job.cities.some(item => normalize(item).includes(city)) || job._location.includes(city);
+        if (!cityMatch) return false;
+      }
       if (market && job.market !== market) return false;
       if (category && job.category !== category) return false;
       if (seniority && job.seniority !== seniority) return false;
-      if (threshold && activityTime(job) < threshold) return false;
-      if (elements.pcdOnly.checked && !job.pcd) return false;
-      if (elements.duplicatesOnly.checked && job.portals < 2) return false;
+      if (pcdOnly && !job.pcd) return false;
+      if (duplicatesOnly && job.portals <= 1) return false;
+      if (days) {
+        const activity = activityTime(job);
+        if (!activity || (now - activity) > days * 86400000) return false;
+      }
       return true;
     });
 
     const sort = elements.sortFilter.value;
     state.filtered.sort((a, b) => {
-      if (sort === 'portals') return b.portals - a.portals || activityTime(b) - activityTime(a);
-      if (sort === 'company') return collator.compare(a.company, b.company) || collator.compare(a.title, b.title);
-      if (sort === 'title') return collator.compare(a.title, b.title) || collator.compare(a.company, b.company);
-      return activityTime(b) - activityTime(a) || collator.compare(a.company, b.company);
+      if (sort === 'company') return collator.compare(a.company, b.company) || activityTime(b) - activityTime(a);
+      if (sort === 'title') return collator.compare(a.title, b.title) || activityTime(b) - activityTime(a);
+      if (sort === 'portals') return (b.portals - a.portals) || activityTime(b) - activityTime(a);
+      return activityTime(b) - activityTime(a) || collator.compare(a.title, b.title);
     });
-  }
-
-  function tag(text, className = '') {
-    const span = document.createElement('span');
-    span.className = `tag ${className}`.trim();
-    span.textContent = text;
-    return span;
-  }
-
-  function workplaceClass(value) {
-    if (value === 'Remoto') return 'tag-remote';
-    if (value === 'Híbrido') return 'tag-hybrid';
-    if (value === 'Presencial') return 'tag-onsite';
-    return 'tag-unknown';
   }
 
   function formatSalary(job) {
@@ -429,52 +424,155 @@
     return low ? `A partir de ${low}` : `Até ${high}`;
   }
 
+  function shortTimeLabel(job) {
+    const time = activityTime(job);
+    if (!time) return 'Agora';
+    const delta = Math.max(0, Date.now() - time);
+    const hours = Math.floor(delta / 3600000);
+    if (hours < 1) return 'Há pouco';
+    if (hours < 24) return `Há ${hours} hora${hours > 1 ? 's' : ''}`;
+    const days = Math.floor(delta / 86400000);
+    if (days < 30) return `Há ${days} dia${days > 1 ? 's' : ''}`;
+    return `Em ${dateFormatter.format(time)}`;
+  }
+
+  function initials(company) {
+    const parts = String(company || '').split(/\s+/).filter(Boolean);
+    return parts.slice(0, 2).map(part => part[0]).join('').toUpperCase() || 'TV';
+  }
+
+  function logoClass(company) {
+    return `logo-${normalize(company).replace(/[^a-z0-9]+/g, '-')}`;
+  }
+
+  function logoText(company) {
+    const name = normalize(company);
+    if (name === 'ifood') return 'ifood';
+    if (name === 'stone') return 'stone';
+    if (name === 'nubank') return 'nu';
+    if (name === 'c6 bank') return 'C6';
+    if (name === 'xp inc.') return 'xp';
+    if (name === 'rd station') return '◥◣';
+    return initials(company);
+  }
+
+  function tag(text) {
+    const span = document.createElement('span');
+    span.className = 'tag';
+    span.textContent = text;
+    return span;
+  }
+
   function renderJob(job) {
     const article = document.createElement('article');
     article.className = 'job-card';
+
+    const head = document.createElement('div');
+    head.className = 'job-card-head';
+
+    const logo = document.createElement('div');
+    const normalizedLogo = logoClass(job.company).replace('logo-', '');
+    const knownClass = ['ifood', 'stone', 'nubank', 'c6-bank', 'xp-inc', 'rd-station'].includes(normalizedLogo) ? logoClass(job.company) : 'logo-default';
+    logo.className = `company-logo ${knownClass}`;
+    const logoTextEl = document.createElement('span');
+    logoTextEl.className = 'company-logo-text';
+    logoTextEl.textContent = logoText(job.company);
+    logo.append(logoTextEl);
+
+    const body = document.createElement('div');
+
     const top = document.createElement('div');
     top.className = 'job-topline';
+    const title = document.createElement('h3');
+    title.textContent = job.title;
+    const badge = document.createElement('span');
+    badge.className = 'job-badge-new';
+    badge.textContent = 'Novo';
+    top.append(title, badge);
+
     const company = document.createElement('p');
     company.className = 'company-name';
     company.textContent = job.company;
-    const date = document.createElement('span');
-    date.className = 'job-date';
-    date.textContent = activityLabel(job);
-    top.append(company, date);
 
-    const title = document.createElement('h3');
-    title.textContent = job.title;
+    const meta = document.createElement('div');
+    meta.className = 'company-meta';
+    const location = document.createElement('span');
+    location.textContent = `⌖ ${job.location || 'Não informado'}`;
+    const workplace = document.createElement('span');
+    workplace.textContent = `⌘ ${job.workplaceType}`;
+    const verified = document.createElement('span');
+    verified.innerHTML = `<span class="verified">✦</span> ${job.market || 'Brasil'}`;
+    meta.append(location, workplace, verified);
+
     const tags = document.createElement('div');
     tags.className = 'tags';
-    tags.append(
-      tag(job.sourceLabel, 'tag-source'),
-      tag(job.workplaceType, workplaceClass(job.workplaceType)),
-      tag(job.category),
-      tag(job.seniority)
-    );
-    if (job.location && job.location !== 'Local não informado') tags.append(tag(job.location));
-    for (const contract of job.contractTypes) tags.append(tag(contractLabel(contract)));
-    if (job.pcd) tags.append(tag('Afirmativa PcD', 'tag-pcd'));
-    if (job.blindSelection) tags.append(tag('Seleção às cegas', 'tag-pcd'));
-    if (job.portals > 1) tags.append(tag(`Encontrada em ${job.portals} portais`, 'tag-source'));
-    article.append(top, title, tags);
+    const tagsToShow = [];
+    if (job.category && job.category !== 'Outros') tagsToShow.push(job.category);
+    if (job.seniority && job.seniority !== 'Não informado') tagsToShow.push(job.seniority);
+    if (job.contractTypes[0]) tagsToShow.push(contractLabel(job.contractTypes[0]));
+    if (!tagsToShow.length && job.sourceLabel) tagsToShow.push(job.sourceLabel);
+    tagsToShow.slice(0, 3).forEach(item => tags.append(tag(item)));
+
+    body.append(top, company, meta, tags);
+    head.append(logo, body);
 
     const footer = document.createElement('div');
     footer.className = 'job-footer';
-    const note = document.createElement('span');
-    note.className = 'language-note';
-    const salary = formatSalary(job);
-    note.textContent = salary || job.skills || `${job.market}${job.country ? ` · ${job.country}` : ''}`;
+    const date = document.createElement('span');
+    date.className = 'job-date';
+    date.textContent = shortTimeLabel(job);
     const link = document.createElement('a');
     link.className = 'primary-link';
     link.href = job.url;
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
-    link.textContent = 'Ver vaga original ↗';
+    link.textContent = 'Ver vaga ↗';
     link.setAttribute('aria-label', `Ver vaga ${job.title} no portal ${job.sourceLabel}`);
-    footer.append(note, link);
-    article.append(footer);
+    footer.append(date, link);
+
+    article.append(head, footer);
     return article;
+  }
+
+  function recentCompaniesData() {
+    const unique = new Map();
+    const sorted = [...state.jobs].sort((a, b) => activityTime(b) - activityTime(a));
+    for (const job of sorted) {
+      const key = normalize(job.company);
+      if (!key || unique.has(key)) continue;
+      unique.set(key, { company: job.company, activity: activityTime(job) });
+    }
+    return [...unique.values()];
+  }
+
+  function renderRecentCompanies() {
+    if (!elements.recentCompanies || !elements.recentCompaniesList) return;
+    const all = recentCompaniesData();
+    if (!all.length) {
+      elements.recentCompanies.hidden = true;
+      return;
+    }
+    const visible = state.showingAllRecentCompanies ? all.slice(0, 16) : all.slice(0, 6);
+    elements.recentCompaniesList.replaceChildren(...visible.map((item, index) => {
+      const li = document.createElement('li');
+      li.className = 'recent-company-item';
+      const logo = document.createElement('span');
+      logo.className = `recent-company-logo company-tone-${index % 8}`;
+      logo.textContent = initials(item.company);
+      const name = document.createElement('span');
+      name.className = 'recent-company-name';
+      name.textContent = item.company;
+      const badge = document.createElement('span');
+      badge.className = 'new-badge';
+      badge.textContent = 'Novo';
+      li.append(logo, name, badge);
+      return li;
+    }));
+    elements.recentCompanies.hidden = false;
+    if (elements.recentCompaniesMore) {
+      elements.recentCompaniesMore.hidden = all.length <= 6;
+      elements.recentCompaniesMore.textContent = state.showingAllRecentCompanies ? 'Mostrar menos' : 'Ver todas as empresas';
+    }
   }
 
   function render() {
@@ -487,9 +585,7 @@
     elements.jobList.replaceChildren(...pageJobs.map(renderJob));
     const empty = state.filtered.length === 0;
     elements.statusMessage.hidden = !empty;
-    elements.statusMessage.textContent = empty
-      ? 'Nenhuma vaga corresponde a esses filtros. Tente remover um ou mais critérios.'
-      : '';
+    elements.statusMessage.textContent = empty ? 'Nenhuma vaga corresponde a esses filtros. Tente remover um ou mais critérios.' : '';
     elements.pagination.hidden = empty || totalPages <= 1;
     elements.previousPage.disabled = state.page <= 1;
     elements.nextPage.disabled = state.page >= totalPages;
@@ -554,6 +650,12 @@
       render();
       elements.resultsTitle.scrollIntoView({ block: 'start' });
     });
+    if (elements.recentCompaniesMore) {
+      elements.recentCompaniesMore.addEventListener('click', () => {
+        state.showingAllRecentCompanies = !state.showingAllRecentCompanies;
+        renderRecentCompanies();
+      });
+    }
   }
 
   async function init() {
@@ -570,7 +672,7 @@
       elements.totalCompanies.textContent = numberFormatter.format(data.companies || new Set(state.jobs.map(job => job.company)).size);
       elements.totalSources.textContent = numberFormatter.format(new Set(state.jobs.map(job => job.source)).size);
       elements.updatedLabel.textContent = data.generated_at
-        ? `Atualizado em ${dateTimeFormatter.format(new Date(data.generated_at))} (horário de Brasília)`
+        ? `Atualizado em ${dateTimeFormatter.format(new Date(data.generated_at))}`
         : 'Data da última atualização não informada';
       if ((data.failed_sources || []).length) {
         elements.sourceWarning.hidden = false;
@@ -578,6 +680,7 @@
       }
       populateFilters();
       loadParams();
+      renderRecentCompanies();
       bindEvents();
       elements.statusMessage.hidden = true;
       render();
