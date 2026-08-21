@@ -1301,6 +1301,34 @@ select {
   font-size: 0.64rem;
 }
 
+.tag-workplace {
+  font-weight: 800;
+}
+
+.tag-workplace.tag-remote {
+  border-color: rgba(45, 226, 173, 0.56);
+  background: rgba(24, 196, 139, 0.15);
+  color: #67f0c2;
+}
+
+.tag-workplace.tag-hybrid {
+  border-color: rgba(249, 197, 38, 0.58);
+  background: rgba(249, 197, 38, 0.13);
+  color: #ffda68;
+}
+
+.tag-workplace.tag-on-site {
+  border-color: rgba(66, 167, 251, 0.58);
+  background: rgba(66, 167, 251, 0.14);
+  color: #8bc9ff;
+}
+
+.tag-workplace.tag-unknown {
+  border-color: rgba(167, 168, 165, 0.4);
+  background: rgba(167, 168, 165, 0.1);
+  color: var(--muted);
+}
+
 .job-date,
 .primary-link { font-size: 0.71rem; }
 .pagination { margin-top: 15px; }
@@ -1313,6 +1341,9 @@ select {
 :root[data-theme="light"] .results,
 :root[data-theme="light"] .job-card { background: #fff; }
 :root[data-theme="light"] .stat-card dt { color: var(--muted); }
+:root[data-theme="light"] .tag-workplace.tag-remote { color: #087a59; background: #e4f8f0; }
+:root[data-theme="light"] .tag-workplace.tag-hybrid { color: #8a6100; background: #fff5d3; }
+:root[data-theme="light"] .tag-workplace.tag-on-site { color: #1769ad; background: #e8f3ff; }
 
 @media (max-width: 1500px) {
   .hero-grid { grid-template-columns: minmax(460px, 0.84fr) minmax(0, 1.16fr); gap: 32px; }

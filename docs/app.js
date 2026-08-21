@@ -456,11 +456,19 @@
     return initials(company);
   }
 
-  function tag(text) {
+  function tag(text, variant = '') {
     const span = document.createElement('span');
-    span.className = 'tag';
+    span.className = `tag${variant ? ` tag-${variant}` : ''}`;
     span.textContent = text;
     return span;
+  }
+
+  function workplaceVariant(value) {
+    const normalized = normalize(value);
+    if (normalized === 'remoto') return 'remote';
+    if (normalized === 'hibrido') return 'hybrid';
+    if (normalized === 'presencial') return 'on-site';
+    return 'unknown';
   }
 
   function renderJob(job) {
@@ -509,6 +517,9 @@
 
     const tags = document.createElement('div');
     tags.className = 'tags';
+    // Keep the work model as the first, high-contrast tag. It is the quickest
+    // way for a visitor to distinguish remote, hybrid and on-site jobs.
+    tags.append(tag(job.workplaceType, `workplace ${workplaceVariant(job.workplaceType)}`));
     const tagsToShow = [];
     if (job.category && job.category !== 'Outros') tagsToShow.push(job.category);
     if (job.seniority && job.seniority !== 'Não informado') tagsToShow.push(job.seniority);
