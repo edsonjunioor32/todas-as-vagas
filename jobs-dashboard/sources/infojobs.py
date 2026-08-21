@@ -371,7 +371,9 @@ def _raw_cards(driver):
 
 def fetch():
     max_jobs = _integer_env("INFOJOBS_MAX_JOBS", 500, 20, 500)
-    max_scrolls = _integer_env("INFOJOBS_MAX_SCROLLS", 4, 0, 20)
+    # Public regional pages render their full card set immediately. Avoiding
+    # speculative scrolling keeps the multi-location collection fast.
+    max_scrolls = _integer_env("INFOJOBS_MAX_SCROLLS", 0, 0, 20)
     timeout = _integer_env("INFOJOBS_RENDER_TIMEOUT", 50, 15, 90)
     driver = _new_driver()
     try:
