@@ -913,3 +913,23 @@ input::placeholder { color: var(--muted); }
     animation-duration: 0.01ms !important;
   }
 }
+
+/* Garante que contadores grandes como 45.708 e 10.398 nunca estourem os cards. */
+.stat-card {
+  padding-left: 86px;
+  padding-right: 14px;
+}
+.stat-card::before {
+  left: 20px;
+  width: 48px;
+  height: 48px;
+}
+.stat-card::after {
+  left: 35px;
+  font-size: 1.3rem;
+}
+.stat-card dd {
+  font-size: clamp(1.55rem, 1.65vw, 2rem);
+  overflow: visible;
+  text-overflow: clip;
+}
