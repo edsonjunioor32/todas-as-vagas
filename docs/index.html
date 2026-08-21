@@ -4,30 +4,41 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light dark">
-    <meta name="theme-color" content="#123b3f">
+    <meta name="theme-color" content="#061317">
     <meta name="referrer" content="no-referrer">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
     <meta name="description" content="Índice independente de vagas coletadas em vários portais públicos, com pesquisa e filtros por cidade, portal, modalidade, contratação, área e mercado.">
     <meta property="og:title" content="Todas as Vagas — índice multiportal">
-    <meta property="og:description" content="Pesquise oportunidades da InHire, Gupy, Sólides, Stone, iFood, empresas no Oracle Recruiting Cloud e outras fontes em uma base normalizada.">
+    <meta property="og:description" content="Pesquise oportunidades em diferentes portais e encontre a vaga ideal em um só lugar.">
     <meta property="og:type" content="website">
     <title>Todas as Vagas — índice multiportal</title>
-    <link rel="icon" href="./favicon.svg?v=2" type="image/svg+xml">
+    <link rel="icon" href="./favicon.svg?v=4" type="image/svg+xml">
     <script src="./theme.js?v=1"></script>
-    <link rel="stylesheet" href="./styles.css?v=6">
-    <script src="./app.js?v=8" defer></script>
+    <link rel="stylesheet" href="./styles.css?v=10">
+    <script src="./app.js?v=10" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#resultados">Pular para os resultados</a>
 
     <header class="site-header">
       <div class="shell header-inner">
-        <a class="brand" href="./" aria-label="Todas as Vagas — início">
-          <span class="brand-mark" aria-hidden="true">T</span>
-          <span>Todas as Vagas</span>
-        </a>
+        <div class="brand-group">
+          <a class="brand" href="./" aria-label="Todas as Vagas — início">
+            <img class="brand-mark" src="./favicon.svg?v=4" alt="Ícone Todas as Vagas">
+            <span class="brand-copy">
+              <span class="brand-title">Todas as Vagas</span>
+            </span>
+          </a>
+          <div class="brand-subline">
+            <span class="header-credit">by <strong>Edson Paiva</strong></span>
+            <a class="header-linkedin-link" href="https://www.linkedin.com/in/edson-paiva-jr/" target="_blank" rel="noopener noreferrer" aria-label="Acessar o LinkedIn de Edson Paiva em uma nova aba">
+              <span aria-hidden="true">in</span>
+              <span>LinkedIn</span>
+            </a>
+          </div>
+        </div>
+
         <div class="header-actions">
-          <span class="header-credit">by <strong>Edson Paiva</strong></span>
           <div class="header-support" aria-label="Apoie o Portal Todas as Vagas">
             <span>Apoie o Portal Todas as Vagas</span>
             <strong>Pix: edsonjunior32@hotmail.com</strong>
@@ -36,12 +47,9 @@
             <span class="theme-toggle-icon" id="themeIcon" aria-hidden="true">☾</span>
             <span id="themeLabel">Tema escuro</span>
           </button>
-          <a class="header-linkedin-link" href="https://www.linkedin.com/in/edson-paiva-jr/" target="_blank" rel="noopener noreferrer" aria-label="Acessar o LinkedIn de Edson Paiva em uma nova aba">
-            <span aria-hidden="true">in</span>
-            LinkedIn
-          </a>
-          <a class="source-link" href="https://github.com/edsonjunioor32/todas-as-vagas" target="_blank" rel="noopener noreferrer">
-            Ver projeto no GitHub
+          <a class="source-link" href="https://github.com/edsonjunioor32/todas-as-vagas" target="_blank" rel="noopener noreferrer" aria-label="Ver projeto no GitHub em uma nova aba">
+            <span class="action-icon" aria-hidden="true">◔</span>
+            <span>Ver projeto</span>
           </a>
         </div>
       </div>
@@ -49,27 +57,28 @@
 
     <main>
       <section class="hero">
+        <div class="hero-tech hero-tech-left" aria-hidden="true"></div>
+        <div class="hero-tech hero-tech-right" aria-hidden="true"></div>
         <div class="shell hero-grid">
-          <div>
-            <p class="eyebrow">Índice público e independente</p>
-            <h1>Vagas de vários portais, em um só lugar.</h1>
+          <div class="hero-copy-block">
+            <h1>Vagas de vários<br>portais, <span class="hero-accent">em um só lugar.</span></h1>
             <p class="hero-copy">
-              Pesquise oportunidades da InHire, Empregare, Gupy, Sólides, GeekHunter, Stone, iFood, PicPay e outras empresas no Oracle Recruiting Cloud. Combine filtros por cidade, origem, modalidade, modelo de contratação, área, senioridade, mercado e data.
+              Buscamos e reunimos oportunidades de diversos portais de emprego para você economizar tempo e encontrar a vaga ideal com mais facilidade.
             </p>
             <p class="updated" id="updatedLabel" aria-live="polite">Carregando a atualização mais recente…</p>
             <p class="source-warning" id="sourceWarning" hidden></p>
           </div>
 
           <dl class="stats" aria-label="Resumo da consulta">
-            <div>
+            <div class="stat-card stat-card-jobs">
               <dt>Vagas disponíveis</dt>
               <dd id="totalJobs">—</dd>
             </div>
-            <div>
+            <div class="stat-card stat-card-companies">
               <dt>Empresas</dt>
               <dd id="totalCompanies">—</dd>
             </div>
-            <div>
+            <div class="stat-card stat-card-sources">
               <dt>Portais</dt>
               <dd id="totalSources">—</dd>
             </div>
@@ -81,7 +90,7 @@
         <aside class="filters" aria-labelledby="filtersTitle">
           <div class="filters-heading">
             <div>
-              <p class="section-kicker">Refine a consulta</p>
+              <p class="section-kicker">REFINE A CONSULTA</p>
               <h2 id="filtersTitle">Filtros</h2>
             </div>
             <button class="text-button" id="clearFilters" type="button">Limpar</button>
@@ -92,59 +101,59 @@
               <label for="searchInput">Cargo, empresa ou palavra-chave</label>
               <div class="search-control">
                 <span aria-hidden="true">⌕</span>
-                <input id="searchInput" name="busca" type="search" placeholder="Ex.: suporte, Java, cartões" spellcheck="false">
+                <input id="searchInput" name="busca" type="search" placeholder="Cargo, empresa ou palavra-chave" spellcheck="false">
               </div>
             </div>
 
-            <div class="field">
-              <label for="sourceFilter">Portal</label>
-              <select id="sourceFilter" name="portal">
-                <option value="">Todos os portais</option>
-              </select>
+            <div class="field field-compact">
+              <label for="cityFilter">Localização</label>
+              <input id="cityFilter" name="cidade" type="search" list="cityOptions" placeholder="Ex.: João Pessoa" spellcheck="false">
+              <datalist id="cityOptions"></datalist>
             </div>
 
-            <div class="field">
+            <div class="field field-compact">
               <label for="workplaceFilter">Modalidade</label>
               <select id="workplaceFilter" name="modalidade">
                 <option value="">Todas as modalidades</option>
               </select>
             </div>
 
-            <div class="field">
-              <label for="contractFilter">Modelo de contratação</label>
+            <div class="field field-compact">
+              <label for="contractFilter">Tipo de contrato</label>
               <select id="contractFilter" name="contratacao">
                 <option value="">Todos os modelos</option>
               </select>
             </div>
 
-            <div class="field">
-              <label for="cityFilter">Cidade</label>
-              <input id="cityFilter" name="cidade" type="search" list="cityOptions" placeholder="Ex.: João Pessoa" spellcheck="false">
-              <datalist id="cityOptions"></datalist>
+            <div class="field field-compact">
+              <label for="categoryFilter">Área de atuação</label>
+              <select id="categoryFilter" name="area">
+                <option value="">Todas as áreas</option>
+              </select>
             </div>
 
-            <div class="field">
+            <div class="field field-compact">
+              <label for="seniorityFilter">Nível de experiência</label>
+              <select id="seniorityFilter" name="senioridade">
+                <option value="">Todas as senioridades</option>
+              </select>
+            </div>
+
+            <div class="field field-extra">
+              <label for="sourceFilter">Portal</label>
+              <select id="sourceFilter" name="portal">
+                <option value="">Todos os portais</option>
+              </select>
+            </div>
+
+            <div class="field field-extra">
               <label for="marketFilter">Mercado</label>
               <select id="marketFilter" name="mercado">
                 <option value="">Todos os mercados</option>
               </select>
             </div>
 
-            <div class="field">
-              <label for="categoryFilter">Área</label>
-              <select id="categoryFilter" name="area">
-                <option value="">Todas as áreas</option>
-              </select>
-            </div>
-
-            <div class="field">
-              <label for="seniorityFilter">Senioridade</label>
-              <select id="seniorityFilter" name="senioridade">
-                <option value="">Todas as senioridades</option>
-              </select>
-            </div>
-
-            <div class="field">
+            <div class="field field-extra">
               <label for="periodFilter">Publicação</label>
               <select id="periodFilter" name="periodo">
                 <option value="">Até 2 meses</option>
@@ -165,15 +174,20 @@
             </label>
           </form>
 
+          <section class="recent-companies" id="recentCompanies" aria-labelledby="recentCompaniesTitle" hidden>
+            <h3 id="recentCompaniesTitle">EMPRESAS ADICIONADAS RECENTEMENTE</h3>
+            <ul class="recent-company-list" id="recentCompaniesList"></ul>
+            <button class="recent-companies-footer" id="recentCompaniesMore" type="button">Ver todas as empresas</button>
+          </section>
+
           <p class="filter-note">
-            A base mantém somente anúncios dos dois meses mais recentes. O filtro CNPJ reúne as vagas informadas pelos portais como PJ. Modalidade, contratação e demais classificações usam os dados divulgados por cada portal. Quando o contrato não é informado, a vaga aparece apenas em “Todos os modelos”. Confirme disponibilidade, localidade e requisitos no anúncio original.
+            A base mantém somente anúncios dos dois meses mais recentes. Modalidade, contratação e demais classificações usam os dados divulgados por cada portal. Quando o contrato não é informado, a vaga aparece apenas em “Todos os modelos”. Confirme disponibilidade, localidade e requisitos no anúncio original.
           </p>
         </aside>
 
         <section class="results" id="resultados" aria-labelledby="resultsTitle">
           <div class="results-toolbar">
             <div>
-              <p class="section-kicker">Oportunidades encontradas</p>
               <h2 id="resultsTitle"><span id="resultCount">—</span> vagas</h2>
             </div>
             <div class="toolbar-actions">
