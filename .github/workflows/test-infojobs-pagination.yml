@@ -30,9 +30,11 @@ jobs:
           PYTHONPATH: jobs-dashboard
         run: |
           python - <<'PY'
+          import json
           from sources import infojobs
 
           original_raw_cards = infojobs._raw_cards
+          original_advance_page = infojobs._advance_page
           calls = 0
 
           def observed_raw_cards(driver):
@@ -43,6 +45,31 @@ jobs:
               return rows
 
           infojobs._raw_cards = observed_raw_cards
+
+          def observed_advance_page(driver, previous_ids, timeout_seconds):
+              controls = driver.execute_script(
+                  """
+                  return Array.from(document.querySelectorAll('a, button, [role="button"], [role="link"]'))
+                    .map(element => ({
+                      tag: element.tagName,
+                      text: (element.innerText || element.textContent || '').trim(),
+                      aria: element.getAttribute('aria-label'),
+                      title: element.getAttribute('title'),
+                      classes: String(element.className || ''),
+                      href: element.href || '',
+                      disabled: element.getAttribute('aria-disabled') === 'true' || Boolean(element.disabled),
+                    }))
+                    .filter(item => /pr[óo]xim|next|seguinte|mais|pagin|page|>|›|»|→/i.test(
+                      [item.text, item.aria, item.title, item.classes].filter(Boolean).join(' ')
+                    ));
+                  """
+              )
+              print("CONTROLES_INFOJOBS=" + json.dumps(controls, ensure_ascii=False))
+              advanced = original_advance_page(driver, previous_ids, timeout_seconds)
+              print(f"AVANCO_INFOJOBS={advanced}")
+              return advanced
+
+          infojobs._advance_page = observed_advance_page
           rows = infojobs.fetch()
           print(f"RESULTADO_INFOJOBS={len(rows)}")
           if len(rows) < 500:
