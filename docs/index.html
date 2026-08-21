@@ -13,9 +13,9 @@
     <meta property="og:type" content="website">
     <title>Todas as Vagas — índice multiportal</title>
     <link rel="icon" href="./favicon.svg?v=4" type="image/svg+xml">
-    <script src="./theme.js?v=1"></script>
-    <link rel="stylesheet" href="./styles.css?v=10">
-    <script src="./app.js?v=10" defer></script>
+    <script src="./theme.js?v=2"></script>
+    <link rel="stylesheet" href="./styles.css?v=11">
+    <script src="./app.js?v=11" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#resultados">Pular para os resultados</a>
@@ -27,10 +27,10 @@
             <img class="brand-mark" src="./favicon.svg?v=4" alt="Ícone Todas as Vagas">
             <span class="brand-copy">
               <span class="brand-title">Todas as Vagas</span>
+              <span class="header-credit">by <strong>Edson Paiva</strong></span>
             </span>
           </a>
           <div class="brand-subline">
-            <span class="header-credit">by <strong>Edson Paiva</strong></span>
             <a class="header-linkedin-link" href="https://www.linkedin.com/in/edson-paiva-jr/" target="_blank" rel="noopener noreferrer" aria-label="Acessar o LinkedIn de Edson Paiva em uma nova aba">
               <span aria-hidden="true">in</span>
               <span>LinkedIn</span>
@@ -48,7 +48,7 @@
             <span id="themeLabel">Tema escuro</span>
           </button>
           <a class="source-link" href="https://github.com/edsonjunioor32/todas-as-vagas" target="_blank" rel="noopener noreferrer" aria-label="Ver projeto no GitHub em uma nova aba">
-            <span class="action-icon" aria-hidden="true">◔</span>
+            <svg class="action-icon" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .8A11.2 11.2 0 0 0 .8 12c0 4.95 3.2 9.15 7.65 10.63.56.1.76-.24.76-.54v-2.1c-3.11.68-3.77-1.31-3.77-1.31-.5-1.3-1.25-1.64-1.25-1.64-1.02-.7.08-.69.08-.69 1.13.08 1.73 1.16 1.73 1.16 1 1.72 2.62 1.22 3.26.93.1-.73.39-1.22.7-1.5-2.48-.29-5.08-1.24-5.08-5.51 0-1.22.43-2.22 1.15-3-.12-.29-.5-1.42.1-2.96 0 0 .94-.3 3.08 1.14a10.68 10.68 0 0 1 5.6 0c2.14-1.44 3.08-1.14 3.08-1.14.6 1.54.22 2.67.1 2.95.72.79 1.15 1.79 1.15 3.01 0 4.28-2.61 5.22-5.1 5.5.4.35.76 1.03.76 2.07v3.09c0 .3.2.64.77.53A11.2 11.2 0 0 0 12 .8Z"/></svg>
             <span>Ver projeto</span>
           </a>
         </div>
@@ -71,14 +71,17 @@
 
           <dl class="stats" aria-label="Resumo da consulta">
             <div class="stat-card stat-card-jobs">
+              <span class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 6V4h8v2m-11 3h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Zm-2 5h18m-10-2h2v4h-2z"/></svg></span>
               <dt>Vagas disponíveis</dt>
               <dd id="totalJobs">—</dd>
             </div>
             <div class="stat-card stat-card-companies">
+              <span class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 21V5l11-2v18m0-11h5v11M2 21h20M8 8h2m-2 4h2m-2 4h2m8-2h1m-1 4h1"/></svg></span>
               <dt>Empresas</dt>
               <dd id="totalCompanies">—</dd>
             </div>
             <div class="stat-card stat-card-sources">
+              <span class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M3 12h18m-9-9c2.4 2.4 3.5 5.4 3.5 9s-1.1 6.6-3.5 9c-2.4-2.4-3.5-5.4-3.5-9S9.6 5.4 12 3Z"/></svg></span>
               <dt>Portais</dt>
               <dd id="totalSources">—</dd>
             </div>

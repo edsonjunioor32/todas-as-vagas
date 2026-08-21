@@ -128,7 +128,7 @@
   }
 
   function initTheme() {
-    const initial = document.documentElement.dataset.theme || storedTheme() || (themePreference.matches ? 'dark' : 'light');
+    const initial = document.documentElement.dataset.theme || storedTheme() || 'dark';
     applyTheme(initial);
     if (elements.themeToggle) {
       elements.themeToggle.addEventListener('click', () => {
@@ -501,8 +501,11 @@
     const workplace = document.createElement('span');
     workplace.textContent = `⌘ ${job.workplaceType}`;
     const verified = document.createElement('span');
-    verified.innerHTML = `<span class="verified">✦</span> ${job.market || 'Brasil'}`;
-    meta.append(location, workplace, verified);
+    verified.className = 'verified';
+    verified.textContent = '✦';
+    verified.setAttribute('aria-label', `Vaga direcionada ao mercado ${job.market || 'Brasil'}`);
+    company.append(' ', verified);
+    meta.append(location, workplace);
 
     const tags = document.createElement('div');
     tags.className = 'tags';
