@@ -1,3 +1,5 @@
+> 🟢 **OPEN TO WORK:** Sou Analista de Suporte N2 Sênior / Sustentação de Sistemas com vasta experiência em Meios de Pagamentos e APIs. Estou em busca de recolocação. [Conecte-se comigo no LinkedIn](https://www.linkedin.com/in/edson-paiva-jr/)
+
 # Radar de Vagas — índice multiportal no GitHub Pages
 
 Este projeto consulta fontes públicas de vagas, converte os formatos diferentes para uma base única e publica um painel pesquisável no GitHub Pages. A atualização ocorre quatro vezes por dia e continua mesmo quando um portal isolado fica temporariamente indisponível.
