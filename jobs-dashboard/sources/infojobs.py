@@ -18,8 +18,42 @@ from ._common import job
 
 
 SOURCE = "infojobs"
-LIST_URL = "https://www.infojobs.com.br/empregos.aspx?campo=griddate&orden=desc"
 LOCAL_TIMEZONE = ZoneInfo("America/Sao_Paulo")
+
+# InfoJobs' public national page is geo-personalized by the visitor's IP and
+# exposes only one result page.  These public state and city result pages give
+# broad, repeatable coverage without following the unrelated "Próximas"
+# distance-sorting link that appears on the national page.
+LOCATION_SLUGS = (
+    "sao-paulo", "rio-de-janeiro", "minas-gerais", "bahia", "parana",
+    "rio-grande-do-sul", "pernambuco", "ceara", "santa-catarina", "goias",
+    "distrito-federal", "para", "espirito-santo", "mato-grosso", "mato-grosso-do-sul",
+    "amazonas", "maranhao", "paraiba", "rio-grande-do-norte", "alagoas", "piaui",
+    "sergipe", "rondonia", "tocantins", "acre", "amapa", "roraima",
+    "sao-paulo,-sp", "guarulhos,-sp", "osasco,-sp", "barueri,-sp",
+    "santo-andre,-sp", "sao-bernardo-do-campo,-sp", "sao-caetano-do-sul,-sp",
+    "campinas,-sp", "sorocaba,-sp", "jundiai,-sp", "santos,-sp",
+    "ribeirao-preto,-sp", "sao-jose-dos-campos,-sp", "mogi-das-cruzes,-sp",
+    "cotia,-sp", "cajamar,-sp", "taboao-da-serra,-sp", "diadema,-sp",
+    "rio-de-janeiro,-rj", "niteroi,-rj", "duque-de-caxias,-rj",
+    "belo-horizonte,-mg", "contagem,-mg", "betim,-mg", "uberlandia,-mg",
+    "curitiba,-pr", "londrina,-pr", "sao-jose-dos-pinhais,-pr",
+    "porto-alegre,-rs", "caxias-do-sul,-rs", "canoas,-rs",
+    "florianopolis,-sc", "joinville,-sc", "blumenau,-sc",
+    "salvador,-ba", "feira-de-santana,-ba", "recife,-pe", "jaboatao-dos-guararapes,-pe",
+    "fortaleza,-ce", "goiania,-go", "brasilia,-df", "belem,-pa", "manaus,-am",
+    "joao-pessoa,-pb", "natal,-rn", "maceio,-al", "aracaju,-se", "teresina,-pi",
+    "sao-jose-do-rio-preto,-sp", "piracicaba,-sp", "bauru,-sp", "franca,-sp",
+    "aracatuba,-sp", "presidente-prudente,-sp", "marilia,-sp", "sao-carlos,-sp",
+    "araraquara,-sp", "indaiatuba,-sp", "itu,-sp", "sumare,-sp", "americana,-sp",
+    "hortolandia,-sp", "sao-vicente,-sp", "praia-grande,-sp", "maua,-sp",
+    "nova-iguacu,-rj", "campos-dos-goytacazes,-rj", "sao-goncalo,-rj",
+    "vitoria,-es", "serra,-es", "vila-velha,-es", "cuiaba,-mt", "campo-grande,-ms",
+    "uberaba,-mg", "juiz-de-fora,-mg", "governador-valadares,-mg",
+    "maringa,-pr", "ponta-grossa,-pr", "cascavel,-pr",
+    "pelotas,-rs", "santa-maria,-rs", "caruaru,-pe", "olinda,-pe", "camacari,-ba",
+    "juazeiro-do-norte,-ce", "maracanau,-ce", "santarem,-pa", "ananindeua,-pa",
+)
 
 MONTHS = {
     "jan": 1,
@@ -300,59 +334,6 @@ def _job_identifiers(rows):
     return {identifier for identifier in map(_job_identifier, rows) if identifier}
 
 
-def _advance_page(driver, previous_ids, timeout_seconds):
-    """Click InfoJobs' real pagination control and wait for new vacancy cards.
-
-    The public listing uses different paginator implementations over time. Some
-    versions expose an ordinary link, while others use a JavaScript button or
-    an icon-only control. Clicking the visible control avoids depending on one
-    particular URL format and works with either implementation.
-    """
-    clicked = driver.execute_script(
-        r"""
-        const visible = element => {
-          const style = window.getComputedStyle(element);
-          const rect = element.getBoundingClientRect();
-          return style.display !== 'none' && style.visibility !== 'hidden' && rect.width > 0 && rect.height > 0;
-        };
-        const disabled = element => element.getAttribute('aria-disabled') === 'true' ||
-          element.disabled || element.classList.contains('disabled') ||
-          element.parentElement?.classList.contains('disabled');
-        const controls = Array.from(document.querySelectorAll(
-          'a, button, [role="button"], [role="link"]'
-        ));
-        for (const control of controls) {
-          if (!visible(control) || disabled(control)) continue;
-          const label = [
-            control.innerText, control.textContent, control.getAttribute('aria-label'),
-            control.getAttribute('title'), control.getAttribute('data-testid'),
-            control.className,
-          ].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
-          const hasPaginationContext = Boolean(control.closest(
-            '[class*="pagin" i], [id*="pagin" i], [data-pagination], nav[aria-label*="pagin" i]'
-          ));
-          const isNext = /(?:pr[óo]xim|next|seguinte|(?:ver|carregar|mostrar)\s+mais)/i.test(label) ||
-            /^(?:>|›|»|→)$/.test((control.innerText || control.textContent || '').trim());
-          if (!isNext || (!hasPaginationContext && !/pr[óo]xim|next|seguinte/i.test(label))) continue;
-          control.scrollIntoView({block: 'center'});
-          control.click();
-          return true;
-        }
-        return false;
-        """
-    )
-    if not clicked:
-        return False
-
-    deadline = time.monotonic() + timeout_seconds
-    while time.monotonic() < deadline:
-        current_ids = _job_identifiers(_raw_cards(driver))
-        if current_ids - previous_ids:
-            return True
-        time.sleep(0.75)
-    return False
-
-
 def _raw_cards(driver):
     return driver.execute_script(
         r"""
@@ -390,20 +371,30 @@ def _raw_cards(driver):
 
 def fetch():
     max_jobs = _integer_env("INFOJOBS_MAX_JOBS", 500, 20, 500)
-    max_pages = _integer_env("INFOJOBS_MAX_PAGES", 30, 1, 60)
-    max_scrolls = _integer_env("INFOJOBS_MAX_SCROLLS", 4, 0, 20)
+    # Public regional pages render their full card set immediately. Avoiding
+    # speculative scrolling keeps the multi-location collection fast.
+    max_scrolls = _integer_env("INFOJOBS_MAX_SCROLLS", 0, 0, 20)
     timeout = _integer_env("INFOJOBS_RENDER_TIMEOUT", 50, 15, 90)
     driver = _new_driver()
     try:
         driver.set_page_load_timeout(timeout)
-        try:
-            driver.get(LIST_URL)
-        except Exception as error:
-            if error.__class__.__name__ != "TimeoutException":
-                raise
         raw_rows, known_ids = [], set()
-        for _ in range(max_pages):
-            _wait_for_results(driver, timeout)
+        for location in LOCATION_SLUGS:
+            url = (
+                "https://www.infojobs.com.br/empregos-em-"
+                f"{location}.aspx?campo=griddate&orden=desc"
+            )
+            try:
+                driver.get(url)
+                _wait_for_results(driver, timeout)
+            except Exception:
+                # A single unavailable regional page must not discard the
+                # results already collected from other public pages.
+                continue
+            if urlsplit(driver.current_url).path.casefold() != urlsplit(url).path.casefold():
+                # Invalid city slugs redirect to another city's page. Ignore
+                # them instead of silently re-reading unrelated vacancies.
+                continue
             _load_more(driver, max_jobs=max_jobs, max_scrolls=max_scrolls)
             current_rows = _raw_cards(driver)
             current_ids = _job_identifiers(current_rows)
@@ -413,8 +404,6 @@ def fetch():
             )
             known_ids.update(current_ids)
             if len(known_ids) >= max_jobs:
-                break
-            if not _advance_page(driver, current_ids, timeout):
                 break
         raw_rows = raw_rows[:max_jobs]
     finally:
