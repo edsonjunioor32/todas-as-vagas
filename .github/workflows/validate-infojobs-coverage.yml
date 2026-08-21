@@ -1,0 +1,37 @@
+name: Validar cobertura InfoJobs
+
+on:
+  push:
+    branches: [fix/infojobs-national-coverage]
+
+permissions:
+  contents: read
+
+jobs:
+  validar-infojobs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Instalar Selenium
+        run: pip install -r jobs-dashboard/requirements.txt
+      - name: Coletar e validar 500 vagas sem publicar dados
+        env:
+          INFOJOBS_MAX_JOBS: "500"
+          INFOJOBS_MAX_SCROLLS: "0"
+          INFOJOBS_RENDER_TIMEOUT: "50"
+          PYTHONPATH: jobs-dashboard
+        run: |
+          python - <<'PY'
+          from sources import infojobs
+
+          rows = infojobs.fetch()
+          print(f"RESULTADO_NORMALIZADO_INFOJOBS={len(rows)}")
+          if len(rows) < 500:
+              raise SystemExit(
+                  f"A coleta normalizada retornou {len(rows)} vagas; esperado: 500."
+              )
+          PY
