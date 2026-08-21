@@ -52,12 +52,18 @@
   }
 
   function ensureRedesignStyles() {
-    if (document.querySelector('link[data-redesign="2026"]')) return;
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = './redesign.css?v=1';
-    link.dataset.redesign = '2026';
-    document.head.append(link);
+    const styles = [
+      ['redesign-2026', './redesign.css?v=1'],
+      ['redesign-grid-2026', './redesign-grid.css?v=1']
+    ];
+    for (const [id, href] of styles) {
+      if (document.querySelector(`link[data-redesign="${id}"]`)) continue;
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = href;
+      link.dataset.redesign = id;
+      document.head.append(link);
+    }
   }
 
   function enhanceHeroTitle() {
