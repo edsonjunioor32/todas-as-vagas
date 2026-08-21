@@ -1,4 +1,28 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Todas as Vagas">
-  <rect width="64" height="64" rx="18" fill="#123b3f"/>
-  <path d="M14 15h36v10H37v24H27V25H14V15Z" fill="#f2ae35"/>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f564d"/>
+      <stop offset="1" stop-color="#06342f"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffe49a"/>
+      <stop offset=".5" stop-color="#e5b84b"/>
+      <stop offset="1" stop-color="#a9771d"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#bg)" stroke="url(#gold)" stroke-width="2"/>
+  <circle cx="32" cy="31" r="24" fill="none" stroke="#d9ad49" stroke-width="1.4" opacity=".9"/>
+  <path d="M9 31h46M32 7c-8 7-12 15-12 24s4 17 12 24M32 7c8 7 12 15 12 24s-4 17-12 24M12 19c7 4 13 5 20 5s13-1 20-5M12 43c7-4 13-5 20-5s13 1 20 5" fill="none" stroke="#d9ad49" stroke-width="1" opacity=".7"/>
+  <g fill="#efd074">
+    <circle cx="14" cy="19" r="1.4"/><circle cx="23" cy="12" r="1.4"/><circle cx="41" cy="12" r="1.4"/>
+    <circle cx="50" cy="19" r="1.4"/><circle cx="9" cy="31" r="1.4"/><circle cx="55" cy="31" r="1.4"/>
+    <circle cx="14" cy="43" r="1.4"/><circle cx="23" cy="50" r="1.4"/><circle cx="41" cy="50" r="1.4"/>
+    <circle cx="50" cy="43" r="1.4"/>
+  </g>
+  <g fill="url(#gold)" stroke="#fff0bd" stroke-width=".6">
+    <path d="M23 24v-3.5c0-3 2.4-5.5 5.5-5.5h7c3 0 5.5 2.5 5.5 5.5V24h-4v-3.2c0-1.1-.9-1.8-2-1.8h-6c-1.1 0-2 .7-2 1.8V24z"/>
+    <rect x="15" y="23" width="34" height="25" rx="6"/>
+    <path d="M15 31.5c5.5 4 11.2 6 17 6s11.5-2 17-6v5c-5.3 3.2-11 4.8-17 4.8S20.3 39.7 15 36.5z" fill="#c8942e" opacity=".7"/>
+    <rect x="28.5" y="33" width="7" height="8" rx="2" fill="#0c4942" stroke="#efd074" stroke-width="1.2"/>
+  </g>
 </svg>
