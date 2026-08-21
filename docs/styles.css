@@ -926,26 +926,43 @@ a:focus-visible {
   }
 
   .header-inner {
-    flex-wrap: wrap;
-    gap: 10px;
-    padding-block: 12px;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    column-gap: 10px;
+    row-gap: 12px;
+    padding-block: 16px;
   }
 
   .header-actions {
-    width: 100%;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    align-items: center;
-    gap: 9px;
+    display: contents;
+  }
+
+  .brand {
+    grid-column: 1;
+    grid-row: 1;
+    gap: 8px;
+    font-size: 0.98rem;
+  }
+
+  .brand-mark {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px 9px 9px 3px;
+    font-size: 15px;
   }
 
   .header-credit {
-    grid-column: 1;
-    font-size: 0.78rem;
+    grid-column: 1 / 2;
+    grid-row: 2;
+    justify-self: end;
+    font-size: 0.76rem;
   }
 
   .theme-toggle {
     grid-column: 2;
+    grid-row: 1;
     min-width: 42px;
     min-height: 36px;
     padding: 7px 9px;
@@ -956,7 +973,9 @@ a:focus-visible {
   }
 
   .header-linkedin-link {
-    grid-column: 3;
+    grid-column: 2 / 4;
+    grid-row: 2;
+    justify-self: start;
     min-height: 36px;
     gap: 6px;
     padding: 7px 9px;
@@ -965,10 +984,11 @@ a:focus-visible {
 
   .header-support {
     grid-column: 1 / -1;
-    grid-row: 2;
+    grid-row: 3;
     width: 100%;
     padding: 7px 10px;
     font-size: 0.69rem;
+    text-align: center;
     white-space: normal;
   }
 
@@ -977,12 +997,14 @@ a:focus-visible {
   }
 
   .source-link {
-    grid-column: 1 / -1;
-    grid-row: 3;
+    grid-column: 3;
+    grid-row: 1;
     justify-self: end;
     margin: 0;
-    font-size: 0.78rem;
+    color: #dcebea;
+    font-size: 0.66rem;
     text-align: right;
+    white-space: nowrap;
   }
 
   .hero {
