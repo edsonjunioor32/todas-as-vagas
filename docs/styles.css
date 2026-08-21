@@ -1375,33 +1375,50 @@ select {
   .shell { width: min(100%, calc(100% - 24px)); }
   .header-inner {
     position: relative;
-    min-height: 126px;
+    display: block;
+    min-height: 150px;
     align-items: flex-start;
-    padding: 13px 0 46px;
+    padding: 13px 0 40px;
   }
-  .brand-group { gap: 7px; }
+  .brand-group { display: block; }
   .brand { gap: 8px; }
   .brand-mark { width: 46px; height: 46px; flex-basis: 46px; }
   .brand-title { font-size: clamp(1.03rem, 4vw, 1.35rem); }
   .header-credit { font-size: 0.75rem; }
-  .brand-subline { margin-bottom: 0; }
+  .brand-subline {
+    position: absolute;
+    top: 62px;
+    left: 54px;
+    margin: 0;
+  }
   .brand-subline .header-linkedin-link {
-    min-height: 25px;
-    padding: 3px 5px;
-    font-size: 0.62rem;
+    min-height: 27px;
+    padding: 3px 6px;
+    border-color: #0a66c2;
+    color: var(--ink);
+    font-size: 0.64rem;
+  }
+  .brand-subline .header-linkedin-link span:first-child {
+    border-radius: 3px;
+    background: #0a66c2;
+    color: #fff;
   }
   .brand-subline .header-linkedin-link span:last-child { display: inline; }
-  .header-actions { gap: 7px; }
-  .theme-toggle {
+  .header-actions {
     position: absolute;
-    top: 74px;
-    left: 50%;
-    min-height: 31px;
-    transform: translateX(-50%);
-    padding: 4px 8px;
+    top: 13px;
+    right: 0;
+    width: auto;
+    gap: 6px;
+  }
+  .theme-toggle {
+    position: static;
+    min-height: 34px;
+    transform: none;
+    padding: 6px 8px;
     font-size: 0.66rem;
   }
-  .theme-toggle:hover { transform: translateX(-50%); }
+  .theme-toggle:hover { transform: none; }
   .source-link {
     min-height: 34px;
     padding: 6px 8px;
@@ -1411,17 +1428,22 @@ select {
   .header-support {
     position: absolute;
     right: 0;
-    bottom: 4px;
+    bottom: 5px;
     left: 0;
     width: auto;
     max-width: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
     padding: 1px 4px;
     border: 0;
     background: transparent;
     font-size: 0.57rem;
     text-align: center;
   }
-  .header-support span { display: none; }
+  .header-support span { display: inline; }
+  .header-support span::after { content: "•"; margin-left: 4px; }
   .header-support strong { font-size: 0.65rem; }
   .hero { min-height: 0; padding: 20px 0 16px; }
   .hero h1 { font-size: clamp(2.05rem, 9vw, 3rem); }
