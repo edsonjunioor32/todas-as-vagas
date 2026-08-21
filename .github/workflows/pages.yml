@@ -107,8 +107,7 @@ jobs:
           ORACLE_WORKERS: "4"
           GREENHOUSE_WORKERS: "12"
           INFOJOBS_MAX_JOBS: "500"
-          INFOJOBS_MAX_PAGES: "30"
-          INFOJOBS_MAX_SCROLLS: "4"
+          INFOJOBS_MAX_SCROLLS: "0"
         run: python jobs-dashboard/pipeline.py --max-age-months 2
 
       - name: Validar privacidade e integridade
