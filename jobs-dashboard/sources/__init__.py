@@ -43,6 +43,7 @@ REGISTRY = [
     ("nerdin", nerdin.fetch),
     ("docusign", requested_careers.fetch_docusign),
     ("dbccompany", requested_careers.fetch_dbccompany),
+    ("cloudwalk", requested_careers.fetch_cloudwalk),
     ("providerit", requested_portals_aug2026.fetch_providerit),
     ("fiserv", requested_portals_aug2026.fetch_fiserv),
     ("metalfrio", requested_portals_aug2026.fetch_metalfrio),
