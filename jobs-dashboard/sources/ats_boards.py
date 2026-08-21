@@ -17,8 +17,10 @@ from ._common import strip_html, iso_date, work_model_label, is_brazil_location,
 
 PER_COMPANY = 120   # cap for global Lever/Ashby boards
 
-LEVER = ["spotify", "veeva"]
-ASHBY = ["openai", "ramp", "notion", "replit", "watershed", "linear"]
+# Boards explicitly requested by the project owner.  The generic downstream
+# two-month cutoff applies to their publication dates as well.
+LEVER = ["spotify", "veeva", "ciandt"]
+ASHBY = ["openai", "ramp", "notion", "replit", "watershed", "linear", "nubank"]
 
 HERE = Path(__file__).resolve().parent
 GREENHOUSE_BR_CATALOG = HERE.parent / "data" / "greenhouse_br_companies.json"
@@ -134,7 +136,7 @@ def fetch_lever():
             loc = cats.get("location", "")
             country, market = _market(loc)
             out.append(job("lever", j.get("id"),
-                title=j.get("text", ""), company=c.title(),
+                title=j.get("text", ""), company={"ciandt": "CI&T"}.get(c, c.title()),
                 url=j.get("hostedUrl", ""), work_model=work_model_label(raw=cats.get("commitment", "") + " " + loc),
                 city=loc, country=country, market=market,
                 published_date=iso_date(j.get("createdAt")),
@@ -155,7 +157,7 @@ def fetch_ashby():
             country, market = _market(loc)
             remote = bool(j.get("isRemote"))
             out.append(job("ashby", j.get("id") or j.get("jobId"),
-                title=j.get("title", ""), company=c.title(),
+                title=j.get("title", ""), company={"nubank": "Nubank"}.get(c, c.title()),
                 url=j.get("jobUrl") or j.get("applyUrl", ""),
                 work_model="remote" if remote else work_model_label(raw=loc),
                 city=loc, country=country, market="Global remote" if remote else market,
