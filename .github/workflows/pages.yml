@@ -12,7 +12,9 @@ on:
       - ".github/workflows/pages.yml"
   workflow_dispatch:
   schedule:
+    # 08h17, 11h17, 15h17 e 20h17 no horário de Brasília/Fortaleza (UTC-3).
     - cron: "17 11,14,18,23 * * *"
+    # Atualização semanal do catálogo Greenhouse: domingo às 04h37 (UTC-3).
     - cron: "37 7 * * 0"
 
 permissions:
@@ -25,7 +27,56 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  publicar-interface:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Preparar dependências do analisador
+        run: npm install --no-audit --no-fund --package-lock=false
+
+      - name: Validar e preparar interface
+        run: |
+          npm run test:fit
+          node --check docs/fit-entry.js
+          node --input-type=module --check < docs/aderencia/fit-engine.js
+          node --input-type=module --check < docs/aderencia/app.js
+          python jobs-dashboard/validate_fit.py
+          npm run prepare:fit
+
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Preparar arquivos do site
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: docs
+
+      - name: Publicar
+        id: deployment
+        uses: actions/deploy-pages@v4
+
   atualizar-e-publicar:
+    if: github.event_name != 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 120
     environment:
