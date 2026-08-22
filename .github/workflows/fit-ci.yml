@@ -12,6 +12,8 @@ on:
       - "jobs-dashboard/tests/**"
       - "tools/fit-engine.test.mjs"
       - "tools/prepare_fit_assets.py"
+      - "tools/preview_server.ps1"
+      - "tools/iniciar-preview.bat"
       - "package.json"
       - ".github/workflows/fit-ci.yml"
       - ".github/workflows/pages.yml"
@@ -72,3 +74,27 @@ jobs:
           test -s docs/vendor/pdf.mjs
           test -s docs/vendor/pdf.worker.mjs
           test -s docs/vendor/mammoth.browser.min.js
+      - name: Montar pacote de preview local
+        run: |
+          mkdir -p preview/site
+          cp -a docs/. preview/site/
+          cp tools/iniciar-preview.bat tools/preview_server.ps1 preview/
+          cat > preview/LEIA-ME.txt <<'EOF'
+          PREVIEW LOCAL - TODAS AS VAGAS
+
+          1. Extraia todo o ZIP para uma pasta.
+          2. Execute iniciar-preview.bat.
+          3. O navegador abrirá http://localhost:8765/.
+          4. Teste o portal e a opção "Analisar meu currículo".
+          5. Para encerrar, feche a janela preta do preview ou pressione Ctrl+C nela.
+
+          O currículo usado no teste fica somente no navegador local.
+          Nenhum dado é enviado ao GitHub ou ao site público.
+          EOF
+      - name: Disponibilizar preview para teste
+        uses: actions/upload-artifact@v4
+        with:
+          name: todas-as-vagas-preview
+          path: preview
+          if-no-files-found: error
+          retention-days: 3
