@@ -801,13 +801,34 @@ input::placeholder { color: var(--muted); }
   color: var(--muted);
   font-size: .84rem;
 }
-.primary-link {
+.job-source {
+  margin: 0 0 7px;
   color: var(--brand);
-  font-size: .83rem;
+  font-size: .68rem;
+  font-weight: 850;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.primary-link {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 11px;
+  border: 1px solid rgba(29, 225, 189, .42);
+  border-radius: 7px;
+  background: #0d6e70;
+  color: #fff;
+  font-size: .76rem;
   font-weight: 760;
   text-decoration: none;
+  transition: background-color .16s ease, border-color .16s ease, transform .16s ease;
 }
-.primary-link:hover { text-decoration: underline; }
+.primary-link:hover {
+  border-color: var(--brand);
+  background: #0b8580;
+  transform: translateY(-1px);
+}
 .pagination {
   justify-content: center;
   margin-top: 22px;

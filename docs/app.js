@@ -489,6 +489,10 @@
 
     const body = document.createElement('div');
 
+    const source = document.createElement('p');
+    source.className = 'job-source';
+    source.textContent = job.sourceLabel;
+
     const top = document.createElement('div');
     top.className = 'job-topline';
     const title = document.createElement('h3');
@@ -522,10 +526,9 @@
     if (job.category && job.category !== 'Outros') tagsToShow.push(job.category);
     if (job.seniority && job.seniority !== 'Não informado') tagsToShow.push(job.seniority);
     if (job.contractTypes[0]) tagsToShow.push(contractLabel(job.contractTypes[0]));
-    if (!tagsToShow.length && job.sourceLabel) tagsToShow.push(job.sourceLabel);
     tagsToShow.slice(0, 3).forEach(item => tags.append(tag(item)));
 
-    body.append(top, company, meta, tags);
+    body.append(source, top, company, meta, tags);
     head.append(logo, body);
 
     const footer = document.createElement('div');
@@ -538,7 +541,7 @@
     link.href = job.url;
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
-    link.textContent = 'Ver vaga ↗';
+    link.textContent = 'Ver vaga original ↗';
     link.setAttribute('aria-label', `Ver vaga ${job.title} no portal ${job.sourceLabel}`);
     footer.append(date, link);
 
