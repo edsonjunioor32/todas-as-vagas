@@ -66,11 +66,12 @@ jobs:
         run: python jobs-dashboard/validate_fit.py
       - name: Preparar artifact estático
         run: npm run prepare:fit
-      - name: Verificar integração da página principal
+      - name: Verificar que o recurso está oculto no portal
         run: |
-          grep -q 'fit-entry.css' docs/index.html
-          grep -q 'fit-entry.js' docs/index.html
-          grep -q 'Analisar meu currículo' docs/index.html
+          ! grep -q 'fit-entry.css' docs/index.html
+          ! grep -q 'fit-entry.js' docs/index.html
+          ! grep -q 'Analisar meu currículo' docs/index.html
+          ! grep -q 'hero-fit-cta' docs/index.html
           test -s docs/vendor/pdf.mjs
           test -s docs/vendor/pdf.worker.mjs
           test -s docs/vendor/mammoth.browser.min.js
@@ -85,7 +86,7 @@ jobs:
           1. Extraia todo o ZIP para uma pasta.
           2. Execute iniciar-preview.bat.
           3. O navegador abrirá http://localhost:8765/.
-          4. Teste o portal e a opção "Analisar meu currículo".
+          4. A página técnica de aderência permanece no pacote para desenvolvimento, mas está oculta do portal público.
           5. Para encerrar, feche a janela preta do preview ou pressione Ctrl+C nela.
 
           O currículo usado no teste fica somente no navegador local.
