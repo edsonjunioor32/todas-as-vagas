@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {buildTaxonomyIndex,decodeRequirementEntry,evaluateCandidateFit,matchRequirement,rankJobs} from '../docs/aderencia/fit-engine.js';
 
+const engineSource=fs.readFileSync(new URL('../docs/aderencia/fit-engine.js',import.meta.url),'utf8');
+const engine=await import(`data:text/javascript;base64,${Buffer.from(engineSource).toString('base64')}`);
+const {buildTaxonomyIndex,decodeRequirementEntry,evaluateCandidateFit,matchRequirement,rankJobs}=engine;
 const taxonomy=JSON.parse(fs.readFileSync(new URL('../docs/data/fit-taxonomy.json',import.meta.url),'utf8'));
 const index=buildTaxonomyIndex(taxonomy);
 assert.equal(matchRequirement('Experiência com C# e .NET Framework','C#',index),true);
