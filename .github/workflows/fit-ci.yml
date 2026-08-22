@@ -58,7 +58,8 @@ jobs:
       - name: Validar JavaScript
         run: |
           node --check docs/fit-entry.js
-          node --check docs/aderencia/app.js
+          node --input-type=module --check < docs/aderencia/fit-engine.js
+          node --input-type=module --check < docs/aderencia/app.js
       - name: Validar índice público
         run: python jobs-dashboard/validate_fit.py
       - name: Preparar artifact estático
