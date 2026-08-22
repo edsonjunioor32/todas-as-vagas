@@ -8,7 +8,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 FIT = ROOT / "docs" / "data" / "fit.json"
 TAXONOMY = ROOT / "docs" / "data" / "fit-taxonomy.json"
-ALLOWED_ENTRY_KEYS = {"m", "p", "c", "x", "q"}
+ALLOWED_ENTRY_KEYS = {"m", "p", "c", "x", "q", "t", "e", "l", "w", "d"}
+META_LIMITS = {"t": 180, "e": 140, "l": 120, "w": 40, "d": 40}
 EMAIL = re.compile(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", re.I)
 PHONE = re.compile(r"(?:\+?\d[\s().-]*){9,}")
 
@@ -56,6 +57,12 @@ def main():
             for index in values:
                 if not isinstance(index, int) or not 0 <= index < len(terms):
                     fail(f"índice de termo inválido em {url}")
+        for key, limit in META_LIMITS.items():
+            value = str(entry.get(key) or "")
+            if len(value) > limit:
+                fail(f"metadado {key} longo demais: {url}")
+            if "description" in value.casefold() or len(value.split()) > 28:
+                fail(f"metadado {key} parece conter texto indevido: {url}")
     print(f"OK: índice de aderência com {len(jobs)} vagas, {len(terms)} termos, sem descrições/PII")
 
 
