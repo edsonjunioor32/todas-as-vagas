@@ -506,14 +506,12 @@
     meta.className = 'company-meta';
     const location = document.createElement('span');
     location.textContent = `⌖ ${job.location || 'Não informado'}`;
-    const workplace = document.createElement('span');
-    workplace.textContent = `⌘ ${job.workplaceType}`;
     const verified = document.createElement('span');
     verified.className = 'verified';
     verified.textContent = '✦';
     verified.setAttribute('aria-label', `Vaga direcionada ao mercado ${job.market || 'Brasil'}`);
     company.append(' ', verified);
-    meta.append(location, workplace);
+    meta.append(location);
 
     const tags = document.createElement('div');
     tags.className = 'tags';

@@ -1306,21 +1306,21 @@ select {
 }
 
 .tag-workplace.tag-remote {
-  border-color: rgba(45, 226, 173, 0.56);
-  background: rgba(24, 196, 139, 0.15);
-  color: #67f0c2;
+  border-color: rgba(45, 226, 173, 0.72) !important;
+  background: rgba(24, 196, 139, 0.22) !important;
+  color: #67f0c2 !important;
 }
 
 .tag-workplace.tag-hybrid {
-  border-color: rgba(249, 197, 38, 0.58);
-  background: rgba(249, 197, 38, 0.13);
-  color: #ffda68;
+  border-color: rgba(249, 197, 38, 0.72) !important;
+  background: rgba(249, 197, 38, 0.2) !important;
+  color: #ffda68 !important;
 }
 
 .tag-workplace.tag-on-site {
-  border-color: rgba(66, 167, 251, 0.58);
-  background: rgba(66, 167, 251, 0.14);
-  color: #8bc9ff;
+  border-color: rgba(66, 167, 251, 0.72) !important;
+  background: rgba(66, 167, 251, 0.2) !important;
+  color: #8bc9ff !important;
 }
 
 .tag-workplace.tag-unknown {
@@ -1376,9 +1376,9 @@ select {
   .header-inner {
     position: relative;
     display: block;
-    min-height: 150px;
+    min-height: 144px;
     align-items: flex-start;
-    padding: 13px 0 40px;
+    padding: 13px 0 34px;
   }
   .brand-group { display: block; }
   .brand { gap: 8px; }
@@ -1428,7 +1428,8 @@ select {
   .header-support {
     position: absolute;
     right: 0;
-    bottom: 5px;
+    top: 96px;
+    bottom: auto;
     left: 0;
     width: auto;
     max-width: none;
@@ -1436,6 +1437,8 @@ select {
     align-items: center;
     justify-content: center;
     gap: 4px;
+    flex-wrap: wrap;
+    row-gap: 0;
     padding: 1px 4px;
     border: 0;
     background: transparent;
@@ -1444,7 +1447,7 @@ select {
   }
   .header-support span { display: inline; }
   .header-support span::after { content: "•"; margin-left: 4px; }
-  .header-support strong { font-size: 0.65rem; }
+  .header-support strong { font-size: 0.65rem; white-space: nowrap; }
   .hero { min-height: 0; padding: 20px 0 16px; }
   .hero h1 { font-size: clamp(2.05rem, 9vw, 3rem); }
   .hero-copy { margin-top: 12px; font-size: 0.84rem; }
