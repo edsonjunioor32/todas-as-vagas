@@ -23,12 +23,12 @@ permissions:
   id-token: write
 
 concurrency:
-  group: vagas-main-writer
+  group: ${{ github.event_name == 'push' && !contains(github.event.head_commit.message, '[refresh-fit]') && 'vagas-interface' || 'vagas-main-writer' }}
   cancel-in-progress: true
 
 jobs:
   publicar-interface:
-    if: github.event_name == 'push' && !contains(github.event.head_commit.message, '[refresh-fit]')
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment:
