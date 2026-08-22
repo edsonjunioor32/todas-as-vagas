@@ -46,15 +46,48 @@ class FitRequirementsTests(unittest.TestCase):
         self.assertIn("Disponibilidade de horário/turno", result["manual"])
 
     def test_export_does_not_store_description(self):
-        rows = [{"url": "https://example.com/job/1", "description": "Requisitos: Experiência com SQL e Linux. Diferenciais: Docker.", "skills": []}]
+        rows = [{
+            "url": "https://example.com/job/1",
+            "description": (
+                "Sobre a oportunidade. Requisitos: experiência com SQL e Linux para análise de incidentes, "
+                "consulta de dados e troubleshooting em produção. Diferenciais: Docker e conhecimento em APIs REST. "
+                "A pessoa atuará em conjunto com times de engenharia e operações na sustentação da plataforma."
+            ),
+            "skills": [],
+        }]
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "fit.json"
             count, size_mb = fr.export_fit_index(rows, out, taxonomy_path=ROOT / "docs" / "data" / "fit-taxonomy.json")
             self.assertEqual(count, 1)
             self.assertLess(size_mb, 1)
             text = out.read_text(encoding="utf-8")
-            self.assertNotIn("Experiência com SQL e Linux", text)
+            self.assertNotIn("análise de incidentes", text)
             self.assertIn("https://example.com/job/1", json.loads(text)["jobs"])
+
+    def test_export_skips_job_without_internal_description(self):
+        rows = [{
+            "url": "https://example.com/job/skills-only",
+            "description": "",
+            "skills": ["SQL", "Linux", "Docker"],
+        }]
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "fit.json"
+            count, _ = fr.export_fit_index(rows, out, taxonomy_path=ROOT / "docs" / "data" / "fit-taxonomy.json")
+            payload = json.loads(out.read_text(encoding="utf-8"))
+            self.assertEqual(count, 0)
+            self.assertEqual(payload["count"], 0)
+            self.assertEqual(payload["jobs"], {})
+
+    def test_export_skips_too_short_description(self):
+        rows = [{
+            "url": "https://example.com/job/short",
+            "description": "Requisitos: SQL e Linux.",
+            "skills": ["SQL", "Linux"],
+        }]
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "fit.json"
+            count, _ = fr.export_fit_index(rows, out, taxonomy_path=ROOT / "docs" / "data" / "fit-taxonomy.json")
+            self.assertEqual(count, 0)
 
 
 if __name__ == "__main__":
