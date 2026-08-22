@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
-"""Prepara a integração do analisador e bibliotecas locais no artifact do Pages."""
+"""Prepara apenas as bibliotecas locais do analisador para o artifact do Pages.
+
+Os acessos visíveis ao analisador permanecem temporariamente ocultos do portal
+principal enquanto a lógica de aderência é revisada.
+"""
 from pathlib import Path
 import shutil
 
@@ -8,32 +12,18 @@ DOCS = ROOT / "docs"
 INDEX = DOCS / "index.html"
 VENDOR = DOCS / "vendor"
 
-STYLE_MARKER = '<link rel="stylesheet" href="./styles.css?v=14">'
-SCRIPT_MARKER = '<script src="./app.js?v=13" defer></script>'
-UPDATED_MARKER = '<p class="updated" id="updatedLabel"'
-FIT_STYLE = '<link rel="stylesheet" href="./fit-entry.css?v=1">'
-FIT_SCRIPT = '<script src="./fit-entry.js?v=1" defer></script>'
-HERO_CTA = '''<div class="hero-fit-actions">
-              <a class="hero-fit-cta" href="./aderencia/">Analisar meu currículo →</a>
-              <span>Seu currículo fica somente no seu navegador.</span>
-            </div>
-            '''
 
-
-def inject_index():
+def remove_public_entry_points():
     text = INDEX.read_text(encoding="utf-8")
-    if FIT_STYLE not in text:
-        if STYLE_MARKER not in text:
-            raise RuntimeError("marcador de CSS principal não encontrado")
-        text = text.replace(STYLE_MARKER, STYLE_MARKER + "\n    " + FIT_STYLE, 1)
-    if FIT_SCRIPT not in text:
-        if SCRIPT_MARKER not in text:
-            raise RuntimeError("marcador de app.js não encontrado")
-        text = text.replace(SCRIPT_MARKER, SCRIPT_MARKER + "\n    " + FIT_SCRIPT, 1)
-    if 'class="hero-fit-cta"' not in text:
-        if UPDATED_MARKER not in text:
-            raise RuntimeError("marcador de atualização do hero não encontrado")
-        text = text.replace(UPDATED_MARKER, HERO_CTA + UPDATED_MARKER, 1)
+    text = text.replace('    <link rel="stylesheet" href="./fit-entry.css?v=1">\n', '')
+    text = text.replace('    <script src="./fit-entry.js?v=1" defer></script>\n', '')
+
+    start = text.find('<div class="hero-fit-actions">')
+    if start >= 0:
+        end = text.find('</div>', start)
+        if end >= 0:
+            text = text[:start] + text[end + len('</div>'):]
+
     INDEX.write_text(text, encoding="utf-8")
 
 
@@ -52,9 +42,11 @@ def copy_vendor():
 
 def verify():
     text = INDEX.read_text(encoding="utf-8")
-    for marker in (FIT_STYLE, FIT_SCRIPT, 'class="hero-fit-cta"'):
-        if marker not in text:
-            raise RuntimeError(f"integração ausente: {marker}")
+    forbidden = ('fit-entry.css', 'fit-entry.js', 'hero-fit-cta', 'Analisar meu currículo')
+    for marker in forbidden:
+        if marker in text:
+            raise RuntimeError(f"acesso público ao analisador ainda presente: {marker}")
+
     required = [VENDOR / "pdf.mjs", VENDOR / "pdf.worker.mjs", VENDOR / "mammoth.browser.min.js"]
     if any(not path.exists() or path.stat().st_size < 1000 for path in required):
         raise RuntimeError("bibliotecas locais do analisador não foram preparadas")
@@ -63,10 +55,10 @@ def verify():
 
 
 def main():
-    inject_index()
+    remove_public_entry_points()
     copy_vendor()
     verify()
-    print("OK: integração do analisador preparada para o artifact do GitHub Pages")
+    print("OK: analisador mantido sem acessos visíveis no portal público")
 
 
 if __name__ == "__main__":
