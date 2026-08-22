@@ -12,9 +12,7 @@ on:
       - ".github/workflows/pages.yml"
   workflow_dispatch:
   schedule:
-    # 08h17, 11h17, 15h17 e 20h17 no horário de Brasília/Fortaleza (UTC-3).
     - cron: "17 11,14,18,23 * * *"
-    # Atualização semanal do catálogo Greenhouse: domingo às 04h37 (UTC-3).
     - cron: "37 7 * * 0"
 
 permissions:
@@ -63,7 +61,8 @@ jobs:
           python -m unittest discover -s jobs-dashboard/tests -v
           npm run test:fit
           node --check docs/fit-entry.js
-          node --check docs/aderencia/app.js
+          node --input-type=module --check < docs/aderencia/fit-engine.js
+          node --input-type=module --check < docs/aderencia/app.js
 
       - name: Atualizar catálogo brasileiro da Greenhouse
         if: github.event_name == 'workflow_dispatch' || github.event.schedule == '37 7 * * 0'
