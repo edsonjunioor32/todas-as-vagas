@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 DEFAULT_TAXONOMY_PATH = Path(__file__).resolve().parents[1] / "docs" / "data" / "fit-taxonomy.json"
+MIN_DESCRIPTION_CHARS = 120
 
 MANDATORY_MARKERS = (
     "requisitos e qualificacoes", "requisitos", "qualificacoes", "requirements", "must have", "must-have",
@@ -225,6 +226,9 @@ def export_fit_index(rows, out_path, taxonomy_path=None, max_raw_mb=8.0):
     for job in rows:
         url = str(job.get("url") or "").strip().replace("http://", "https://", 1)
         if not url:
+            continue
+        description = normalize(job.get("description") or "")
+        if len(description) < MIN_DESCRIPTION_CHARS:
             continue
         result = extract_requirements(job, taxonomy)
         if not any(result[name] for name in ("mandatory", "preferred", "context", "manual")):
