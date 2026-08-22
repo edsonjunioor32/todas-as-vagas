@@ -57,7 +57,15 @@ export function matchRequirement(resumeText, label, taxonomyIndex) {
 
 export function decodeRequirementEntry(entry, terms) {
   const read = key => (entry?.[key] || []).map(index => terms?.[index]).filter(Boolean);
-  return { mandatory: read('m'), preferred: read('p'), context: read('c'), manual: read('x'), confidence: Number(entry?.q || 0) };
+  return {
+    mandatory: read('m'),
+    preferred: read('p'),
+    context: read('c'),
+    manual: read('x'),
+    confidence: Number(entry?.q || 0),
+    scoreable: true,
+    source: 'description'
+  };
 }
 
 function evaluateList(labels, resume, index) {
@@ -71,6 +79,24 @@ function evaluate(requirements, resume, index, resumeLength) {
   const preferred = evaluateList(requirements?.preferred || [], resume, index);
   const context = evaluateList(requirements?.context || [], resume, index);
   const manual = [...(requirements?.manual || [])];
+  const matched = [...new Set([...mandatory.matched, ...preferred.matched, ...context.matched])];
+
+  if (requirements?.scoreable === false) {
+    return {
+      score: null,
+      coverage: null,
+      mandatory,
+      preferred,
+      context,
+      matched,
+      gaps: [],
+      optionalMissing: [],
+      manual,
+      status: 'insufficient',
+      label: 'Dados insuficientes para calcular aderência'
+    };
+  }
+
   let score = 0, weight = 0;
   if (mandatory.total) { score += mandatory.ratio * 80; weight += 80; }
   if (preferred.total) { score += preferred.ratio * 15; weight += 15; }
@@ -92,10 +118,11 @@ function evaluate(requirements, resume, index, resumeLength) {
     mandatory,
     preferred,
     context,
-    matched: [...new Set([...mandatory.matched, ...preferred.matched, ...context.matched])],
+    matched,
     gaps: [...new Set(mandatory.missing)],
     optionalMissing: [...new Set(preferred.missing)],
     manual,
+    status: 'scored',
     label: rounded >= 85 ? 'Aderência muito forte' : rounded >= 70 ? 'Aderência forte' : rounded >= 55 ? 'Aderência parcial' : 'Aderência baixa'
   };
 }
@@ -107,7 +134,15 @@ export function evaluateCandidateFit(requirements, resumeText, taxonomy) {
 
 export function fallbackRequirements(job) {
   const skills = String(job?.skills || '').split(/\s*[·|;,]\s*/).map(value => value.trim()).filter(value => value.length >= 2 && value.length <= 72);
-  return { mandatory: [...new Set(skills)].slice(0, 12), preferred: [], context: [], manual: [], confidence: skills.length ? 40 : 20 };
+  return {
+    mandatory: [],
+    preferred: [],
+    context: [...new Set(skills)].slice(0, 12),
+    manual: [],
+    confidence: 0,
+    scoreable: false,
+    source: 'summary'
+  };
 }
 
 export function rankJobs(jobs, fitData, resumeText, taxonomy, limit = 30) {
@@ -115,9 +150,11 @@ export function rankJobs(jobs, fitData, resumeText, taxonomy, limit = 30) {
   const resume = normalizeText(resumeText), index = buildTaxonomyIndex(taxonomy);
   for (const job of jobs || []) {
     const packed = entries[job.url];
-    const requirements = packed ? decodeRequirementEntry(packed, terms) : fallbackRequirements(job);
-    if (!packed && !job.skills) continue;
-    results.push({ job, requirements, result: evaluate(requirements, resume, index, resume.length) });
+    if (!packed) continue;
+    const requirements = decodeRequirementEntry(packed, terms);
+    const result = evaluate(requirements, resume, index, resume.length);
+    if (result.status !== 'scored') continue;
+    results.push({ job, requirements, result });
   }
   results.sort((a, b) => b.result.score - a.result.score || b.result.coverage - a.result.coverage || String(a.job.title).localeCompare(String(b.job.title), 'pt-BR'));
   return results.slice(0, Math.max(1, limit));
