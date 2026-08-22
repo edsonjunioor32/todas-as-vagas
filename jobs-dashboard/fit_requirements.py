@@ -99,11 +99,17 @@ def split_sections(description: str) -> dict:
 
 def _context_kind(text: str, position: int) -> str:
     before = normalize(text[max(0, position - 520):position])
-    preferred = max((before.rfind(normalize(x)) for x in PREFERRED_MARKERS + PREFERRED_CUES), default=-1)
-    mandatory = max((before.rfind(normalize(x)) for x in MANDATORY_MARKERS + MANDATORY_CUES), default=-1)
-    if preferred > mandatory and preferred >= 0:
+    preferred_section = max((before.rfind(normalize(x)) for x in PREFERRED_MARKERS), default=-1)
+    mandatory_section = max((before.rfind(normalize(x)) for x in MANDATORY_MARKERS), default=-1)
+    if preferred_section > mandatory_section and preferred_section >= 0:
         return "preferred"
-    return "mandatory" if mandatory >= 0 else "context"
+    if mandatory_section >= 0:
+        return "mandatory"
+    preferred_cue = max((before.rfind(normalize(x)) for x in PREFERRED_CUES), default=-1)
+    mandatory_cue = max((before.rfind(normalize(x)) for x in MANDATORY_CUES), default=-1)
+    if preferred_cue > mandatory_cue and preferred_cue >= 0:
+        return "preferred"
+    return "mandatory" if mandatory_cue >= 0 else "context"
 
 
 def _classify_entry(entry: dict, sections: dict, skills_text: str) -> str:
