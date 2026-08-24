@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Multi-portal ETL: collect, normalize, classify, store and export."""
 # General collection can be triggered manually through the GitHub workflow.
+# Rendered career pages are verified by their adapters before publication.
 import argparse
 import concurrent.futures
 import os
