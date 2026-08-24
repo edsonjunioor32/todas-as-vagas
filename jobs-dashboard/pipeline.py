@@ -23,6 +23,10 @@ ROOT = HERE.parent
 DB_PATH = HERE / "data" / "jobs.db"
 JSON_PATH = ROOT / "docs" / "data" / "vagas.json"
 
+# These portals are expected to expose public vacancies. An empty response is
+# an integration regression, never a successful refresh.
+NONEMPTY_SOURCES = {"digisystem", "recrutei", "docusign", "dbccompany", "sankhya", "senior"}
+
 
 def selected_registry(names):
     if not names:
@@ -56,6 +60,8 @@ def _collect_source(index, name, fetch):
             row for row in fetched
             if isinstance(row, dict) and row.get("title") and row.get("url")
         ]
+        if name in NONEMPTY_SOURCES and not valid:
+            raise RuntimeError("returned zero vacancies; preserving the last valid snapshot")
         return {
             "index": index,
             "name": name,
