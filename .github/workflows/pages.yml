@@ -13,8 +13,8 @@ on:
       - ".github/workflows/pages.yml"
   workflow_dispatch:
   schedule:
-    # Disparo pontual da atualização geral de 24/08/2026, às 10h10 (Fortaleza).
-    - cron: "10 13 24 8 *"
+    # Disparo pontual da atualização geral de 24/08/2026, às 10h05 (Fortaleza).
+    - cron: "5 13 24 8 *"
     # 08h17, 11h17, 15h17 e 20h17 no horário de Brasília/Fortaleza (UTC-3).
     - cron: "17 11,14,18,23 * * *"
     # Atualização semanal do catálogo Greenhouse: domingo às 04h37 (UTC-3).
