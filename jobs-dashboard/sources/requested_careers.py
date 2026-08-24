@@ -6,6 +6,7 @@ from urllib.parse import urljoin
 
 from ._common import job, strip_html, work_model_label
 from ._http import get_text
+from ._rendered import rendered_links
 
 DOCUSIGN = "https://careers.docusign.com/careers-home/jobs?locations=Sao%20Paulo,S%C3%A3o%20Paulo,Brazil%7C,,Brazil&page={page}"
 DBC = "https://vagas.dbccompany.com.br/vagas"
@@ -15,14 +16,22 @@ ANCHOR_RE = re.compile(r'<a[^>]+href=["\']([^"\']*(?:/jobs/|/vagas/)[^"\']*)["\'
 
 def _links(url):
     page = get_text(url, timeout=35, retries=2)
-    seen = set()
+    seen, rows = set(), []
     for href, label in ANCHOR_RE.findall(page):
         href = html.unescape(href).strip()
         label = strip_html(html.unescape(label))
         absolute = urljoin(url, href)
         if absolute and label and absolute not in seen:
             seen.add(absolute)
-            yield absolute, label
+            rows.append((absolute, label))
+    if not rows:
+        # DBC and DocuSign currently add the cards after JavaScript hydration.
+        for href, label in rendered_links(url, r"(?:/jobs/|/vagas/)"):
+            label = strip_html(html.unescape(label))
+            if href and label and href not in seen:
+                seen.add(href)
+                rows.append((href, label))
+    return rows
 
 
 def fetch_docusign():
