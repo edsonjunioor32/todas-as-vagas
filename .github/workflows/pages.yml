@@ -1,5 +1,5 @@
 name: Atualizar vagas multiportal e publicar GitHub Pages
-# Atualização geral solicitada manualmente em 24/08/2026.
+# Atualização geral solicitada manualmente em 24/08/2026. Disparo: 2026-08-24T17:20:24.462Z.
 
 on:
   push:
