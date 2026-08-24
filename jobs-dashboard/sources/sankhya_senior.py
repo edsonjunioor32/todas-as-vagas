@@ -1,40 +1,38 @@
 # -*- coding: utf-8 -*-
 """Public career listings requested for Sankhya and Senior Sistemas."""
 import re
-from urllib.parse import urljoin
+from urllib.parse import urlsplit
 
-from ._common import job, strip_html, work_model_label
-from ._http import get_text
+from ._common import job, work_model_label
+from ._rendered import rendered_links
 
 SANKHYA = "https://oportunidades.mindsight.com.br/sankhya"
 SENIOR = "https://vemprasenior.portaldetalentos.senior.com.br/jobs"
 
 
-def _cards(page, base, pattern, source, company):
+def _rows(url, pattern, source, company):
     rows, seen = [], set()
-    for href, raw_title in re.findall(pattern, page, re.I):
-        url = urljoin(base, href)
-        title = strip_html(raw_title)
-        key = url.rstrip("/")
-        if not title or key in seen:
+    for href, raw_title in rendered_links(url, pattern):
+        parsed = urlsplit(href)
+        key = parsed.path.rstrip("/")
+        title = re.sub(r"\s+", " ", raw_title).strip()[:240]
+        if not key or not title or key in seen:
             continue
         seen.add(key)
-        rows.append(job(source, key, title, company, url, country="BR", market="BR",
-                        city="Brasil", work_model=work_model_label(raw=title)))
+        rows.append(job(
+            source, key, title, company, href, country="BR", market="BR",
+            city="Brasil", work_model=work_model_label(raw=title),
+        ))
     if not rows:
         raise RuntimeError(f"{company} returned no recognizable public vacancy cards")
     return rows
 
 
 def fetch_sankhya():
-    page = get_text(SANKHYA, timeout=40, retries=2)
-    return _cards(page, SANKHYA,
-        r'<a[^>]+href=["\']([^"\']*/sankhya/\d+[^"\']*)["\'][^>]*>([\s\S]*?)</a>',
-        "sankhya", "Sankhya")
+    # Mindsight renders its vacancy cards client-side.
+    return _rows(SANKHYA, r"/sankhya/\\d+(?:[/?#]|$)", "sankhya", "Sankhya")
 
 
 def fetch_senior():
-    page = get_text(SENIOR, timeout=40, retries=2)
-    return _cards(page, SENIOR,
-        r'<a[^>]+href=["\']([^"\']*(?:jobconvo|/jobs/)[^"\']*)["\'][^>]*>([\s\S]*?)</a>',
-        "senior", "Senior Sistemas")
+    # Senior's current portal can link directly to the JobConvo application.
+    return _rows(SENIOR, r"(?:jobconvo|/jobs?/)", "senior", "Senior Sistemas")
