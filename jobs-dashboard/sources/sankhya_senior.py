@@ -29,12 +29,12 @@ def _cards(page, base, pattern, source, company):
 def fetch_sankhya():
     page = get_text(SANKHYA, timeout=40, retries=2)
     return _cards(page, SANKHYA,
-        r'<a[^>]+href=["\']([^"\']*/sankhya/\\d+[^"\']*)["\'][^>]*>([\\s\\S]*?)</a>',
+        r'<a[^>]+href=["\']([^"\']*/sankhya/\d+[^"\']*)["\'][^>]*>([\s\S]*?)</a>',
         "sankhya", "Sankhya")
 
 
 def fetch_senior():
     page = get_text(SENIOR, timeout=40, retries=2)
     return _cards(page, SENIOR,
-        r'<a[^>]+href=["\']([^"\']*(?:jobconvo|/jobs/)[^"\']*)["\'][^>]*>([\\s\\S]*?)</a>',
+        r'<a[^>]+href=["\']([^"\']*(?:jobconvo|/jobs/)[^"\']*)["\'][^>]*>([\s\S]*?)</a>',
         "senior", "Senior Sistemas")
