@@ -1,0 +1,100 @@
+name: Regenerar fotografia corrigida da Senior
+
+on:
+  push:
+    branches:
+      - codex/refresh-corrected-snapshot
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: jobs-dashboard/requirements.txt
+
+      - name: Instalar dependências
+        run: pip install -r jobs-dashboard/requirements.txt
+
+      - name: Executar testes
+        run: python -m unittest discover -s jobs-dashboard/tests -v
+
+      - name: Coletar e consolidar a fotografia corrigida
+        env:
+          JOBS_SOURCE_WORKERS: "5"
+          SOLIDES_MAX_PAGES: "300"
+          SOLIDES_WORKERS: "8"
+          SOLIDES_PAGE_TIMEOUT: "30"
+          SOLIDES_PAGE_RETRIES: "2"
+          SOLIDES_CACHE_DIR: "jobs-dashboard/data/solides_cache"
+          NERDIN_WORKERS: "6"
+          GEEKHUNTER_WORKERS: "4"
+          ORACLE_WORKERS: "4"
+          GREENHOUSE_WORKERS: "4"
+          INFOJOBS_MAX_JOBS: "500"
+          INFOJOBS_MAX_SCROLLS: "0"
+        run: python jobs-dashboard/pipeline_fit.py --max-age-months 2
+
+      - name: Validar a fotografia
+        env:
+          MIN_PUBLIC_JOBS: "500"
+        run: |
+          python jobs-dashboard/validate_snapshot.py
+          python jobs-dashboard/validate_fit.py
+          python - <<'PY'
+          import json
+
+          with open("docs/data/vagas.json", encoding="utf-8") as file:
+              snapshot = json.load(file)
+
+          sources = snapshot.get("dict", {}).get("source", [])
+          work_models = snapshot.get("dict", {}).get("work_model", [])
+          jobs = snapshot.get("jobs", {})
+          senior_ids = [
+              index for index, source in enumerate(jobs.get("src", []))
+              if isinstance(source, int)
+              and 0 <= source < len(sources)
+              and str(sources[source]).casefold() == "senior"
+          ]
+          blank_models = [
+              index for index in senior_ids
+              if not jobs.get("wm", [])[index] not in range(len(work_models))
+              or not str(work_models[jobs["wm"][index]] or "").strip()
+          ]
+          blank_contracts = [
+              index for index in senior_ids
+              if not str((jobs.get("ct", []) + [""] * len(senior_ids))[index] or "").strip()
+          ]
+          print("Senior vagas:", len(senior_ids))
+          print("Modalidades sem valor:", len(blank_models))
+          print("Vínculos sem valor:", len(blank_contracts))
+          if blank_models or blank_contracts:
+              raise SystemExit("A fotografia ainda possui campos vazios da Senior.")
+          PY
+
+      - name: Publicar somente os dados corrigidos na main
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add jobs-dashboard/data/jobs.db docs/data/vagas.json docs/data/fit.json
+          if git diff --cached --quiet; then
+            echo "Nenhuma alteração de dados."
+            exit 0
+          fi
+          git commit -m "Atualiza fotografia com detalhes corrigidos da Senior [skip ci]"
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
