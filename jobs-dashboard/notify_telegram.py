@@ -350,10 +350,34 @@ def main():
         default="",
         help="Explicitly resend the vacancies added after this ref, ignoring the notification state",
     )
+    parser.add_argument(
+        "--test-url",
+        default="",
+        help="Send one test message for the vacancy with this URL without changing notification state",
+    )
     args = parser.parse_args()
 
     current = _load(SNAPSHOT)
     state_path = _resolve_state_path(args.state_file) if args.state_file else None
+
+    if args.test_url:
+        test_rows = [row for row in _rows(current) if row["url"] == args.test_url]
+        if not test_rows:
+            raise SystemExit(f"Vaga de teste não encontrada: {args.test_url}")
+        message = _text(test_rows[:1], 1, 1)
+        print("Telegram: 1 vaga de teste preparada.")
+        if args.dry_run:
+            print(message)
+            return
+        token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
+        chat_id = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
+        if not token or not chat_id:
+            print("Telegram não configurado: faltam TELEGRAM_BOT_TOKEN e/ou TELEGRAM_CHAT_ID.")
+            return
+        _send(token, chat_id, message)
+        print("Telegram: 1 vaga de teste enviada.")
+        return
+
     state_keys = _load_state(state_path)
     if args.resend_from_ref:
         previous = _snapshot_from_ref(args.resend_from_ref)
