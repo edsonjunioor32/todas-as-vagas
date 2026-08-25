@@ -35,6 +35,7 @@ jobs:
       - name: Validar JavaScript e dados públicos
         run: |
           node --check docs/app.js
+          node tools/filter-state.test.mjs
           node tools/fit-engine.test.mjs
           python jobs-dashboard/validate_fit.py
           python jobs-dashboard/validate_snapshot.py

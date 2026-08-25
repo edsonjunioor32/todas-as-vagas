@@ -200,6 +200,11 @@
     return value || 'Não informado';
   }
 
+  function selectedLabel(value, formatter) {
+    const raw = String(value || '').trim();
+    return raw ? formatter(raw) : '';
+  }
+
   function contractLabel(value) {
     return normalize(value) === 'pj' ? 'CNPJ' : String(value || '');
   }
@@ -421,6 +426,7 @@
 
   function populateFilters() {
     for (const [value, count] of countValues(state.jobs.map(job => job.source))) {
+      if (['nao informado', 'portal nao informado'].includes(normalize(value))) continue;
       appendOption(elements.sourceFilter, value, `${sourceLabel(value)} (${numberFormatter.format(count)})`);
     }
     for (const [value, count] of countValues(state.jobs.map(job => job.workplaceType))) {
@@ -440,7 +446,8 @@
       elements.cityOptions.append(option);
     }
     for (const [value, count] of countValues(state.jobs.map(job => job.market))) {
-      appendOption(elements.marketFilter, value, `${value} (${numberFormatter.format(count)})`);
+      if (['nao informado', 'portal nao informado'].includes(normalize(value))) continue;
+      appendOption(elements.marketFilter, value, `${marketLabel(value)} (${numberFormatter.format(count)})`);
     }
     for (const [value, count] of countValues(state.jobs.map(job => job.category))) {
       appendOption(elements.categoryFilter, value, `${value} (${numberFormatter.format(count)})`);
@@ -504,8 +511,8 @@
     add('contratacao', 'Contrato', contractLabel(elements.contractFilter.value));
     add('area', 'Área', elements.categoryFilter.value);
     add('senioridade', 'Senioridade', elements.seniorityFilter.value);
-    add('portal', 'Portal', sourceLabel(elements.sourceFilter.value));
-    add('mercado', 'Mercado', marketLabel(elements.marketFilter.value));
+    add('portal', 'Portal', selectedLabel(elements.sourceFilter.value, sourceLabel));
+    add('mercado', 'Mercado', selectedLabel(elements.marketFilter.value, marketLabel));
     if (elements.periodFilter.value) {
       const labels = { '1': 'Últimas 24 horas', '7': 'Últimos 7 dias', '30': 'Últimos 30 dias' };
       add('dias', 'Publicação', labels[elements.periodFilter.value] || elements.periodFilter.value);
