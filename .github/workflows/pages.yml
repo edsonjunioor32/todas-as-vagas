@@ -173,6 +173,13 @@ jobs:
           python jobs-dashboard/validate_snapshot.py
           python jobs-dashboard/validate_fit.py
 
+      - name: Notificar vagas novas no Telegram
+        if: ${{ secrets.TELEGRAM_BOT_TOKEN != '' && secrets.TELEGRAM_CHAT_ID != '' }}
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python jobs-dashboard/notify_telegram.py
+
       - name: Preservar histórico e fotografia pública
         shell: bash
         run: |
