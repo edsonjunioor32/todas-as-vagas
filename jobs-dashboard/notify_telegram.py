@@ -12,8 +12,10 @@ import os
 import re
 import subprocess
 import sys
+import urllib.error
 import urllib.parse
 import urllib.request
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -112,6 +114,21 @@ def _text(rows, page, pages):
     return "\n".join(lines)
 
 
+def _groups(rows, max_rows=10, max_chars=3700):
+    """Keep Telegram messages under its 4096-character limit."""
+    groups, current = [], []
+    for row in rows:
+        candidate = current + [row]
+        if current and (len(candidate) > max_rows or len(_text(candidate, 1, 1)) > max_chars):
+            groups.append(current)
+            current = [row]
+        else:
+            current = candidate
+    if current:
+        groups.append(current)
+    return groups
+
+
 def _send(token, chat_id, message):
     payload = urllib.parse.urlencode({
         "chat_id": chat_id,
@@ -124,13 +141,34 @@ def _send(token, chat_id, message):
         data=payload,
         method="POST",
     )
-    try:
-        with urllib.request.urlopen(request, timeout=30) as response:
-            data = json.loads(response.read().decode("utf-8"))
-    except Exception as error:
-        raise RuntimeError(f"Telegram request failed: {error}") from error
-    if not data.get("ok"):
+
+    for attempt in range(4):
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response:
+                data = json.loads(response.read().decode("utf-8"))
+        except urllib.error.HTTPError as error:
+            body = error.read().decode("utf-8", errors="replace")
+            try:
+                data = json.loads(body)
+            except json.JSONDecodeError:
+                data = {}
+            retry_after = data.get("parameters", {}).get("retry_after")
+            if error.code == 429 and retry_after and attempt < 3:
+                time.sleep(max(1, int(retry_after)))
+                continue
+            raise RuntimeError(f"Telegram request failed ({error.code}): {body}") from error
+        except Exception as error:
+            raise RuntimeError(f"Telegram request failed: {error}") from error
+
+        if data.get("ok"):
+            return
+        retry_after = data.get("parameters", {}).get("retry_after")
+        if data.get("error_code") == 429 and retry_after and attempt < 3:
+            time.sleep(max(1, int(retry_after)))
+            continue
         raise RuntimeError(f"Telegram rejected the message: {data.get('description', 'unknown error')}")
+
+    raise RuntimeError("Telegram rate limit persisted after retries.")
 
 
 def main():
@@ -150,7 +188,7 @@ def main():
         print("Telegram não configurado: faltam TELEGRAM_BOT_TOKEN e/ou TELEGRAM_CHAT_ID.")
         return
 
-    groups = [rows[index:index + 10] for index in range(0, len(rows), 10)]
+    groups = _groups(rows)
     if args.dry_run:
         print(f"Dry-run: seriam enviados {len(groups)} grupos.")
         return
