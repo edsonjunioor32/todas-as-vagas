@@ -65,6 +65,7 @@ def main():
             and columns["exp"][index]
             and columns["exp"][index] >= generated_date
         )
+        and source_names[columns["src"][index]] not in storage.ACTIVE_PUBLIC_FEED_SOURCES
     ]
     if old_indexes:
         fail(f"há {len(old_indexes)} vagas publicadas antes do corte {expected_cutoff}")

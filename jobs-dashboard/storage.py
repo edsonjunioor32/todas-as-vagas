@@ -11,6 +11,12 @@ from zoneinfo import ZoneInfo
 
 LOCAL_TIMEZONE = ZoneInfo("America/Fortaleza")
 
+# SmartRecruiters keeps DBC's public postings active while exposing their
+# original release date. This source-specific exception is shared by the
+# collector and the snapshot validator so the same active-feed rule is used
+# end to end.
+ACTIVE_PUBLIC_FEED_SOURCES = {"dbccompany"}
+
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS jobs (
     job_uid          TEXT PRIMARY KEY,
