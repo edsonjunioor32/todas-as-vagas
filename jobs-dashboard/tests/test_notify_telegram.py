@@ -48,33 +48,33 @@ class TelegramNotificationTests(unittest.TestCase):
         message = notify_telegram._text([row("vaga")], 1, 1)
         self.assertIn(notify_telegram.PORTAL_URL, message)
 
-    def test_message_uses_the_portal_filter_fields(self):
-        vacancy = row("vaga", remote=True, ti=True)
+    def test_message_uses_requested_fields_in_order(self):
+        vacancy = row("vaga", ti=True)
         vacancy.update({
             "company": "Empresa & Filhos",
-            "city": "João Pessoa, PB, BR",
-            "workplace_label": "Remoto",
-            "contract_types": "CNPJ",
             "category": "TI e Desenvolvimento",
-            "seniority": "Pleno",
             "source_label": "Gupy",
-            "market_label": "Brasil",
-            "published_label": "25/08/2026",
             "pcd": True,
-            "portals": 2,
         })
         message = notify_telegram._text([vacancy], 1, 1)
-        for label in (
-            "Cargo:", "Empresa:", "Localização:", "Modalidade:",
-            "Tipo de contrato:", "Área de atuação:", "Nível de experiência:",
-            "Portal:", "Mercado:", "Publicação:", "PcD:",
-            "Encontrada em mais de um portal:",
-        ):
+        labels = ["Cargo:", "Portal:", "Empresa:", "PCD:", "Área de atuação:"]
+        for label in labels:
             self.assertIn(label, message)
-        self.assertIn("Modalidade:</b> Remoto", message)
-        self.assertIn("Tipo de contrato:</b> CNPJ", message)
-        self.assertIn("Encontrada em mais de um portal:</b> Sim (2 portais)", message)
-        self.assertNotIn("Empresa & Filhos · remote · João Pessoa", message)
+        positions = [message.index(label) for label in labels]
+        self.assertEqual(positions, sorted(positions))
+        self.assertIn("Portal:</b> Gupy", message)
+        self.assertIn("PCD:</b> Sim", message)
+        self.assertIn("Área de atuação:</b> TI e Desenvolvimento", message)
+
+    def test_message_separates_vacancies_and_uses_requested_footer(self):
+        message = notify_telegram._text([row("primeira"), row("segunda")], 1, 1)
+        self.assertEqual(message.count("━━━━━━━━━━━━━━━━━━━━"), 1)
+        self.assertIn(
+            f'Não encontrou o que queria? <a href="{notify_telegram.PORTAL_URL}">Acesse o portal Todas as Vagas</a>',
+            message,
+        )
+        self.assertNotIn("Modalidade:", message)
+        self.assertNotIn("Mercado:", message)
 
 
 if __name__ == "__main__":
