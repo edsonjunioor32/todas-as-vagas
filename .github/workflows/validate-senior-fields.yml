@@ -1,0 +1,52 @@
+name: Validação isolada da Senior
+
+on:
+  push:
+    branches:
+      - codex/validate-senior-normalization
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect-senior-api:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Consultar resposta pública da Senior
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import urllib.request
+
+          url = (
+              "https://platform.senior.com.br/t/senior.com.br/bridge/1.0/"
+              "anonymous/rest/hcm/careersmanagercandidate/queries/searchVacancies"
+          )
+          request = urllib.request.Request(
+              url,
+              data=json.dumps({"page": 0, "size": 3, "filter": {}, "match": {}}).encode(),
+              headers={
+                  "Accept": "application/json;seniorx.version=2",
+                  "Content-Type": "application/json",
+                  "User-Agent": "todas-as-vagas-validation/1.0",
+              },
+              method="POST",
+          )
+          with urllib.request.urlopen(request, timeout=60) as response:
+              payload = json.load(response)
+
+          print("totalPages:", payload.get("totalPages"))
+          print("totalElements:", payload.get("totalElements"))
+          for index, item in enumerate(payload.get("contents") or [], start=1):
+              vacancy = item.get("vacancy") if isinstance(item, dict) else {}
+              company = item.get("company") if isinstance(item, dict) else {}
+              print(f"--- vacancy {index} ---")
+              print(json.dumps({
+                  "vacancy_keys": sorted(vacancy.keys()) if isinstance(vacancy, dict) else [],
+                  "company_keys": sorted(company.keys()) if isinstance(company, dict) else [],
+                  "vacancy": vacancy,
+                  "company": company,
+              }, ensure_ascii=False, indent=2, sort_keys=True))
+          PY
