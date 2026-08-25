@@ -8,6 +8,8 @@ on:
       - "jobs-dashboard/sources/digisystem.py"
       - "jobs-dashboard/sources/requested_careers.py"
       - "jobs-dashboard/sources/sankhya_senior.py"
+      - "jobs-dashboard/pipeline.py"
+      - "jobs-dashboard/storage.py"
       - "jobs-dashboard/validate_dynamic_portals.py"
       - "jobs-dashboard/tests/test_dynamic_portals.py"
       - "jobs-dashboard/tests/test_merge_dynamic_portals.py"

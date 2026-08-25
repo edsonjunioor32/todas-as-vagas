@@ -84,6 +84,26 @@ class PartialCatalogTests(unittest.TestCase):
             self.assertEqual(payload["source_counts"], {"dbccompany": 1})
             conn.close()
 
+    def test_prune_keeps_old_dbc_when_current_feed_succeeds(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            conn = storage.connect(str(Path(temporary) / "jobs.db"))
+            storage.upsert(
+                conn,
+                [sample("dbccompany", "old", published="2021-01-07")],
+                today="2026-08-25",
+            )
+            removed = storage.prune(
+                conn,
+                today="2026-08-25",
+                active_feed_sources={"dbccompany"},
+            )
+            self.assertEqual(removed, 0)
+            self.assertEqual(
+                conn.execute("SELECT COUNT(*) FROM jobs WHERE source = 'dbccompany'").fetchone()[0],
+                1,
+            )
+            conn.close()
+
 
 if __name__ == "__main__":
     unittest.main()

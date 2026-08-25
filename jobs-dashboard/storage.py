@@ -262,22 +262,31 @@ def purge_source_rows_not_in_uids(conn, source, current_uids):
         conn.commit()
     return len(invalid)
 
-def prune(conn, keep_days=120, today=None, max_age_months=2):
+def prune(conn, keep_days=120, today=None, max_age_months=2,
+          active_feed_sources=None):
     today = today or local_today().isoformat()
     seen_cutoff = (date.fromisoformat(today) - timedelta(days=keep_days)).isoformat()
     age_cutoff = publication_cutoff(today, max_age_months)
-    cursor = conn.execute("""
+    active = sorted({str(source).strip() for source in (active_feed_sources or [])
+                     if str(source).strip() in ACTIVE_PUBLIC_FEED_SOURCES})
+    exemptions = [
+        "source = 'gupy' AND COALESCE(NULLIF(expires_date, ''), '') >= ?",
+    ]
+    active_params = []
+    if active:
+        placeholders = ", ".join("?" for _ in active)
+        exemptions.insert(0, f"source IN ({placeholders})")
+        active_params.extend(active)
+    publication_exemption = " OR ".join(f"({item})" for item in exemptions)
+    cursor = conn.execute(f"""
         DELETE FROM jobs
         WHERE last_seen_date < ?
            OR (
                COALESCE(NULLIF(published_date, ''), first_seen_date) < ?
-               AND NOT (
-                   source = 'gupy'
-                   AND COALESCE(NULLIF(expires_date, ''), '') >= ?
-               )
+               AND NOT ({publication_exemption})
            )
            OR (source = 'greenhouse' AND COALESCE(market, '') <> 'BR')
-    """, (seen_cutoff, age_cutoff, today))
+    """, (seen_cutoff, age_cutoff, *active_params, today))
     conn.commit()
     return cursor.rowcount
 

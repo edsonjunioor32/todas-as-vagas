@@ -335,7 +335,16 @@ def main():
                 if row["source"] == "greenhouse"
             ],
         )
-    pruned = storage.prune(conn, keep_days=120, max_age_months=max(0, args.max_age_months))
+    active_feed_sources = {
+        source for source in storage.ACTIVE_PUBLIC_FEED_SOURCES
+        if counts.get(source, 0) and source not in failed
+    }
+    pruned = storage.prune(
+        conn,
+        keep_days=120,
+        max_age_months=max(0, args.max_age_months),
+        active_feed_sources=active_feed_sources,
+    )
     after = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
     count, size_mb = storage.export_snapshot(
         conn,
