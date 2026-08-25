@@ -2,6 +2,7 @@
 """Multi-portal ETL: collect, normalize, classify, store and export."""
 # General collection can be triggered manually through the GitHub workflow.
 # Rendered career pages are verified by their adapters before publication.
+# Telegram alerts run only after the public snapshot passes validation.
 import argparse
 import concurrent.futures
 import os
