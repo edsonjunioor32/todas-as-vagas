@@ -76,7 +76,6 @@
     meta: null,
     fit: null,
     fitPromise: null,
-    monitoredCompanies: [],
     page: 1,
     showingAllRecentCompanies: false,
     filtersCollapsed: false,
@@ -125,8 +124,6 @@
     recentCompanies: document.querySelector('#recentCompanies'),
     recentCompaniesList: document.querySelector('#recentCompaniesList'),
     recentCompaniesMore: document.querySelector('#recentCompaniesMore'),
-    monitoredCompanies: document.querySelector('#monitoredCompanies'),
-    monitoredCompaniesList: document.querySelector('#monitoredCompaniesList')
   };
 
   function normalize(value) {
@@ -872,34 +869,6 @@
     }
   }
 
-  function renderMonitoredCompanies() {
-    if (!elements.monitoredCompanies || !elements.monitoredCompaniesList) return;
-    const companies = state.monitoredCompanies || [];
-    if (!companies.length) {
-      elements.monitoredCompanies.hidden = true;
-      return;
-    }
-    elements.monitoredCompaniesList.replaceChildren(...companies.map((item, index) => {
-      const li = document.createElement('li');
-      li.className = 'recent-company-item';
-      const logo = document.createElement('span');
-      logo.className = `recent-company-logo company-tone-${index % 8}`;
-      logo.textContent = initials(item.company);
-      const name = document.createElement('span');
-      name.className = 'recent-company-name';
-      name.textContent = item.company;
-      const link = document.createElement('a');
-      link.className = 'monitor-link';
-      link.href = item.url || '#';
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      link.textContent = 'Board oficial ↗';
-      link.setAttribute('aria-label', `Abrir o board oficial de ${item.company}`);
-      li.append(logo, name, link);
-      return li;
-    }));
-    elements.monitoredCompanies.hidden = false;
-  }
 
   function setStatus(message, { hidden = false, retry = false, error = false } = {}) {
     if (!elements.statusMessage) return;
@@ -1046,10 +1015,7 @@
     }
     try {
       const suffix = force ? `?retry=${Date.now()}` : '';
-      const [response, watchlistResponse] = await Promise.all([
-        fetch(`./data/vagas.json${suffix}`, { cache: force ? 'no-store' : 'no-cache' }),
-        fetch(`./data/greenhouse-watchlist.json${suffix}`, { cache: force ? 'no-store' : 'no-cache' })
-      ]);
+      const response = await fetch(`./data/vagas.json${suffix}`, { cache: force ? 'no-store' : 'no-cache' });
       if (!response.ok) throw new Error('A base de vagas não respondeu.');
       const data = await response.json();
       if (data.schema_version !== 3 || !data.jobs || !Number.isInteger(data.count)) {
@@ -1058,14 +1024,6 @@
       state.meta = data;
       state.jobs = decode(data);
       resetFilterOptions();
-      if (watchlistResponse.ok) {
-        try {
-          const watchlist = await watchlistResponse.json();
-          state.monitoredCompanies = Array.isArray(watchlist.companies) ? watchlist.companies : [];
-        } catch {
-          state.monitoredCompanies = [];
-        }
-      }
       elements.totalJobs.textContent = numberFormatter.format(data.count);
       elements.totalCompanies.textContent = numberFormatter.format(data.companies || new Set(state.jobs.map(job => job.company)).size);
       elements.totalSources.textContent = numberFormatter.format(new Set(state.jobs.map(job => job.source)).size);
@@ -1081,7 +1039,6 @@
       populateFilters();
       loadParams();
       renderRecentCompanies();
-      renderMonitoredCompanies();
       if (!state.initialized) {
         bindEvents();
         state.initialized = true;

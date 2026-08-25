@@ -28,3 +28,8 @@ assert.match(
 );
 
 console.log('Filtro sem seleção não gera chips fantasma.');
+
+const html = fs.readFileSync(path.join(root, 'docs', 'index.html'), 'utf8');
+assert.doesNotMatch(html, /EMPRESAS MONITORADAS/i, 'O quadro de empresas monitoradas não deve aparecer no portal.');
+assert.doesNotMatch(html, /id="monitoredCompanies"/, 'O contêiner de empresas monitoradas deve ser removido.');
+assert.doesNotMatch(app, /renderMonitoredCompanies|greenhouse-watchlist/, 'A interface não deve buscar nem renderizar a lista removida.');
