@@ -6,12 +6,12 @@ HEAD before the pipeline writes its new files. It deliberately uses only the
 public fields already exported for the website.
 """
 import argparse
+from datetime import datetime, timezone
 import html
 import json
 import os
 import re
 import subprocess
-import sys
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -20,6 +20,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SNAPSHOT = ROOT / "docs" / "data" / "vagas.json"
+SNAPSHOT_RELATIVE = SNAPSHOT.relative_to(ROOT)
+PORTAL_URL = "https://edsonjunioor32.github.io/todas-as-vagas/"
 TI_RE = re.compile(
     r"\b(?:ti|tecnologia|software|sistemas?|suporte|desenvolv|devops|"
     r"dados?|analista de dados|engenheir|programa[cç]|infraestrutura|"
@@ -32,10 +34,10 @@ def _load(path):
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
-def _head_snapshot():
+def _snapshot_from_ref(ref):
     try:
         raw = subprocess.check_output(
-            ["git", "show", "HEAD:docs/data/vagas.json"],
+            ["git", "show", f"{ref}:{SNAPSHOT_RELATIVE}"],
             cwd=ROOT,
             text=True,
             stderr=subprocess.DEVNULL,
@@ -43,6 +45,43 @@ def _head_snapshot():
         return json.loads(raw)
     except (OSError, subprocess.CalledProcessError, json.JSONDecodeError):
         return {"count": 0, "jobs": {}, "dict": {}}
+
+
+def _head_snapshot():
+    return _snapshot_from_ref("HEAD")
+
+
+def _resolve_state_path(value):
+    if not value:
+        return None
+    path = Path(value)
+    return path if path.is_absolute() else ROOT / path
+
+
+def _load_state(path):
+    if not path or not path.exists():
+        return None
+    try:
+        data = _load(path)
+    except (OSError, json.JSONDecodeError):
+        return None
+    keys = data.get("notified_keys")
+    if not isinstance(keys, list):
+        return None
+    return {str(key) for key in keys}
+
+
+def _write_state(path, keys, snapshot):
+    if not path:
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "schema_version": 1,
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "snapshot_generated_at": snapshot.get("generated_at", ""),
+        "notified_keys": sorted(keys),
+    }
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
 def _value(snapshot, name, index, dictionary=None):
@@ -84,6 +123,10 @@ def _rows(snapshot):
 
 def _new_rows(current, previous):
     known = {row["key"] for row in _rows(previous)}
+    return _unnotified_rows(current, known)
+
+
+def _unnotified_rows(current, known):
     rows = [row for row in _rows(current) if row["key"] not in known]
     # First remote TI, then the remaining TI, then remote, then all other jobs.
     return sorted(rows, key=lambda row: (
@@ -111,6 +154,10 @@ def _text(rows, page, pages):
             f"  {company} · {modality} · {city}\n"
             f"  {source}"
         )
+    lines.extend([
+        "",
+        f'📌 <a href="{PORTAL_URL}">Acesse o portal Todas as Vagas</a>',
+    ])
     return "\n".join(lines)
 
 
@@ -174,12 +221,38 @@ def _send(token, chat_id, message):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument(
+        "--previous-ref",
+        default="",
+        help="Git ref containing the previous public snapshot when state is not initialized",
+    )
+    parser.add_argument(
+        "--state-file",
+        default="",
+        help="Repository-relative JSON file used to avoid sending the same vacancy twice",
+    )
     args = parser.parse_args()
 
     current = _load(SNAPSHOT)
-    rows = _new_rows(current, _head_snapshot())
+    state_path = _resolve_state_path(args.state_file) if args.state_file else None
+    state_keys = _load_state(state_path)
+    if state_keys is None:
+        previous = _snapshot_from_ref(args.previous_ref) if args.previous_ref else _head_snapshot()
+        known_keys = {row["key"] for row in _rows(previous)}
+    else:
+        known_keys = state_keys
+
+    current_rows = _rows(current)
+    rows = _unnotified_rows(current, known_keys)
     print(f"Telegram: {len(rows)} vagas novas detectadas.")
     if not rows:
+        if state_path and not args.dry_run:
+            _write_state(state_path, known_keys | {row["key"] for row in current_rows}, current)
+        return
+
+    groups = _groups(rows)
+    if args.dry_run:
+        print(f"Dry-run: seriam enviados {len(groups)} grupos.")
         return
 
     token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
@@ -188,12 +261,15 @@ def main():
         print("Telegram não configurado: faltam TELEGRAM_BOT_TOKEN e/ou TELEGRAM_CHAT_ID.")
         return
 
-    groups = _groups(rows)
-    if args.dry_run:
-        print(f"Dry-run: seriam enviados {len(groups)} grupos.")
-        return
+    notified_keys = set(known_keys)
     for index, group in enumerate(groups, start=1):
         _send(token, chat_id, _text(group, index, len(groups)))
+        notified_keys.update(row["key"] for row in group)
+        # Persist after each successful group so a later retry can resume
+        # without repeating groups already accepted by Telegram.
+        _write_state(state_path, notified_keys, current)
+    if state_path:
+        _write_state(state_path, notified_keys | {row["key"] for row in current_rows}, current)
     print(f"Telegram: {len(groups)} grupo(s) enviado(s).")
 
 

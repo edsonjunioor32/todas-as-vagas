@@ -1,0 +1,98 @@
+name: Notificar novas vagas no Telegram
+
+on:
+  workflow_dispatch:
+    inputs:
+      previous_ref:
+        description: "Ref opcional do snapshot anterior; vazio usa os dois últimos snapshots"
+        required: false
+        type: string
+  push:
+    paths:
+      - ".github/telegram-trigger"
+  workflow_run:
+    workflows: ["Atualizar vagas multiportal e publicar GitHub Pages"]
+    types: [completed]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: telegram-notification
+  cancel-in-progress: false
+
+jobs:
+  notify:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Identificar snapshot anterior
+        id: baseline
+        shell: bash
+        env:
+          INPUT_PREVIOUS_REF: ${{ inputs.previous_ref }}
+        run: |
+          previous_ref="$INPUT_PREVIOUS_REF"
+          if [ -z "$previous_ref" ]; then
+            previous_ref="$(git log --format='%H' -- docs/data/vagas.json | sed -n '2p')"
+          fi
+          if [ -z "$previous_ref" ]; then
+            echo "Não foi possível identificar o snapshot anterior." >&2
+            exit 1
+          fi
+          echo "previous_ref=$previous_ref" >> "$GITHUB_OUTPUT"
+          echo "Snapshot anterior: $previous_ref"
+
+      - name: Enviar vagas novas ao Telegram
+        id: send
+        continue-on-error: true
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ]; then
+            echo "Telegram não configurado: verifique TELEGRAM_BOT_TOKEN e TELEGRAM_CHAT_ID." >&2
+            exit 1
+          fi
+          python jobs-dashboard/notify_telegram.py \
+            --state-file .github/telegram_state.json \
+            --previous-ref "${{ steps.baseline.outputs.previous_ref }}"
+
+      - name: Persistir estado das notificações
+        if: always()
+        shell: bash
+        run: |
+          if [ ! -f .github/telegram_state.json ]; then
+            echo "Nenhum estado de Telegram foi gerado."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/telegram_state.json
+          if git diff --cached --quiet; then
+            echo "Estado do Telegram sem alterações."
+          else
+            git commit -m "Atualiza estado das notificações Telegram [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+
+      - name: Encerrar com falha se o envio falhou
+        if: steps.send.outcome == 'failure'
+        run: exit 1
