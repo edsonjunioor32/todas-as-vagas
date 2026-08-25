@@ -54,7 +54,14 @@
     ashby: 'Ashby'
   };
 
-  const state = { jobs: [], filtered: [], meta: null, page: 1, showingAllRecentCompanies: false };
+  const state = {
+    jobs: [],
+    filtered: [],
+    meta: null,
+    monitoredCompanies: [],
+    page: 1,
+    showingAllRecentCompanies: false
+  };
   const elements = {
     totalJobs: document.querySelector('#totalJobs'),
     totalCompanies: document.querySelector('#totalCompanies'),
@@ -90,7 +97,9 @@
     resultsTitle: document.querySelector('#resultsTitle'),
     recentCompanies: document.querySelector('#recentCompanies'),
     recentCompaniesList: document.querySelector('#recentCompaniesList'),
-    recentCompaniesMore: document.querySelector('#recentCompaniesMore')
+    recentCompaniesMore: document.querySelector('#recentCompaniesMore'),
+    monitoredCompanies: document.querySelector('#monitoredCompanies'),
+    monitoredCompaniesList: document.querySelector('#monitoredCompaniesList')
   };
 
   function normalize(value) {
@@ -590,6 +599,35 @@
     }
   }
 
+  function renderMonitoredCompanies() {
+    if (!elements.monitoredCompanies || !elements.monitoredCompaniesList) return;
+    const companies = state.monitoredCompanies || [];
+    if (!companies.length) {
+      elements.monitoredCompanies.hidden = true;
+      return;
+    }
+    elements.monitoredCompaniesList.replaceChildren(...companies.map((item, index) => {
+      const li = document.createElement('li');
+      li.className = 'recent-company-item';
+      const logo = document.createElement('span');
+      logo.className = `recent-company-logo company-tone-${index % 8}`;
+      logo.textContent = initials(item.company);
+      const name = document.createElement('span');
+      name.className = 'recent-company-name';
+      name.textContent = item.company;
+      const link = document.createElement('a');
+      link.className = 'monitor-link';
+      link.href = item.url || '#';
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.textContent = 'Board oficial ↗';
+      link.setAttribute('aria-label', `Abrir o board oficial de ${item.company}`);
+      li.append(logo, name, link);
+      return li;
+    }));
+    elements.monitoredCompanies.hidden = false;
+  }
+
   function render() {
     filterJobs();
     const totalPages = Math.max(1, Math.ceil(state.filtered.length / PAGE_SIZE));
@@ -675,7 +713,10 @@
 
   async function init() {
     try {
-      const response = await fetch(`./data/vagas.json?v=${Date.now()}`, { cache: 'no-store' });
+      const [response, watchlistResponse] = await Promise.all([
+        fetch(`./data/vagas.json?v=${Date.now()}`, { cache: 'no-store' }),
+        fetch(`./data/greenhouse-watchlist.json?v=${Date.now()}`, { cache: 'no-store' })
+      ]);
       if (!response.ok) throw new Error('A base de vagas não respondeu.');
       const data = await response.json();
       if (data.schema_version !== 3 || !data.jobs || !Number.isInteger(data.count)) {
@@ -683,6 +724,14 @@
       }
       state.meta = data;
       state.jobs = decode(data);
+      if (watchlistResponse.ok) {
+        try {
+          const watchlist = await watchlistResponse.json();
+          state.monitoredCompanies = Array.isArray(watchlist.companies) ? watchlist.companies : [];
+        } catch {
+          state.monitoredCompanies = [];
+        }
+      }
       elements.totalJobs.textContent = numberFormatter.format(data.count);
       elements.totalCompanies.textContent = numberFormatter.format(data.companies || new Set(state.jobs.map(job => job.company)).size);
       elements.totalSources.textContent = numberFormatter.format(new Set(state.jobs.map(job => job.source)).size);
@@ -696,6 +745,7 @@
       populateFilters();
       loadParams();
       renderRecentCompanies();
+      renderMonitoredCompanies();
       bindEvents();
       elements.statusMessage.hidden = true;
       render();

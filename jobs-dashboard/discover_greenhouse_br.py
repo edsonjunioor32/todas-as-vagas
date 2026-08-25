@@ -8,12 +8,13 @@ used by the normal collection workflow.
 """
 import argparse
 import json
-import re
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.request import Request, urlopen
+
+from sources._common import is_brazil_location
 
 
 HERE = Path(__file__).resolve().parent
@@ -25,21 +26,6 @@ DEFAULT_CATALOG = (
 API = "https://boards-api.greenhouse.io/v1/boards/{board}/jobs?content=false"
 EXCLUDED = {"stone", "ifoodcarreiras"}  # already collected as named sources
 
-BRAZIL_NAME_RE = re.compile(
-    r"(?:\bbrasil\b|\bbrazil\b|\bs[aã]o paulo\b|\brio de janeiro\b|"
-    r"\bbelo horizonte\b|\bbras[ií]lia\b|\bcuritiba\b|\bporto alegre\b|"
-    r"\brecife\b|\bfortaleza\b|\bsalvador\b|\bflorian[oó]polis\b|"
-    r"\bcampinas\b|\bgoi[aâ]nia\b|\bvit[oó]ria\b|\bjo[aã]o pessoa\b|"
-    r"\bmanaus\b|\bbel[eé]m\b|\bnatal\b|\bmacei[oó]\b|\baracaju\b|"
-    r"\bcuiab[aá]\b|\bcampo grande\b|\bjoinville\b|\buberl[aâ]ndia\b)",
-    re.I,
-)
-BRAZIL_UF_RE = re.compile(
-    r"(?:^|[,/()\s-])(?:AC|AL|AP|AM|BA|CE|DF|ES|GO|MA|MT|MS|MG|PA|PB|PR|"
-    r"PE|PI|RJ|RN|RS|RO|RR|SC|SP|SE|TO)(?:$|[,/()\s-])"
-)
-
-
 def get_json(url, timeout=20):
     request = Request(url, headers={"User-Agent": "Todas-as-Vagas/1.0"})
     with urlopen(request, timeout=timeout) as response:
@@ -48,7 +34,9 @@ def get_json(url, timeout=20):
 
 def is_brazilian(job):
     location = str((job.get("location") or {}).get("name") or "")
-    return bool(BRAZIL_NAME_RE.search(location) or BRAZIL_UF_RE.search(location))
+    # Bare two-letter codes collide with US states (MA, PR, RI, etc.).
+    # Discovery must use the same strict location rule as normal collection.
+    return is_brazil_location(location)
 
 
 def validate_board(board, timeout):

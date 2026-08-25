@@ -14,7 +14,8 @@ sys.path.insert(0, str(DASHBOARD))
 
 import pipeline  # noqa: E402
 import storage  # noqa: E402
-from sources import infojobs, nerdin  # noqa: E402
+from sources import ats_boards, infojobs, nerdin  # noqa: E402
+from discover_greenhouse_br import is_brazilian  # noqa: E402
 
 
 def sample_job(source, native_id, *, work_model="", city="São Paulo", country="BR"):
@@ -55,6 +56,31 @@ class CollectionTests(unittest.TestCase):
         self.assertEqual(failed, ["broken"])
         self.assertEqual([item["name"] for item in metrics], ["first", "broken", "last"])
 
+    def test_partial_source_failure_keeps_rows_and_marks_source_failed(self):
+        def partial_failure():
+            raise ats_boards.GreenhouseCollectionError(
+                "1 Greenhouse board failed",
+                rows=[sample_job("greenhouse", "1")],
+                failed_boards=["example"],
+            )
+
+        rows, failed, metrics = pipeline.collect([("greenhouse", partial_failure)])
+
+        self.assertEqual([row["native_id"] for row in rows], ["1"])
+        self.assertEqual(failed, ["greenhouse"])
+        self.assertEqual(metrics[0]["status"], "falha")
+
+
+class GreenhouseLocationTests(unittest.TestCase):
+    def test_discovery_does_not_mistake_foreign_state_codes_for_brazil(self):
+        def item(location):
+            return {"location": {"name": location}}
+
+        self.assertFalse(is_brazilian(item("Boston, MA")))
+        self.assertFalse(is_brazilian(item("San Juan, PR")))
+        self.assertTrue(is_brazilian(item("São Paulo, SP")))
+        self.assertTrue(is_brazilian(item("Brasil")))
+
     def test_infer_work_models_only_fills_missing_brazilian_values(self):
         rows = [
             sample_job("a", "1", city="Brasil"),
@@ -92,6 +118,21 @@ class StorageTests(unittest.TestCase):
                 conn.execute("SELECT work_model FROM jobs WHERE job_uid = 'portal:2'").fetchone()[0],
                 "on-site",
             )
+            conn.close()
+
+    def test_failed_source_keeps_last_valid_rows_beyond_fresh_window(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            conn = storage.connect(str(Path(temporary) / "jobs.db"))
+            storage.upsert(conn, [sample_job("greenhouse", "1")], today="2026-08-20")
+            out = Path(temporary) / "vagas.json"
+            count, _ = storage.export_snapshot(
+                conn,
+                str(out),
+                fresh_days=3,
+                today="2026-08-25",
+                failed_sources=["greenhouse"],
+            )
+            self.assertEqual(count, 1)
             conn.close()
 
 

@@ -25,6 +25,20 @@ ASHBY = ["openai", "ramp", "notion", "replit", "watershed", "linear", "nubank"]
 HERE = Path(__file__).resolve().parent
 GREENHOUSE_BR_CATALOG = HERE.parent / "data" / "greenhouse_br_companies.json"
 GREENHOUSE_API = "https://boards-api.greenhouse.io/v1/boards/{board}/jobs?content=false"
+GREENHOUSE_API_FALLBACK = "https://boards-api.greenhouse.io/v1/boards/{board}/jobs"
+GREENHOUSE_HEADERS = {
+    "Accept": "application/json, text/plain, */*",
+    "Accept-Language": "en-US,en;q=0.9,pt-BR;q=0.8",
+    "Cache-Control": "no-cache",
+    "Referer": "https://boards.greenhouse.io/",
+}
+GREENHOUSE_BROWSER_HEADERS = {
+    **GREENHOUSE_HEADERS,
+    "User-Agent": (
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+    ),
+}
 # Boards requested explicitly by the project owner must not depend on the
 # external discovery catalog. ``brazil_only`` is limited to boards whose live
 # catalog was verified to contain only Brazilian locations; it lets values such
@@ -48,7 +62,29 @@ REQUIRED_GREENHOUSE_BOARDS = {
     "agilize": {"company": "Agilize", "brazil_only": True},
     "inter": {"company": "Inter"},
 }
+# Keep these boards under continuous observation even when the strict catalog
+# correctly contains no Brazilian vacancy today. If they open a Brazil
+# position later, the normal collector will include it automatically.
+MONITORED_GREENHOUSE_BOARDS = {
+    "accenturefederalservices": {"company": "Accenture Federal Services"},
+    "actpowerservices": {"company": "ACT Power Services"},
+    "abiologics": {"company": "Abiologics"},
+    "abclegalservices": {"company": "ABC Legal Services"},
+    "abarca": {"company": "Abarca Health"},
+    "1910genetics": {"company": "1910"},
+}
 PCD_PATTERN = re.compile(r"\bpcd\b|pessoa(?:s)?\s+com\s+defici", re.I)
+
+
+class GreenhouseCollectionError(RuntimeError):
+    """A partial Greenhouse result that must preserve the prior snapshot."""
+
+    def __init__(self, message, rows=None, failed_boards=None):
+        super().__init__(message)
+        self.rows = list(rows or [])
+        self.failed_boards = list(failed_boards or [])
+
+
 def _market(loc):
     t = (loc or "").lower()
     if any(k in t for k in ("bras", "brazil", "são paulo", "sao paulo", "rio de janeiro",
@@ -75,14 +111,54 @@ def fetch_greenhouse():
             configured[board] = config
         for name, value in required.items():
             config.setdefault(name, value)
+    for board, monitored in MONITORED_GREENHOUSE_BOARDS.items():
+        config = configured.get(board)
+        if config is None:
+            config = {"board": board}
+            configs.append(config)
+            configured[board] = config
+        for name, value in monitored.items():
+            config.setdefault(name, value)
+
+    def request_board(board):
+        """Use two public URL forms and browser-like negotiation headers."""
+        attempts = (
+            (GREENHOUSE_API, GREENHOUSE_HEADERS),
+            (GREENHOUSE_API_FALLBACK, GREENHOUSE_HEADERS),
+            (GREENHOUSE_API, GREENHOUSE_BROWSER_HEADERS),
+        )
+        last_error = None
+        for endpoint, headers in attempts:
+            try:
+                return get_json(
+                    endpoint.format(board=board),
+                    headers=headers,
+                    timeout=35,
+                    retries=2,
+                    backoff=1.0,
+                    retry_http_codes={406},
+                )
+            except Exception as error:
+                last_error = error
+        raise last_error or RuntimeError("Greenhouse returned no response")
+
+    def accepts_location(loc, config):
+        if is_brazil_location(loc):
+            return True
+        # A small, explicit exception is retained for known Brazil-only boards
+        # whose API reports only a generic nationwide location. It does not
+        # allow arbitrary foreign locations through the filter.
+        return config.get("brazil_only") and str(loc or "").strip().casefold() in {
+            "brasil", "brazil", "remoto", "remote", "todo brasil", "nationwide - brazil",
+        }
 
     def fetch_board(config):
         board = config["board"]
-        payload = get_json(GREENHOUSE_API.format(board=board), timeout=35, retries=2)
+        payload = request_board(board)
         rows = []
         for item in payload.get("jobs") or []:
             loc = str((item.get("location") or {}).get("name") or "").strip()
-            if not config.get("brazil_only") and not is_brazil_location(loc):
+            if not accepts_location(loc, config):
                 continue
             depts = [d.get("name", "") for d in (item.get("departments") or [])]
             metadata = item.get("metadata") or []
@@ -109,18 +185,38 @@ def fetch_greenhouse():
                 contract_types=[str(value).strip() for value in contracts if str(value or "").strip()],
                 pcd=bool(PCD_PATTERN.search(title)),
             ))
-        return rows
+        return board, rows
 
     out = []
-    workers = min(20, max(1, int(os.environ.get("GREENHOUSE_WORKERS", "12"))))
+    failed_boards = []
+    empty_required_boards = []
+    workers = min(8, max(1, int(os.environ.get("GREENHOUSE_WORKERS", "4"))))
     with ThreadPoolExecutor(max_workers=workers) as executor:
         futures = {executor.submit(fetch_board, config): config for config in configs}
         for future in as_completed(futures):
             config = futures[future]
             try:
-                out.extend(future.result())
+                board, rows = future.result()
+                if board in REQUIRED_GREENHOUSE_BOARDS and not rows:
+                    empty_required_boards.append(board)
+                    print(f"    [gh:{board}] required board returned zero Brazilian vacancies")
+                else:
+                    out.extend(rows)
             except Exception as error:
-                print(f"    [gh:{config.get('board')}] {str(error)[:60]}")
+                board = config.get("board")
+                failed_boards.append(board)
+                print(f"    [gh:{board}] {str(error)[:100]}")
+    failed_boards.extend(empty_required_boards)
+    if failed_boards:
+        failed_boards.sort()
+        sample = ", ".join(failed_boards[:12])
+        suffix = "..." if len(failed_boards) > 12 else ""
+        raise GreenhouseCollectionError(
+            f"{len(failed_boards)} Greenhouse boards failed; "
+            f"successful rows were retained ({sample}{suffix})",
+            rows=out,
+            failed_boards=failed_boards,
+        )
     return out
 
 

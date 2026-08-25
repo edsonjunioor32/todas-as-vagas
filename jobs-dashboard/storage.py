@@ -282,18 +282,27 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=50000,
     """Export jobs seen in a recent successful collection window.
 
     A three-day tolerance prevents a temporary portal outage from instantly
-    removing all of that portal's vacancies from the public page.
+    removing all of that portal's vacancies from the public page. When a
+    source explicitly failed, its last valid rows remain eligible until the
+    normal publication-age cutoff instead of disappearing after three days.
     """
     today = today or local_today().isoformat()
     cutoff = (date.fromisoformat(today) - timedelta(days=max(0, fresh_days - 1))).isoformat()
     age_cutoff = publication_cutoff(today, max_age_months)
-    rows = conn.execute("""
+    failed = sorted({str(source).strip() for source in (failed_sources or []) if str(source).strip()})
+    failed_clause = ""
+    failed_params = []
+    if failed:
+        placeholders = ", ".join("?" for _ in failed)
+        failed_clause = f" OR source IN ({placeholders})"
+        failed_params = failed
+    rows = conn.execute(f"""
         SELECT source, title, company, area, seniority, work_model, city, state,
                country, market, salary_min, salary_max, salary_currency,
                published_date, first_seen_date, last_seen_date, expires_date,
                url, skills, dedupe_key, pcd, blind_selection, contract_types
         FROM jobs
-        WHERE last_seen_date >= ?
+        WHERE (last_seen_date >= ?{failed_clause})
           AND (expires_date IS NULL OR expires_date = '' OR expires_date >= ?)
           AND COALESCE(NULLIF(market, ''), 'Não informado') <> 'Não informado'
           AND (source <> 'greenhouse' OR market = 'BR')
@@ -307,7 +316,7 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=50000,
         ORDER BY MAX(COALESCE(published_date,''), first_seen_date) DESC,
                  last_seen_date DESC
         LIMIT ?
-    """, (cutoff, today, age_cutoff, today, max_jobs)).fetchall()
+    """, (cutoff, *failed_params, today, age_cutoff, today, max_jobs)).fetchall()
 
     portal_sets = {}
     snapshot_source_counts = {}

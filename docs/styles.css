@@ -628,6 +628,20 @@ input::placeholder { color: var(--muted); }
   font-size: .86rem;
   font-weight: 760;
 }
+.monitor-note {
+  margin: -3px 0 10px;
+  color: var(--muted);
+  font-size: .68rem;
+  line-height: 1.45;
+}
+.monitor-link {
+  color: var(--brand);
+  font-size: .66rem;
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.monitor-link:hover { text-decoration: underline; }
 .company-tone-0 { background: #ef3d35; }
 .company-tone-1 { background: #7ad821; color: #152106; }
 .company-tone-2 { background: #6b22d8; }

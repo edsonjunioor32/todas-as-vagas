@@ -40,11 +40,19 @@ def get_text(url, headers=None, timeout=25, retries=3, backoff=2.0):
     raise RuntimeError(f"get_text failed after {retries} attempts: {last_err}") from last_err
 
 
-def get_json(url, headers=None, timeout=25, retries=3, backoff=2.0):
-    """GET a URL and parse JSON, retrying transient errors. Raises on final failure."""
+def get_json(url, headers=None, timeout=25, retries=3, backoff=2.0,
+             retry_http_codes=None):
+    """GET JSON with bounded retries.
+
+    ``406`` is normally a permanent negotiation error, but some public ATS
+    edges return it transiently when many boards are requested from one
+    runner.  Callers such as Greenhouse can opt into retrying that code without
+    changing the behavior of every other source.
+    """
     h = dict(DEFAULT_HEADERS)
     if headers:
         h.update(headers)
+    retry_http_codes = set(retry_http_codes or ()) | {429}
     last_err = None
     for attempt in range(1, retries + 1):
         try:
@@ -53,8 +61,10 @@ def get_json(url, headers=None, timeout=25, retries=3, backoff=2.0):
                 return json.loads(resp.read().decode("utf-8", "replace"))
         except urllib.error.HTTPError as e:
             last_err = e
-            # 4xx (except 429) are not worth retrying — the request is wrong.
-            if e.code < 500 and e.code != 429:
+            # Most 4xx responses are permanent; selected codes can be
+            # retried by a source that knows the endpoint is intermittently
+            # blocked by an edge or content-negotiation layer.
+            if e.code < 500 and e.code not in retry_http_codes:
                 raise
         except Exception as e:  # timeout, URLError, JSONDecodeError
             last_err = e

@@ -23,8 +23,8 @@
     <title>Todas as Vagas — Aqui você encontra a sua vaga</title>
     <link rel="icon" href="./favicon.svg?v=4" type="image/svg+xml">
     <script src="./theme.js?v=2"></script>
-    <link rel="stylesheet" href="./styles.css?v=14">
-    <script src="./app.js?v=13" defer></script>
+    <link rel="stylesheet" href="./styles.css?v=15">
+    <script src="./app.js?v=14" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#resultados">Pular para os resultados</a>
@@ -190,6 +190,12 @@
             <h3 id="recentCompaniesTitle">EMPRESAS ADICIONADAS RECENTEMENTE</h3>
             <ul class="recent-company-list" id="recentCompaniesList"></ul>
             <button class="recent-companies-footer" id="recentCompaniesMore" type="button">Ver todas as empresas</button>
+          </section>
+
+          <section class="recent-companies monitored-companies" id="monitoredCompanies" aria-labelledby="monitoredCompaniesTitle" hidden>
+            <h3 id="monitoredCompaniesTitle">EMPRESAS MONITORADAS</h3>
+            <p class="monitor-note">Acompanhamos os boards oficiais e incluímos automaticamente as vagas brasileiras quando forem publicadas.</p>
+            <ul class="recent-company-list" id="monitoredCompaniesList"></ul>
           </section>
 
           <p class="filter-note">

@@ -122,7 +122,7 @@ jobs:
       - name: Atualizar catálogo brasileiro da Greenhouse
         if: github.event_name == 'workflow_dispatch' || github.event.schedule == '37 7 * * 0'
         continue-on-error: true
-        run: python jobs-dashboard/discover_greenhouse_br.py --workers 32 --timeout 8
+        run: python jobs-dashboard/discover_greenhouse_br.py --workers 6 --timeout 12
 
       - name: Descobrir novas empresas InHire
         if: github.event_name == 'workflow_dispatch' || github.event.schedule == '37 7 * * 0'
@@ -162,7 +162,7 @@ jobs:
           NERDIN_WORKERS: "6"
           GEEKHUNTER_WORKERS: "4"
           ORACLE_WORKERS: "4"
-          GREENHOUSE_WORKERS: "12"
+          GREENHOUSE_WORKERS: "4"
           INFOJOBS_MAX_JOBS: "500"
           INFOJOBS_MAX_SCROLLS: "0"
         run: python jobs-dashboard/pipeline_fit.py --max-age-months 2
@@ -177,9 +177,10 @@ jobs:
       - name: Preservar histórico e fotografia pública
         shell: bash
         run: |
+          cp jobs-dashboard/data/greenhouse_watchlist.json docs/data/greenhouse-watchlist.json
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add jobs-dashboard/data/greenhouse_br_companies.json jobs-dashboard/data/jobs.db docs/data/vagas.json docs/data/fit.json
+          git add jobs-dashboard/data/greenhouse_br_companies.json jobs-dashboard/data/greenhouse_watchlist.json jobs-dashboard/data/jobs.db docs/data/vagas.json docs/data/greenhouse-watchlist.json docs/data/fit.json
           if git diff --cached --quiet; then
             echo "Nenhuma alteração para registrar."
           else

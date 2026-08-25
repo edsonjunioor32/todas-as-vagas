@@ -27,7 +27,10 @@ JSON_PATH = ROOT / "docs" / "data" / "vagas.json"
 
 # These portals are expected to expose public vacancies. An empty response is
 # an integration regression, never a successful refresh.
-NONEMPTY_SOURCES = {"digisystem", "recrutei", "docusign", "dbccompany", "sankhya", "senior"}
+NONEMPTY_SOURCES = {
+    "digisystem", "recrutei", "docusign", "dbccompany", "sankhya", "senior",
+    "greenhouse",
+}
 
 
 def selected_registry(names):
@@ -73,10 +76,19 @@ def _collect_source(index, name, fetch):
             "error": "",
         }
     except Exception as error:
+        # Some adapters can return a useful partial result while reporting
+        # board-level failures (notably Greenhouse). Preserve those rows and
+        # mark the source unhealthy so storage keeps the last valid snapshot
+        # for boards that were temporarily blocked.
+        partial = getattr(error, "rows", None) or []
+        valid_partial = [
+            row for row in partial
+            if isinstance(row, dict) and row.get("title") and row.get("url")
+        ]
         return {
             "index": index,
             "name": name,
-            "rows": [],
+            "rows": valid_partial,
             "dropped": 0,
             "seconds": time.perf_counter() - started,
             "error": str(error)[:180],

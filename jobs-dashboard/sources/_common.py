@@ -32,10 +32,20 @@ def iso_date(value):
     return match.group(1) if match else ""
 
 BRAZIL_LOCATION_RE = re.compile(
-    r"\b(?:brasil|brazil|s[aã]o paulo|rio de janeiro|belo horizonte|bras[ií]lia|"
-    r"curitiba|porto alegre|recife|fortaleza|salvador|florian[oó]polis|campinas|"
-    r"goi[aâ]nia|vit[oó]ria|jo[aã]o pessoa|manaus|bel[eé]m|natal|macei[oó]|"
-    r"aracaju|cuiab[aá]|campo grande|joinville|uberl[aâ]ndia)\b",
+    r"\b(?:brasil|brazil|acre|alagoas|amap[aá]|amazonas|bahia|cear[aá]|"
+    r"distrito federal|esp[ií]rito santo|goi[aá]s|maranh[aã]o|minas gerais|"
+    r"mato grosso(?: do sul)?|par[aá]iba|paran[aá]|pernambuco|piau[ií]|"
+    r"rio de janeiro|rio grande do norte|rio grande do sul|rond[oô]nia|"
+    r"roraima|santa catarina|s[aã]o paulo|sergipe|tocantins|"
+    r"belo horizonte|bras[ií]lia|curitiba|porto alegre|recife|fortaleza|"
+    r"salvador|florian[oó]polis|campinas|goi[aâ]nia|vit[oó]ria|jo[aã]o pessoa|"
+    r"manaus|bel[eé]m|natal|macei[oó]|aracaju|cuiab[aá]|campo grande|"
+    r"joinville|uberl[aâ]ndia|barueri|jundia[ií]|s[aã]o jos[eé] dos campos|"
+    r"santos|ribeir[aã]o preto|s[aã]o bernardo do campo|s[aã]o caetano do sul|"
+    r"s[aã]o leopoldo|caxias do sul|londrina|maring[aá]|niter[oó]i|"
+    r"duque de caxias|osasco|contagem|guarulhos|sorocaba|s[aã]o lu[ií]s|"
+    r"teresina|cabo frio|praia grande|s[aã]o carlos|piracicaba|"
+    r"s[aã]o jos[eé] do rio preto)\b",
     re.I,
 )
 
