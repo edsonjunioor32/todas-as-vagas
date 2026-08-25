@@ -246,44 +246,31 @@ def _unnotified_rows(current, known):
 
 
 def _text(rows, page, pages):
+    quantity = "vaga" if len(rows) == 1 else "vagas"
+    new_word = "nova" if len(rows) == 1 else "novas"
     lines = [
-        f"🔔 <b>{len(rows)} novas vagas</b> — lote {page}/{pages}",
-        "Remotas de TI aparecem primeiro; todas as novas vagas são enviadas.",
+        f"🔔 <b>{len(rows)} {new_word} {quantity}</b> — lote {page}/{pages}",
         "",
     ]
-    for row in rows:
+    for index, row in enumerate(rows):
+        if index:
+            lines.extend(["", "━━━━━━━━━━━━━━━━━━━━", ""])
         title = html.escape(str(row["title"] or "Vaga"))
+        portal = html.escape(str(row.get("source_label") or _source_label(row.get("source"))))
         company = html.escape(str(row.get("company") or "Empresa não informada"))
-        location = html.escape(str(row.get("city") or "Local não informado"))
-        modality = html.escape(str(row.get("workplace_label") or _workplace_label(row.get("work_model"))))
-        contract = html.escape(str(row.get("contract_types") or "Não informado"))
         category = html.escape(str(row.get("category") or "Outros"))
-        seniority = html.escape(str(row.get("seniority") or "Não informado"))
-        source = html.escape(str(row.get("source_label") or _source_label(row.get("source"))))
-        market = html.escape(str(row.get("market_label") or "Não informado"))
-        published = html.escape(str(row.get("published_label") or _date_label(row.get("published"))))
         pcd = "Sim" if row.get("pcd") else "Não"
-        multiple_portals = "Sim" if int(row.get("portals") or 1) > 1 else "Não"
-        portal_count = int(row.get("portals") or 1)
         url = html.escape(str(row["url"]), quote=True)
         lines.append(
             f"• <b>Cargo:</b> <a href=\"{url}\"><b>{title}</b></a>\n"
+            f"  <b>Portal:</b> {portal}\n"
             f"  <b>Empresa:</b> {company}\n"
-            f"  <b>Localização:</b> {location}\n"
-            f"  <b>Modalidade:</b> {modality}\n"
-            f"  <b>Tipo de contrato:</b> {contract}\n"
-            f"  <b>Área de atuação:</b> {category}\n"
-            f"  <b>Nível de experiência:</b> {seniority}\n"
-            f"  <b>Portal:</b> {source}\n"
-            f"  <b>Mercado:</b> {market}\n"
-            f"  <b>Publicação:</b> {published}\n"
-            f"  <b>PcD:</b> {pcd}\n"
-            f"  <b>Encontrada em mais de um portal:</b> {multiple_portals}"
-            + (f" ({portal_count} portais)" if portal_count > 1 else "")
+            f"  <b>PCD:</b> {pcd}\n"
+            f"  <b>Área de atuação:</b> {category}"
         )
     lines.extend([
         "",
-        f'📌 <a href="{PORTAL_URL}">Acesse o portal Todas as Vagas</a>',
+        f'Não encontrou o que queria? <a href="{PORTAL_URL}">Acesse o portal Todas as Vagas</a>',
     ])
     return "\n".join(lines)
 
