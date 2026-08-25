@@ -7,6 +7,10 @@ on:
         description: "Ref opcional do snapshot anterior; vazio usa os dois últimos snapshots"
         required: false
         type: string
+      resend_from_ref:
+        description: "Reenvio pontual: ref anterior ao lote que deve ser reenviado"
+        required: false
+        type: string
   push:
     paths:
       - ".github/telegram-trigger"
@@ -47,6 +51,7 @@ jobs:
         shell: bash
         env:
           INPUT_PREVIOUS_REF: ${{ inputs.previous_ref }}
+          INPUT_RESEND_FROM_REF: ${{ inputs.resend_from_ref }}
         run: |
           previous_ref="$INPUT_PREVIOUS_REF"
           if [ -z "$previous_ref" ]; then
@@ -57,6 +62,7 @@ jobs:
             exit 1
           fi
           echo "previous_ref=$previous_ref" >> "$GITHUB_OUTPUT"
+          echo "resend_from_ref=$INPUT_RESEND_FROM_REF" >> "$GITHUB_OUTPUT"
           echo "Snapshot anterior: $previous_ref"
 
       - name: Enviar vagas novas ao Telegram
@@ -72,7 +78,8 @@ jobs:
           fi
           python jobs-dashboard/notify_telegram.py \
             --state-file .github/telegram_state.json \
-            --previous-ref "${{ steps.baseline.outputs.previous_ref }}"
+            --previous-ref "${{ steps.baseline.outputs.previous_ref }}" \
+            --resend-from-ref "${{ steps.baseline.outputs.resend_from_ref }}"
 
       - name: Persistir estado das notificações
         if: always()
