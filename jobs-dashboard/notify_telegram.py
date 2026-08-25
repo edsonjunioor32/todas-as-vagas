@@ -22,6 +22,54 @@ ROOT = Path(__file__).resolve().parent.parent
 SNAPSHOT = ROOT / "docs" / "data" / "vagas.json"
 SNAPSHOT_RELATIVE = SNAPSHOT.relative_to(ROOT)
 PORTAL_URL = "https://edsonjunioor32.github.io/todas-as-vagas/"
+SOURCE_LABELS = {
+    "inhire": "InHire",
+    "empregare": "Empregare",
+    "gupy": "Gupy",
+    "solides": "Sólides",
+    "geekhunter": "GeekHunter",
+    "stone": "Stone",
+    "ifood": "iFood",
+    "picpay": "PicPay",
+    "bancooriginal": "Banco Original",
+    "braskem": "Braskem",
+    "gmfinancial": "GM Financial",
+    "dell": "Dell Technologies",
+    "arcelormittal": "ArcelorMittal",
+    "grupomateus": "Grupo Mateus",
+    "autozone": "AutoZone",
+    "nov": "NOV",
+    "arcorbrasil": "Arcor Brasil",
+    "themuse": "The Muse",
+    "remotive": "Remotive",
+    "jobicy": "Jobicy",
+    "remoteok": "Remote OK",
+    "himalayas": "Himalayas",
+    "workingnomads": "Working Nomads",
+    "arbeitnow": "Arbeitnow",
+    "weworkremotely": "We Work Remotely",
+    "greenhouse": "Greenhouse",
+    "lever": "Lever",
+    "ashby": "Ashby",
+    "github": "GitHub",
+    "Nerdin": "Nerdin",
+    "abler": "Abler",
+    "infojobs": "InfoJobs",
+    "recrutei": "Recrutei",
+    "accenture": "Accenture",
+    "bradesco": "Bradesco",
+    "cloudwalk": "CloudWalk",
+    "nestle": "Nestlé",
+    "digisystem": "Digisystem",
+    "totvs": "TOTVS",
+    "wise": "Wise",
+    "fiserv": "Fiserv",
+    "metalfrio": "Metalfrio",
+    "experian": "Experian",
+    "providerit": "Provider IT",
+    "inlog": "Inlog",
+    "revolut": "Revolut",
+}
 TI_RE = re.compile(
     r"\b(?:ti|tecnologia|software|sistemas?|suporte|desenvolv|devops|"
     r"dados?|analista de dados|engenheir|programa[cç]|infraestrutura|"
@@ -93,6 +141,47 @@ def _value(snapshot, name, index, dictionary=None):
     return value or ""
 
 
+def _source_label(value):
+    return SOURCE_LABELS.get(value, str(value or "Portal não informado"))
+
+
+def _workplace_label(value):
+    key = str(value or "").casefold().strip()
+    if key in {"remote", "remoto", "remota"}:
+        return "Remoto"
+    if key in {"hybrid", "hibrido", "híbrido"}:
+        return "Híbrido"
+    if key in {"on-site", "onsite", "presencial"}:
+        return "Presencial"
+    return "Não informada"
+
+
+def _market_label(value):
+    return {
+        "BR": "Brasil",
+        "Global remote": "Global remoto",
+        "Global": "Global",
+    }.get(str(value or ""), str(value or "Não informado"))
+
+
+def _contract_label(value):
+    return "CNPJ" if str(value or "").casefold().strip() == "pj" else str(value or "")
+
+
+def _contract_types(value):
+    contracts = [_contract_label(part.strip()) for part in str(value or "").split(" · ") if part.strip()]
+    return " · ".join(contracts) or "Não informado"
+
+
+def _date_label(value):
+    text = str(value or "")
+    match = re.match(r"^(\d{4})-(\d{2})-(\d{2})", text)
+    if not match:
+        return "Não informada"
+    year, month, day = match.groups()
+    return f"{day}/{month}/{year}"
+
+
 def _rows(snapshot):
     count = int(snapshot.get("count") or 0)
     rows = []
@@ -104,16 +193,36 @@ def _rows(snapshot):
         area = _value(snapshot, "area", index, "area")
         skills = _value(snapshot, "sk", index)
         work_model = _value(snapshot, "wm", index, "work_model")
-        remote = str(work_model).casefold() in {"remote", "remoto", "remota"}
+        source = _value(snapshot, "src", index, "source")
+        category = area or "Outros"
+        seniority = _value(snapshot, "sen", index, "seniority") or "Não informado"
+        market = _value(snapshot, "mk", index, "market")
+        country = _value(snapshot, "co", index, "country")
+        location = _value(snapshot, "city", index) or country or "Local não informado"
+        contract_types = _contract_types(_value(snapshot, "ct", index))
+        try:
+            portals = max(1, int(_value(snapshot, "np", index) or 1))
+        except (TypeError, ValueError):
+            portals = 1
+        remote = _workplace_label(work_model) == "Remoto"
         is_ti = bool(TI_RE.search(" ".join(map(str, (title, area, skills)))))
         rows.append({
-            "key": f"{_value(snapshot, 'src', index, 'source')}:{url}",
+            "key": f"{source}:{url}",
             "title": title,
             "company": _value(snapshot, "cmp", index, "company"),
-            "source": _value(snapshot, "src", index, "source"),
+            "source": source,
+            "source_label": _source_label(source),
             "url": url,
             "work_model": work_model,
-            "city": _value(snapshot, "city", index),
+            "workplace_label": _workplace_label(work_model),
+            "city": location,
+            "category": category,
+            "seniority": seniority,
+            "market_label": _market_label(market),
+            "contract_types": contract_types,
+            "published_label": _date_label(_value(snapshot, "pub", index)),
+            "pcd": bool(_value(snapshot, "pcd", index)),
+            "portals": portals,
             "published": _value(snapshot, "pub", index),
             "remote": remote,
             "ti": is_ti,
@@ -144,15 +253,33 @@ def _text(rows, page, pages):
     ]
     for row in rows:
         title = html.escape(str(row["title"] or "Vaga"))
-        company = html.escape(str(row["company"] or "Empresa"))
-        modality = html.escape(str(row["work_model"] or "Não informada"))
-        city = html.escape(str(row["city"] or "Brasil"))
-        source = html.escape(str(row["source"] or "Portal"))
+        company = html.escape(str(row.get("company") or "Empresa não informada"))
+        location = html.escape(str(row.get("city") or "Local não informado"))
+        modality = html.escape(str(row.get("workplace_label") or _workplace_label(row.get("work_model"))))
+        contract = html.escape(str(row.get("contract_types") or "Não informado"))
+        category = html.escape(str(row.get("category") or "Outros"))
+        seniority = html.escape(str(row.get("seniority") or "Não informado"))
+        source = html.escape(str(row.get("source_label") or _source_label(row.get("source"))))
+        market = html.escape(str(row.get("market_label") or "Não informado"))
+        published = html.escape(str(row.get("published_label") or _date_label(row.get("published"))))
+        pcd = "Sim" if row.get("pcd") else "Não"
+        multiple_portals = "Sim" if int(row.get("portals") or 1) > 1 else "Não"
+        portal_count = int(row.get("portals") or 1)
         url = html.escape(str(row["url"]), quote=True)
         lines.append(
-            f"• <a href=\"{url}\"><b>{title}</b></a>\n"
-            f"  {company} · {modality} · {city}\n"
-            f"  {source}"
+            f"• <b>Cargo:</b> <a href=\"{url}\"><b>{title}</b></a>\n"
+            f"  <b>Empresa:</b> {company}\n"
+            f"  <b>Localização:</b> {location}\n"
+            f"  <b>Modalidade:</b> {modality}\n"
+            f"  <b>Tipo de contrato:</b> {contract}\n"
+            f"  <b>Área de atuação:</b> {category}\n"
+            f"  <b>Nível de experiência:</b> {seniority}\n"
+            f"  <b>Portal:</b> {source}\n"
+            f"  <b>Mercado:</b> {market}\n"
+            f"  <b>Publicação:</b> {published}\n"
+            f"  <b>PcD:</b> {pcd}\n"
+            f"  <b>Encontrada em mais de um portal:</b> {multiple_portals}"
+            + (f" ({portal_count} portais)" if portal_count > 1 else "")
         )
     lines.extend([
         "",
@@ -231,12 +358,20 @@ def main():
         default="",
         help="Repository-relative JSON file used to avoid sending the same vacancy twice",
     )
+    parser.add_argument(
+        "--resend-from-ref",
+        default="",
+        help="Explicitly resend the vacancies added after this ref, ignoring the notification state",
+    )
     args = parser.parse_args()
 
     current = _load(SNAPSHOT)
     state_path = _resolve_state_path(args.state_file) if args.state_file else None
     state_keys = _load_state(state_path)
-    if state_keys is None:
+    if args.resend_from_ref:
+        previous = _snapshot_from_ref(args.resend_from_ref)
+        known_keys = {row["key"] for row in _rows(previous)}
+    elif state_keys is None:
         previous = _snapshot_from_ref(args.previous_ref) if args.previous_ref else _head_snapshot()
         known_keys = {row["key"] for row in _rows(previous)}
     else:
