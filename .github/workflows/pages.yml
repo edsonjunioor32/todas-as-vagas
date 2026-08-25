@@ -168,7 +168,7 @@ jobs:
           SOLIDES_MAX_PAGES: "300"
           SOLIDES_WORKERS: "8"
           SOLIDES_PAGE_TIMEOUT: "30"
-          SOLIDES_PAGE_RETRIES: "1"
+          SOLIDES_PAGE_RETRIES: "2"
           SOLIDES_CACHE_DIR: "jobs-dashboard/data/solides_cache"
           NERDIN_WORKERS: "6"
           GEEKHUNTER_WORKERS: "4"

@@ -49,5 +49,5 @@ jobs:
           SOLIDES_CACHE_DIR: jobs-dashboard/data/solides_cache
           SOLIDES_WORKERS: "8"
           SOLIDES_PAGE_TIMEOUT: "30"
-          SOLIDES_PAGE_RETRIES: "1"
+          SOLIDES_PAGE_RETRIES: "2"
         run: python jobs-dashboard/benchmark_solides.py --runs 2 --pages 24

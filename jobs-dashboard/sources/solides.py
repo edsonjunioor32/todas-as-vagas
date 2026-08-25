@@ -21,7 +21,9 @@ PAGE_SIZE = 10
 DEFAULT_MAX_PAGES = 300
 PORTAL = "https://vagas.solides.com.br/vaga"
 DEFAULT_PAGE_TIMEOUT = 30
-DEFAULT_PAGE_RETRIES = 1
+# Keep one recovery attempt for transient DNS/edge failures without returning
+# to the previous three attempts that amplified the 20-minute collection time.
+DEFAULT_PAGE_RETRIES = 2
 
 
 def _job_slug(value):
