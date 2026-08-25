@@ -16,14 +16,93 @@ SENIOR_API = (
     "https://platform.senior.com.br/t/senior.com.br/bridge/1.0/"
     "anonymous/rest/hcm/careersmanagercandidate/queries/searchVacancies"
 )
+SENIOR_DETAIL_API = (
+    "https://platform.senior.com.br/t/senior.com.br/bridge/1.0/"
+    "anonymous/rest/hcm/careersmanagercandidate/queries/findVacancyById"
+)
 NEXT_DATA_RE = re.compile(
     r'<script[^>]+id=["\']__NEXT_DATA__["\'][^>]*>([\s\S]*?)</script>', re.I
 )
 LEVEL_RE = re.compile(r"\b(j[uú]nior|pleno|s[eê]nior|especialista|trainee|lead)\b", re.I)
+NO_INFORMATION = {
+    "",
+    "-",
+    "n/a",
+    "na",
+    "não informado",
+    "nao informado",
+    "not informed",
+    "not specified",
+    "não especificado",
+    "nao especificado",
+}
 
 
 def _levels(title):
     return list(dict.fromkeys(match.group(1).title() for match in LEVEL_RE.finditer(title or "")))
+
+
+def _senior_values(value):
+    if isinstance(value, (list, tuple)):
+        return list(value)
+    return [] if value in (None, "") else [value]
+
+
+def _senior_has_information(value):
+    return str(value or "").strip().casefold() not in NO_INFORMATION
+
+
+def _senior_work_model(value):
+    """Return the site's canonical modality, defaulting unknown Senior data to on-site."""
+    for raw in _senior_values(value):
+        text = str(raw or "").strip()
+        key = text.upper().replace("-", "_").replace(" ", "_")
+        if key in {"IN_PERSON", "INPERSON", "ON_SITE", "ONSITE", "PRESENCIAL"}:
+            return "on-site"
+        model = work_model_label(raw=text)
+        if model:
+            return model
+    return "on-site"
+
+
+def _senior_contract_types(value):
+    """Normalize Senior's hiring regime and use CLT when it is not supplied."""
+    contract_map = {
+        "CLT": "CLT",
+        "EFFECTIVE_CLT": "CLT",
+        "CONTRACTOR": "PJ",
+        "PJ": "PJ",
+        "INTERNSHIP": "Estágio",
+        "ESTAGIO": "Estágio",
+        "TEMPORARY": "Temporário",
+        "TEMPORARIO": "Temporário",
+    }
+    result = []
+    for raw in _senior_values(value):
+        text = str(raw or "").strip()
+        if not _senior_has_information(text):
+            continue
+        key = text.upper().replace("-", "_").replace(" ", "_")
+        label = contract_map.get(key, text)
+        if label not in result:
+            result.append(label)
+    return result or ["CLT"]
+
+
+def _senior_experience(value, title):
+    """Prefer the detail page's experience values, retaining title-based levels as fallback."""
+    result = []
+    for raw in _senior_values(value):
+        text = str(raw or "").strip()
+        if _senior_has_information(text) and text not in result:
+            result.append(text)
+    return result or _levels(title)
+
+
+def _senior_bool(value):
+    if isinstance(value, bool):
+        return value
+    return str(value or "").strip().casefold() in {"1", "true", "yes", "sim"}
 
 
 def _sankhya_rows():
@@ -106,6 +185,22 @@ def _senior_page(page, size=100):
     )
 
 
+def _senior_detail(native_id):
+    return post_json(
+        SENIOR_DETAIL_API,
+        {"id": native_id},
+        headers={"Accept": "application/json;seniorx.version=2"},
+        timeout=45,
+        retries=3,
+    )
+
+
+def _senior_detail_vacancy(native_id):
+    payload = _senior_detail(native_id)
+    vacancy = payload.get("vacancy") if isinstance(payload, dict) else None
+    return vacancy if isinstance(vacancy, dict) else {}
+
+
 def _senior_rows():
     first = _senior_page(0)
     total_pages = int(first.get("totalPages") or 1)
@@ -120,8 +215,7 @@ def _senior_rows():
         for future in futures:
             payloads.append(future.result())
 
-    model_map = {"REMOTE": "remote", "HYBRID": "hybrid", "IN_PERSON": "on-site"}
-    rows, seen = [], set()
+    catalogue, seen = [], set()
     for payload in payloads:
         for item in payload.get("contents") or []:
             vacancy = item.get("vacancy") if isinstance(item, dict) else None
@@ -133,31 +227,55 @@ def _senior_rows():
             if not native_id or not title or native_id in seen:
                 continue
             seen.add(native_id)
-            localization = vacancy.get("localization") or {}
-            localization = localization if isinstance(localization, dict) else {}
-            publication = vacancy.get("publication") or {}
-            publication = publication if isinstance(publication, dict) else {}
-            models = vacancy.get("jobModel") or []
-            if isinstance(models, str):
-                models = [models]
-            model_values = [str(value).upper() for value in models]
-            country = str(localization.get("country") or "Brasil").strip()
-            country_code = "BR" if country.casefold() in {"brasil", "brazil", "br"} else country
-            company_name = str(company.get("name") or "Senior Sistemas").strip()
-            rows.append(job(
-                "senior", native_id, title=title, company=company_name,
-                url=f"https://www.portaldetalentos.senior.com.br/vacancy/{native_id}",
-                work_model=next((model_map[value] for value in model_values if value in model_map), ""),
-                city=str(localization.get("city") or "Brasil").strip(),
-                state=str(localization.get("province") or "").strip(),
-                country=country_code, market="BR" if country_code == "BR" else "global",
-                published_date=iso_date(publication.get("startDate")),
-                expires_date=iso_date(publication.get("endDate")),
-                levels=_levels(title),
-                categories=[str(company.get("sector") or "").strip()] if company.get("sector") else ["Portal de Talentos Senior"],
-            ))
-    if not rows:
+            catalogue.append((native_id, title, vacancy, company))
+
+    if not catalogue:
         raise RuntimeError("Senior public API returned no active vacancy records")
+
+    # The search endpoint intentionally returns only card fields.  The public
+    # detail endpoint is what exposes hiringRegime, the definitive jobModel,
+    # experience and PCD flag shown on the Senior page.
+    details = {}
+    with ThreadPoolExecutor(max_workers=min(6, len(catalogue))) as pool:
+        futures = {
+            native_id: pool.submit(_senior_detail_vacancy, native_id)
+            for native_id, _title, _vacancy, _company in catalogue
+        }
+        for native_id, future in futures.items():
+            try:
+                details[native_id] = future.result()
+            except Exception:
+                # Keep the card if an individual detail request is temporarily
+                # unavailable; the normalization below still applies the
+                # requested safe defaults.
+                details[native_id] = {}
+
+    rows = []
+    for native_id, title, vacancy, company in catalogue:
+        detail = details.get(native_id) or {}
+        localization = detail.get("localization") or vacancy.get("localization") or {}
+        localization = localization if isinstance(localization, dict) else {}
+        publication = vacancy.get("publication") or {}
+        publication = publication if isinstance(publication, dict) else {}
+        models = detail.get("jobModel") or vacancy.get("jobModel") or []
+        experience = detail.get("experience")
+        country = str(localization.get("country") or "Brasil").strip()
+        country_code = "BR" if country.casefold() in {"brasil", "brazil", "br"} else country
+        company_name = str(company.get("name") or "Senior Sistemas").strip()
+        rows.append(job(
+            "senior", native_id, title=title, company=company_name,
+            url=f"https://www.portaldetalentos.senior.com.br/vacancy/{native_id}",
+            work_model=_senior_work_model(models),
+            city=str(localization.get("city") or "Brasil").strip(),
+            state=str(localization.get("province") or "").strip(),
+            country=country_code, market="BR" if country_code == "BR" else "global",
+            published_date=iso_date(publication.get("startDate")),
+            expires_date=iso_date(publication.get("endDate")),
+            levels=_senior_experience(experience, title),
+            categories=[str(company.get("sector") or "").strip()] if company.get("sector") else ["Portal de Talentos Senior"],
+            contract_types=_senior_contract_types(detail.get("hiringRegime")),
+            pcd=_senior_bool(detail.get("pcd")),
+        ))
     return rows
 
 
