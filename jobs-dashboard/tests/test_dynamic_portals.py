@@ -167,7 +167,13 @@ class SankhyaSeniorTests(unittest.TestCase):
         self.assertEqual(rows[0]["work_model"], "remote")
         self.assertEqual(rows[0]["contract_types"], ["CLT"])
 
-    def test_senior_combines_paginated_api_payloads(self):
+    def test_senior_normalizes_detail_defaults(self):
+        self.assertEqual(sankhya_senior._senior_work_model("Remote"), "remote")
+        self.assertEqual(sankhya_senior._senior_work_model("Não informado"), "on-site")
+        self.assertEqual(sankhya_senior._senior_contract_types("Não informado"), ["CLT"])
+        self.assertEqual(sankhya_senior._senior_contract_types("CLT"), ["CLT"])
+
+    def test_senior_combines_paginated_api_payloads_and_details(self):
         pages = {
             0: {"totalPages": 2, "contents": [{
                 "vacancy": {"id": "a", "title": "Analista Pleno", "jobModel": ["REMOTE"],
@@ -181,11 +187,22 @@ class SankhyaSeniorTests(unittest.TestCase):
                 "company": {"name": "Empresa", "sector": "Operações"},
             }]},
         }
-        with patch.object(sankhya_senior, "_senior_page", side_effect=lambda page: pages[page]):
+        details = {
+            "a": {"jobModel": ["Remote"], "hiringRegime": "Não informado",
+                  "experience": ["Pleno"], "pcd": True},
+            "b": {"jobModel": ["Não informado"], "hiringRegime": "CLT",
+                  "experience": [], "pcd": False},
+        }
+        with patch.object(sankhya_senior, "_senior_page", side_effect=lambda page: pages[page]), \
+             patch.object(sankhya_senior, "_senior_detail_vacancy", side_effect=lambda native_id: details[native_id]):
             rows = sankhya_senior._senior_rows()
         self.assertEqual({row["native_id"] for row in rows}, {"a", "b"})
         self.assertEqual(rows[0]["work_model"], "remote")
+        self.assertEqual(rows[0]["contract_types"], ["CLT"])
+        self.assertEqual(rows[0]["levels"], ["Pleno"])
+        self.assertTrue(rows[0]["pcd"])
         self.assertEqual(rows[1]["work_model"], "on-site")
+        self.assertEqual(rows[1]["contract_types"], ["CLT"])
 
 
 if __name__ == "__main__":
