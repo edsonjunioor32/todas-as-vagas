@@ -19,9 +19,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SNAPSHOT = ROOT / "docs" / "data" / "vagas.json"
 TI_RE = re.compile(
-    r"\\b(?:ti|tecnologia|software|sistemas?|suporte|desenvolv|devops|"
+    r"\b(?:ti|tecnologia|software|sistemas?|suporte|desenvolv|devops|"
     r"dados?|analista de dados|engenheir|programa[cç]|infraestrutura|"
-    r"cloud|seguran[cç]a|produto digital|qa|testes?|api|sre)\\b",
+    r"cloud|seguran[cç]a|produto digital|qa|testes?|api|sre)\b",
     re.I,
 )
 
