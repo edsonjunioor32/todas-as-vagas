@@ -4,8 +4,17 @@
 Mirrors the resilience of commodity-risk-dashboard/pipeline.py::_download: retry
 transient failures (timeout, 5xx, JSON-decode) with linear backoff, then raise.
 Kept dependency-free (urllib) so the daily pipeline has zero third-party surface.
+
+``get_json`` also supports an optional small, private on-disk cache.  When a
+cache file contains an ``ETag``, the next request is conditional and a 304
+response reuses the previous JSON payload.  This is useful for the large
+Sólides catalogue: unchanged pages are still checked, but their bodies do not
+need to be downloaded or decoded again.
 """
 import json
+import os
+from pathlib import Path
+import threading
 import time
 import urllib.request
 import urllib.error
@@ -15,6 +24,57 @@ DEFAULT_HEADERS = {
     "User-Agent": "Mozilla/5.0 (compatible; jobs-market-explorer/1.0)",
     "Accept": "application/json",
 }
+
+_CACHE_STATS_LOCK = threading.Lock()
+_MISSING = object()
+
+
+def _cache_stat(stats, key):
+    """Increment an optional caller-owned cache metric safely across workers."""
+    if stats is None:
+        return
+    with _CACHE_STATS_LOCK:
+        stats[key] = int(stats.get(key, 0)) + 1
+
+
+def _read_json_cache(cache_file):
+    """Return ``(etag, payload)`` for a cache file, or ``(None, _MISSING)``."""
+    if not cache_file:
+        return None, _MISSING
+    try:
+        raw = json.loads(Path(cache_file).read_text(encoding="utf-8"))
+    except (OSError, ValueError, TypeError):
+        return None, _MISSING
+    if isinstance(raw, dict) and "payload" in raw and "etag" in raw:
+        return raw.get("etag"), raw.get("payload")
+    # Be tolerant of a cache produced by an earlier implementation that only
+    # stored the response body.  It cannot be validated conditionally, but it
+    # is still useful if the server answers 304 without an ETag in the file.
+    return None, raw
+
+
+def _write_json_cache(cache_file, etag, payload):
+    """Atomically persist an API payload and its validator, when configured."""
+    if not cache_file:
+        return
+    path = Path(cache_file)
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        temporary = path.with_name(
+            f".{path.name}.{os.getpid()}.{threading.get_ident()}.tmp"
+        )
+        temporary.write_text(
+            json.dumps({"etag": etag, "payload": payload}, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        os.replace(temporary, path)
+    except OSError:
+        # A cache is an optimization only.  A read-only runner or a transient
+        # filesystem error must not make an otherwise healthy source fail.
+        try:
+            temporary.unlink(missing_ok=True)
+        except (UnboundLocalError, OSError):
+            pass
 
 
 def get_text(url, headers=None, timeout=25, retries=3, backoff=2.0):
@@ -41,7 +101,7 @@ def get_text(url, headers=None, timeout=25, retries=3, backoff=2.0):
 
 
 def get_json(url, headers=None, timeout=25, retries=3, backoff=2.0,
-             retry_http_codes=None):
+             retry_http_codes=None, cache_file=None, cache_stats=None):
     """GET JSON with bounded retries.
 
     ``406`` is normally a permanent negotiation error, but some public ATS
@@ -52,14 +112,37 @@ def get_json(url, headers=None, timeout=25, retries=3, backoff=2.0,
     h = dict(DEFAULT_HEADERS)
     if headers:
         h.update(headers)
+    cached_etag, cached_payload = _read_json_cache(cache_file)
+    if cached_payload is not _MISSING:
+        _cache_stat(cache_stats, "conditional_requests")
+    if cached_etag:
+        h["If-None-Match"] = str(cached_etag)
     retry_http_codes = set(retry_http_codes or ()) | {429}
     last_err = None
     for attempt in range(1, retries + 1):
         try:
             req = urllib.request.Request(url, headers=h)
             with urllib.request.urlopen(req, timeout=timeout) as resp:
-                return json.loads(resp.read().decode("utf-8", "replace"))
+                status = getattr(resp, "status", None)
+                if status is None:
+                    try:
+                        status = resp.getcode()
+                    except AttributeError:
+                        status = None
+                if status == 304 and cached_payload is not _MISSING:
+                    _cache_stat(cache_stats, "not_modified")
+                    return cached_payload
+                payload = json.loads(resp.read().decode("utf-8", "replace"))
+                if cache_file:
+                    response_headers = getattr(resp, "headers", {}) or {}
+                    etag = response_headers.get("ETag")
+                    _write_json_cache(cache_file, etag, payload)
+                    _cache_stat(cache_stats, "downloaded")
+                return payload
         except urllib.error.HTTPError as e:
+            if e.code == 304 and cached_payload is not _MISSING:
+                _cache_stat(cache_stats, "not_modified")
+                return cached_payload
             last_err = e
             # Most 4xx responses are permanent; selected codes can be
             # retried by a source that knows the endpoint is intermittently

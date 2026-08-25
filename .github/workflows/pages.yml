@@ -154,11 +154,22 @@ jobs:
             echo "A InHire será ignorada nesta execução; os outros portais continuarão."
           fi
 
+      - name: Restaurar cache de páginas Sólides
+        uses: actions/cache@v4
+        with:
+          path: jobs-dashboard/data/solides_cache
+          key: solides-pages-v1-${{ github.run_id }}
+          restore-keys: |
+            solides-pages-v1-
+
       - name: Coletar, normalizar e consolidar todos os portais
         env:
           JOBS_SOURCE_WORKERS: "5"
           SOLIDES_MAX_PAGES: "300"
           SOLIDES_WORKERS: "8"
+          SOLIDES_PAGE_TIMEOUT: "30"
+          SOLIDES_PAGE_RETRIES: "1"
+          SOLIDES_CACHE_DIR: "jobs-dashboard/data/solides_cache"
           NERDIN_WORKERS: "6"
           GEEKHUNTER_WORKERS: "4"
           ORACLE_WORKERS: "4"

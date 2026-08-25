@@ -1,0 +1,53 @@
+name: Validar desempenho da Sólides (isolado)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "jobs-dashboard/sources/_http.py"
+      - "jobs-dashboard/sources/solides.py"
+      - "jobs-dashboard/benchmark_solides.py"
+      - "jobs-dashboard/tests/test_dynamic_portals.py"
+      - ".github/workflows/benchmark-solides.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: benchmark-solides
+  cancel-in-progress: true
+
+jobs:
+  benchmark:
+    name: Testar cache condicional sem atualizar o catálogo
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Restaurar cache das páginas Sólides
+        uses: actions/cache@v4
+        with:
+          path: jobs-dashboard/data/solides_cache
+          key: solides-isolated-v1-${{ github.run_id }}
+          restore-keys: |
+            solides-isolated-v1-
+
+      - name: Testar cache ETag
+        run: python -m unittest jobs-dashboard/tests/test_dynamic_portals.py -v
+
+      - name: Executar benchmark isolado
+        env:
+          PYTHONUNBUFFERED: "1"
+          SOLIDES_CACHE_DIR: jobs-dashboard/data/solides_cache
+          SOLIDES_WORKERS: "8"
+          SOLIDES_PAGE_TIMEOUT: "30"
+          SOLIDES_PAGE_RETRIES: "1"
+        run: python jobs-dashboard/benchmark_solides.py --runs 2 --pages 24

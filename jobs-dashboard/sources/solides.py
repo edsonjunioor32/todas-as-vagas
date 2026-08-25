@@ -7,6 +7,7 @@ the 3,000 most recent records. SOLIDES_MAX_PAGES can tune that window without
 changing the adapter; bounded concurrency keeps the scheduled run practical.
 """
 import os
+from pathlib import Path
 import re
 import unicodedata
 import urllib.parse
@@ -19,6 +20,8 @@ API = "https://apigw.solides.com.br/jobs/v3/portal-vacancies-new"
 PAGE_SIZE = 10
 DEFAULT_MAX_PAGES = 300
 PORTAL = "https://vagas.solides.com.br/vaga"
+DEFAULT_PAGE_TIMEOUT = 30
+DEFAULT_PAGE_RETRIES = 1
 
 
 def _job_slug(value):
@@ -38,8 +41,23 @@ def _url(page):
     return f"{API}?{query}"
 
 
-def _page(page):
-    payload = get_json(_url(page), timeout=45, retries=3)
+def _cache_file(page):
+    root = str(os.environ.get("SOLIDES_CACHE_DIR") or "").strip()
+    if not root:
+        return None
+    return str(Path(root) / f"page-{page:04d}.json")
+
+
+def _page(page, cache_stats=None):
+    timeout = max(10.0, float(os.environ.get("SOLIDES_PAGE_TIMEOUT") or DEFAULT_PAGE_TIMEOUT))
+    retries = max(1, int(os.environ.get("SOLIDES_PAGE_RETRIES") or DEFAULT_PAGE_RETRIES))
+    payload = get_json(
+        _url(page),
+        timeout=timeout,
+        retries=retries,
+        cache_file=_cache_file(page),
+        cache_stats=cache_stats,
+    )
     if not payload.get("success"):
         raise RuntimeError(f"Sólides returned success=false on page {page}")
     model = payload.get("data") or {}
@@ -115,7 +133,8 @@ def _normalize(item):
 
 
 def fetch():
-    first_model, first_rows = _page(1)
+    cache_stats = {}
+    first_model, first_rows = _page(1, cache_stats)
     available_pages = max(1, int(first_model.get("totalPages") or 1))
     configured_cap = int(os.environ.get("SOLIDES_MAX_PAGES") or DEFAULT_MAX_PAGES)
     total_pages = min(available_pages, max(1, configured_cap))
@@ -125,7 +144,10 @@ def fetch():
     failed_pages = []
     if total_pages > 1:
         with ThreadPoolExecutor(max_workers=workers) as executor:
-            futures = {executor.submit(_page, page): page for page in range(2, total_pages + 1)}
+            futures = {
+                executor.submit(_page, page, cache_stats): page
+                for page in range(2, total_pages + 1)
+            }
             for future in as_completed(futures):
                 page = futures[future]
                 try:
@@ -145,4 +167,13 @@ def fetch():
             vacancy_id = item.get("id")
             if vacancy_id is not None:
                 unique[str(vacancy_id)] = _normalize(item)
+    cache_root = str(os.environ.get("SOLIDES_CACHE_DIR") or "").strip()
+    if cache_root:
+        print(
+            "  Sólides: "
+            f"{len(pages)}/{total_pages} páginas; "
+            f"{cache_stats.get('not_modified', 0)} inalteradas; "
+            f"{cache_stats.get('downloaded', 0)} baixadas; "
+            f"cache={cache_root}"
+        )
     return list(unique.values())

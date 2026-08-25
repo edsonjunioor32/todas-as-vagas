@@ -3,6 +3,8 @@
 import html
 import json
 import sys
+import tempfile
+import urllib.error
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -11,7 +13,68 @@ from unittest.mock import patch
 DASHBOARD = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(DASHBOARD))
 
-from sources import digisystem, requested_careers, sankhya_senior  # noqa: E402
+from sources import _http, digisystem, requested_careers, sankhya_senior  # noqa: E402
+
+
+class _Response:
+    def __init__(self, payload, etag="W/\"test\""):
+        self._body = json.dumps(payload).encode("utf-8")
+        self.headers = {"ETag": etag}
+        self.status = 200
+
+    def read(self):
+        return self._body
+
+    def getcode(self):
+        return self.status
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_args):
+        return False
+
+
+class HttpCacheTests(unittest.TestCase):
+    def test_get_json_persists_etag_and_reuses_304_payload(self):
+        payload = {"data": ["unchanged"]}
+        with tempfile.TemporaryDirectory() as directory:
+            cache_file = Path(directory) / "page-0001.json"
+            requests = []
+
+            def first_request(request, timeout):
+                requests.append(request)
+                return _Response(payload)
+
+            with patch.object(_http.urllib.request, "urlopen", side_effect=first_request):
+                self.assertEqual(
+                    _http.get_json("https://example.test/page", cache_file=cache_file),
+                    payload,
+                )
+            cached = json.loads(cache_file.read_text(encoding="utf-8"))
+            self.assertEqual(cached["etag"], 'W/"test"')
+
+            def second_request(request, timeout):
+                requests.append(request)
+                raise urllib.error.HTTPError(
+                    request.full_url, 304, "Not Modified", {}, None
+                )
+
+            with patch.object(_http.urllib.request, "urlopen", side_effect=second_request):
+                stats = {}
+                self.assertEqual(
+                    _http.get_json(
+                        "https://example.test/page",
+                        cache_file=cache_file,
+                        cache_stats=stats,
+                        retries=1,
+                    ),
+                    payload,
+                )
+            self.assertEqual(stats["conditional_requests"], 1)
+            self.assertEqual(stats["not_modified"], 1)
+            headers = dict(requests[-1].header_items())
+            self.assertEqual(headers.get("If-none-match"), 'W/"test"')
 
 
 class DigisystemTests(unittest.TestCase):
