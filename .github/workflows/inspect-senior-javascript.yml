@@ -1,0 +1,43 @@
+name: Inspeção do JavaScript da Senior
+
+on:
+  push:
+    branches:
+      - codex/validate-senior-normalization
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect-senior-javascript:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Procurar endpoints e campos no bundle público
+        shell: bash
+        run: |
+          python - <<'PY'
+          import re
+          import urllib.request
+
+          base = "https://www.portaldetalentos.senior.com.br/"
+          js = urllib.request.urlopen(
+              urllib.request.Request(
+                  base + "main.c62f8d9054ffbbc1.js",
+                  headers={"User-Agent": "Mozilla/5.0"},
+              ),
+              timeout=60,
+          ).read().decode("utf-8", "replace")
+          print("bundle_bytes:", len(js))
+          patterns = [
+              "searchVacancies", "getVacancy", "findVacancy", "vacancyDetails",
+              "jobModel", "employment", "contract", "vínculo", "experience",
+              "careersmanagercandidate", "queries/",
+          ]
+          for pattern in patterns:
+              positions = [m.start() for m in re.finditer(re.escape(pattern), js, re.I)]
+              print("pattern", pattern, "count", len(positions))
+              for position in positions[:10]:
+                  print(js[max(0, position - 350):position + 650])
+                  print("---")
+          PY
