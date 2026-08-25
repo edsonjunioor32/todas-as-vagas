@@ -1501,3 +1501,162 @@ select {
   .job-card { min-height: 170px; }
   .footer-grid { gap: 14px; }
 }
+
+/* UX refinements: active filters, loading feedback, mobile controls and contrast. */
+.filters-heading-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filter-toggle {
+  display: none;
+  min-height: 42px;
+  padding: 8px 11px;
+  border: 1px solid var(--header-button-border);
+  border-radius: 9px;
+  background: var(--header-button-bg);
+  color: var(--ink);
+  font-size: .76rem;
+  font-weight: 760;
+}
+
+.share-button {
+  min-height: 42px;
+  padding: 8px 5px;
+  font-size: .76rem;
+}
+
+.active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 2px 0;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  max-width: 100%;
+  padding: 5px 9px;
+  border: 1px solid var(--tag-border);
+  border-radius: 999px;
+  background: var(--tag-bg);
+  color: var(--ink);
+  font-size: .71rem;
+  text-align: left;
+}
+
+.filter-chip > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.filter-chip-close {
+  color: var(--brand);
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.job-badge-new {
+  box-shadow: 0 0 0 1px rgba(29, 225, 189, .14);
+}
+
+.tag-keyword {
+  border-color: rgba(55, 157, 255, .42);
+  background: rgba(55, 157, 255, .10);
+  color: var(--accent-blue);
+}
+
+.status-message {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+
+.status-message p { margin: 0; }
+.status-error { border-color: rgba(255, 130, 100, .55); }
+.retry-button { min-height: 42px; }
+
+.skeleton-card { position: relative; overflow: hidden; }
+.skeleton {
+  display: block;
+  background: linear-gradient(90deg, var(--surface-soft), var(--surface-alt), var(--surface-soft));
+  background-size: 220% 100%;
+  animation: skeleton-shimmer 1.4s linear infinite;
+}
+.skeleton-logo { width: 72px; height: 72px; border-radius: 10px; }
+.skeleton-line { width: 65%; height: 13px; margin-left: 84px; border-radius: 6px; }
+.skeleton-line-long { width: 78%; margin-top: -72px; }
+.skeleton-tags { width: 52%; height: 24px; margin: 12px 0 0 84px; border-radius: 7px; }
+@keyframes skeleton-shimmer {
+  from { background-position: 180% 0; }
+  to { background-position: -40% 0; }
+}
+
+.recent-company-button {
+  min-width: 0;
+  min-height: 42px;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: .74rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.recent-company-button:hover { color: var(--brand); }
+
+/* Keep every primary touch target comfortable on phones and tablets. */
+.filters input,
+.filters select,
+.secondary-button,
+.primary-link,
+.theme-toggle,
+.source-link,
+.header-linkedin-link {
+  min-height: 42px;
+}
+.primary-link { padding: 9px 12px; }
+
+/* The light theme previously used decorative colors as body text. */
+:root[data-theme="light"] .updated,
+:root[data-theme="light"] .job-source,
+:root[data-theme="light"] .text-button,
+:root[data-theme="light"] .recent-companies-footer,
+:root[data-theme="light"] .monitor-link,
+:root[data-theme="light"] .filter-chip-close {
+  color: #087a70;
+}
+:root[data-theme="light"] .tag-keyword {
+  color: #1769ad;
+  border-color: #9fc9eb;
+  background: #edf6ff;
+}
+
+@media (max-width: 680px) {
+  .filters-heading-actions { gap: 5px; }
+  .filter-toggle { display: inline-flex; align-items: center; justify-content: center; }
+  .filters.is-collapsed #filtersContent { display: none; }
+  .filters-heading { align-items: center; }
+  .filters-heading h2 { font-size: 1.1rem; }
+  .share-button { padding-inline: 3px; }
+  .job-date { max-width: 56%; line-height: 1.25; }
+  .primary-link { min-height: 42px; }
+  .skeleton-line { margin-left: 0; }
+  .skeleton-line-long { margin-top: 0; }
+  .skeleton-tags { margin-left: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
+}
