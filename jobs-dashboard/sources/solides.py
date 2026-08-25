@@ -158,6 +158,32 @@ def fetch():
                 except Exception:
                     failed_pages.append(page)
 
+    # The API occasionally throttles a burst of page requests.  Retry only
+    # those pages with a small pool instead of paying the old three-attempt
+    # penalty for every page in every refresh.  This keeps the normal path
+    # fast while preventing a transient edge timeout from invalidating a
+    # mostly successful catalogue.
+    if failed_pages:
+        retry_pages = list(failed_pages)
+        failed_pages = []
+        retry_workers = min(2, workers)
+        print(
+            f"  Sólides: repetindo {len(retry_pages)} páginas com "
+            f"{retry_workers} workers após falhas transitórias"
+        )
+        with ThreadPoolExecutor(max_workers=retry_workers) as executor:
+            futures = {
+                executor.submit(_page, page, cache_stats): page
+                for page in retry_pages
+            }
+            for future in as_completed(futures):
+                page = futures[future]
+                try:
+                    _, rows = future.result()
+                    pages[page] = rows
+                except Exception:
+                    failed_pages.append(page)
+
     if failed_pages and len(pages) < max(2, total_pages // 2):
         raise RuntimeError(
             f"Sólides returned too few usable pages: {len(pages)}/{total_pages}"
