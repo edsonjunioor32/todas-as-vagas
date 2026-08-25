@@ -52,8 +52,13 @@ jobs:
         env:
           INPUT_PREVIOUS_REF: ${{ inputs.previous_ref }}
           INPUT_RESEND_FROM_REF: ${{ inputs.resend_from_ref }}
+          RESEND_REF_FILE: .github/telegram_resend_from_ref
         run: |
           previous_ref="$INPUT_PREVIOUS_REF"
+          resend_from_ref="$INPUT_RESEND_FROM_REF"
+          if [ -z "$resend_from_ref" ] && [ -f "$RESEND_REF_FILE" ]; then
+            resend_from_ref="$(tr -d '[:space:]' < "$RESEND_REF_FILE")"
+          fi
           if [ -z "$previous_ref" ]; then
             previous_ref="$(git log --format='%H' -- docs/data/vagas.json | sed -n '2p')"
           fi
@@ -62,8 +67,11 @@ jobs:
             exit 1
           fi
           echo "previous_ref=$previous_ref" >> "$GITHUB_OUTPUT"
-          echo "resend_from_ref=$INPUT_RESEND_FROM_REF" >> "$GITHUB_OUTPUT"
+          echo "resend_from_ref=$resend_from_ref" >> "$GITHUB_OUTPUT"
           echo "Snapshot anterior: $previous_ref"
+          if [ -n "$resend_from_ref" ]; then
+            echo "Reenvio pontual a partir de: $resend_from_ref"
+          fi
 
       - name: Enviar vagas novas ao Telegram
         id: send
@@ -85,13 +93,14 @@ jobs:
         if: always()
         shell: bash
         run: |
-          if [ ! -f .github/telegram_state.json ]; then
-            echo "Nenhum estado de Telegram foi gerado."
-            exit 0
+          if [ "${{ steps.send.outcome }}" = "success" ] && [ -f .github/telegram_resend_from_ref ]; then
+            git rm .github/telegram_resend_from_ref
+          fi
+          if [ -f .github/telegram_state.json ]; then
+            git add .github/telegram_state.json
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .github/telegram_state.json
           if git diff --cached --quiet; then
             echo "Estado do Telegram sem alterações."
           else
