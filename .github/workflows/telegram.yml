@@ -15,13 +15,6 @@ on:
         description: "Teste pontual: URL da vaga que deve ser enviada uma única vez"
         required: false
         type: string
-  push:
-    paths:
-      - ".github/telegram-trigger"
-  workflow_run:
-    workflows: ["Atualizar vagas multiportal e publicar GitHub Pages"]
-    types: [completed]
-
 permissions:
   contents: write
 
