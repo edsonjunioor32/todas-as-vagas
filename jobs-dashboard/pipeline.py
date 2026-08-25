@@ -32,6 +32,12 @@ NONEMPTY_SOURCES = {
     "greenhouse",
 }
 
+# SmartRecruiters keeps DBC's public postings active while exposing the
+# original release date (the current catalogue contains 2021 dates).  The
+# source is still public and active, so an old release date must not make the
+# vacancy disappear before the company republishes it.
+ACTIVE_PUBLIC_FEED_SOURCES = {"dbccompany"}
+
 
 def selected_registry(names):
     if not names:
@@ -199,7 +205,12 @@ def discard_old_publications(rows, cutoff, today=None):
         published = str(row.get("published_date") or "")[:10]
         expires = str(row.get("expires_date") or "")[:10]
         active_gupy = row.get("source") == "gupy" and expires and expires >= today
-        if published and published < cutoff and not active_gupy:
+        if (
+            published
+            and published < cutoff
+            and not active_gupy
+            and row.get("source") not in ACTIVE_PUBLIC_FEED_SOURCES
+        ):
             dropped += 1
         else:
             kept.append(row)

@@ -1,0 +1,66 @@
+name: Inserir lote dos portais dinâmicos (isolado)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "jobs-dashboard/merge_dynamic_portals.py"
+      - "jobs-dashboard/sources/_http.py"
+      - "jobs-dashboard/sources/digisystem.py"
+      - "jobs-dashboard/sources/requested_careers.py"
+      - "jobs-dashboard/sources/sankhya_senior.py"
+      - ".github/workflows/merge-dynamic-portals.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: merge-dynamic-portals
+  cancel-in-progress: true
+
+jobs:
+  merge:
+    name: Mesclar somente as cinco fontes corrigidas
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: jobs-dashboard/requirements.txt
+
+      - name: Instalar dependências
+        run: pip install -r jobs-dashboard/requirements.txt
+
+      - name: Validar adaptadores
+        run: python -m unittest discover -s jobs-dashboard/tests -p 'test_*dynamic_portals.py' -v
+
+      - name: Coletar e mesclar somente as cinco fontes
+        env:
+          PYTHONUNBUFFERED: "1"
+          JOBS_SOURCE_WORKERS: "5"
+        run: python jobs-dashboard/merge_dynamic_portals.py
+
+      - name: Validar snapshot e aderência
+        run: |
+          python jobs-dashboard/validate_snapshot.py
+          python jobs-dashboard/validate_fit.py
+
+      - name: Registrar lote parcial
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add jobs-dashboard/data/jobs.db docs/data/vagas.json docs/data/fit.json
+          git commit -m "Inclui lote dos portais dinâmicos [skip ci]"
+          git pull --rebase origin main
+          git push origin HEAD:main

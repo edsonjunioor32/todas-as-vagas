@@ -10,6 +10,7 @@ on:
       - "jobs-dashboard/sources/sankhya_senior.py"
       - "jobs-dashboard/validate_dynamic_portals.py"
       - "jobs-dashboard/tests/test_dynamic_portals.py"
+      - "jobs-dashboard/tests/test_merge_dynamic_portals.py"
       - ".github/workflows/validate-dynamic-portals.yml"
   workflow_dispatch:
 
@@ -40,7 +41,7 @@ jobs:
         run: pip install -r jobs-dashboard/requirements.txt
 
       - name: Executar testes dos adaptadores
-        run: python -m unittest discover -s jobs-dashboard/tests -p 'test_dynamic_portals.py' -v
+        run: python -m unittest discover -s jobs-dashboard/tests -p 'test_*dynamic_portals.py' -v
 
       - name: Consultar os cinco portais isoladamente
         env:

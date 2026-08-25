@@ -296,6 +296,21 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=50000,
         placeholders = ", ".join("?" for _ in failed)
         failed_clause = f" OR source IN ({placeholders})"
         failed_params = failed
+    source_counts = source_counts or {}
+    # SmartRecruiters exposes DBC postings as active public records while
+    # retaining their original 2021 release date. Include that source only
+    # when the current collection actually returned rows; a failed/absent
+    # source never receives this exception.
+    active_feed_sources = [
+        source for source in ("dbccompany",)
+        if source_counts.get(source, 0) and source not in failed
+    ]
+    active_feed_clause = ""
+    active_feed_params = []
+    if active_feed_sources:
+        placeholders = ", ".join("?" for _ in active_feed_sources)
+        active_feed_clause = f" OR source IN ({placeholders})"
+        active_feed_params = active_feed_sources
     rows = conn.execute(f"""
         SELECT source, title, company, area, seniority, work_model, city, state,
                country, market, salary_min, salary_max, salary_currency,
@@ -312,11 +327,12 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=50000,
                   source = 'gupy'
                   AND COALESCE(NULLIF(expires_date, ''), '') >= ?
               )
+              {active_feed_clause}
           )
         ORDER BY MAX(COALESCE(published_date,''), first_seen_date) DESC,
                  last_seen_date DESC
         LIMIT ?
-    """, (cutoff, *failed_params, today, age_cutoff, today, max_jobs)).fetchall()
+    """, (cutoff, *failed_params, today, age_cutoff, today, *active_feed_params, max_jobs)).fetchall()
 
     portal_sets = {}
     snapshot_source_counts = {}
@@ -368,7 +384,6 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=50000,
         columns["blind"].append(1 if blind else 0)
         columns["ct"].append(contracts or "")
 
-    source_counts = source_counts or {}
     payload = {
         "schema_version": 3,
         "generated_at": datetime.now(timezone.utc).isoformat(),
