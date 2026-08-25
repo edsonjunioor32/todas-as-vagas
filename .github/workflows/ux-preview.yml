@@ -1,0 +1,48 @@
+name: Validar melhorias de experiência do portal
+
+on:
+  pull_request:
+    paths:
+      - "docs/app.js"
+      - "docs/index.html"
+      - "docs/styles.css"
+      - "docs/data/fit.json"
+      - "docs/data/vagas.json"
+      - ".github/workflows/ux-preview.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
+
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validar JavaScript e dados públicos
+        run: |
+          node --check docs/app.js
+          node tools/fit-engine.test.mjs
+          python jobs-dashboard/validate_fit.py
+          python jobs-dashboard/validate_snapshot.py
+
+      - name: Publicar preview isolado para inspeção
+        uses: actions/upload-artifact@v4
+        with:
+          name: portal-ux-preview
+          path: docs
+          if-no-files-found: error
+          retention-days: 3

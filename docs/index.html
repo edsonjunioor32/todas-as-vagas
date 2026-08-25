@@ -23,8 +23,8 @@
     <title>Todas as Vagas — Aqui você encontra a sua vaga</title>
     <link rel="icon" href="./favicon.svg?v=4" type="image/svg+xml">
     <script src="./theme.js?v=2"></script>
-    <link rel="stylesheet" href="./styles.css?v=15">
-    <script src="./app.js?v=14" defer></script>
+    <link rel="stylesheet" href="./styles.css?v=16">
+    <script src="./app.js?v=15" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#resultados">Pular para os resultados</a>
@@ -105,9 +105,14 @@
               <p class="section-kicker">REFINE A CONSULTA</p>
               <h2 id="filtersTitle">Filtros</h2>
             </div>
-            <button class="text-button" id="clearFilters" type="button">Limpar</button>
+            <div class="filters-heading-actions">
+              <button class="filter-toggle" id="filterToggle" type="button" aria-expanded="true" aria-controls="filtersContent">Ocultar</button>
+              <button class="text-button share-button" id="shareSearch" type="button">Compartilhar</button>
+              <button class="text-button" id="clearFilters" type="button">Limpar</button>
+            </div>
           </div>
 
+          <div id="filtersContent">
           <form id="filtersForm" autocomplete="off">
             <div class="field field-search">
               <label for="searchInput">Cargo, empresa ou palavra-chave</label>
@@ -186,6 +191,8 @@
             </label>
           </form>
 
+          <div class="active-filters" id="activeFilters" aria-label="Filtros ativos" hidden></div>
+
           <section class="recent-companies" id="recentCompanies" aria-labelledby="recentCompaniesTitle" hidden>
             <h3 id="recentCompaniesTitle">EMPRESAS ADICIONADAS RECENTEMENTE</h3>
             <ul class="recent-company-list" id="recentCompaniesList"></ul>
@@ -201,6 +208,7 @@
           <p class="filter-note">
             A base mantém somente anúncios dos dois meses mais recentes. Modalidade, contratação e demais classificações usam os dados divulgados por cada portal. Quando o contrato não é informado, a vaga aparece apenas em “Todos os modelos”. Confirme disponibilidade, localidade e requisitos no anúncio original.
           </p>
+          </div>
         </aside>
 
         <section class="results" id="resultados" aria-labelledby="resultsTitle">
@@ -223,13 +231,14 @@
           </div>
 
           <div class="status-message" id="statusMessage" role="status" aria-live="polite">
-            Carregando vagas…
+            <p id="statusText">Carregando vagas…</p>
+            <button class="secondary-button retry-button" id="retryLoad" type="button" hidden>Tentar novamente</button>
           </div>
-          <div class="job-list" id="jobList" aria-live="polite"></div>
+          <div class="job-list" id="jobList" aria-busy="true"></div>
 
           <nav class="pagination" id="pagination" aria-label="Paginação dos resultados" hidden>
             <button class="secondary-button" id="previousPage" type="button">← Anterior</button>
-            <span id="pageLabel">Página 1 de 1</span>
+            <span id="pageLabel" aria-live="polite">Página 1 de 1</span>
             <button class="secondary-button" id="nextPage" type="button">Próxima →</button>
           </nav>
         </section>

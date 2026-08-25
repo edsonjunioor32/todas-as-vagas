@@ -17,12 +17,6 @@
     year: 'numeric',
     timeZone: 'America/Fortaleza'
   });
-  const CONTRACT_MODELS = [
-    { value: 'CLT', sourceValue: 'CLT' },
-    { value: 'CNPJ', sourceValue: 'PJ' },
-    { value: 'Cooperado', sourceValue: 'Cooperado' }
-  ];
-
   const SOURCE_LABELS = {
     inhire: 'InHire',
     empregare: 'Empregare',
@@ -51,16 +45,42 @@
     weworkremotely: 'We Work Remotely',
     greenhouse: 'Greenhouse',
     lever: 'Lever',
-    ashby: 'Ashby'
+    ashby: 'Ashby',
+    abler: 'Abler',
+    accenture: 'Accenture',
+    bradesco: 'Bradesco',
+    cloudwalk: 'CloudWalk',
+    dbccompany: 'DBC Company',
+    digisystem: 'Digisystem',
+    docusign: 'DocuSign',
+    experian: 'Experian',
+    fiserv: 'Fiserv',
+    github: 'GitHub',
+    infojobs: 'InfoJobs',
+    inlog: 'Inlog',
+    metalfrio: 'Metalfrio',
+    nerdin: 'Nerdin',
+    nestle: 'Nestlé',
+    providerit: 'Provider IT',
+    recrutei: 'Recrutei',
+    revolut: 'Revolut',
+    sankhya: 'Sankhya',
+    senior: 'Senior',
+    totvs: 'TOTVS',
+    wise: 'Wise'
   };
 
   const state = {
     jobs: [],
     filtered: [],
     meta: null,
+    fit: null,
+    fitPromise: null,
     monitoredCompanies: [],
     page: 1,
-    showingAllRecentCompanies: false
+    showingAllRecentCompanies: false,
+    filtersCollapsed: false,
+    initialized: false
   };
   const elements = {
     totalJobs: document.querySelector('#totalJobs'),
@@ -72,6 +92,11 @@
     themeIcon: document.querySelector('#themeIcon'),
     themeLabel: document.querySelector('#themeLabel'),
     filtersForm: document.querySelector('#filtersForm'),
+    filtersPanel: document.querySelector('.filters'),
+    filtersContent: document.querySelector('#filtersContent'),
+    filterToggle: document.querySelector('#filterToggle'),
+    shareSearch: document.querySelector('#shareSearch'),
+    activeFilters: document.querySelector('#activeFilters'),
     searchInput: document.querySelector('#searchInput'),
     sourceFilter: document.querySelector('#sourceFilter'),
     workplaceFilter: document.querySelector('#workplaceFilter'),
@@ -89,6 +114,8 @@
     downloadCsv: document.querySelector('#downloadCsv'),
     resultCount: document.querySelector('#resultCount'),
     statusMessage: document.querySelector('#statusMessage'),
+    statusText: document.querySelector('#statusText'),
+    retryLoad: document.querySelector('#retryLoad'),
     jobList: document.querySelector('#jobList'),
     pagination: document.querySelector('#pagination'),
     previousPage: document.querySelector('#previousPage'),
@@ -155,7 +182,8 @@
   }
 
   function sourceLabel(value) {
-    return SOURCE_LABELS[value] || String(value || 'Portal não informado');
+    const raw = String(value || '').trim();
+    return SOURCE_LABELS[raw] || SOURCE_LABELS[normalize(raw)] || raw || 'Portal não informado';
   }
 
   function workplaceLabel(value) {
@@ -176,6 +204,24 @@
     return normalize(value) === 'pj' ? 'CNPJ' : String(value || '');
   }
 
+  function normalizeUrl(value) {
+    return String(value || '').trim().replace(/^http:\/\//i, 'https://');
+  }
+
+  function buildSearchText(job) {
+    return normalize([
+      job.title, job.company, job.sourceLabel, job.category, job.seniority,
+      job.workplaceType, job.market, job.location, job.skills,
+      ...(job.keywords || []), ...(job.contractTypes || []),
+      ...(job.contractTypes || []).map(contractLabel)
+    ].join(' '));
+  }
+
+  function isRecentlyPublished(value, days = 1) {
+    const time = typeof value === 'number' ? value : toTime(value);
+    return Boolean(time && Date.now() - time <= days * 86400000);
+  }
+
   function extractCityNames(value) {
     const genericLocations = new Set(['anywhere', 'br', 'brasil', 'brazil', 'global', 'hybrid', 'hibrido', 'nao informada', 'presencial', 'remote', 'remoto', 'united states', 'usa', 'worldwide']);
     return String(value || '')
@@ -188,6 +234,7 @@
 
   function toTime(value) {
     if (!value) return 0;
+    if (typeof value === 'number') return value;
     const text = /^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value}T12:00:00Z` : value;
     const parsed = Date.parse(text);
     return Number.isNaN(parsed) ? 0 : parsed;
@@ -249,9 +296,12 @@
         publishedAt: jobs.pub[index] || '',
         lastSeenAt: jobs.seen[index] || '',
         expiresAt: jobs.exp[index] || '',
-        url: jobs.url[index] || '',
+        url: normalizeUrl(jobs.url[index] || ''),
         portals: Number(jobs.np[index] || 1),
         skills: jobs.sk[index] || '',
+        keywords: [],
+        keywordGroups: { mandatory: [], preferred: [], context: [], manual: [] },
+        fitConfidence: 0,
         salaryMin: jobs.smin[index],
         salaryMax: jobs.smax[index],
         currency: get('currency', jobs.cur[index]),
@@ -260,14 +310,66 @@
         contractTypes: contracts
       };
       item._location = normalize(rawLocation);
-      item._search = normalize([
-        item.title, item.company, item.sourceLabel, item.category, item.seniority,
-        item.workplaceType, item.market, item.location, item.skills,
-        ...contracts, ...contracts.map(contractLabel)
-      ].join(' '));
+      item._search = buildSearchText(item);
       output.push(item);
     }
     return output;
+  }
+
+  function decodeFitEntry(entry, terms) {
+    if (!entry || !Array.isArray(terms)) return null;
+    const read = key => (entry[key] || [])
+      .map(index => terms[index])
+      .filter(Boolean);
+    const keywordGroups = {
+      mandatory: read('m'),
+      preferred: read('p'),
+      context: read('c'),
+      manual: read('x')
+    };
+    const keywords = [...new Set([
+      ...keywordGroups.mandatory,
+      ...keywordGroups.preferred,
+      ...keywordGroups.context,
+      ...keywordGroups.manual
+    ])];
+    return { keywordGroups, keywords, fitConfidence: Number(entry.q || 0) };
+  }
+
+  function attachFitData(payload) {
+    const terms = Array.isArray(payload?.terms) ? payload.terms : [];
+    const entries = payload?.jobs && typeof payload.jobs === 'object' ? payload.jobs : {};
+    for (const job of state.jobs) {
+      const fit = decodeFitEntry(entries[normalizeUrl(job.url)], terms);
+      if (!fit) continue;
+      Object.assign(job, fit);
+      job._search = buildSearchText(job);
+    }
+    state.fit = payload;
+  }
+
+  function loadFitIndex() {
+    if (state.fitPromise) return state.fitPromise;
+    const version = encodeURIComponent(state.meta?.generated_at || state.meta?.generated_date || 'current');
+    state.fitPromise = fetch(`./data/fit.json?v=${version}`, { cache: 'no-cache' })
+      .then(response => {
+        if (!response.ok) throw new Error('Índice de palavras-chave indisponível.');
+        return response.json();
+      })
+      .then(payload => {
+        if (payload.schema_version !== 1 || !Array.isArray(payload.terms) || !payload.jobs) {
+          throw new Error('Formato do índice de palavras-chave inválido.');
+        }
+        attachFitData(payload);
+        render();
+        return payload;
+      })
+      .catch(error => {
+        console.warn(error);
+        state.fit = null;
+        return null;
+      });
+    return state.fitPromise;
   }
 
   function appendOption(select, value, label) {
@@ -302,6 +404,21 @@
     return [...cities.values()].sort((a, b) => collator.compare(a.label, b.label));
   }
 
+  function countContracts(jobs) {
+    const counts = new Map();
+    for (const job of jobs) {
+      for (const value of job.contractTypes || []) {
+        const raw = String(value || '').trim();
+        if (!raw) continue;
+        const key = normalize(raw === 'CNPJ' ? 'PJ' : raw);
+        const current = counts.get(key) || { value: raw === 'CNPJ' ? 'PJ' : raw, count: 0 };
+        current.count += 1;
+        counts.set(key, current);
+      }
+    }
+    return [...counts.values()].sort((a, b) => b.count - a.count || collator.compare(contractLabel(a.value), contractLabel(b.value)));
+  }
+
   function populateFilters() {
     for (const [value, count] of countValues(state.jobs.map(job => job.source))) {
       appendOption(elements.sourceFilter, value, `${sourceLabel(value)} (${numberFormatter.format(count)})`);
@@ -309,10 +426,12 @@
     for (const [value, count] of countValues(state.jobs.map(job => job.workplaceType))) {
       appendOption(elements.workplaceFilter, value, `${value} (${numberFormatter.format(count)})`);
     }
-    for (const model of CONTRACT_MODELS) {
-      const key = normalize(model.sourceValue);
-      const count = state.jobs.filter(job => job.contractTypes.some(type => normalize(type) === key)).length;
-      appendOption(elements.contractFilter, model.value, `${model.value} (${numberFormatter.format(count)})`);
+    for (const contract of countContracts(state.jobs)) {
+      appendOption(
+        elements.contractFilter,
+        contract.value,
+        `${contractLabel(contract.value)} (${numberFormatter.format(contract.count)})`
+      );
     }
     for (const city of countCities(state.jobs)) {
       const option = document.createElement('option');
@@ -372,6 +491,117 @@
     }
     const url = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
     window.history.replaceState({}, '', url);
+  }
+
+  function activeFilterEntries() {
+    const entries = [];
+    const add = (key, label, value) => {
+      if (value) entries.push({ key, label, value });
+    };
+    add('q', 'Busca', elements.searchInput.value.trim());
+    add('cidade', 'Local', elements.cityFilter.value.trim());
+    add('modalidade', 'Modalidade', elements.workplaceFilter.value);
+    add('contratacao', 'Contrato', contractLabel(elements.contractFilter.value));
+    add('area', 'Área', elements.categoryFilter.value);
+    add('senioridade', 'Senioridade', elements.seniorityFilter.value);
+    add('portal', 'Portal', sourceLabel(elements.sourceFilter.value));
+    add('mercado', 'Mercado', marketLabel(elements.marketFilter.value));
+    if (elements.periodFilter.value) {
+      const labels = { '1': 'Últimas 24 horas', '7': 'Últimos 7 dias', '30': 'Últimos 30 dias' };
+      add('dias', 'Publicação', labels[elements.periodFilter.value] || elements.periodFilter.value);
+    }
+    if (elements.pcdOnly.checked) add('pcd', 'Inclusão', 'PcD');
+    if (elements.duplicatesOnly.checked) add('duplicadas', 'Duplicidade', 'Mais de um portal');
+    return entries;
+  }
+
+  function renderActiveFilters() {
+    if (!elements.activeFilters) return;
+    const entries = activeFilterEntries();
+    elements.activeFilters.replaceChildren(...entries.map(entry => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'filter-chip';
+      button.dataset.filterKey = entry.key;
+      button.setAttribute('aria-label', `Remover filtro ${entry.label}: ${entry.value}`);
+      const label = document.createElement('span');
+      label.textContent = `${entry.label}: ${entry.value}`;
+      const close = document.createElement('span');
+      close.className = 'filter-chip-close';
+      close.setAttribute('aria-hidden', 'true');
+      close.textContent = '×';
+      button.append(label, close);
+      return button;
+    }));
+    elements.activeFilters.hidden = entries.length === 0;
+  }
+
+  function clearFilter(key) {
+    const fields = {
+      q: elements.searchInput,
+      cidade: elements.cityFilter,
+      modalidade: elements.workplaceFilter,
+      contratacao: elements.contractFilter,
+      area: elements.categoryFilter,
+      senioridade: elements.seniorityFilter,
+      portal: elements.sourceFilter,
+      mercado: elements.marketFilter,
+      dias: elements.periodFilter
+    };
+    if (fields[key]) fields[key].value = '';
+    if (key === 'pcd') elements.pcdOnly.checked = false;
+    if (key === 'duplicadas') elements.duplicatesOnly.checked = false;
+    state.page = 1;
+    render();
+  }
+
+  function currentShareUrl() {
+    updateParams();
+    return window.location.href;
+  }
+
+  async function shareSearch() {
+    const url = currentShareUrl();
+    let copied = false;
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(url);
+        copied = true;
+      }
+    } catch {
+      copied = false;
+    }
+    if (!copied) {
+      const helper = document.createElement('textarea');
+      helper.value = url;
+      helper.setAttribute('readonly', '');
+      helper.style.position = 'fixed';
+      helper.style.opacity = '0';
+      document.body.append(helper);
+      helper.select();
+      try { copied = document.execCommand('copy'); } catch { copied = false; }
+      helper.remove();
+    }
+    if (elements.shareSearch) {
+      const previous = elements.shareSearch.textContent;
+      elements.shareSearch.textContent = copied ? 'Link copiado!' : 'Copie o link da página';
+      window.setTimeout(() => { elements.shareSearch.textContent = previous; }, 1800);
+    }
+  }
+
+  function setFilterPanelCollapsed(collapsed) {
+    state.filtersCollapsed = Boolean(collapsed);
+    if (!elements.filtersPanel || !elements.filterToggle) return;
+    elements.filtersPanel.classList.toggle('is-collapsed', state.filtersCollapsed);
+    elements.filterToggle.setAttribute('aria-expanded', String(!state.filtersCollapsed));
+    elements.filterToggle.textContent = state.filtersCollapsed ? 'Mostrar' : 'Ocultar';
+  }
+
+  function initFilterPanel() {
+    if (!elements.filterToggle) return;
+    const mobile = window.matchMedia('(max-width: 680px)').matches;
+    setFilterPanelCollapsed(mobile);
+    elements.filterToggle.addEventListener('click', () => setFilterPanelCollapsed(!state.filtersCollapsed));
   }
 
   function filterJobs() {
@@ -442,7 +672,21 @@
     if (hours < 24) return `Há ${hours} hora${hours > 1 ? 's' : ''}`;
     const days = Math.floor(delta / 86400000);
     if (days < 30) return `Há ${days} dia${days > 1 ? 's' : ''}`;
-    return `Em ${dateFormatter.format(time)}`;
+    return `Publicada em ${dateFormatter.format(time)}`;
+  }
+
+  function publicationLabel(job) {
+    const value = job.publishedAt || job.lastSeenAt;
+    const time = toTime(value);
+    if (!time) return 'Data não informada';
+    if (job.publishedAt) {
+      return `Publicada em ${dateFormatter.format(time)}${publicationClock(value)}`;
+    }
+    return `Vista em ${dateFormatter.format(time)}`;
+  }
+
+  function keywordLabel(job) {
+    return (job.keywords || []).filter(Boolean).slice(0, 3);
   }
 
   function initials(company) {
@@ -509,7 +753,9 @@
     const badge = document.createElement('span');
     badge.className = 'job-badge-new';
     badge.textContent = 'Novo';
-    top.append(title, badge);
+    badge.hidden = !isRecentlyPublished(job.publishedAt, 1);
+    top.append(title);
+    if (!badge.hidden) top.append(badge);
 
     const company = document.createElement('p');
     company.className = 'company-name';
@@ -525,6 +771,11 @@
     verified.setAttribute('aria-label', `Vaga direcionada ao mercado ${job.market || 'Brasil'}`);
     company.append(' ', verified);
     meta.append(location);
+    if (job.market && job.market !== 'Não informado') {
+      const market = document.createElement('span');
+      market.textContent = `◉ ${job.market}`;
+      meta.append(market);
+    }
 
     const tags = document.createElement('div');
     tags.className = 'tags';
@@ -534,8 +785,11 @@
     const tagsToShow = [];
     if (job.category && job.category !== 'Outros') tagsToShow.push(job.category);
     if (job.seniority && job.seniority !== 'Não informado') tagsToShow.push(job.seniority);
-    if (job.contractTypes[0]) tagsToShow.push(contractLabel(job.contractTypes[0]));
-    tagsToShow.slice(0, 3).forEach(item => tags.append(tag(item)));
+    if (job.contractTypes.length) tagsToShow.push(...job.contractTypes.slice(0, 2).map(contractLabel));
+    tagsToShow.slice(0, 4).forEach(item => tags.append(tag(item)));
+    for (const keyword of keywordLabel(job).slice(0, 2)) {
+      tags.append(tag(keyword, 'keyword'));
+    }
 
     body.append(source, top, company, meta, tags);
     head.append(logo, body);
@@ -544,7 +798,9 @@
     footer.className = 'job-footer';
     const date = document.createElement('span');
     date.className = 'job-date';
-    date.textContent = shortTimeLabel(job);
+    date.textContent = publicationLabel(job);
+    date.title = activityLabel(job);
+    date.setAttribute('aria-label', publicationLabel(job));
     const link = document.createElement('a');
     link.className = 'primary-link';
     link.href = job.url;
@@ -583,12 +839,22 @@
       const logo = document.createElement('span');
       logo.className = `recent-company-logo company-tone-${index % 8}`;
       logo.textContent = initials(item.company);
-      const name = document.createElement('span');
-      name.className = 'recent-company-name';
+      const name = document.createElement('button');
+      name.type = 'button';
+      name.className = 'recent-company-button';
       name.textContent = item.company;
+      name.setAttribute('aria-label', `Filtrar vagas da empresa ${item.company}`);
+      name.addEventListener('click', () => {
+        elements.searchInput.value = item.company;
+        state.page = 1;
+        render();
+        elements.searchInput.focus();
+        elements.resultsTitle.scrollIntoView({ block: 'start' });
+      });
       const badge = document.createElement('span');
       badge.className = 'new-badge';
-      badge.textContent = 'Novo';
+      if (isRecentlyPublished(item.activity, 1)) badge.textContent = 'Novo';
+      else badge.hidden = true;
       li.append(logo, name, badge);
       return li;
     }));
@@ -628,6 +894,27 @@
     elements.monitoredCompanies.hidden = false;
   }
 
+  function setStatus(message, { hidden = false, retry = false, error = false } = {}) {
+    if (!elements.statusMessage) return;
+    elements.statusMessage.hidden = hidden;
+    elements.statusMessage.classList.toggle('status-error', error);
+    if (elements.statusText) elements.statusText.textContent = message;
+    if (elements.retryLoad) elements.retryLoad.hidden = !retry;
+  }
+
+  function renderLoading() {
+    if (!elements.jobList) return;
+    const cards = Array.from({ length: 6 }, () => {
+      const article = document.createElement('article');
+      article.className = 'job-card skeleton-card';
+      article.setAttribute('aria-hidden', 'true');
+      article.innerHTML = '<span class="skeleton skeleton-logo"></span><span class="skeleton skeleton-line skeleton-line-long"></span><span class="skeleton skeleton-line"></span><span class="skeleton skeleton-tags"></span>';
+      return article;
+    });
+    elements.jobList.replaceChildren(...cards);
+    elements.jobList.setAttribute('aria-busy', 'true');
+  }
+
   function render() {
     filterJobs();
     const totalPages = Math.max(1, Math.ceil(state.filtered.length / PAGE_SIZE));
@@ -636,14 +923,18 @@
     const pageJobs = state.filtered.slice(start, start + PAGE_SIZE);
     elements.resultCount.textContent = numberFormatter.format(state.filtered.length);
     elements.jobList.replaceChildren(...pageJobs.map(renderJob));
+    elements.jobList.setAttribute('aria-busy', 'false');
     const empty = state.filtered.length === 0;
-    elements.statusMessage.hidden = !empty;
-    elements.statusMessage.textContent = empty ? 'Nenhuma vaga corresponde a esses filtros. Tente remover um ou mais critérios.' : '';
+    setStatus(
+      empty ? 'Nenhuma vaga corresponde a esses filtros. Tente remover um ou mais critérios.' : '',
+      { hidden: !empty }
+    );
     elements.pagination.hidden = empty || totalPages <= 1;
     elements.previousPage.disabled = state.page <= 1;
     elements.nextPage.disabled = state.page >= totalPages;
     elements.pageLabel.textContent = `Página ${numberFormatter.format(state.page)} de ${numberFormatter.format(totalPages)}`;
     updateParams();
+    renderActiveFilters();
   }
 
   function resetFilters() {
@@ -661,10 +952,11 @@
   }
 
   function downloadCsv() {
-    const headers = ['Cargo', 'Empresa', 'Portal', 'Área', 'Senioridade', 'Modalidade', 'Mercado', 'Local', 'Contrato', 'PcD', 'Seleção às cegas', 'Salário', 'Publicada em', 'Vista em', 'Link'];
+    const headers = ['Cargo', 'Empresa', 'Portal', 'Área', 'Senioridade', 'Modalidade', 'Mercado', 'Local', 'Contrato', 'Palavras-chave', 'PcD', 'Seleção às cegas', 'Salário', 'Publicada em', 'Vista em', 'Link'];
     const rows = state.filtered.map(job => [
       job.title, job.company, job.sourceLabel, job.category, job.seniority,
-      job.workplaceType, job.market, job.location, job.contractTypes, job.pcd ? 'Sim' : 'Não',
+      job.workplaceType, job.market, job.location, job.contractTypes, job.keywords,
+      job.pcd ? 'Sim' : 'Não',
       job.blindSelection ? 'Sim' : 'Não', formatSalary(job), job.publishedAt,
       job.lastSeenAt, job.url
     ]);
@@ -692,7 +984,13 @@
     elements.filtersForm.addEventListener('change', () => { state.page = 1; render(); });
     elements.sortFilter.addEventListener('change', () => { state.page = 1; render(); });
     elements.clearFilters.addEventListener('click', resetFilters);
+    elements.shareSearch?.addEventListener('click', shareSearch);
     elements.downloadCsv.addEventListener('click', downloadCsv);
+    elements.retryLoad?.addEventListener('click', () => loadData(true));
+    elements.activeFilters?.addEventListener('click', event => {
+      const button = event.target.closest('[data-filter-key]');
+      if (button) clearFilter(button.dataset.filterKey);
+    });
     elements.previousPage.addEventListener('click', () => {
       state.page -= 1;
       render();
@@ -709,13 +1007,41 @@
         renderRecentCompanies();
       });
     }
+    initFilterPanel();
   }
 
-  async function init() {
+  function resetFilterOptions() {
+    const selects = [
+      elements.sourceFilter, elements.workplaceFilter, elements.contractFilter,
+      elements.marketFilter, elements.categoryFilter, elements.seniorityFilter
+    ];
+    for (const select of selects) {
+      while (select.options.length > 1) select.remove(1);
+    }
+    elements.cityOptions.replaceChildren();
+  }
+
+  function scheduleFitLoad() {
+    const start = () => loadFitIndex();
+    if (typeof window.requestIdleCallback === 'function') {
+      window.requestIdleCallback(start, { timeout: 2500 });
+    } else {
+      window.setTimeout(start, 650);
+    }
+  }
+
+  async function loadData(force = false) {
+    renderLoading();
+    setStatus('Carregando vagas…', { hidden: false });
+    if (force) {
+      state.fit = null;
+      state.fitPromise = null;
+    }
     try {
+      const suffix = force ? `?retry=${Date.now()}` : '';
       const [response, watchlistResponse] = await Promise.all([
-        fetch(`./data/vagas.json?v=${Date.now()}`, { cache: 'no-store' }),
-        fetch(`./data/greenhouse-watchlist.json?v=${Date.now()}`, { cache: 'no-store' })
+        fetch(`./data/vagas.json${suffix}`, { cache: force ? 'no-store' : 'no-cache' }),
+        fetch(`./data/greenhouse-watchlist.json${suffix}`, { cache: force ? 'no-store' : 'no-cache' })
       ]);
       if (!response.ok) throw new Error('A base de vagas não respondeu.');
       const data = await response.json();
@@ -724,6 +1050,7 @@
       }
       state.meta = data;
       state.jobs = decode(data);
+      resetFilterOptions();
       if (watchlistResponse.ok) {
         try {
           const watchlist = await watchlistResponse.json();
@@ -741,21 +1068,33 @@
       if ((data.failed_sources || []).length) {
         elements.sourceWarning.hidden = false;
         elements.sourceWarning.textContent = `Alguns portais não responderam nesta atualização: ${data.failed_sources.map(sourceLabel).join(', ')}. Resultados vistos recentemente podem ser preservados por até ${data.fresh_days || 3} dias.`;
+      } else {
+        elements.sourceWarning.hidden = true;
       }
       populateFilters();
       loadParams();
       renderRecentCompanies();
       renderMonitoredCompanies();
-      bindEvents();
-      elements.statusMessage.hidden = true;
+      if (!state.initialized) {
+        bindEvents();
+        state.initialized = true;
+      }
+      elements.downloadCsv.disabled = false;
+      setStatus('', { hidden: true });
       render();
+      scheduleFitLoad();
     } catch (error) {
-      elements.statusMessage.hidden = false;
-      elements.statusMessage.textContent = 'Não foi possível carregar as vagas agora. Tente atualizar a página em alguns minutos.';
+      elements.jobList.replaceChildren();
+      elements.jobList.setAttribute('aria-busy', 'false');
+      setStatus('Não foi possível carregar as vagas agora. Tente novamente em alguns instantes.', { retry: true, error: true });
       elements.updatedLabel.textContent = 'A atualização não pôde ser confirmada';
       elements.downloadCsv.disabled = true;
       console.error(error);
     }
+  }
+
+  async function init() {
+    await loadData();
   }
 
   initTheme();
