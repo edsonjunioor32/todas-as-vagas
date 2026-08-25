@@ -95,3 +95,36 @@ def post_form_json(url, data, headers=None, timeout=25, retries=3, backoff=2.0):
         if attempt < retries:
             time.sleep(backoff * attempt)
     raise RuntimeError(f"post_form_json failed after {retries} attempts: {last_err}") from last_err
+
+
+def post_json(url, data, headers=None, timeout=25, retries=3, backoff=2.0,
+              retry_http_codes=None):
+    """POST a JSON document and parse the JSON response.
+
+    A few career platforms expose their public vacancy catalogue only through
+    a JSON POST endpoint.  Keep the same bounded retry behavior as the other
+    HTTP helpers so a temporary edge timeout does not turn into a silent empty
+    source.
+    """
+    h = dict(DEFAULT_HEADERS)
+    h["Accept"] = "application/json"
+    h["Content-Type"] = "application/json"
+    if headers:
+        h.update(headers)
+    body = json.dumps(data, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    retry_http_codes = set(retry_http_codes or ()) | {429}
+    last_err = None
+    for attempt in range(1, retries + 1):
+        try:
+            req = urllib.request.Request(url, data=body, headers=h, method="POST")
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                return json.loads(resp.read().decode("utf-8", "replace"))
+        except urllib.error.HTTPError as error:
+            last_err = error
+            if error.code < 500 and error.code not in retry_http_codes:
+                raise
+        except Exception as error:
+            last_err = error
+        if attempt < retries:
+            time.sleep(backoff * attempt)
+    raise RuntimeError(f"post_json failed after {retries} attempts: {last_err}") from last_err
