@@ -113,6 +113,7 @@ jobs:
       - name: Testar analisador de aderência
         run: |
           python -m unittest discover -s jobs-dashboard/tests -v
+          python -m py_compile jobs-dashboard/notify_telegram.py
           npm run test:fit
           node --check docs/fit-entry.js
           node --input-type=module --check < docs/aderencia/fit-engine.js
