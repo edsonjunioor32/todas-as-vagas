@@ -175,6 +175,8 @@ jobs:
           python jobs-dashboard/validate_fit.py
 
       - name: Notificar vagas novas no Telegram
+        # Alertas não podem impedir a atualização e a publicação das vagas.
+        continue-on-error: true
         if: ${{ secrets.TELEGRAM_BOT_TOKEN != '' && secrets.TELEGRAM_CHAT_ID != '' }}
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
