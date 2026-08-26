@@ -1,0 +1,58 @@
+name: Validar Mercado Livre (isolado)
+
+on:
+  push:
+    branches:
+      - integrar-mercado-livre-20260825
+    paths:
+      - "jobs-dashboard/sources/mercadolivre.py"
+      - "jobs-dashboard/sources/__init__.py"
+      - "jobs-dashboard/pipeline.py"
+      - "jobs-dashboard/requirements.txt"
+      - "jobs-dashboard/tests/test_mercadolivre.py"
+      - ".github/workflows/mercado-livre-isolated.yml"
+  pull_request:
+    paths:
+      - "jobs-dashboard/sources/mercadolivre.py"
+      - "jobs-dashboard/sources/__init__.py"
+      - "jobs-dashboard/pipeline.py"
+      - "jobs-dashboard/requirements.txt"
+      - "jobs-dashboard/tests/test_mercadolivre.py"
+      - ".github/workflows/mercado-livre-isolated.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mercado-livre-isolated
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Coletar somente Mercado Livre sem alterar o catálogo
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Baixar o código da alteração
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: jobs-dashboard/requirements.txt
+
+      - name: Instalar dependências
+        run: pip install -r jobs-dashboard/requirements.txt
+
+      - name: Testar o adaptador
+        run: python -m unittest discover -s jobs-dashboard/tests -p 'test_mercadolivre.py' -v
+
+      - name: Executar carga isolada
+        env:
+          JOBS_SOURCE_WORKERS: "1"
+          PYTHONUNBUFFERED: "1"
+        run: python jobs-dashboard/pipeline.py --sources mercadolivre --dry-run --max-age-months 2

@@ -28,7 +28,7 @@ JSON_PATH = ROOT / "docs" / "data" / "vagas.json"
 # These portals are expected to expose public vacancies. An empty response is
 # an integration regression, never a successful refresh.
 NONEMPTY_SOURCES = {
-    "digisystem", "recrutei", "docusign", "dbccompany", "sankhya", "senior",
+    "digisystem", "recrutei", "docusign", "dbccompany", "sankhya", "senior", "mercadolivre",
     "greenhouse",
 }
 
