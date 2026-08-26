@@ -50,6 +50,7 @@
     accenture: 'Accenture',
     bradesco: 'Bradesco',
     cloudwalk: 'CloudWalk',
+    mercadolivre: 'Mercado Livre',
     dbccompany: 'DBC Company',
     digisystem: 'Digisystem',
     docusign: 'DocuSign',

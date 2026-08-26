@@ -59,6 +59,7 @@ SOURCE_LABELS = {
     "accenture": "Accenture",
     "bradesco": "Bradesco",
     "cloudwalk": "CloudWalk",
+    "mercadolivre": "Mercado Livre",
     "nestle": "Nestlé",
     "digisystem": "Digisystem",
     "totvs": "TOTVS",
