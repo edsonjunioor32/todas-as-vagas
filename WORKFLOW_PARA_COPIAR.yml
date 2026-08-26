@@ -221,6 +221,7 @@ jobs:
           else
             git worktree add --detach "$data_worktree" HEAD
             git -C "$data_worktree" switch --orphan public-data
+            git -C "$data_worktree" rm -rf -- .
             git -C "$data_worktree" clean -fdx
           fi
           mkdir -p "$data_worktree/data"
