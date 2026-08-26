@@ -7,12 +7,15 @@ on:
       - "docs/**"
       - "jobs-dashboard/**"
       - "busca_vagas/**"
+      - "tools/**"
       - "package.json"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
   schedule:
-    # 05h17, 08h17 e 20h17 no horário de Brasília/Fortaleza (UTC-3).
-    - cron: "17 8,11,23 * * *"
+    # 08h17, 11h17, 15h17 e 20h17 no horário de Brasília/Fortaleza (UTC-3).
+    - cron: "17 11,14,18,23 * * *"
+    # Atualização semanal do catálogo Greenhouse: domingo às 04h37 (UTC-3).
+    - cron: "37 7 * * 0"
 
 permissions:
   contents: write
@@ -20,11 +23,60 @@ permissions:
   id-token: write
 
 concurrency:
-  group: vagas-main-writer
-  cancel-in-progress: false
+  group: ${{ github.event_name == 'push' && !contains(github.event.head_commit.message, '[refresh-fit]') && 'vagas-interface' || 'vagas-main-writer' }}
+  cancel-in-progress: true
 
 jobs:
+  publicar-interface:
+    if: github.event_name == 'push' && !contains(github.event.head_commit.message, '[refresh-fit]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Preparar dependências do analisador
+        run: npm install --no-audit --no-fund --package-lock=false
+
+      - name: Validar e preparar interface
+        run: |
+          npm run test:fit
+          node --check docs/fit-entry.js
+          node --input-type=module --check < docs/aderencia/fit-engine.js
+          node --input-type=module --check < docs/aderencia/app.js
+          python jobs-dashboard/validate_fit.py
+          npm run prepare:fit
+
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Preparar arquivos do site
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: docs
+
+      - name: Publicar
+        id: deployment
+        uses: actions/deploy-pages@v4
+
   atualizar-e-publicar:
+    if: github.event_name != 'push' || contains(github.event.head_commit.message, '[refresh-fit]')
     runs-on: ubuntu-latest
     timeout-minutes: 120
     environment:
@@ -34,6 +86,9 @@ jobs:
     steps:
       - name: Baixar o repositório
         uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
 
       - name: Preparar Node.js
         uses: actions/setup-node@v4
@@ -48,14 +103,42 @@ jobs:
           cache-dependency-path: jobs-dashboard/requirements.txt
 
       - name: Instalar dependências
-        run: pip install -r jobs-dashboard/requirements.txt
+        run: |
+          pip install -r jobs-dashboard/requirements.txt
+          npm install --no-audit --no-fund --package-lock=false
+
+      - name: Testar analisador de aderência
+        run: |
+          python -m unittest discover -s jobs-dashboard/tests -v
+          python -m py_compile jobs-dashboard/notify_telegram.py
+          npm run test:fit
+          node --check docs/fit-entry.js
+          node --input-type=module --check < docs/aderencia/fit-engine.js
+          node --input-type=module --check < docs/aderencia/app.js
+
+      - name: Atualizar catálogo brasileiro da Greenhouse
+        if: github.event_name == 'workflow_dispatch' || github.event.schedule == '37 7 * * 0'
+        continue-on-error: true
+        run: python jobs-dashboard/discover_greenhouse_br.py --workers 6 --timeout 12
 
       - name: Descobrir novas empresas InHire
+        if: github.event_name == 'workflow_dispatch' || github.event.schedule == '37 7 * * 0'
         continue-on-error: true
         run: node busca_vagas/harvest_inhire_public.js
 
+      - name: Restaurar cache de detalhes InHire
+        uses: actions/cache@v4
+        with:
+          path: jobs-dashboard/data/inhire
+          key: inhire-details-v1-${{ github.run_id }}
+          restore-keys: |
+            inhire-details-v1-
+
       - name: Coletar a InHire
         continue-on-error: true
+        env:
+          INHIRE_DETAIL_TTL_HOURS: "24"
+          INHIRE_DETAIL_WORKERS: "24"
         run: node busca_vagas/build_public_inhire.js
 
       - name: Validar a coleta da InHire
@@ -68,26 +151,44 @@ jobs:
             echo "A InHire será ignorada nesta execução; os outros portais continuarão."
           fi
 
+      - name: Restaurar cache de páginas Sólides
+        uses: actions/cache@v4
+        with:
+          path: jobs-dashboard/data/solides_cache
+          key: solides-pages-v1-${{ github.run_id }}
+          restore-keys: |
+            solides-pages-v1-
+
       - name: Coletar, normalizar e consolidar todos os portais
         env:
+          JOBS_SOURCE_WORKERS: "5"
           SOLIDES_MAX_PAGES: "300"
-          SOLIDES_WORKERS: "6"
+          SOLIDES_WORKERS: "8"
+          SOLIDES_PAGE_TIMEOUT: "30"
+          SOLIDES_PAGE_RETRIES: "2"
+          SOLIDES_CACHE_DIR: "jobs-dashboard/data/solides_cache"
+          NERDIN_WORKERS: "6"
           GEEKHUNTER_WORKERS: "4"
           ORACLE_WORKERS: "4"
-          GREENHOUSE_WORKERS: "12"
-        run: python jobs-dashboard/pipeline.py --max-age-months 2
+          GREENHOUSE_WORKERS: "4"
+          INFOJOBS_MAX_JOBS: "500"
+          INFOJOBS_MAX_SCROLLS: "0"
+        run: python jobs-dashboard/pipeline_fit.py --max-age-months 2
 
       - name: Validar privacidade e integridade
         env:
           MIN_PUBLIC_JOBS: "500"
-        run: python jobs-dashboard/validate_snapshot.py
+        run: |
+          python jobs-dashboard/validate_snapshot.py
+          python jobs-dashboard/validate_fit.py
 
       - name: Preservar histórico e fotografia pública
         shell: bash
         run: |
+          cp jobs-dashboard/data/greenhouse_watchlist.json docs/data/greenhouse-watchlist.json
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add jobs-dashboard/data/jobs.db docs/data/vagas.json
+          git add jobs-dashboard/data/greenhouse_br_companies.json jobs-dashboard/data/greenhouse_watchlist.json jobs-dashboard/data/jobs.db docs/data/vagas.json docs/data/greenhouse-watchlist.json docs/data/fit.json
           if git diff --cached --quiet; then
             echo "Nenhuma alteração para registrar."
           else
@@ -95,6 +196,9 @@ jobs:
             git pull --rebase origin main
             git push origin HEAD:main
           fi
+
+      - name: Preparar analisador para o site
+        run: npm run prepare:fit
 
       - name: Configurar GitHub Pages
         uses: actions/configure-pages@v5
