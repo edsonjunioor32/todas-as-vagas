@@ -44,6 +44,12 @@ class TelegramNotificationTests(unittest.TestCase):
             payload = json.loads(path.read_text(encoding="utf-8"))
             self.assertEqual(payload["snapshot_generated_at"], snapshot["generated_at"])
 
+    def test_retained_state_keys_drop_rows_outside_current_snapshot(self):
+        current_rows = [row("active-a"), row("active-b")]
+        retained = notify_telegram._retained_state_keys(current_rows, {"active-a", "old"})
+        self.assertEqual(retained, {"active-a"})
+        self.assertEqual(notify_telegram._current_keys(current_rows), {"active-a", "active-b"})
+
     def test_message_contains_portal_link(self):
         message = notify_telegram._text([row("vaga")], 1, 1)
         self.assertIn(notify_telegram.PORTAL_URL, message)

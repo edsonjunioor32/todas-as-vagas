@@ -15,6 +15,13 @@ on:
         description: "Teste pontual: URL da vaga que deve ser enviada uma única vez"
         required: false
         type: string
+  workflow_run:
+    workflows:
+      - Atualizar vagas multiportal e publicar GitHub Pages
+      - Inserir lote dos portais dinâmicos (isolado)
+    types:
+      - completed
+
 permissions:
   contents: write
 
@@ -26,7 +33,6 @@ jobs:
   notify:
     if: >-
       github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
       (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
     timeout-minutes: 30

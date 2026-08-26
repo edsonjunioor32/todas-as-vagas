@@ -120,6 +120,14 @@ def _load_state(path):
     return {str(key) for key in keys}
 
 
+def _current_keys(rows):
+    return {str(row["key"]) for row in rows if row.get("key")}
+
+
+def _retained_state_keys(current_rows, keys):
+    return set(keys) & _current_keys(current_rows)
+
+
 def _write_state(path, keys, snapshot):
     if not path:
         return
@@ -390,11 +398,12 @@ def main():
         known_keys = state_keys
 
     current_rows = _rows(current)
+    current_keys = _current_keys(current_rows)
     rows = _unnotified_rows(current, known_keys)
     print(f"Telegram: {len(rows)} vagas novas detectadas.")
     if not rows:
         if state_path and not args.dry_run:
-            _write_state(state_path, known_keys | {row["key"] for row in current_rows}, current)
+            _write_state(state_path, current_keys, current)
         return
 
     groups = _groups(rows)
@@ -408,7 +417,7 @@ def main():
         print("Telegram não configurado: faltam TELEGRAM_BOT_TOKEN e/ou TELEGRAM_CHAT_ID.")
         return
 
-    notified_keys = set(known_keys)
+    notified_keys = _retained_state_keys(current_rows, known_keys)
     for index, group in enumerate(groups, start=1):
         _send(token, chat_id, _text(group, index, len(groups)))
         notified_keys.update(row["key"] for row in group)
@@ -416,7 +425,7 @@ def main():
         # without repeating groups already accepted by Telegram.
         _write_state(state_path, notified_keys, current)
     if state_path:
-        _write_state(state_path, notified_keys | {row["key"] for row in current_rows}, current)
+        _write_state(state_path, current_keys, current)
     print(f"Telegram: {len(groups)} grupo(s) enviado(s).")
 
 

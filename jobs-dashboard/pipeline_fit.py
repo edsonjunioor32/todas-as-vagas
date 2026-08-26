@@ -8,7 +8,6 @@ import pipeline
 
 ROOT = Path(__file__).resolve().parents[1]
 FIT_JSON = ROOT / "docs" / "data" / "fit.json"
-_original_upsert = pipeline.storage.upsert
 
 
 def _public_metadata(job):
@@ -37,16 +36,14 @@ def _attach_public_metadata(jobs):
     return size_mb
 
 
-def _upsert_with_fit(conn, jobs, today=None):
+def export_fit_index(jobs):
     count, _ = fit_requirements.export_fit_index(jobs, FIT_JSON)
     size_mb = _attach_public_metadata(jobs)
     print(f"  índice de aderência: {count} vagas · {size_mb:.2f} MB · {FIT_JSON.relative_to(ROOT)}")
-    return _original_upsert(conn, jobs, today=today)
 
 
 def main():
-    pipeline.storage.upsert = _upsert_with_fit
-    pipeline.main()
+    pipeline.main(before_persist=export_fit_index)
 
 
 if __name__ == "__main__":
