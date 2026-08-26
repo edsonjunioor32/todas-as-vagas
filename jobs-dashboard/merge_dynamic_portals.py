@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Merge only the eight repaired career feeds into the existing public catalog.
 
-This is deliberately different from the general ETL.  It collects the five
+This is deliberately different from the general ETL.  It collects the eight
 sources, refuses to write anything if one of them fails, updates only their
 rows in a copied SQLite database, and atomically replaces the public snapshot.
 All other portals and their history remain untouched.
