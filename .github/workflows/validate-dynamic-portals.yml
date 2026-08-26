@@ -5,6 +5,10 @@ on:
     branches: [main]
     paths:
       - "jobs-dashboard/sources/_http.py"
+      - "jobs-dashboard/sources/_html.py"
+      - "jobs-dashboard/sources/experian.py"
+      - "jobs-dashboard/sources/quickin.py"
+      - "jobs-dashboard/sources/spassu.py"
       - "jobs-dashboard/sources/digisystem.py"
       - "jobs-dashboard/sources/requested_careers.py"
       - "jobs-dashboard/sources/sankhya_senior.py"
@@ -13,6 +17,7 @@ on:
       - "jobs-dashboard/validate_dynamic_portals.py"
       - "jobs-dashboard/tests/test_dynamic_portals.py"
       - "jobs-dashboard/tests/test_merge_dynamic_portals.py"
+      - "jobs-dashboard/tests/test_new_sources.py"
       - ".github/workflows/validate-dynamic-portals.yml"
   workflow_dispatch:
 
@@ -25,7 +30,7 @@ concurrency:
 
 jobs:
   validate:
-    name: Testar cinco fontes sem atualizar o catálogo
+    name: Testar fontes dinâmicas sem atualizar o catálogo
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -43,9 +48,11 @@ jobs:
         run: pip install -r jobs-dashboard/requirements.txt
 
       - name: Executar testes dos adaptadores
-        run: python -m unittest discover -s jobs-dashboard/tests -p 'test_*dynamic_portals.py' -v
+        run: |
+          python -m unittest discover -s jobs-dashboard/tests -p 'test_*dynamic_portals.py' -v
+          python -m unittest discover -s jobs-dashboard/tests -p 'test_new_sources.py' -v
 
-      - name: Consultar os cinco portais isoladamente
+      - name: Consultar portais isoladamente
         env:
           PYTHONUNBUFFERED: "1"
         run: python jobs-dashboard/validate_dynamic_portals.py
