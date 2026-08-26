@@ -49,6 +49,18 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Restaurar snapshots públicos
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git ls-remote --exit-code origin refs/heads/public-data >/dev/null 2>&1; then
+            git fetch --no-tags origin public-data
+            mkdir -p docs/data
+            git archive origin/public-data data | tar -x -C docs
+          else
+            echo "Ramo public-data ainda não existe; usando o snapshot do main."
+          fi
+
       - name: Identificar snapshot anterior
         id: baseline
         shell: bash
@@ -67,6 +79,9 @@ jobs:
           fi
           if [ -z "$test_url" ] && [ -f "$TEST_URL_FILE" ]; then
             test_url="$(tr -d '[:space:]' < "$TEST_URL_FILE")"
+          fi
+          if [ -z "$previous_ref" ] && git show-ref --verify --quiet refs/remotes/origin/public-data; then
+            previous_ref="$(git log --format='%H' origin/public-data -- data/vagas.json | sed -n '2p')"
           fi
           if [ -z "$previous_ref" ]; then
             previous_ref="$(git log --format='%H' -- docs/data/vagas.json | sed -n '2p')"
@@ -92,6 +107,7 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SNAPSHOT_REF_PATH: data/vagas.json
         run: |
           if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ]; then
             echo "Telegram não configurado: verifique TELEGRAM_BOT_TOKEN e TELEGRAM_CHAT_ID." >&2
