@@ -20,7 +20,7 @@ A Sólides é consultada pelo catálogo público utilizado pelo próprio portal.
 
 A GeekHunter é consultada pelas páginas públicas de vagas, que já entregam dados estruturados no HTML. O adaptador percorre todas as páginas disponíveis, normaliza modalidade, localização, senioridade, remuneração e tecnologias e não publica a descrição integral.
 
-O InfoJobs é consultado pela busca pública geral, ordenada pelas mais recentes. A integração percorre a paginação pública até o limite configurado, preserva as modalidades indicadas em cada anúncio e deixa o filtro global de dois meses remover vagas antigas. Como o portal exige JavaScript e protege requisições HTTP simples com WAF, a atualização usa o Chrome já disponível no executor do GitHub Actions, sem login e sem acessar dados de candidatos. Os limites podem ser ajustados por `INFOJOBS_MAX_JOBS` e `INFOJOBS_MAX_PAGES`.
+O InfoJobs é consultado pela busca pública geral, ordenada pelas mais recentes. A integração percorre a paginação pública até o limite configurado, preserva as modalidades indicadas em cada anúncio e deixa o filtro global de dois meses remover vagas antigas. Como o portal exige JavaScript e protege requisições HTTP simples com WAF, a atualização usa o Chrome já disponível no executor do GitHub Actions, sem login e sem acessar dados de candidatos. Os limites podem ser ajustados por `INFOJOBS_MAX_JOBS` e `INFOJOBS_MAX_SCROLLS`.
 
 ## Stone e iFood
 
