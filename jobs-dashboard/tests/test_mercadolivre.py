@@ -13,6 +13,40 @@ from sources import mercadolivre  # noqa: E402
 
 
 class MercadoLivreTests(unittest.TestCase):
+    def test_public_api_is_normalized_and_scoped_to_brazil(self):
+        payload = {
+            "positions": [
+                {
+                    "id": 42885806,
+                    "name": "Analista de Suporte Pleno",
+                    "locations": ["Sudeste,Brazil"],
+                    "standardizedLocations": ["BR"],
+                    "postedTs": 1787642400,
+                    "department": "Tecnologia",
+                    "workLocationOption": "hybrid",
+                    "positionUrl": "/careers/job/42885806",
+                },
+                {
+                    "id": 42885807,
+                    "name": "Software Engineer",
+                    "locations": ["Buenos Aires,Argentina"],
+                    "standardizedLocations": ["CABA, CABA, AR"],
+                    "postedTs": 1787642400,
+                    "department": "IT",
+                    "workLocationOption": "onsite",
+                    "positionUrl": "/careers/job/42885807",
+                },
+            ],
+            "count": 2,
+            "hasMore": False,
+        }
+        with patch.object(mercadolivre, "get_json", return_value=payload):
+            rows = mercadolivre._api_rows()
+        self.assertEqual([row["native_id"] for row in rows], ["42885806"])
+        self.assertEqual(rows[0]["work_model"], "hybrid")
+        self.assertEqual(rows[0]["city"], "Sudeste,Brazil")
+        self.assertEqual(rows[0]["published_date"], "2026-08-25T07:20:00+00:00")
+
     def test_next_payload_is_normalized(self):
         payload = {
             "props": {"pageProps": {"positions": [{
@@ -56,7 +90,8 @@ class MercadoLivreTests(unittest.TestCase):
             "https://careers-meli.mercadolibre.com/pt/positions?id=42885806",
             "Analista de Operações",
         )]
-        with patch.object(mercadolivre, "get_text", side_effect=RuntimeError("403")), \
+        with patch.object(mercadolivre, "get_json", side_effect=RuntimeError("API indisponível")), \
+             patch.object(mercadolivre, "get_text", side_effect=RuntimeError("403")), \
              patch.object(mercadolivre, "rendered_links", return_value=links):
             rows = mercadolivre.fetch()
         self.assertEqual([row["native_id"] for row in rows], ["42885806"])
@@ -65,3 +100,4 @@ class MercadoLivreTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

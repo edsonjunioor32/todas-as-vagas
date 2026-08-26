@@ -2,23 +2,34 @@
 """Mercado Livre's official Brazil careers catalogue.
 
 The positions page is a JavaScript application and its CDN can reject a
-plain HTTP client.  The adapter first accepts any structured data embedded in
-the public document and falls back to the same visible links a normal browser
-sees.  It never fabricates a modality, location or publication date when the
+plain HTTP client.  The public Careers deployment exposes the same structured
+catalogue through its positions API, so that is the primary path here.  The
+official page remains the canonical link for each vacancy; the public mirror
+API is used only to obtain the data when the official CDN returns 403 to CI.
+The HTML/browser fallbacks are kept for resilience when the API changes.
+
+The adapter never fabricates a modality, location or publication date when the
 portal does not expose one.
 """
 import html
 import json
 import re
-from urllib.parse import parse_qs, urljoin, urlparse
+from urllib.parse import parse_qs, urlencode, urljoin, urlparse
 
-from ._common import iso_date, job, strip_html, work_model_label
-from ._http import get_text
+from ._common import is_brazil_location, iso_date, job, strip_html, work_model_label
+from ._http import get_json, get_text
 from ._rendered import rendered_links
 
 
 POSITIONS = "https://careers-meli.mercadolibre.com/pt/positions?country=Brazil"
 BASE_URL = "https://careers-meli.mercadolibre.com"
+# The official edge currently returns 403 to non-browser CI clients.  This is
+# the public Careers deployment that serves the same Next.js positions API.
+# Keep this endpoint isolated and use the official Careers URL for outbound
+# vacancy links.
+API_POSITIONS = "https://meli-careers.aerolab.dev/api/positions"
+API_PAGE_SIZE = 100
+API_MAX_PAGES = 25
 JSON_SCRIPT_RE = re.compile(
     r"<script[^>]+(?:type=[\"']application/json[\"']|id=[\"']__NEXT_DATA__[\"'])[^>]*>"
     r"([\s\S]*?)</script>",
@@ -41,7 +52,7 @@ _TITLE_KEYS = ("title", "jobTitle", "job_title", "positionTitle", "position_titl
 _URL_KEYS = ("url", "href", "link", "jobUrl", "job_url", "positionUrl", "position_url")
 _LOCATION_KEYS = ("location", "locations", "city", "cities", "localization", "workplace")
 _COUNTRY_KEYS = ("country", "countryCode", "country_code", "countries")
-_DATE_KEYS = ("publishedAt", "published_at", "publicationDate", "publication_date", "postedAt", "posted_at", "datePosted", "createdAt", "created_at")
+_DATE_KEYS = ("publishedAt", "published_at", "publicationDate", "publication_date", "postedAt", "posted_at", "postedTs", "datePosted", "createdAt", "created_at", "creationTs")
 
 
 def _first(record, keys):
@@ -80,13 +91,21 @@ def _native_id(value):
     return match.group(0) if match else ""
 
 
-def _is_brazil(record, raw_text=""):
+def _is_brazil(record, raw_text="", default_if_missing=True):
     country = _text(_first(record, _COUNTRY_KEYS)).casefold()
     if not country:
-        return True  # the requested page already applies country=Brazil
+        if re.search(r"\b(?:br|brasil|brazil)\b", raw_text, re.I):
+            return True
+        # The official HTML page is already scoped to country=Brazil.  API
+        # records are not allowed to rely on that default because the endpoint
+        # also returns other countries when the location filter is omitted.
+        return default_if_missing
     if country in {"br", "brasil", "brazil", "brasil (br)"}:
         return True
-    return bool(re.search(r"\b(?:br|brasil|brazil)\b", raw_text, re.I))
+    return bool(
+        re.search(r"\b(?:br|brasil|brazil)\b", raw_text, re.I)
+        or is_brazil_location(raw_text)
+    )
 
 
 def _levels(record, title, description):
@@ -117,7 +136,7 @@ def _record_url(record, native_id):
     return f"{BASE_URL}/pt/positions?id={native_id}"
 
 
-def _record_job(record):
+def _record_job(record, *, default_if_missing=True):
     native_id = _native_id(_first(record, _ID_KEYS))
     title = _text(_first(record, _TITLE_KEYS))
     if not native_id or not title or len(title) > 240:
@@ -125,8 +144,8 @@ def _record_job(record):
     location = _text(_first(record, _LOCATION_KEYS))
     country = _text(_first(record, _COUNTRY_KEYS))
     description = strip_html(_text(_first(record, ("description", "jobDescription", "job_description", "summary"))))
-    raw = " ".join((location, country, _text(_first(record, ("workModel", "work_model", "remote", "workplaceType", "workplace_type")))))
-    if not _is_brazil(record, raw):
+    raw = " ".join((location, country, _text(_first(record, ("workModel", "work_model", "workLocationOption", "locationFlexibility", "remote", "workplaceType", "workplace_type")))))
+    if not _is_brazil(record, raw, default_if_missing=default_if_missing):
         return None
     remote_flag = _first(record, ("remote", "isRemote", "is_remote"))
     remote_flag = remote_flag if isinstance(remote_flag, bool) else None
@@ -206,9 +225,83 @@ def _parse_rendered_links(links):
     return rows
 
 
+def _api_rows():
+    """Read and normalize every Brazil page from the public Careers API.
+
+    The endpoint uses ``location=Brazil`` (the browser UI translates the URL's
+    ``country=Brazil`` selection into that parameter).  We still apply a
+    second explicit location check because the API has historically returned a
+    few neighbouring/global records when filters were changed server-side.
+    """
+    rows, seen = [], set()
+    start = 0
+    total = None
+    for page in range(API_MAX_PAGES):
+        query = urlencode({
+            "location": "Brazil",
+            "start": str(start),
+            "num": str(API_PAGE_SIZE),
+            "sort_by": "timestamp",
+        })
+        payload = get_json(
+            f"{API_POSITIONS}?{query}",
+            headers={
+                "Accept": "application/json",
+                "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.8",
+                "Referer": POSITIONS,
+                "User-Agent": "Mozilla/5.0 (compatible; todas-as-vagas/1.0)",
+            },
+            timeout=45,
+            retries=3,
+        )
+        if not isinstance(payload, dict):
+            raise RuntimeError("API de posições devolveu um envelope inválido")
+        if payload.get("error"):
+            raise RuntimeError(str(payload.get("message") or "API de posições informou erro"))
+        records = payload.get("positions") or []
+        if not isinstance(records, list):
+            raise RuntimeError("API de posições não devolveu uma lista de vagas")
+        for record in records:
+            if not isinstance(record, dict):
+                continue
+            # API records have no country field; location/standardizedLocations
+            # are the authoritative scope indicators.
+            location_raw = " ".join(
+                _text(record.get(key))
+                for key in ("locations", "standardizedLocations", "location", "country")
+            )
+            if not re.search(r"\b(?:br|brasil|brazil)\b", location_raw, re.I) and not is_brazil_location(location_raw):
+                continue
+            row = _record_job({**record, "country": "BR"}, default_if_missing=False)
+            if row and row["native_id"] not in seen:
+                seen.add(row["native_id"])
+                rows.append(row)
+        try:
+            total = int(payload.get("count")) if payload.get("count") is not None else total
+        except (TypeError, ValueError):
+            pass
+        has_more = bool(payload.get("hasMore"))
+        if not records or not has_more or (total is not None and start + len(records) >= total):
+            break
+        start += len(records)
+    else:
+        raise RuntimeError(f"API de posições excedeu {API_MAX_PAGES} páginas")
+    if total and not rows:
+        raise RuntimeError("API de posições informou vagas, mas nenhuma vaga do Brasil foi reconhecida")
+    return rows
+
+
 def fetch():
     """Collect Brazil vacancies without touching the public catalogue."""
     errors = []
+    try:
+        rows = _api_rows()
+        if rows:
+            return rows
+        errors.append("API pública sem vagas brasileiras")
+    except Exception as error:
+        errors.append(f"API pública: {error}")
+
     try:
         markup = get_text(
             POSITIONS,
@@ -242,3 +335,4 @@ def fetch():
 
     detail = "; ".join(dict.fromkeys(error for error in errors if error))
     raise RuntimeError(f"Mercado Livre não expôs vagas públicas: {detail[:300]}")
+
