@@ -247,7 +247,8 @@ def write_actions_summary(source_metrics, phases, total_jobs, failed):
         print(f"  aviso: não foi possível gravar o resumo da execução: {error}")
 
 
-def main():
+def main(before_persist=None):
+    """Run the public ETL, optionally extending rows before descriptions are dropped."""
     pipeline_started = time.perf_counter()
     phases = {}
     parser = argparse.ArgumentParser()
@@ -305,6 +306,8 @@ def main():
         return
 
     stage_started = time.perf_counter()
+    if before_persist:
+        before_persist(rows)
     conn = storage.connect(str(DB_PATH))
     before = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
     storage.upsert(conn, rows)
