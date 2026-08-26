@@ -41,6 +41,18 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+      - name: Restaurar snapshots públicos
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f docs/data/fit.json ]; then
+            echo "Snapshot de aderência já está no checkout."
+            exit 0
+          fi
+          git fetch --no-tags origin public-data
+          mkdir -p docs/data
+          git archive origin/public-data data | tar -x -C docs
+          test -s docs/data/fit.json
       - uses: actions/setup-node@v4
         with:
           node-version: 22
