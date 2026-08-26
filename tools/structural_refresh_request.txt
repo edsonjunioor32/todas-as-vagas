@@ -1,0 +1,2 @@
+# Gatilho de validação da migração de artefatos
+2026-08-26T15:28:00Z
