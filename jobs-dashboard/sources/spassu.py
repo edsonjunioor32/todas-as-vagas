@@ -137,12 +137,12 @@ def _page_text(parser, markup):
     """Combine visible and metadata text used by Zoho's job header."""
     values = list(parser.parts) + list(parser.meta.values())
     title_match = re.search(
-        r"<title[^>]*>([\\s\\S]*?)</title>", markup or "", re.I
+        r"<title[^>]*>([\s\S]*?)</title>", markup or "", re.I
     )
     if title_match:
         values.append(strip_html(html.unescape(title_match.group(1))))
     visible_markup = re.sub(
-        r"<(?:script|style|noscript|template)\\b[^>]*>[\\s\\S]*?</"
+        r"<(?:script|style|noscript|template)\b[^>]*>[\s\S]*?</"
         r"(?:script|style|noscript|template)>",
         " ",
         markup or "",
