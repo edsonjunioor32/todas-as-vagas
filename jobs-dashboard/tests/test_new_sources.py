@@ -57,6 +57,14 @@ class SpassuTests(unittest.TestCase):
         self.assertEqual(row["city"], "Brasil")
         self.assertEqual(row["published_date"], "2026-08-20")
 
+    def test_missing_spassu_location_does_not_become_remote(self):
+        row = spassu._normalize(
+            "https://spassu.zohorecruit.com/jobs/Careers/123/Analista",
+            "<h1>Analista de suporte</h1>",
+        )
+        self.assertEqual(row["work_model"], "")
+        self.assertEqual(row["city"], "")
+
 
 class QuickinTests(unittest.TestCase):
     def test_catalog_page_separates_vacancies_from_pagination(self):
