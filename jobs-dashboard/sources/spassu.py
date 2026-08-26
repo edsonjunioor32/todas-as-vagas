@@ -145,8 +145,6 @@ def _normalize(url, markup, fallback_title=""):
     } else work_model_label(raw=model_raw)
     if not city and re.search(r"\btrabalho\s+remoto\b|\bremot[oa]\b", raw_text, re.I):
         city = "Brasil"
-    if not city:
-        city = "Brasil"
 
     organization = posting.get("hiringOrganization") or {}
     company = _text(organization.get("name")) if isinstance(organization, dict) else ""
@@ -213,15 +211,20 @@ def _fetch_detail(url, label):
 
 
 def fetch():
-    markup = get_text(
-        BOARD_URL,
-        headers={
-            "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.8",
-            "User-Agent": "Mozilla/5.0 (compatible; todas-as-vagas/1.0)",
-        },
-        timeout=45,
-        retries=3,
-    )
+    catalog_error = None
+    try:
+        markup = get_text(
+            BOARD_URL,
+            headers={
+                "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.8",
+                "User-Agent": "Mozilla/5.0 (compatible; todas-as-vagas/1.0)",
+            },
+            timeout=45,
+            retries=3,
+        )
+    except Exception as error:
+        markup = ""
+        catalog_error = error
     links = _catalog_links(markup)
     if not links:
         links = [
@@ -234,7 +237,10 @@ def fetch():
             if DETAIL_RE.search(href)
         ]
     if not links:
-        raise RuntimeError("Zoho Recruit/Spassu returned no public vacancy links")
+        detail = f": {catalog_error}" if catalog_error else ""
+        raise RuntimeError(
+            f"Zoho Recruit/Spassu returned no public vacancy links{detail}"
+        )
 
     rows = []
     with ThreadPoolExecutor(max_workers=min(8, len(links))) as pool:
