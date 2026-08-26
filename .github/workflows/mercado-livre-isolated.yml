@@ -3,7 +3,7 @@ name: Validar Mercado Livre (isolado)
 on:
   push:
     branches:
-      - integrar-mercado-livre
+      - integrar-mercado-livre-20260825
     paths:
       - "jobs-dashboard/sources/mercadolivre.py"
       - "jobs-dashboard/sources/__init__.py"
