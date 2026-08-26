@@ -65,6 +65,25 @@ class SpassuTests(unittest.TestCase):
         self.assertEqual(row["work_model"], "")
         self.assertEqual(row["city"], "")
 
+    def test_zoho_header_metadata_supplies_model_and_contract(self):
+        markup = """
+        <html>
+          <head>
+            <title>spassu - Agile Master - Trabalho remoto</title>
+            <meta property="og:title"
+                  content="spassu - Agile Master - Trabalho remoto">
+            <meta name="description" content="Tipo de emprego Efetivo">
+          </head>
+          <body><h1>Agile Master</h1></body>
+        </html>
+        """
+        row = spassu._normalize(
+            "https://spassu.zohorecruit.com/jobs/Careers/123/Agile-Master",
+            markup,
+        )
+        self.assertEqual(row["work_model"], "remote")
+        self.assertEqual(row["contract_types"], ["Efetivo"])
+
 
 class QuickinTests(unittest.TestCase):
     def test_catalog_page_separates_vacancies_from_pagination(self):

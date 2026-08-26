@@ -26,6 +26,11 @@ LEVEL_RE = re.compile(
     re.I,
 )
 PCD_RE = re.compile(r"\bpcd\b|pessoa(?:s)?\s+com\s+defici", re.I)
+CONTRACT_RE = re.compile(
+    r"\b(?:efetivo(?:\s*[–—-]\s*clt)?|clt|pj|full[- ]?time|"
+    r"part[- ]?time|contract(?:or)?|tempor[aá]ri[oa]|est[aá]gio)\b",
+    re.I,
+)
 
 
 def _text(value):
@@ -75,30 +80,42 @@ def _date(value, raw_text=""):
     return ""
 
 
+def _canonical_contract(value):
+    text = re.sub(r"[_–—-]+", " ", str(value or ""))
+    text = re.sub(r"\s+", " ", text).strip()
+    normalized = text.casefold()
+    if normalized.startswith("efetivo"):
+        return "Efetivo"
+    if normalized in {"full time", "fulltime"}:
+        return "Full-time"
+    if normalized in {"part time", "parttime"}:
+        return "Part-time"
+    if normalized == "clt":
+        return "CLT"
+    if normalized == "pj":
+        return "PJ"
+    if normalized in {"contract", "contractor"}:
+        return "Contract"
+    if normalized in {"temporario", "temporaria", "temporário", "temporária"}:
+        return "Temporário"
+    if normalized in {"estagio", "estágio"}:
+        return "Estágio"
+    return text
+
+
 def _contract_types(posting, raw_text):
     value = posting.get("employmentType") or posting.get("employment_type") or ""
     values = value if isinstance(value, list) else [value]
     labels = []
-    contract_map = {
-        "FULL_TIME": "Full-time",
-        "PART_TIME": "Part-time",
-        "CONTRACTOR": "Contract",
-        "TEMPORARY": "Temporário",
-        "INTERN": "Estágio",
-    }
     for item in values:
-        text = _text(item)
-        if not text:
-            continue
-        labels.append(contract_map.get(text.upper(), text))
-    if labels:
-        return list(dict.fromkeys(labels))
-    match = re.search(
-        r"\b(?:efetivo|full[- ]?time|part[- ]?time|contract|tempor[aá]rio|est[aá]gio)\b",
-        raw_text or "",
-        re.I,
-    )
-    return [match.group(0)] if match else []
+        label = _canonical_contract(_text(item))
+        if label and label not in labels:
+            labels.append(label)
+    for match in CONTRACT_RE.finditer(raw_text or ""):
+        label = _canonical_contract(match.group(0))
+        if label and label not in labels:
+            labels.append(label)
+    return labels
 
 
 def _skills(value):
@@ -116,6 +133,25 @@ def _fallback_title(label):
     return text.strip()
 
 
+def _page_text(parser, markup):
+    """Combine visible and metadata text used by Zoho's job header."""
+    values = list(parser.parts) + list(parser.meta.values())
+    title_match = re.search(
+        r"<title[^>]*>([\s\S]*?)</title>", markup or "", re.I
+    )
+    if title_match:
+        values.append(strip_html(html.unescape(title_match.group(1))))
+    visible_markup = re.sub(
+        r"<(?:script|style|noscript|template)\b[^>]*>[\s\S]*?</"
+        r"(?:script|style|noscript|template)>",
+        " ",
+        markup or "",
+        flags=re.I,
+    )
+    values.append(strip_html(visible_markup))
+    return " ".join(dict.fromkeys(value.strip() for value in values if value.strip()))
+
+
 def _normalize(url, markup, fallback_title=""):
     match = DETAIL_RE.search(url)
     if not match:
@@ -128,7 +164,7 @@ def _normalize(url, markup, fallback_title=""):
     if not title or title.casefold() in {"more info", "mais informações"}:
         return None
 
-    raw_text = parser.visible_text
+    raw_text = _page_text(parser, markup)
     city, state, country = _location(posting)
     location_type = _text(
         posting.get("jobLocationType") or posting.get("job_location_type")
