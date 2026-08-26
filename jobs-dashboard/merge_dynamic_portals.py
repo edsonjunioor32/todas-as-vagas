@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-"""Merge only the five repaired career feeds into the existing public catalog.
+"""Merge only the eight repaired career feeds into the existing public catalog.
 
-This is deliberately different from the general ETL.  It collects the five
+This is deliberately different from the general ETL.  It collects the eight
 sources, refuses to write anything if one of them fails, updates only their
 rows in a copied SQLite database, and atomically replaces the public snapshot.
 All other portals and their history remain untouched.
@@ -26,13 +26,23 @@ import classify  # noqa: E402
 import fit_requirements  # noqa: E402
 import pipeline  # noqa: E402
 import storage  # noqa: E402
-from sources import digisystem, requested_careers, sankhya_senior  # noqa: E402
+from sources import (  # noqa: E402
+    digisystem,
+    experian,
+    quickin,
+    requested_careers,
+    sankhya_senior,
+    spassu,
+)
 
 
 DB_PATH = ROOT / "jobs-dashboard" / "data" / "jobs.db"
 JSON_PATH = ROOT / "docs" / "data" / "vagas.json"
 FIT_PATH = ROOT / "docs" / "data" / "fit.json"
 TARGETS = (
+    ("experian", experian.fetch),
+    ("spassu", spassu.fetch),
+    ("infovagas", quickin.fetch),
     ("digisystem", digisystem.fetch),
     ("docusign", requested_careers.fetch_docusign),
     ("dbccompany", requested_careers.fetch_dbccompany),
@@ -174,7 +184,7 @@ def merge_catalog(rows, collected_counts, db_path=DB_PATH, json_path=JSON_PATH,
 
         if dry_run:
             print(f"  dry-run: {public_count} vagas públicas · {size_mb:.2f} MB")
-            print(f"  removidas apenas dos cinco portais: {removed}")
+            print(f"  removidas apenas dos oito portais: {removed}")
             print(f"  índice de aderência: {fit_changed} entradas atualizadas · {fit_count} total")
             return {
                 "public_count": public_count, "removed": removed,
@@ -185,7 +195,7 @@ def merge_catalog(rows, collected_counts, db_path=DB_PATH, json_path=JSON_PATH,
         os.replace(temp_json, json_path)
         os.replace(temp_fit, fit_path)
         print(f"  snapshot parcial publicado: {public_count} vagas · {size_mb:.2f} MB")
-        print(f"  removidas apenas dos cinco portais: {removed}")
+        print(f"  removidas apenas dos oito portais: {removed}")
         print(f"  índice de aderência: {fit_changed} entradas atualizadas · {fit_count} total")
         return {
             "public_count": public_count, "removed": removed,

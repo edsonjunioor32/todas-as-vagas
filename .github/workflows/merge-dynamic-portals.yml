@@ -9,7 +9,11 @@ on:
       - "jobs-dashboard/storage.py"
       - "jobs-dashboard/validate_snapshot.py"
       - "jobs-dashboard/sources/_http.py"
+      - "jobs-dashboard/sources/_html.py"
       - "jobs-dashboard/sources/digisystem.py"
+      - "jobs-dashboard/sources/experian.py"
+      - "jobs-dashboard/sources/quickin.py"
+      - "jobs-dashboard/sources/spassu.py"
       - "jobs-dashboard/sources/requested_careers.py"
       - "jobs-dashboard/sources/sankhya_senior.py"
       - ".github/workflows/merge-dynamic-portals.yml"
@@ -17,6 +21,8 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
   group: merge-dynamic-portals
@@ -24,15 +30,37 @@ concurrency:
 
 jobs:
   merge:
-    name: Mesclar somente as cinco fontes corrigidas
+    name: Mesclar somente as oito fontes corrigidas
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Baixar o repositório
         uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0
+
+      - name: Restaurar banco histórico
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin history-data
+          mkdir -p jobs-dashboard/data
+          git archive origin/history-data data | tar -x -C jobs-dashboard
+          test -s jobs-dashboard/data/jobs.db
+
+      - name: Restaurar snapshots públicos
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin public-data
+          mkdir -p docs/data
+          git archive origin/public-data data | tar -x -C docs
+          test -s docs/data/vagas.json
+          test -s docs/data/fit.json
 
       - name: Preparar Python
         uses: actions/setup-python@v5
@@ -45,9 +73,11 @@ jobs:
         run: pip install -r jobs-dashboard/requirements.txt
 
       - name: Validar adaptadores
-        run: python -m unittest discover -s jobs-dashboard/tests -p 'test_*dynamic_portals.py' -v
+        run: |
+          python -m unittest discover -s jobs-dashboard/tests -p 'test_*dynamic_portals.py' -v
+          python -m unittest discover -s jobs-dashboard/tests -p 'test_new_sources.py' -v
 
-      - name: Coletar e mesclar somente as cinco fontes
+      - name: Coletar e mesclar somente as oito fontes
         env:
           PYTHONUNBUFFERED: "1"
           JOBS_SOURCE_WORKERS: "5"
@@ -58,12 +88,74 @@ jobs:
           python jobs-dashboard/validate_snapshot.py
           python jobs-dashboard/validate_fit.py
 
-      - name: Registrar lote parcial
+      - name: Publicar banco histórico no ramo dedicado
         shell: bash
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add jobs-dashboard/data/jobs.db docs/data/vagas.json docs/data/fit.json
-          git commit -m "Inclui lote dos portais dinâmicos [skip ci]"
-          git pull --rebase origin main
-          git push origin HEAD:main
+          set -euo pipefail
+          data_worktree="$(mktemp -d)"
+          cleanup() {
+            git worktree remove --force "$data_worktree" >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+          git fetch --no-tags origin history-data
+          git worktree add --detach "$data_worktree" origin/history-data
+          git -C "$data_worktree" switch -C history-data
+          mkdir -p "$data_worktree/data"
+          cp jobs-dashboard/data/jobs.db "$data_worktree/data/jobs.db"
+          git -C "$data_worktree" add data/jobs.db
+          if git -C "$data_worktree" diff --cached --quiet; then
+            echo "Ramo history-data já está atualizado."
+          else
+            git -C "$data_worktree" config user.name "github-actions[bot]"
+            git -C "$data_worktree" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git -C "$data_worktree" commit -m "Atualiza histórico do pipeline"
+            git -C "$data_worktree" push origin HEAD:history-data
+          fi
+
+      - name: Publicar snapshots públicos no ramo dedicado
+        shell: bash
+        run: |
+          set -euo pipefail
+          data_worktree="$(mktemp -d)"
+          cleanup() {
+            git worktree remove --force "$data_worktree" >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+          git fetch --no-tags origin public-data
+          git worktree add --detach "$data_worktree" origin/public-data
+          git -C "$data_worktree" switch -C public-data
+          mkdir -p "$data_worktree/data"
+          cp docs/data/vagas.json "$data_worktree/data/vagas.json"
+          cp docs/data/fit.json "$data_worktree/data/fit.json"
+          git -C "$data_worktree" add data/vagas.json data/fit.json
+          if git -C "$data_worktree" diff --cached --quiet; then
+            echo "Ramo public-data já está atualizado."
+          else
+            git -C "$data_worktree" config user.name "github-actions[bot]"
+            git -C "$data_worktree" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git -C "$data_worktree" commit -m "Atualiza snapshots públicos"
+            git -C "$data_worktree" push origin HEAD:public-data
+          fi
+
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Preparar dependências do site
+        run: npm install --no-audit --no-fund --package-lock=false
+
+      - name: Preparar analisador para o site
+        run: npm run prepare:fit
+
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Preparar arquivos do site
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: docs
+
+      - name: Publicar
+        id: deployment
+        uses: actions/deploy-pages@v4
