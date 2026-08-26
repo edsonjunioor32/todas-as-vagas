@@ -42,6 +42,20 @@ jobs:
         with:
           ref: main
 
+      - name: Restaurar snapshots públicos
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f docs/data/vagas.json ] && [ -f docs/data/fit.json ]; then
+            echo "Snapshots públicos já estão no checkout."
+            exit 0
+          fi
+          git fetch --no-tags origin public-data
+          mkdir -p docs/data
+          git archive origin/public-data data | tar -x -C docs
+          test -s docs/data/vagas.json
+          test -s docs/data/fit.json
+
       - name: Preparar Node.js
         uses: actions/setup-node@v4
         with:
@@ -90,6 +104,14 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+
+      - name: Restaurar banco histórico
+        uses: actions/cache@v4
+        with:
+          path: jobs-dashboard/data/jobs.db
+          key: jobs-db-v1-${{ github.run_id }}
+          restore-keys: |
+            jobs-db-v1-
 
       - name: Preparar Node.js
         uses: actions/setup-node@v4
@@ -183,13 +205,44 @@ jobs:
           python jobs-dashboard/validate_snapshot.py
           python jobs-dashboard/validate_fit.py
 
+      - name: Publicar snapshots no ramo dedicado
+        shell: bash
+        run: |
+          set -euo pipefail
+          data_worktree="$(mktemp -d)"
+          cleanup() {
+            git worktree remove --force "$data_worktree" >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+          git fetch --no-tags origin public-data || true
+          if git show-ref --verify --quiet refs/remotes/origin/public-data; then
+            git worktree add --detach "$data_worktree" origin/public-data
+            git -C "$data_worktree" switch -C public-data
+          else
+            git worktree add --detach "$data_worktree" HEAD
+            git -C "$data_worktree" switch --orphan public-data
+            git -C "$data_worktree" clean -fdx
+          fi
+          mkdir -p "$data_worktree/data"
+          cp docs/data/vagas.json "$data_worktree/data/vagas.json"
+          cp docs/data/fit.json "$data_worktree/data/fit.json"
+          git -C "$data_worktree" add data/vagas.json data/fit.json
+          if git -C "$data_worktree" diff --cached --quiet; then
+            echo "Ramo public-data já está atualizado."
+          else
+            git -C "$data_worktree" config user.name "github-actions[bot]"
+            git -C "$data_worktree" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git -C "$data_worktree" commit -m "Atualiza snapshots públicos"
+            git -C "$data_worktree" push origin HEAD:public-data
+          fi
+
       - name: Preservar histórico e fotografia pública
         shell: bash
         run: |
           cp jobs-dashboard/data/greenhouse_watchlist.json docs/data/greenhouse-watchlist.json
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add jobs-dashboard/data/greenhouse_br_companies.json jobs-dashboard/data/greenhouse_watchlist.json jobs-dashboard/data/jobs.db docs/data/vagas.json docs/data/greenhouse-watchlist.json docs/data/fit.json
+          git add jobs-dashboard/data/greenhouse_br_companies.json jobs-dashboard/data/greenhouse_watchlist.json docs/data/greenhouse-watchlist.json
           if git diff --cached --quiet; then
             echo "Nenhuma alteração para registrar."
           else
