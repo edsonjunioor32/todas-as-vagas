@@ -104,11 +104,13 @@ O workflow é executado diariamente às **08h17**, **11h17**, **15h17** e **20h1
 3. normaliza área, senioridade, modalidade, localização, salário e indicadores PcD;
 4. elimina duplicidades nativas e identifica anúncios equivalentes entre portais;
 5. descarta anúncios publicados há mais de dois meses e atualiza o histórico SQLite;
-6. gera um JSON compacto para o navegador;
+6. gera um JSON compacto para o navegador e o índice público de aderência;
 7. valida links, contagens e privacidade;
 8. publica o diretório `docs` no GitHub Pages.
 
 Se um portal falhar, os demais continuam. Resultados vistos recentemente podem permanecer no painel por até três dias, evitando que uma indisponibilidade momentânea esvazie uma fonte inteira.
+
+Após uma atualização bem-sucedida do Pages ou do lote isolado de portais dinâmicos, o workflow `Notificar novas vagas no Telegram` compara o snapshot atual com o anterior e envia ao canal somente as vagas ainda não notificadas.
 
 ### Otimizações do pipeline
 
@@ -132,9 +134,11 @@ Para atualizar tudo:
 ```powershell
 node busca_vagas\build_public_inhire.js
 node busca_vagas\validate_public_inhire.js
-python jobs-dashboard\pipeline.py
+python jobs-dashboard\pipeline_fit.py --max-age-months 2
 python jobs-dashboard\validate_snapshot.py
+python jobs-dashboard\validate_fit.py
 python -m unittest discover -s jobs-dashboard\tests -v
+npm run test:fit
 ```
 
 Para abrir o painel:
