@@ -188,9 +188,10 @@ def _normalize(url, markup, fallback_title=""):
 def _catalog_links(markup):
     parser = PublicPageParser()
     parser.feed(markup or "")
-    candidates = parser.anchors or [
+    candidates = list(parser.anchors)
+    candidates.extend(
         (href, label) for href, label in ANCHOR_RE.findall(markup or "")
-    ]
+    )
     rows, seen = [], set()
     for href, label in candidates:
         absolute = urljoin(BASE_URL, html.unescape(href).strip())
