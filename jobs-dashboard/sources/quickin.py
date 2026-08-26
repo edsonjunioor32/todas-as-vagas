@@ -211,15 +211,20 @@ def _fetch_detail(url, label):
 
 
 def fetch():
-    first_markup = get_text(
-        LIST_URL,
-        headers={
-            "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.8",
-            "User-Agent": "Mozilla/5.0 (compatible; todas-as-vagas/1.0)",
-        },
-        timeout=45,
-        retries=3,
-    )
+    catalog_error = None
+    try:
+        first_markup = get_text(
+            LIST_URL,
+            headers={
+                "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.8",
+                "User-Agent": "Mozilla/5.0 (compatible; todas-as-vagas/1.0)",
+            },
+            timeout=45,
+            retries=3,
+        )
+    except Exception as error:
+        first_markup = ""
+        catalog_error = error
     links, page_links = _catalog_page(first_markup)
     if not links:
         links = [
@@ -259,7 +264,8 @@ def fetch():
             break
 
     if not links:
-        raise RuntimeError("Quickin/InfoVagas returned no public vacancy links")
+        detail = f": {catalog_error}" if catalog_error else ""
+        raise RuntimeError(f"Quickin/InfoVagas returned no public vacancy links{detail}")
 
     rows = []
     with ThreadPoolExecutor(max_workers=min(8, len(links))) as pool:
