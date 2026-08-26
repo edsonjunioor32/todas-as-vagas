@@ -2,7 +2,7 @@
 """Validate the requested dynamic career feeds without writing the catalogue.
 
 This command is intentionally independent from ``pipeline_fit.py``.  It makes
-one live request to each of the five repaired adapters, checks that the
+one live request to each repaired adapter, checks that the
 response contains usable vacancy records, and exits non-zero on an empty or
 malformed source.  The isolated workflow can therefore be run while the main
 catalogue remains untouched.
@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from sources import digisystem, requested_careers, sankhya_senior  # noqa: E402
+from sources import digisystem, experian, quickin, requested_careers, sankhya_senior, spassu  # noqa: E402
 
 
 SOURCES = (
@@ -25,6 +25,9 @@ SOURCES = (
     ("dbccompany", requested_careers.fetch_dbccompany),
     ("sankhya", sankhya_senior.fetch_sankhya),
     ("senior", sankhya_senior.fetch_senior),
+    ("experian", experian.fetch),
+    ("spassu", spassu.fetch),
+    ("infovagas", quickin.fetch),
 )
 
 
@@ -64,7 +67,7 @@ def main():
     if failures:
         print(f"{len(failures)} fonte(s) falharam; nenhuma coleta geral foi executada.", flush=True)
         return 1
-    print("Todos os cinco portais dinâmicos foram validados isoladamente.", flush=True)
+    print("Todos os portais dinâmicos foram validados isoladamente.", flush=True)
     return 0
 
 
