@@ -22,6 +22,7 @@ ROOT = Path(__file__).resolve().parent.parent
 SNAPSHOT = ROOT / "docs" / "data" / "vagas.json"
 SNAPSHOT_RELATIVE = SNAPSHOT.relative_to(ROOT)
 PORTAL_URL = "https://edsonjunioor32.github.io/todas-as-vagas/"
+SNAPSHOT_REF_PATH = os.environ.get("SNAPSHOT_REF_PATH", str(SNAPSHOT_RELATIVE))
 SOURCE_LABELS = {
     "inhire": "InHire",
     "empregare": "Empregare",
@@ -84,20 +85,26 @@ def _load(path):
 
 
 def _snapshot_from_ref(ref):
-    try:
-        raw = subprocess.check_output(
-            ["git", "show", f"{ref}:{SNAPSHOT_RELATIVE}"],
-            cwd=ROOT,
-            text=True,
-            stderr=subprocess.DEVNULL,
-        )
-        return json.loads(raw)
-    except (OSError, subprocess.CalledProcessError, json.JSONDecodeError):
-        return {"count": 0, "jobs": {}, "dict": {}}
+    paths = [SNAPSHOT_REF_PATH, str(SNAPSHOT_RELATIVE), "data/vagas.json"]
+    for path in dict.fromkeys(paths):
+        try:
+            raw = subprocess.check_output(
+                ["git", "show", f"{ref}:{path}"],
+                cwd=ROOT,
+                text=True,
+                stderr=subprocess.DEVNULL,
+            )
+            return json.loads(raw)
+        except (OSError, subprocess.CalledProcessError, json.JSONDecodeError):
+            continue
+    return {"count": 0, "jobs": {}, "dict": {}}
 
 
 def _head_snapshot():
-    return _snapshot_from_ref("HEAD")
+    try:
+        return _load(SNAPSHOT)
+    except (OSError, json.JSONDecodeError):
+        return {"count": 0, "jobs": {}, "dict": {}}
 
 
 def _resolve_state_path(value):
