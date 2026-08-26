@@ -122,7 +122,7 @@ def _normalize(url, markup, fallback_title=""):
         return None
     parser = PublicPageParser()
     parser.feed(markup or "")
-    posting = job_posting(markup or {})
+    posting = job_posting(markup or "")
     title = _text(posting.get("title")) or (parser.headings[0] if parser.headings else "")
     title = title.strip() or _fallback_title(fallback_title)
     if not title or title.casefold() in {"more info", "mais informações"}:
