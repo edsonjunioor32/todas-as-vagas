@@ -29,7 +29,7 @@ JSON_PATH = ROOT / "docs" / "data" / "vagas.json"
 # an integration regression, never a successful refresh.
 NONEMPTY_SOURCES = {
     "digisystem", "recrutei", "docusign", "dbccompany", "sankhya", "senior", "mercadolivre",
-    "greenhouse",
+    "greenhouse", "spassu", "infovagas",
 }
 
 def selected_registry(names):
