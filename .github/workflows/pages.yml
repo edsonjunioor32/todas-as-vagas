@@ -106,12 +106,27 @@ jobs:
           fetch-depth: 0
 
       - name: Restaurar banco histórico
+        id: jobs-cache
         uses: actions/cache@v4
         with:
           path: jobs-dashboard/data/jobs.db
           key: jobs-db-v1-${{ github.run_id }}
           restore-keys: |
             jobs-db-v1-
+
+      - name: Recuperar banco histórico de reserva
+        if: steps.jobs-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f jobs-dashboard/data/jobs.db ]; then
+            echo "Banco histórico já está disponível."
+            exit 0
+          fi
+          git fetch --no-tags origin history-data
+          mkdir -p jobs-dashboard/data
+          git archive origin/history-data data | tar -x -C jobs-dashboard
+          test -s jobs-dashboard/data/jobs.db
 
       - name: Preparar Node.js
         uses: actions/setup-node@v4
