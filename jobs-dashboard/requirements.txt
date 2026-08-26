@@ -1,3 +1,0 @@
-# Selenium drives the Chrome installation already available on GitHub-hosted
-# runners for public pages that require JavaScript rendering (InfoJobs).
-selenium>=4.25,<5
