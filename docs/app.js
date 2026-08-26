@@ -55,6 +55,8 @@
     digisystem: 'Digisystem',
     docusign: 'DocuSign',
     experian: 'Experian',
+    spassu: 'Spassu',
+    infovagas: 'InfoVagas',
     fiserv: 'Fiserv',
     github: 'GitHub',
     infojobs: 'InfoJobs',
