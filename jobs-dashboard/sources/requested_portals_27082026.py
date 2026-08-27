@@ -273,6 +273,13 @@ def fetch_saleco():
     rows, seen = [], set()
     for href, label, heading in parser.links:
         absolute = urljoin(listing_url, html.unescape(href)).split("#", 1)[0]
+        parsed = urllib.parse.urlsplit(absolute)
+        if (
+            parsed.scheme not in {"http", "https"}
+            or parsed.netloc.casefold() not in {"www.saleco.com.br", "saleco.com.br"}
+            or not parsed.path.casefold().startswith("/jobs/")
+        ):
+            continue
         if absolute.rstrip("/") == listing_url.rstrip("/") or absolute in seen:
             continue
         seen.add(absolute)
