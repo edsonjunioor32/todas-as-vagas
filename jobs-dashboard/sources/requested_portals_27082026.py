@@ -215,8 +215,56 @@ def fetch_forza():
     return _anchor_rows("forza", "https://forzabr.rhgestor.com.br/vagas", "Forza BR")
 
 
+def _saleco_title(page):
+    match = re.search(r'<h1[^>]*>(.*?)</h1>', page, re.I | re.S)
+    if match:
+        title = strip_html(html.unescape(match.group(1)))
+        if title and title.casefold() != "exibir vaga":
+            return title
+    return ""
+
+
 def fetch_saleco():
-    return _anchor_rows("saleco", "https://www.saleco.com.br/jobs", "Saleco")
+    listing_url = "https://www.saleco.com.br/jobs"
+    page = get_text(listing_url, timeout=45, retries=3)
+    rows, seen = [], set()
+    links = re.findall(
+        r'href=["\\']([^"\\']*/jobs/[^"\\']+)["\\']',
+        page,
+        re.I,
+    )
+    for href in links:
+        absolute = urljoin(listing_url, html.unescape(href)).split("#", 1)[0]
+        if absolute.rstrip("/") == listing_url.rstrip("/") or absolute in seen:
+            continue
+        seen.add(absolute)
+        try:
+            detail = get_text(absolute, timeout=30, retries=2)
+        except Exception as error:
+            print(f"    [saleco] {absolute}: {str(error)[:80]}")
+            detail = ""
+        title = _saleco_title(detail)
+        if not title:
+            slug = absolute.rstrip("/").rsplit("/", 1)[-1]
+            title = re.sub(r"[-_]+", " ", urllib.parse.unquote(slug)).strip()
+        if len(title) < 4 or title.casefold() == "exibir vaga":
+            continue
+        rows.append(job(
+            "saleco",
+            absolute.rstrip("/").rsplit("/", 1)[-1],
+            title=title,
+            company="Saleco",
+            url=absolute,
+            work_model=work_model_label(raw=title),
+            city="Brasil",
+            country="BR",
+            market="BR",
+        ))
+    if not rows:
+        rows = _jsonld_rows("saleco", listing_url, "Saleco")
+    if not rows:
+        raise RuntimeError("saleco returned no public vacancies")
+    return rows
 
 
 def fetch_elis():
