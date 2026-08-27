@@ -261,6 +261,59 @@ img { max-width: 100%; display: block; }
   font-size: clamp(1rem, 1.25vw, 1.18rem);
   line-height: 1.55;
 }
+.hero-cta {
+  max-width: 650px;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 13px;
+  margin: 22px 0 0;
+  padding: 14px 16px;
+  border: 1px solid rgba(30, 220, 184, 0.76);
+  border-radius: 15px;
+  background: linear-gradient(110deg, rgba(9, 145, 123, 0.96), rgba(18, 82, 121, 0.94));
+  color: #ffffff;
+  text-decoration: none;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.2);
+  transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+}
+.hero-cta:hover {
+  transform: translateY(-2px);
+  border-color: #ffffff;
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.26);
+}
+.hero-cta:focus-visible {
+  outline: 3px solid rgba(255, 210, 92, 0.9);
+  outline-offset: 3px;
+}
+.hero-cta-icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.58);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.16);
+  font-size: 1.35rem;
+}
+.hero-cta-copy {
+  display: grid;
+  gap: 3px;
+}
+.hero-cta-copy strong {
+  color: #ffffff;
+  font-size: 0.98rem;
+}
+.hero-cta-copy small {
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+.hero-cta-arrow {
+  color: #ffffff;
+  font-size: 1.35rem;
+  font-weight: 800;
+}
 .updated {
   display: inline-flex;
   align-items: center;
