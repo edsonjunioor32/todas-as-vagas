@@ -9,6 +9,7 @@ import html
 import json
 import re
 import urllib.parse
+from html.parser import HTMLParser
 from urllib.parse import urljoin
 
 from ._common import is_brazil_location, iso_date, job, strip_html, work_model_label
@@ -215,38 +216,69 @@ def fetch_forza():
     return _anchor_rows("forza", "https://forzabr.rhgestor.com.br/vagas", "Forza BR")
 
 
-def _saleco_title(page):
-    match = re.search(r'<h1[^>]*>(.*?)</h1>', page, re.I | re.S)
-    if match:
-        title = strip_html(html.unescape(match.group(1)))
-        if title and title.casefold() != "exibir vaga":
-            return title
-    return ""
+class _SalecoListingParser(HTMLParser):
+    """Pair each vacancy link with the heading in its listing card."""
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.links = []
+        self.last_heading = ""
+        self._heading_tag = ""
+        self._heading_parts = []
+        self._anchor_href = ""
+        self._anchor_parts = []
+
+    def handle_starttag(self, tag, attrs):
+        tag = tag.lower()
+        attributes = dict(attrs)
+        if tag in {"h1", "h2", "h3", "h4", "h5", "h6"}:
+            self._heading_tag = tag
+            self._heading_parts = []
+        elif tag == "a" and self._anchor_href == "":
+            self._anchor_href = attributes.get("href") or ""
+            self._anchor_parts = []
+
+    def handle_data(self, data):
+        if self._heading_tag:
+            self._heading_parts.append(data)
+        if self._anchor_href:
+            self._anchor_parts.append(data)
+
+    def handle_endtag(self, tag):
+        tag = tag.lower()
+        if tag == self._heading_tag:
+            heading = strip_html(" ".join(self._heading_parts))
+            if heading:
+                self.last_heading = heading
+            self._heading_tag = ""
+            self._heading_parts = []
+        elif tag == "a" and self._anchor_href:
+            label = strip_html(" ".join(self._anchor_parts))
+            self.links.append((self._anchor_href, label, self.last_heading))
+            self._anchor_href = ""
+            self._anchor_parts = []
+
+
+def _saleco_slug_title(url):
+    slug = url.rstrip("/").rsplit("/", 1)[-1]
+    title = re.sub(r"[-_]+", " ", urllib.parse.unquote(slug)).strip()
+    return re.sub(r"\\s{2,}", " ", title)
 
 
 def fetch_saleco():
     listing_url = "https://www.saleco.com.br/jobs"
     page = get_text(listing_url, timeout=45, retries=3)
+    parser = _SalecoListingParser()
+    parser.feed(page)
     rows, seen = [], set()
-    links = re.findall(
-        r'href=["\']([^"\']*/jobs/[^"\']+)["\']',
-        page,
-        re.I,
-    )
-    for href in links:
+    for href, label, heading in parser.links:
         absolute = urljoin(listing_url, html.unescape(href)).split("#", 1)[0]
         if absolute.rstrip("/") == listing_url.rstrip("/") or absolute in seen:
             continue
         seen.add(absolute)
-        try:
-            detail = get_text(absolute, timeout=30, retries=2)
-        except Exception as error:
-            print(f"    [saleco] {absolute}: {str(error)[:80]}")
-            detail = ""
-        title = _saleco_title(detail)
+        title = heading if heading and heading.casefold() != "exibir vaga" else ""
         if not title:
-            slug = absolute.rstrip("/").rsplit("/", 1)[-1]
-            title = re.sub(r"[-_]+", " ", urllib.parse.unquote(slug)).strip()
+            title = _saleco_slug_title(absolute)
         if len(title) < 4 or title.casefold() == "exibir vaga":
             continue
         rows.append(job(
@@ -265,7 +297,6 @@ def fetch_saleco():
     if not rows:
         raise RuntimeError("saleco returned no public vacancies")
     return rows
-
 
 def fetch_elis():
     return _anchor_rows("elis", "https://elisbrasil.pandape.infojobs.com.br/", "Elis Brasil", r'/Detail/\d+')
