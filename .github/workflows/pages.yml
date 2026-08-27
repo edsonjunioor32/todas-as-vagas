@@ -13,8 +13,8 @@ on:
   workflow_dispatch:
   schedule:
     # GitHub Actions usa UTC: 12h17, 14h17, 18h17 e 23h17.
-    # Equivale a 09h17, 11h17, 15h17 e 20h17 em Brasília/Fortaleza (UTC-3).
-    - cron: "17 12,14,18,23 * * *"
+    # Equivale a 08h17, 11h17, 15h17 e 20h17 em Brasília/Fortaleza (UTC-3).
+    - cron: "17 11,14,18,23 * * *"
     # Atualização semanal do catálogo Greenhouse: domingo às 04h37 (UTC-3).
     - cron: "37 7 * * 0"
 
@@ -29,7 +29,7 @@ concurrency:
 
 jobs:
   publicar-interface:
-    if: github.event_name == 'push' && !contains(github.event.head_commit.message, '[refresh-fit]')
+    if: github.event_name == 'push' && !contains(github.event.head_commit.message, '[refresh-fit]') && !contains(github.event.head_commit.message, '[isolated]')
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment:
@@ -91,7 +91,7 @@ jobs:
         uses: actions/deploy-pages@v4
 
   atualizar-e-publicar:
-    if: github.event_name != 'push' || contains(github.event.head_commit.message, '[refresh-fit]')
+    if: github.event_name != 'push' || (contains(github.event.head_commit.message, '[refresh-fit]') && !contains(github.event.head_commit.message, '[isolated]'))
     runs-on: ubuntu-latest
     timeout-minutes: 120
     environment:
