@@ -205,16 +205,161 @@ def fetch_saleco():
 
 
 def fetch_elis():
-    return _anchor_rows("elis", "https://elisbrasil.pandape.infojobs.com.br/", "Elis Brasil")
+    return _anchor_rows("elis", "https://elisbrasil.pandape.infojobs.com.br/", "Elis Brasil", r'/Detail/\d+')
+
+
+
+def _abler_rows(source, subdomain, company):
+    """Read a generic Abler public JSON:API career page."""
+    api = f"https://hulk-smash.abler.com.br/api/company/v1/careers_pages/{subdomain}/vacancies"
+    public_root = f"https://ats.abler.com.br/jobs/{subdomain}"
+    rows, seen = [], set()
+    for page in range(1, 21):
+        payload = get_json(
+            api,
+            headers={"Origin": "https://ats.abler.com.br", "Referer": public_root},
+            timeout=60,
+            retries=3,
+        )
+        values = payload.get("data") or []
+        if not isinstance(values, list):
+            raise RuntimeError(f"Abler/{subdomain} returned invalid data")
+        included = {
+            (str(item.get("type") or ""), str(item.get("id") or "")): item
+            for item in (payload.get("included") or [])
+            if isinstance(item, dict)
+        }
+        for item in values:
+            attrs = item.get("attributes") or {}
+            native_id = str(item.get("id") or "").strip()
+            title = str(attrs.get("title_formatted") or attrs.get("title") or "").strip()
+            country = str(attrs.get("country") or "").strip().casefold()
+            if not native_id or not title or native_id in seen:
+                continue
+            if country and country not in {"br", "bra", "brasil", "brazil"}:
+                continue
+            seen.add(native_id)
+            slug = str(attrs.get("slug") or "").strip()
+            url = f"{public_root}?slug={slug}" if slug else f"{public_root}?id={native_id}"
+            raw_model = " ".join(
+                str(value or "").strip()
+                for value in (attrs.get("work_type"), attrs.get("work_type_formatted"))
+            )
+            contract = str(attrs.get("contracting_regime") or "").strip()
+            description = " ".join(
+                str(attrs.get(field) or "")
+                for field in (
+                    "description", "role_description", "mandatory_requirements",
+                    "desirable_requirements", "results_and_deliveries",
+                )
+            )
+            rows.append(job(
+                source, native_id, title=title, company=company, url=url,
+                work_model=work_model_label(
+                    remote_flag=attrs.get("available_for_homeoffice") is True,
+                    raw=raw_model,
+                ),
+                city=str(attrs.get("city") or "Brasil").strip(),
+                state=str(attrs.get("state") or "").strip(),
+                country="BR", market="BR",
+                published_date=iso_date(
+                    attrs.get("republished_at") or attrs.get("published_at") or attrs.get("created_at")
+                ),
+                expires_date=iso_date(attrs.get("close_on")),
+                description=strip_html(description),
+                contract_types=[contract] if contract else [],
+            ))
+        meta = payload.get("meta") or {}
+        last_page = int(meta.get("last") or page)
+        if page >= last_page or not values:
+            break
+        # The current Abler endpoint accepts the page through the query string.
+        api = (
+            f"https://hulk-smash.abler.com.br/api/company/v1/careers_pages/"
+            f"{subdomain}/vacancies?page={page + 1}&per_page=100"
+        )
+    if not rows:
+        raise RuntimeError(f"Abler/{subdomain} returned no public vacancies")
+    return rows
+
+
+def _compleo_row(source, url, company):
+    data = _next_data(get_text(url, timeout=45, retries=3))
+    value = data.get("props", {}).get("pageProps", {}).get("jobViewData") or {}
+    if not value or not value.get("isAvailableOnCareersSite", True):
+        return None
+    location = value.get("location") or {}
+    city = location.get("city") or {}
+    state = location.get("provinceOrState") or {}
+    country = location.get("country") or {}
+    model = value.get("workingModel") or {}
+    contract = value.get("employmentType") or {}
+    category = value.get("category") or {}
+    level = value.get("experienceLevel") or {}
+    tags = value.get("tags") or []
+    if isinstance(tags, dict):
+        tags = list(tags.values())
+    country_text = str(country.get("label") or country.get("value") or "").strip()
+    location_text = " ".join(
+        str(part or "").strip()
+        for part in (
+            city.get("label"), city.get("value"), state.get("label"), state.get("value"),
+            country_text,
+        )
+    )
+    if country_text and not (is_brazil_location(location_text) or BRAZIL_WORDS.search(location_text)):
+        return None
+    native_id = str(value.get("pk") or url.rstrip("/").split("/")[-1]).replace("JOB:", "")
+    title = str(value.get("title") or "").strip()
+    if not native_id or not title:
+        return None
+    description = " ".join(
+        str(value.get(field) or "")
+        for field in ("description", "responsibilities", "requirements")
+    )
+    return job(
+        source, native_id, title=title, company=company, url=url,
+        work_model=work_model_label(raw=model.get("label") or model.get("label-pt-BR")),
+        city=str(city.get("label") or city.get("value") or "Brasil").strip(),
+        state=str(city.get("uf") or state.get("value") or "").strip(),
+        country="BR", market="BR", published_date=iso_date(value.get("openingDate")),
+        expires_date=iso_date(value.get("hiringEndDate")),
+        description=strip_html(description),
+        categories=[str(category.get("label") or "").strip()] if category.get("label") else [],
+        levels=[str(level.get("label") or "").strip()] if level.get("label") else [],
+        skills=[str(tag).strip() for tag in tags if str(tag).strip()],
+        contract_types=[str(contract.get("label") or "").strip()] if contract.get("label") else [],
+    )
+
+
+def _compleo_rows(source, board, company):
+    sitemap = html.unescape(get_text("https://jobs.compleo.app/sitemap.xml", timeout=45, retries=3))
+    urls = sorted({
+        match for match in re.findall(r"<loc>([^<]+)</loc>", sitemap, re.I)
+        if f"/{board.lower()}/" in match.lower()
+    })
+    if not urls:
+        raise RuntimeError(f"Compleo/{board} sitemap returned no detail URLs")
+    rows = []
+    for url in urls:
+        try:
+            row = _compleo_row(source, url, company)
+        except Exception as error:
+            print(f"    [compleo:{board}] {url}: {str(error)[:80]}")
+            continue
+        if row:
+            rows.append(row)
+    if not rows:
+        raise RuntimeError(f"Compleo/{board} returned no public vacancies")
+    return rows
 
 
 def fetch_abler_talentodovalesc():
-    url = "https://ats.abler.com.br/jobs/talentodovalesc"
-    return _anchor_rows("talentodovalesc", url, "Talento do Vale SC", r'/jobs/[^"?#]+')
+    return _abler_rows("talentodovalesc", "talentodovalesc", "Talento do Vale SC")
 
 
 def fetch_beq():
-    return _anchor_rows("beq", "https://jobs.compleo.app/BEQ/joblist", "B&Q Energia", r'/(?:job|jobdetail|BEQ)/[^"?#]+')
+    return _compleo_rows("beq", "BEQ", "B&Q Energia")
 
 
 def fetch_lever_board(source, board, company):
