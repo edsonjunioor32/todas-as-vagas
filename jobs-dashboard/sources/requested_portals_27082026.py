@@ -262,7 +262,7 @@ class _SalecoListingParser(HTMLParser):
 def _saleco_slug_title(url):
     slug = url.rstrip("/").rsplit("/", 1)[-1]
     title = re.sub(r"[-_]+", " ", urllib.parse.unquote(slug)).strip()
-    return re.sub(r"\\s{2,}", " ", title)
+    return re.sub(r"\s{2,}", " ", title)
 
 
 def fetch_saleco():
