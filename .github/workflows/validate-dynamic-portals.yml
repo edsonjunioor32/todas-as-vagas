@@ -18,6 +18,7 @@ on:
       - "jobs-dashboard/tests/test_dynamic_portals.py"
       - "jobs-dashboard/tests/test_merge_dynamic_portals.py"
       - "jobs-dashboard/tests/test_new_sources.py"
+      - "jobs-dashboard/sources/requested_portals_27082026.py"
       - ".github/workflows/validate-dynamic-portals.yml"
   workflow_dispatch:
 
