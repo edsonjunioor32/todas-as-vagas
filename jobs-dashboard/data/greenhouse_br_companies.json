@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-08-27T00:05:42.923814+00:00",
+  "generated_at": "2026-08-27T12:29:13.023814+00:00",
   "candidate_count": 8331,
-  "company_count": 199,
+  "company_count": 201,
   "companies": [
     {
       "board": "abinbev",
@@ -27,7 +27,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 177
+      "brazil_jobs": 176
     },
     {
       "board": "agilize",
@@ -152,7 +152,7 @@
     {
       "board": "bees",
       "company": "BEES",
-      "brazil_jobs": 47
+      "brazil_jobs": 46
     },
     {
       "board": "betsson",
@@ -212,7 +212,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 170
+      "brazil_jobs": 171
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -267,7 +267,7 @@
     {
       "board": "clara",
       "company": "Clara",
-      "brazil_jobs": 49
+      "brazil_jobs": 50
     },
     {
       "board": "classpass",
@@ -410,6 +410,11 @@
       "brazil_jobs": 11
     },
     {
+      "board": "figma",
+      "company": "Figma",
+      "brazil_jobs": 4
+    },
+    {
       "board": "figureai",
       "company": "Figure",
       "brazil_jobs": 8
@@ -527,7 +532,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 134
+      "brazil_jobs": 133
     },
     {
       "board": "interbrand",
@@ -682,7 +687,7 @@
     {
       "board": "onrunning",
       "company": "On",
-      "brazil_jobs": 6
+      "brazil_jobs": 7
     },
     {
       "board": "optimove",
@@ -890,6 +895,11 @@
       "brazil_jobs": 5
     },
     {
+      "board": "telnyx54",
+      "company": "Telnyx",
+      "brazil_jobs": 3
+    },
+    {
       "board": "thanx",
       "company": "Thanx",
       "brazil_jobs": 2
@@ -952,12 +962,12 @@
     {
       "board": "vtex",
       "company": "VTEX",
-      "brazil_jobs": 21
+      "brazil_jobs": 22
     },
     {
       "board": "gympass",
       "company": "Wellhub",
-      "brazil_jobs": 35
+      "brazil_jobs": 36
     },
     {
       "board": "wildlifestudios",
@@ -997,7 +1007,7 @@
     {
       "board": "ilia",
       "company": "ília",
-      "brazil_jobs": 14
+      "brazil_jobs": 13
     }
   ]
 }
