@@ -8,6 +8,7 @@ somente as linhas pertencentes a estas fontes.
 import html
 import json
 import re
+import urllib.parse
 from urllib.parse import urljoin
 
 from ._common import is_brazil_location, iso_date, job, strip_html, work_model_label
@@ -59,6 +60,20 @@ BRAZIL_WORDS = re.compile(
     r"santa catarina|minas gerais|bahia|pernambuco|cear[aá]",
     re.I,
 )
+
+
+NEXT_DATA_RE = re.compile(
+    r'<script[^>]+id=["\\']__NEXT_DATA__["\\'][^>]*>(.*?)</script>',
+    re.I | re.S,
+)
+
+
+def _next_data(page):
+    match = NEXT_DATA_RE.search(page)
+    if not match:
+        raise RuntimeError("page without __NEXT_DATA__")
+    return json.loads(html.unescape(match.group(1)))
+
 
 
 def _workday_rows(name):
@@ -211,12 +226,21 @@ def fetch_elis():
 
 def _abler_rows(source, subdomain, company):
     """Read a generic Abler public JSON:API career page."""
-    api = f"https://hulk-smash.abler.com.br/api/company/v1/careers_pages/{subdomain}/vacancies"
-    public_root = f"https://ats.abler.com.br/jobs/{subdomain}"
+    encoded_subdomain = urllib.parse.quote(subdomain, safe="")
+    api_root = (
+        "https://hulk-smash.abler.com.br/api/company/v1/careers_pages/"
+        f"{encoded_subdomain}/vacancies"
+    )
+    public_root = f"https://ats.abler.com.br/jobs/{encoded_subdomain}"
     rows, seen = [], set()
     for page in range(1, 21):
+        query = urllib.parse.urlencode({
+            "page": page,
+            "per_page": 100,
+            "include": "area_of_interests,level_of_interest",
+        })
         payload = get_json(
-            api,
+            f"{api_root}?{query}",
             headers={"Origin": "https://ats.abler.com.br", "Referer": public_root},
             timeout=60,
             retries=3,
@@ -273,11 +297,6 @@ def _abler_rows(source, subdomain, company):
         last_page = int(meta.get("last") or page)
         if page >= last_page or not values:
             break
-        # The current Abler endpoint accepts the page through the query string.
-        api = (
-            f"https://hulk-smash.abler.com.br/api/company/v1/careers_pages/"
-            f"{subdomain}/vacancies?page={page + 1}&per_page=100"
-        )
     if not rows:
         raise RuntimeError(f"Abler/{subdomain} returned no public vacancies")
     return rows
