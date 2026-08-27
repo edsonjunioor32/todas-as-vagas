@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import inspect
 import os
 import sys
 import tempfile
@@ -133,6 +134,27 @@ class StorageTests(unittest.TestCase):
                 failed_sources=["greenhouse"],
             )
             self.assertEqual(count, 1)
+            conn.close()
+
+
+    def test_public_snapshot_has_no_default_job_count_limit(self):
+        default = inspect.signature(storage.export_snapshot).parameters["max_jobs"].default
+        self.assertIsNone(default)
+
+        with tempfile.TemporaryDirectory() as temporary:
+            conn = storage.connect(str(Path(temporary) / "jobs.db"))
+            storage.upsert(
+                conn,
+                [sample_job("portal", "1"), sample_job("portal", "2")],
+                today="2026-08-20",
+            )
+            out = Path(temporary) / "vagas.json"
+            count, _ = storage.export_snapshot(
+                conn,
+                str(out),
+                today="2026-08-20",
+            )
+            self.assertEqual(count, 2)
             conn.close()
 
 
