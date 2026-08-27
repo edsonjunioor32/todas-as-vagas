@@ -11,7 +11,7 @@ import re
 from urllib.parse import urljoin
 
 from ._common import is_brazil_location, iso_date, job, strip_html, work_model_label
-from ._http import get_json, get_text
+from ._http import get_json, get_text, post_json
 
 
 WORKDAY = {
@@ -66,10 +66,9 @@ def _workday_rows(name):
     rows, seen = [], set()
     offset, limit = 0, 20
     while offset < 5000:
-        payload = get_json(
+        payload = post_json(
             WORKDAY_API.format(**config),
-            data={"appliedFacets": {}, "limit": limit, "offset": offset, "searchText": ""},
-            method="post",
+            {"appliedFacets": {}, "limit": limit, "offset": offset, "searchText": ""},
             headers={"Accept": "application/json", "Content-Type": "application/json"},
             timeout=60,
             retries=3,
@@ -140,7 +139,7 @@ def _jsonld_rows(source, url, company):
             continue
         values = payload if isinstance(payload, list) else [payload]
         for value in values:
-            if not isinstance(value, dict) or value.get("@type") not in {"JobPosting", ["JobPosting"]}:
+            if not isinstance(value, dict) or value.get("@type") != "JobPosting":
                 continue
             title = str(value.get("title") or "").strip()
             if not title:
