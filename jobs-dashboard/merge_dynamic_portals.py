@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-"""Merge only the eight repaired career feeds into the existing public catalog.
+"""Merge only the validated requested career feeds into the existing catalog.
 
-This is deliberately different from the general ETL.  It collects the eight
-sources, refuses to write anything if one of them fails, updates only their
-rows in a copied SQLite database, and atomically replaces the public snapshot.
-All other portals and their history remain untouched.
+This is deliberately different from the general ETL. It collects the repaired
+feeds, refuses to write anything if one of them fails, updates only their rows
+in a copied SQLite database, and atomically replaces the public snapshot. All
+other portals and their history remain untouched.
 """
 import argparse
 import json
@@ -31,6 +31,7 @@ from sources import (  # noqa: E402
     experian,
     quickin,
     requested_careers,
+    requested_portals_27082026,
     sankhya_senior,
     spassu,
 )
@@ -48,7 +49,7 @@ TARGETS = (
     ("dbccompany", requested_careers.fetch_dbccompany),
     ("sankhya", sankhya_senior.fetch_sankhya),
     ("senior", sankhya_senior.fetch_senior),
-)
+) + requested_portals_27082026.TARGETS
 TARGET_NAMES = {name for name, _ in TARGETS}
 
 
@@ -184,7 +185,7 @@ def merge_catalog(rows, collected_counts, db_path=DB_PATH, json_path=JSON_PATH,
 
         if dry_run:
             print(f"  dry-run: {public_count} vagas públicas · {size_mb:.2f} MB")
-            print(f"  removidas apenas dos oito portais: {removed}")
+            print(f"  removidas apenas dos portais do lote: {removed}")
             print(f"  índice de aderência: {fit_changed} entradas atualizadas · {fit_count} total")
             return {
                 "public_count": public_count, "removed": removed,
