@@ -170,6 +170,18 @@ class SalecoTests(unittest.TestCase):
         self.assertNotEqual(rows[0]["title"], "Exibir vaga")
 
 
+    def test_contact_links_are_ignored(self):
+        markup = """
+        <h3>Analista de Operações</h3>
+        <a href="/jobs/analista-de-operacoes">Exibir vaga</a>
+        <a href="mailto:contato@saleco.com.br?subject=Contato">Fale conosco</a>
+        """
+        with patch.object(requested_portals_27082026, "get_text", return_value=markup):
+            rows = requested_portals_27082026.fetch_saleco()
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["title"], "Analista de Operações")
+
+
 class RegistryTests(unittest.TestCase):
     def test_new_sources_are_registered_and_guarded(self):
         selected = pipeline.selected_registry("spassu,infovagas")
