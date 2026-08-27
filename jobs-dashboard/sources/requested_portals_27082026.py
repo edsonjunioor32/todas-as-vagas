@@ -63,7 +63,7 @@ BRAZIL_WORDS = re.compile(
 
 
 NEXT_DATA_RE = re.compile(
-    r'<script[^>]+id=["\\']__NEXT_DATA__["\\'][^>]*>(.*?)</script>',
+    r'<script[^>]+id=["\']__NEXT_DATA__["\'][^>]*>(.*?)</script>',
     re.I | re.S,
 )
 
