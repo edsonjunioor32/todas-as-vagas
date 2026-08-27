@@ -10,7 +10,7 @@ from unittest.mock import patch
 DASHBOARD = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(DASHBOARD))
 
-from sources import experian, quickin, spassu  # noqa: E402
+from sources import experian, quickin, spassu, requested_portals_27082026  # noqa: E402
 import pipeline  # noqa: E402
 
 
@@ -146,6 +146,28 @@ class ExperianTests(unittest.TestCase):
     def test_legacy_marker_is_a_fallback(self):
         self.assertEqual(experian._parse_work_model("#LI-HYBRID"), "hybrid")
         self.assertEqual(experian._parse_work_model("#LI-REMOTE"), "remote")
+
+
+class SalecoTests(unittest.TestCase):
+    def test_listing_heading_is_used_instead_of_button_label(self):
+        markup = """
+        <h3>Assistente Administrativo Junior</h3>
+        <a href="/jobs/assistente-administrativo-junior">
+          <span>Exibir vaga</span>
+        </a>
+        """
+        parser = requested_portals_27082026._SalecoListingParser()
+        parser.feed(markup)
+        self.assertEqual(
+            parser.links,
+            [("/jobs/assistente-administrativo-junior", "Exibir vaga",
+              "Assistente Administrativo Junior")],
+        )
+
+        with patch.object(requested_portals_27082026, "get_text", return_value=markup):
+            rows = requested_portals_27082026.fetch_saleco()
+        self.assertEqual(rows[0]["title"], "Assistente Administrativo Junior")
+        self.assertNotEqual(rows[0]["title"], "Exibir vaga")
 
 
 class RegistryTests(unittest.TestCase):
