@@ -329,6 +329,7 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
         active_feed_clause = f" OR source IN ({placeholders})"
         active_feed_params = active_feed_sources
 
+    # The general refresh leaves max_jobs unset so every eligible row is exported.
     limit_clause = ""
     query_params = (
         cutoff, *failed_params, today, age_cutoff, today, *active_feed_params
