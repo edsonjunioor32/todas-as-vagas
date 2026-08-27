@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from sources import digisystem, experian, quickin, requested_careers, sankhya_senior, spassu  # noqa: E402
+from sources import digisystem, experian, quickin, requested_careers, sankhya_senior, spassu, requested_portals_27082026  # noqa: E402
 
 
 SOURCES = (
@@ -29,6 +29,8 @@ SOURCES = (
     ("spassu", spassu.fetch),
     ("infovagas", quickin.fetch),
 )
+
+SOURCES = SOURCES + requested_portals_27082026.TARGETS
 
 
 def _validate_rows(name, rows):
