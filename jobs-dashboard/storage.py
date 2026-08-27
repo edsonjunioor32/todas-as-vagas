@@ -291,15 +291,17 @@ def prune(conn, keep_days=120, today=None, max_age_months=2,
     return cursor.rowcount
 
 
-def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=50000,
+def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
                     max_age_months=2,
-                    max_raw_mb=18, source_counts=None, failed_sources=None):
+                    max_raw_mb=64, source_counts=None, failed_sources=None):
     """Export jobs seen in a recent successful collection window.
 
     A three-day tolerance prevents a temporary portal outage from instantly
     removing all of that portal's vacancies from the public page. When a
     source explicitly failed, its last valid rows remain eligible until the
     normal publication-age cutoff instead of disappearing after three days.
+    By default the public snapshot is not truncated by a job-count limit;
+    callers may still pass ``max_jobs`` for an explicitly bounded export.
     """
     today = today or local_today().isoformat()
     cutoff = (date.fromisoformat(today) - timedelta(days=max(0, fresh_days - 1))).isoformat()
@@ -326,6 +328,14 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=50000,
         placeholders = ", ".join("?" for _ in active_feed_sources)
         active_feed_clause = f" OR source IN ({placeholders})"
         active_feed_params = active_feed_sources
+
+    limit_clause = ""
+    query_params = (
+        cutoff, *failed_params, today, age_cutoff, today, *active_feed_params
+    )
+    if max_jobs is not None:
+        limit_clause = "LIMIT ?"
+        query_params = (*query_params, int(max_jobs))
     rows = conn.execute(f"""
         SELECT source, title, company, area, seniority, work_model, city, state,
                country, market, salary_min, salary_max, salary_currency,
@@ -346,8 +356,8 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=50000,
           )
         ORDER BY MAX(COALESCE(published_date,''), first_seen_date) DESC,
                  last_seen_date DESC
-        LIMIT ?
-    """, (cutoff, *failed_params, today, age_cutoff, today, *active_feed_params, max_jobs)).fetchall()
+        {limit_clause}
+    """, query_params).fetchall()
 
     portal_sets = {}
     snapshot_source_counts = {}
