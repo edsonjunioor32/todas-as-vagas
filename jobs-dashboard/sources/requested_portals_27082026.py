@@ -229,7 +229,7 @@ def fetch_saleco():
     page = get_text(listing_url, timeout=45, retries=3)
     rows, seen = [], set()
     links = re.findall(
-        r'href=["\\']([^"\\']*/jobs/[^"\\']+)["\\']',
+        r'href=["\']([^"\']*/jobs/[^"\']+)["\']',
         page,
         re.I,
     )
