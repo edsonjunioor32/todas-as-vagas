@@ -214,7 +214,7 @@ def extract_requirements(job: dict, taxonomy: dict | None = None) -> dict:
     return {**groups, "confidence": confidence}
 
 
-def export_fit_index(rows, out_path, taxonomy_path=None, max_raw_mb=8.0):
+def export_fit_index(rows, out_path, taxonomy_path=None, max_raw_mb=16.0):
     taxonomy = load_taxonomy(taxonomy_path)
     terms, term_index, jobs = [], {}, {}
     def code(label):
