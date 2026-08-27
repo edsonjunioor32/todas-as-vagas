@@ -168,7 +168,7 @@ def _jsonld_rows(source, url, company):
     return rows
 
 
-def _anchor_rows(source, url, company, pattern=r"/(?:vaga|vagas|job|jobs)/[^"?#]+"):
+def _anchor_rows(source, url, company, pattern=r'/(?:vaga|vagas|job|jobs)/[^"?#]+'):
     page = get_text(url, timeout=45, retries=3)
     rows, seen = [], set()
     for href, label in re.findall(
@@ -210,11 +210,11 @@ def fetch_elis():
 
 def fetch_abler_talentodovalesc():
     url = "https://ats.abler.com.br/jobs/talentodovalesc"
-    return _anchor_rows("talentodovalesc", url, "Talento do Vale SC", r"/jobs/[^"?#]+")
+    return _anchor_rows("talentodovalesc", url, "Talento do Vale SC", r'/jobs/[^"?#]+')
 
 
 def fetch_beq():
-    return _anchor_rows("beq", "https://jobs.compleo.app/BEQ/joblist", "B&Q Energia", r"/(?:job|jobdetail|BEQ)/[^"?#]+")
+    return _anchor_rows("beq", "https://jobs.compleo.app/BEQ/joblist", "B&Q Energia", r'/(?:job|jobdetail|BEQ)/[^"?#]+')
 
 
 def fetch_lever_board(source, board, company):
