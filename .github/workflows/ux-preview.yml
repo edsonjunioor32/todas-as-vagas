@@ -22,6 +22,20 @@ jobs:
       - name: Baixar o repositório
         uses: actions/checkout@v4
 
+      - name: Restaurar snapshots públicos
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f docs/data/vagas.json ] && [ -f docs/data/fit.json ]; then
+            echo "Snapshots públicos já estão no checkout."
+            exit 0
+          fi
+          git fetch --no-tags origin public-data
+          mkdir -p docs/data
+          git archive origin/public-data data | tar -x -C docs
+          test -s docs/data/vagas.json
+          test -s docs/data/fit.json
+
       - name: Preparar Node.js
         uses: actions/setup-node@v4
         with:
