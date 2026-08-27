@@ -30,6 +30,10 @@ JSON_PATH = ROOT / "docs" / "data" / "vagas.json"
 NONEMPTY_SOURCES = {
     "digisystem", "recrutei", "docusign", "dbccompany", "sankhya", "senior", "mercadolivre",
     "greenhouse", "spassu", "infovagas",
+    # Requested career pages are part of the protected public feed: a
+    # transient empty response must never erase their last valid rows.
+    "avanade", "huntit", "talentodovalesc", "beq", "forza", "saleco", "elis",
+    "flash", "neon", "zippi", "bv", "santander", "iberdrola", "iqvia", "mdlz",
 }
 
 def selected_registry(names):
