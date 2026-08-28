@@ -381,12 +381,31 @@ def _btg_detail_row(url, markup):
     )
 
 
-def _sitemap_urls(markup):
-    values = [
+def _sitemap_locs(markup):
+    return [
         html.unescape(value).strip()
         for value in re.findall(r"<loc>\s*(.*?)\s*</loc>", markup, re.I | re.S)
     ]
-    return list(dict.fromkeys(value for value in values if _btg_job_href(value)))
+
+
+def _sitemap_urls(markup, depth=0):
+    direct = [
+        value for value in _sitemap_locs(markup)
+        if _btg_job_href(value)
+    ]
+    if direct or depth >= 3:
+        return list(dict.fromkeys(direct))
+
+    nested = []
+    for value in _sitemap_locs(markup):
+        if "sitemap" not in urlsplit(value).path.casefold():
+            continue
+        try:
+            child = get_text(value, timeout=45, retries=3)
+        except Exception:
+            continue
+        nested.extend(_sitemap_urls(child, depth=depth + 1))
+    return list(dict.fromkeys(nested))
 
 
 def _btg_detail_fetch(url):
