@@ -15,6 +15,7 @@ from ._common import job, strip_html, work_model_label
 from ._http import get_text
 
 BASE = "https://www.geekhunter.com/pt/vagas"
+NTT_DATA_BASE = "https://www.geekhunter.com/pt/ntt-data/jobs"
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; todas-as-vagas/1.0)"}
 
 
@@ -61,8 +62,8 @@ def _parse_page(html):
     return rows, meta
 
 
-def _page(page):
-    html = get_text(f"{BASE}?page={page}", headers=HEADERS, timeout=45, retries=3)
+def _page(page, base=BASE):
+    html = get_text(f"{base}?page={page}", headers=HEADERS, timeout=45, retries=3)
     return _parse_page(html)
 
 
@@ -137,7 +138,7 @@ def _skills(detail):
     return list(dict.fromkeys(output))
 
 
-def _normalize(item):
+def _normalize(item, source="geekhunter", company_override=None):
     ats = item.get("atsJob") or {}
     detail = ats.get("atsJobDetail") or {}
     company_slug = str((ats.get("company") or {}).get("slug") or "").strip()
@@ -149,10 +150,10 @@ def _normalize(item):
     pcd_text = f"{detail.get('title', '')} {description}".lower()
 
     return job(
-        "geekhunter",
+        source,
         item.get("id") or ats.get("id"),
         title=detail.get("title", ""),
-        company=_company_name(company_slug),
+        company=company_override or _company_name(company_slug),
         url=f"https://www.geekhunter.com/pt/{company_slug}/jobs/{job_slug}",
         work_model=work_model,
         city=location,
@@ -174,8 +175,13 @@ def _normalize(item):
     )
 
 
-def fetch():
-    first_rows, first_meta = _page(1)
+def _company_matches(slug, expected):
+    normalized = re.sub(r"[^a-z0-9]", "", str(slug or "").lower())
+    return normalized == re.sub(r"[^a-z0-9]", "", expected.lower())
+
+
+def _catalog(base, source, company_filter=None, company_override=None):
+    first_rows, first_meta = _page(1, base=base)
     available_pages = max(1, int(first_meta.get("lastPage") or 1))
     configured_cap = int(os.environ.get("GEEKHUNTER_MAX_PAGES") or available_pages)
     total_pages = min(available_pages, max(1, configured_cap))
@@ -185,7 +191,10 @@ def fetch():
     failed_pages = []
     if total_pages > 1:
         with ThreadPoolExecutor(max_workers=workers) as executor:
-            futures = {executor.submit(_page, page): page for page in range(2, total_pages + 1)}
+            futures = {
+                executor.submit(_page, page, base=base): page
+                for page in range(2, total_pages + 1)
+            }
             for future in as_completed(futures):
                 page = futures[future]
                 try:
@@ -201,6 +210,29 @@ def fetch():
     unique = {}
     for page in range(1, total_pages + 1):
         for item in pages.get(page, []):
-            row = _normalize(item)
+            ats = item.get("atsJob") or {}
+            company_slug = str((ats.get("company") or {}).get("slug") or "").strip()
+            if company_filter and not _company_matches(company_slug, company_filter):
+                continue
+            row = _normalize(
+                item,
+                source=source,
+                company_override=company_override,
+            )
             unique[row["native_id"] or row["url"]] = row
+    if not unique:
+        raise RuntimeError(f"{source} returned no public vacancies")
     return list(unique.values())
+
+
+def fetch():
+    return _catalog(BASE, "geekhunter")
+
+
+def fetch_ntt_data():
+    return _catalog(
+        NTT_DATA_BASE,
+        "nttdata",
+        company_filter="nttdata",
+        company_override="NTT DATA",
+    )
