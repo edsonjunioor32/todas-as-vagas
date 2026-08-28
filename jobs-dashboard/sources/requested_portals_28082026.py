@@ -191,10 +191,10 @@ def fetch_luza():
 
 def _btg_job_href(value):
     parsed = urlsplit(str(value or ""))
-    return (
-        parsed.path.casefold().startswith("/vagas/")
-        and bool(re.search(r"/\d{6,}/?$", parsed.path))
-    )
+    path = parsed.path.rstrip("/").casefold()
+    path_job = bool(re.search(r"/\d{6,}$", path))
+    query_job = bool(re.search(r"(?:^|&)gh_jid=\d{6,}(?:&|$)", parsed.query))
+    return path.startswith("/vagas") and (path_job or query_job)
 
 
 class _BtgListingParser(HTMLParser):
@@ -294,6 +294,9 @@ def _btg_slug_title(url):
         slug = parts[-1]
     else:
         slug = ""
+    if slug.casefold() == "vagas":
+        job_id = _btg_native_id(url)
+        return f"Vaga BTG Pactual {job_id}" if job_id else ""
     return re.sub(r"[-_]+", " ", slug).strip()
 
 
@@ -382,10 +385,15 @@ def _btg_detail_row(url, markup):
 
 
 def _sitemap_locs(markup):
-    return [
-        html.unescape(value).strip()
-        for value in re.findall(r"<loc>\s*(.*?)\s*</loc>", markup, re.I | re.S)
-    ]
+    decoded = html.unescape(markup or "")
+    values = re.findall(r"<loc>\s*(.*?)\s*</loc>", decoded, re.I | re.S)
+    if not values:
+        values = re.findall(
+            r"https?://carreiras\.btgpactual\.com[^<\"'\s]+",
+            decoded,
+            re.I,
+        )
+    return list(dict.fromkeys(html.unescape(value).strip() for value in values))
 
 
 def _sitemap_urls(markup, depth=0):
@@ -398,7 +406,13 @@ def _sitemap_urls(markup, depth=0):
 
     nested = []
     for value in _sitemap_locs(markup):
-        if "sitemap" not in urlsplit(value).path.casefold():
+        location = urlsplit(value)
+        sitemap_path = location.path.casefold()
+        if (
+            "sitemap" not in sitemap_path
+            and ".xml" not in sitemap_path
+            and "sitemap" not in location.query.casefold()
+        ):
             continue
         try:
             child = get_text(value, timeout=45, retries=3)
@@ -423,7 +437,7 @@ def fetch_btg():
     sitemap = get_text(BTG_SITEMAP_URL, timeout=45, retries=3)
     urls = _sitemap_urls(sitemap)
     if not urls:
-        raise RuntimeError("btg returned no public vacancy cards or sitemap URLs")
+        raise RuntimeError(f"btg returned no public vacancy cards or sitemap URLs (listing={len(listing)} bytes, sitemap={len(sitemap)} bytes)")
 
     workers = _configured_int("BTG_WORKERS", 8, maximum=12)
     details, failed = {}, []
