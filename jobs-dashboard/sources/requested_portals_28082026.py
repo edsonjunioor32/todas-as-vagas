@@ -543,32 +543,45 @@ def _btg_rendered_rows():
                     ].join(" ").replace(/\s+/g, " ").trim();
                     const textOf = node => (node.innerText || node.textContent || "")
                       .replace(/\s+/g, " ").trim();
-                    const isContinuation = node => {
+                    const usable = node => {
                       const text = textOf(node);
                       const meta = labelOf(node);
-                      if (!visible(node)
-                          || node.disabled
-                          || node.getAttribute("aria-disabled") === "true"
-                          || /^ver\s+vaga$/i.test(text)) {
-                        return false;
-                      }
-                      return /(?:carregar|mostrar|exibir|load|show).{0,24}(?:mais|more|vaga|vagas|resultado|result)/i.test(meta)
-                        || /(?:mais\s+vagas|pr[oó]ximo|proximo|next|seguinte|p[aá]gina|page)/i.test(meta);
+                      return visible(node)
+                        && !node.disabled
+                        && node.getAttribute("aria-disabled") !== "true"
+                        && !node.closest(".active, [aria-current='page']")
+                        && !/p[aá]gina\s*(atual|current)|current\s*page/i.test(meta)
+                        && !/^ver\s+vaga$/i.test(text);
                     };
-                    let candidate = nodes.find(isContinuation);
+                    const continuation = node => {
+                      const meta = labelOf(node);
+                      return usable(node) && /(?:carregar|mostrar|exibir|load|show).{0,24}(?:mais|more|vaga|vagas|resultado|result)/i.test(meta)
+                        || usable(node) && /(?:mais\s+vagas|pr[oó]xim[oa]|proxim[oa]|next|seguinte|next\s+page|p[aá]gina\s+seguinte)/i.test(meta);
+                    };
+                    let candidate = nodes.find(continuation);
                     if (!candidate) {
                       const pageNodes = Array.from(document.querySelectorAll(
-                        ".pagination a, .pagination button, [class*='pagination'] a, [class*='pagination'] button, [aria-label*='page' i]"
+                        ".pagination a, .pagination button, [class*='pagination'] a, [class*='pagination'] button, [aria-label*='p[aá]gina' i], [aria-label*='page' i]"
                       ));
-                      candidate = pageNodes.find(node => {
-                        const text = textOf(node);
-                        return visible(node)
-                          && !node.disabled
-                          && node.getAttribute("aria-disabled") !== "true"
-                          && /^\d+$/.test(text)
-                          && !node.classList.contains("active")
-                          && !node.closest(".active, [aria-current='page']");
-                      });
+                      const pages = pageNodes
+                        .filter(usable)
+                        .map(node => {
+                          const match = (textOf(node) + " " + labelOf(node)).match(/\b(\d+)\b/);
+                          return {node: node, number: match ? Number(match[1]) : 0};
+                        })
+                        .filter(item => item.number > 0);
+                      const active = Array.from(document.querySelectorAll(
+                        ".pagination .active, .pagination [aria-current='page'], [class*='pagination'] .active"
+                      ))
+                        .map(node => {
+                          const match = (textOf(node) + " " + labelOf(node)).match(/\b(\d+)\b/);
+                          return match ? Number(match[1]) : 0;
+                        })
+                        .find(number => number > 0) || 0;
+                      candidate = pages
+                        .filter(item => item.number > active)
+                        .sort((left, right) => left.number - right.number)[0]?.node
+                        || pages.sort((left, right) => right.number - left.number)[0]?.node;
                     }
                     const controls = nodes
                       .filter(node => visible(node))
