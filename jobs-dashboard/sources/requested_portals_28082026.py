@@ -509,6 +509,8 @@ def _btg_rendered_rows():
         current = {"total": 0, "rows": []}
         collected = {}
         previous_count = 0
+        last_action = ""
+        last_controls = []
         while time.monotonic() < deadline:
             current = _btg_rendered_items(driver)
             for item in current["rows"]:
@@ -522,33 +524,90 @@ def _btg_rendered_rows():
             # activate the public continuation control, when present, until
             # the number shown by the page is reached.
             if len(collected) == previous_count:
-                driver.execute_script(
+                action = driver.execute_script(
                     r"""
+                    const selectors = "button, a, [role='button'], [aria-label], input[type='button'], input[type='submit']";
+                    const nodes = Array.from(document.querySelectorAll(selectors));
+                    const visible = node => {
+                      const rect = node.getBoundingClientRect();
+                      const style = window.getComputedStyle(node);
+                      return rect.width > 0 && rect.height > 0
+                        && style.visibility !== "hidden"
+                        && style.display !== "none";
+                    };
+                    const labelOf = node => [
+                      node.innerText || node.textContent || "",
+                      node.getAttribute("aria-label") || "",
+                      node.getAttribute("title") || "",
+                      typeof node.className === "string" ? node.className : ""
+                    ].join(" ").replace(/\s+/g, " ").trim();
+                    const textOf = node => (node.innerText || node.textContent || "")
+                      .replace(/\s+/g, " ").trim();
+                    const isContinuation = node => {
+                      const text = textOf(node);
+                      const meta = labelOf(node);
+                      if (!visible(node)
+                          || node.disabled
+                          || node.getAttribute("aria-disabled") === "true"
+                          || /^ver\s+vaga$/i.test(text)) {
+                        return false;
+                      }
+                      return /(?:carregar|mostrar|exibir|load|show).{0,24}(?:mais|more|vaga|vagas|resultado|result)/i.test(meta)
+                        || /(?:mais\s+vagas|pr[oó]ximo|proximo|next|seguinte|p[aá]gina|page)/i.test(meta);
+                    };
+                    let candidate = nodes.find(isContinuation);
+                    if (!candidate) {
+                      const pageNodes = Array.from(document.querySelectorAll(
+                        ".pagination a, .pagination button, [class*='pagination'] a, [class*='pagination'] button, [aria-label*='page' i]"
+                      ));
+                      candidate = pageNodes.find(node => {
+                        const text = textOf(node);
+                        return visible(node)
+                          && !node.disabled
+                          && node.getAttribute("aria-disabled") !== "true"
+                          && /^\d+$/.test(text)
+                          && !node.classList.contains("active")
+                          && !node.closest(".active, [aria-current='page']");
+                      });
+                    }
+                    const controls = nodes
+                      .filter(node => visible(node))
+                      .map(node => labelOf(node))
+                      .filter(label => label)
+                      .filter((label, index, values) => values.indexOf(label) === index)
+                      .slice(-40);
+                    const scrollables = [
+                      document.scrollingElement,
+                      ...Array.from(document.querySelectorAll("body *"))
+                        .filter(node => node.scrollHeight > node.clientHeight + 200)
+                    ];
+                    for (const node of scrollables.slice(0, 40)) {
+                      node.scrollTop = node.scrollHeight;
+                    }
                     window.scrollTo(0, document.body.scrollHeight);
-                    const labels = /^(?:carregar mais|ver mais|próximo|proximo|next|mais vagas)$/i;
-                    const nodes = Array.from(document.querySelectorAll("button, a"));
-                    const candidate = nodes.find(node => {
-                      const text = (node.innerText || node.textContent || "").replace(/\s+/g, " ").trim();
-                      const aria = (node.getAttribute("aria-label") || "").trim();
-                      const disabled = node.disabled
-                        || node.getAttribute("aria-disabled") === "true";
-                      return !disabled && (
-                        labels.test(text)
-                        || /(?:próximo|proximo|next)/i.test(aria)
-                      );
-                    });
-                    if (candidate) candidate.click();
+                    if (candidate) {
+                      const label = labelOf(candidate);
+                      candidate.click();
+                      return {clicked: label, controls: controls};
+                    }
+                    return {clicked: "", controls: controls};
                     """,
                 )
+                last_action = str((action or {}).get("clicked") or "")
+                last_controls = (action or {}).get("controls") or []
             else:
-                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                last_action = ""
+                driver.execute_script(
+                    "window.scrollTo(0, document.body.scrollHeight);"
+                )
             previous_count = len(collected)
-            time.sleep(1)
+            time.sleep(2 if last_action else 1)
         if not collected:
             raise RuntimeError("BTG did not expose public vacancy cards after rendering")
         if current["total"] and len(collected) < current["total"]:
             raise RuntimeError(
-                f"BTG rendered only {len(collected)}/{current['total']} vacancy cards"
+                f"BTG rendered only {len(collected)}/{current['total']} vacancy cards "
+                f"(continuation={last_action or 'none'}; controls={'; '.join(last_controls[-20:])})"
             )
 
         rows = []
