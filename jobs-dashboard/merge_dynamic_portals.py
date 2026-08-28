@@ -27,11 +27,14 @@ import fit_requirements  # noqa: E402
 import pipeline  # noqa: E402
 import storage  # noqa: E402
 from sources import (  # noqa: E402
+    bradesco,
     digisystem,
     experian,
+    geekhunter,
     quickin,
     requested_careers,
     requested_portals_27082026,
+    requested_portals_28082026,
     sankhya_senior,
     spassu,
 )
@@ -49,7 +52,9 @@ TARGETS = (
     ("dbccompany", requested_careers.fetch_dbccompany),
     ("sankhya", sankhya_senior.fetch_sankhya),
     ("senior", sankhya_senior.fetch_senior),
-) + requested_portals_27082026.TARGETS
+    ("bradesco", bradesco.fetch),
+    ("nttdata", geekhunter.fetch_ntt_data),
+) + requested_portals_27082026.TARGETS + requested_portals_28082026.TARGETS
 TARGET_NAMES = {name for name, _ in TARGETS}
 
 
