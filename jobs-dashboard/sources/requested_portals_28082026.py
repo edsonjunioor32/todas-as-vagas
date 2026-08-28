@@ -500,19 +500,45 @@ def _btg_rendered_items(driver):
 
 
 def _btg_rendered_rows():
-    timeout = _configured_int("BTG_RENDER_TIMEOUT", 60, maximum=90)
+    timeout = _configured_int("BTG_RENDER_TIMEOUT", 90, maximum=120)
     driver = _new_btg_driver()
     try:
         driver.set_page_load_timeout(timeout)
         driver.get(BTG_URL)
         deadline = time.monotonic() + timeout
         current = {"total": 0, "rows": []}
+        previous_count = 0
         while time.monotonic() < deadline:
             current = _btg_rendered_items(driver)
             if current["rows"] and (
                 not current["total"] or len(current["rows"]) >= current["total"]
             ):
                 break
+            # BTG initially exposes only the first 100 cards. Scroll and
+            # activate the public continuation control, when present, until
+            # the number shown by the page is reached.
+            if len(current["rows"]) == previous_count:
+                driver.execute_script(
+                    r"""
+                    window.scrollTo(0, document.body.scrollHeight);
+                    const labels = /^(?:carregar mais|ver mais|próximo|proximo|next|mais vagas)$/i;
+                    const nodes = Array.from(document.querySelectorAll("button, a"));
+                    const candidate = nodes.find(node => {
+                      const text = (node.innerText || node.textContent || "").replace(/\s+/g, " ").trim();
+                      const aria = (node.getAttribute("aria-label") || "").trim();
+                      const disabled = node.disabled
+                        || node.getAttribute("aria-disabled") === "true";
+                      return !disabled && (
+                        labels.test(text)
+                        || /(?:próximo|proximo|next)/i.test(aria)
+                      );
+                    });
+                    if (candidate) candidate.click();
+                    """,
+                )
+            else:
+                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            previous_count = len(current["rows"])
             time.sleep(1)
         if not current["rows"]:
             raise RuntimeError("BTG did not expose public vacancy cards after rendering")
