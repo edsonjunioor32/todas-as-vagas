@@ -20,9 +20,15 @@ from ._http import get_text
 COMPANY = "Bradesco"
 TENANT = "bradesco"
 SITE_ID = 1
-CAREERS_URL = (
-    "https://bradesco.csod.com/ux/ats/careersite/1/home?c=bradesco"
-)
+SITE_IDS = (1, 2)
+
+
+def _careers_url(site_id):
+    source = "&source=LinkedIn" if site_id == 2 else ""
+    return f"https://bradesco.csod.com/ux/ats/careersite/{site_id}/home?c={TENANT}{source}"
+
+
+CAREERS_URL = _careers_url(SITE_ID)
 PAGE_SIZE = 50
 API_REGIONS = (
     "https://us.api.csod.com",
@@ -32,8 +38,9 @@ API_REGIONS = (
 )
 
 
-def _bootstrap():
-    markup = get_text(CAREERS_URL, timeout=45, retries=3)
+def _bootstrap(site_id=SITE_ID):
+    careers_url = _careers_url(site_id)
+    markup = get_text(careers_url, timeout=45, retries=3)
     context_match = re.search(
         r"csod\.context\s*=\s*(\{.*?\})\s*;",
         markup,
@@ -152,7 +159,7 @@ def _csod_date(value):
         return ""
 
 
-def _row(item):
+def _row(item, site_id=SITE_ID):
     native_id = _field(item, "requisitionId", "requisitionID", "id", "jobId")
     title = _field(
         item,
@@ -195,7 +202,7 @@ def _row(item):
     else:
         city, state, _country = split_location(location)
     url = (
-        f"https://bradesco.csod.com/ux/ats/careersite/{SITE_ID}"
+        f"https://bradesco.csod.com/ux/ats/careersite/{site_id}"
         f"/home/requisition/{native_id}?c={TENANT}"
     )
     raw = " ".join((str(title), description, location))
@@ -222,14 +229,15 @@ def _row(item):
     )
 
 
-def fetch():
-    token, preferred_cloud, discovered_regions, culture_id, culture_name = _bootstrap()
+def _fetch_site(site_id):
+    token, preferred_cloud, discovered_regions, culture_id, culture_name = _bootstrap(site_id)
+    careers_url = _careers_url(site_id)
     headers = {
         "Authorization": f"Bearer {token}",
         "Accept": "application/json",
         "Content-Type": "application/json",
         "Origin": "https://bradesco.csod.com",
-        "Referer": CAREERS_URL,
+        "Referer": careers_url,
         "Csod-Accept-Language": culture_name,
     }
     rows, seen = [], set()
@@ -243,7 +251,7 @@ def fetch():
         try:
             for page in range(1, 100):
                 payload = {
-                    "careerSiteId": SITE_ID,
+                    "careerSiteId": site_id,
                     "careerSitePageId": 1,
                     "pageNumber": page,
                     "pageSize": PAGE_SIZE,
@@ -262,13 +270,15 @@ def fetch():
                 }
                 response = _post_json(f"{cloud}/rec-job-search/external/jobs", payload, headers)
                 if response.get("status") != "Success":
-                    raise RuntimeError(f"CSOD search returned {response.get('status') or 'an invalid response'}")
+                    raise RuntimeError(
+                        f"CSOD search returned {response.get('status') or 'an invalid response'}"
+                    )
                 data = response.get("data", {})
                 requisitions = data.get("requisitions", [])
                 if not requisitions:
                     break
                 for item in requisitions:
-                    row = _row(item)
+                    row = _row(item, site_id=site_id)
                     if row and row["native_id"] not in seen:
                         seen.add(row["native_id"])
                         rows.append(row)
@@ -276,11 +286,35 @@ def fetch():
                 if page * PAGE_SIZE >= total:
                     break
             if rows:
-                break
+                return rows
         except Exception as error:
             last_error = error
             continue
+    detail = f": {last_error}" if last_error else ""
+    raise RuntimeError(
+        f"Bradesco CSOD site {site_id} returned no public Brazil requisitions{detail}"
+    )
+
+
+def fetch():
+    rows, seen, errors = [], set(), []
+    for site_id in SITE_IDS:
+        try:
+            site_rows = _fetch_site(site_id)
+        except Exception as error:
+            errors.append((site_id, error))
+            continue
+        for row in site_rows:
+            key = row["native_id"] or row["url"]
+            if key not in seen:
+                seen.add(key)
+                rows.append(row)
+
+    if errors:
+        detail = ", ".join(f"site {site_id}: {error}" for site_id, error in errors)
+        error = RuntimeError(f"Bradesco CSOD source is incomplete ({detail})")
+        error.rows = rows
+        raise error
     if not rows:
-        detail = f": {last_error}" if last_error else ""
-        raise RuntimeError(f"Bradesco CSOD returned no public Brazil requisitions{detail}")
+        raise RuntimeError("Bradesco CSOD returned no public Brazil requisitions")
     return rows
