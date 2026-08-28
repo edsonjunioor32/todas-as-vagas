@@ -84,11 +84,14 @@ jobs:
       - name: Preparar arquivos do site
         uses: actions/upload-pages-artifact@v4
         with:
+          name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
           path: docs
 
       - name: Publicar
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
 
   atualizar-e-publicar:
     if: github.event_name != 'push' || (contains(github.event.head_commit.message, '[refresh-fit]') && !contains(github.event.head_commit.message, '[isolated]'))
@@ -276,8 +279,11 @@ jobs:
       - name: Preparar arquivos do site
         uses: actions/upload-pages-artifact@v4
         with:
+          name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
           path: docs
 
       - name: Publicar
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
