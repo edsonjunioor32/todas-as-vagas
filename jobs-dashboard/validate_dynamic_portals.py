@@ -31,6 +31,9 @@ from sources import (  # noqa: E402
 
 
 SOURCES = (
+    ("bradesco", bradesco.fetch),
+    ("nttdata", geekhunter.fetch_ntt_data),
+) + requested_portals_28082026.TARGETS + (
     ("digisystem", digisystem.fetch),
     ("docusign", requested_careers.fetch_docusign),
     ("dbccompany", requested_careers.fetch_dbccompany),
@@ -39,12 +42,7 @@ SOURCES = (
     ("experian", experian.fetch),
     ("spassu", spassu.fetch),
     ("infovagas", quickin.fetch),
-)
-
-SOURCES = SOURCES + (
-    ("bradesco", bradesco.fetch),
-    ("nttdata", geekhunter.fetch_ntt_data),
-) + requested_portals_27082026.TARGETS + requested_portals_28082026.TARGETS
+) + requested_portals_27082026.TARGETS
 
 
 def _validate_rows(name, rows):
