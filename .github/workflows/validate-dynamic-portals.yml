@@ -7,6 +7,8 @@ on:
       - "jobs-dashboard/sources/_http.py"
       - "jobs-dashboard/sources/_html.py"
       - "jobs-dashboard/sources/experian.py"
+      - "jobs-dashboard/sources/bradesco.py"
+      - "jobs-dashboard/sources/geekhunter.py"
       - "jobs-dashboard/sources/quickin.py"
       - "jobs-dashboard/sources/spassu.py"
       - "jobs-dashboard/sources/digisystem.py"
@@ -19,6 +21,8 @@ on:
       - "jobs-dashboard/tests/test_merge_dynamic_portals.py"
       - "jobs-dashboard/tests/test_new_sources.py"
       - "jobs-dashboard/sources/requested_portals_27082026.py"
+      - "jobs-dashboard/sources/requested_portals_28082026.py"
+      - "jobs-dashboard/sources/__init__.py"
       - ".github/workflows/validate-dynamic-portals.yml"
   workflow_dispatch:
 
