@@ -16,7 +16,18 @@ ROOT = Path(__file__).resolve().parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from sources import digisystem, experian, quickin, requested_careers, sankhya_senior, spassu, requested_portals_27082026  # noqa: E402
+from sources import (  # noqa: E402
+    bradesco,
+    digisystem,
+    experian,
+    geekhunter,
+    quickin,
+    requested_careers,
+    requested_portals_27082026,
+    requested_portals_28082026,
+    sankhya_senior,
+    spassu,
+)
 
 
 SOURCES = (
@@ -30,7 +41,10 @@ SOURCES = (
     ("infovagas", quickin.fetch),
 )
 
-SOURCES = SOURCES + requested_portals_27082026.TARGETS
+SOURCES = SOURCES + (
+    ("bradesco", bradesco.fetch),
+    ("nttdata", geekhunter.fetch_ntt_data),
+) + requested_portals_27082026.TARGETS + requested_portals_28082026.TARGETS
 
 
 def _validate_rows(name, rows):
@@ -59,7 +73,7 @@ def main():
         started = time.monotonic()
         try:
             count = _validate_rows(name, fetch())
-        except Exception as error:  # keep all five diagnostics in one run
+        except Exception as error:  # keep every diagnostic in one run
             failures.append((name, error))
             print(f"[{name}] FALHA: {error}", flush=True)
             continue
