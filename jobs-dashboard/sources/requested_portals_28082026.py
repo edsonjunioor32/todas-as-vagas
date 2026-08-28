@@ -8,6 +8,7 @@ import html
 import math
 import os
 import re
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from html.parser import HTMLParser
 from urllib.parse import unquote, urljoin, urlsplit
@@ -427,7 +428,126 @@ def _btg_detail_fetch(url):
     return _btg_detail_row(url, markup)
 
 
+def _new_btg_driver():
+    try:
+        from selenium import webdriver
+    except ImportError as error:
+        raise RuntimeError("Selenium is required for the rendered BTG careers page") from error
+
+    options = webdriver.ChromeOptions()
+    for argument in (
+        "--headless=new",
+        "--no-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu",
+        "--disable-extensions",
+        "--disable-notifications",
+        "--window-size=1440,3000",
+        "--lang=pt-BR",
+    ):
+        options.add_argument(argument)
+    options.page_load_strategy = "eager"
+    return webdriver.Chrome(options=options)
+
+
+def _btg_rendered_items(driver):
+    return driver.execute_script(
+        r"""
+        const seen = new Set();
+        const rows = [];
+        const countText = (document.querySelector(".vacancies-found") || {}).innerText || "";
+        const countMatch = countText.match(/([\d.]+)\s+vagas encontradas/i);
+        const total = countMatch ? Number(countMatch[1].replace(/\./g, "")) : 0;
+
+        for (const anchor of document.querySelectorAll("a[href]")) {
+          const href = anchor.href || "";
+          let parsed;
+          try {
+            parsed = new URL(href);
+          } catch (_error) {
+            continue;
+          }
+          if (parsed.hostname !== "carreiras.btgpactual.com"
+              || !parsed.pathname.toLowerCase().startsWith("/vagas")) {
+            continue;
+          }
+          const pathId = (parsed.pathname.match(/\/(\d{6,})\/?$/) || [])[1];
+          const queryId = (parsed.search.match(/[?&]gh_jid=(\d{6,})(?:&|$)/i) || [])[1];
+          const id = pathId || queryId;
+          if (!id || seen.has(id)) continue;
+
+          const card = anchor.closest(".card-job")
+            || anchor.closest("app-card-job")
+            || anchor.closest("article")
+            || anchor.parentElement;
+          const titleNode = (card && card.querySelector("h3 a[href]")) || anchor;
+          const locationNode = card && card.querySelector("p.subtitle");
+          const title = (titleNode.innerText || titleNode.textContent || "")
+            .replace(/\s+/g, " ").trim();
+          if (!title || title.toLowerCase() === "ver vaga") continue;
+          seen.add(id);
+          rows.push({
+            href: href,
+            title: title,
+            location: ((locationNode && (locationNode.innerText || locationNode.textContent)) || "")
+              .replace(/\s+/g, " ").trim(),
+            raw: ((card && card.innerText) || title).replace(/\s+/g, " ").trim(),
+          });
+        }
+        return {total: total, rows: rows};
+        """,
+    )
+
+
+def _btg_rendered_rows():
+    timeout = _configured_int("BTG_RENDER_TIMEOUT", 60, maximum=90)
+    driver = _new_btg_driver()
+    try:
+        driver.set_page_load_timeout(timeout)
+        driver.get(BTG_URL)
+        deadline = time.monotonic() + timeout
+        current = {"total": 0, "rows": []}
+        while time.monotonic() < deadline:
+            current = _btg_rendered_items(driver)
+            if current["rows"] and (
+                not current["total"] or len(current["rows"]) >= current["total"]
+            ):
+                break
+            time.sleep(1)
+        if not current["rows"]:
+            raise RuntimeError("BTG did not expose public vacancy cards after rendering")
+        if current["total"] and len(current["rows"]) < current["total"]:
+            raise RuntimeError(
+                f"BTG rendered only {len(current['rows'])}/{current['total']} vacancy cards"
+            )
+
+        rows = []
+        for item in current["rows"]:
+            row = _btg_row(
+                item["href"],
+                item["title"],
+                location=item.get("location", ""),
+                raw=item.get("raw", ""),
+            )
+            if row:
+                rows.append(row)
+        if not rows:
+            raise RuntimeError("BTG rendered no Brazil vacancy cards")
+        unique = {row["native_id"] or row["url"]: row for row in rows}
+        return list(unique.values())
+    finally:
+        driver.quit()
+
+
 def fetch_btg():
+    rendered_error = None
+    try:
+        rows = _btg_rendered_rows()
+        if rows:
+            return rows
+    except Exception as error:
+        rendered_error = error
+
     listing = get_text(BTG_URL, timeout=45, retries=3)
     rows = _btg_listing_rows(listing)
     if rows:
@@ -437,7 +557,8 @@ def fetch_btg():
     sitemap = get_text(BTG_SITEMAP_URL, timeout=45, retries=3)
     urls = _sitemap_urls(sitemap)
     if not urls:
-        raise RuntimeError(f"btg returned no public vacancy cards or sitemap URLs (listing={len(listing)} bytes, sitemap={len(sitemap)} bytes)")
+        detail = f"; rendered: {rendered_error}" if rendered_error else ""
+        raise RuntimeError(f"btg returned no public vacancy cards or sitemap URLs (listing={len(listing)} bytes, sitemap={len(sitemap)} bytes{detail})")
 
     workers = _configured_int("BTG_WORKERS", 8, maximum=12)
     details, failed = {}, []
