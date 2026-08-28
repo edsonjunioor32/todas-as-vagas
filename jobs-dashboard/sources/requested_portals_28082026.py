@@ -507,17 +507,21 @@ def _btg_rendered_rows():
         driver.get(BTG_URL)
         deadline = time.monotonic() + timeout
         current = {"total": 0, "rows": []}
+        collected = {}
         previous_count = 0
         while time.monotonic() < deadline:
             current = _btg_rendered_items(driver)
-            if current["rows"] and (
-                not current["total"] or len(current["rows"]) >= current["total"]
+            for item in current["rows"]:
+                key = _btg_native_id(item.get("href")) or item.get("href")
+                collected[key] = item
+            if collected and (
+                not current["total"] or len(collected) >= current["total"]
             ):
                 break
             # BTG initially exposes only the first 100 cards. Scroll and
             # activate the public continuation control, when present, until
             # the number shown by the page is reached.
-            if len(current["rows"]) == previous_count:
+            if len(collected) == previous_count:
                 driver.execute_script(
                     r"""
                     window.scrollTo(0, document.body.scrollHeight);
@@ -538,17 +542,17 @@ def _btg_rendered_rows():
                 )
             else:
                 driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            previous_count = len(current["rows"])
+            previous_count = len(collected)
             time.sleep(1)
-        if not current["rows"]:
+        if not collected:
             raise RuntimeError("BTG did not expose public vacancy cards after rendering")
-        if current["total"] and len(current["rows"]) < current["total"]:
+        if current["total"] and len(collected) < current["total"]:
             raise RuntimeError(
-                f"BTG rendered only {len(current['rows'])}/{current['total']} vacancy cards"
+                f"BTG rendered only {len(collected)}/{current['total']} vacancy cards"
             )
 
         rows = []
-        for item in current["rows"]:
+        for item in collected.values():
             row = _btg_row(
                 item["href"],
                 item["title"],
