@@ -32,6 +32,7 @@ NONEMPTY_SOURCES = {
     "greenhouse", "spassu", "infovagas",
     # Requested career pages are part of the protected public feed: a
     # transient empty response must never erase their last valid rows.
+    "bradesco", "nttdata", "btg", "luza",
     "avanade", "huntit", "talentodovalesc", "beq", "forza", "saleco", "elis",
     "flash", "neon", "zippi", "bv", "santander", "iberdrola", "iqvia", "mdlz",
 }
