@@ -10,7 +10,15 @@ from unittest.mock import patch
 DASHBOARD = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(DASHBOARD))
 
-from sources import experian, quickin, spassu, requested_portals_27082026  # noqa: E402
+from sources import (  # noqa: E402
+    bradesco,
+    experian,
+    geekhunter,
+    quickin,
+    requested_portals_27082026,
+    requested_portals_28082026,
+    spassu,
+)
 import pipeline  # noqa: E402
 
 
@@ -186,8 +194,97 @@ class RegistryTests(unittest.TestCase):
     def test_new_sources_are_registered_and_guarded(self):
         selected = pipeline.selected_registry("spassu,infovagas")
         self.assertEqual([name for name, _fetch in selected], ["spassu", "infovagas"])
-        self.assertTrue({"spassu", "infovagas"}.issubset(pipeline.NONEMPTY_SOURCES))
+        self.assertTrue({"spassu", "infovagas", "bradesco", "nttdata", "btg", "luza"}.issubset(pipeline.NONEMPTY_SOURCES))
 
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class GeekHunterTests(unittest.TestCase):
+    def test_ntt_data_adapter_keeps_company_and_source(self):
+        item = {
+            "id": "ntt-1",
+            "atsJob": {
+                "id": "ntt-1",
+                "jobSlug": "analista-qa",
+                "company": {"slug": "ntt-data"},
+                "atsJobDetail": {
+                    "title": "Analista QA",
+                    "workModality": "Remote",
+                    "description": "Qualidade de software.",
+                },
+            },
+        }
+        row = geekhunter._normalize(
+            item,
+            source="nttdata",
+            company_override="NTT DATA",
+        )
+        self.assertEqual(row["source"], "nttdata")
+        self.assertEqual(row["company"], "NTT DATA")
+        self.assertEqual(row["work_model"], "remote")
+        self.assertIn("/pt/ntt-data/jobs/analista-qa", row["url"])
+
+
+class BradescoTests(unittest.TestCase):
+    def test_site_two_requisition_url_is_preserved(self):
+        item = {
+            "requisitionId": "55585",
+            "displayJobTitle": "Analista de Sistemas",
+            "locations": [
+                {"city": "São Paulo", "state": "SP", "country": "BR"},
+            ],
+        }
+        row = bradesco._row(item, site_id=2)
+        self.assertEqual(row["source"], "bradesco")
+        self.assertEqual(row["title"], "Analista de Sistemas")
+        self.assertIn("/careersite/2/home/requisition/55585", row["url"])
+
+
+class RequestedPortalBatchTests(unittest.TestCase):
+    def test_luza_listing_pairs_title_and_location(self):
+        markup = """
+        <ul>
+          <li class="media">
+            <div class="media-body">
+              <a href="/luza-group/job/ABC123"><h5>Analista de Dados</h5></a>
+              <span class="text-secondary">
+                <span><i class="fas fa-map-marker-alt"></i> São Paulo, State of São Paulo, Brazil </span>
+                <br>
+              </span>
+            </div>
+            <a href="/luza-group/job/ABC123"><button>Aplicar</button></a>
+          </li>
+        </ul>
+        """
+        parser = requested_portals_28082026._LuzaListingParser()
+        parser.feed(markup)
+        self.assertEqual(
+            parser.rows,
+            [("/luza-group/job/ABC123", "Analista de Dados",
+              "São Paulo, State of São Paulo, Brazil")],
+        )
+        row = requested_portals_28082026._luza_row(parser.rows[0])
+        self.assertEqual(row["source"], "luza")
+        self.assertEqual(row["city"], "São Paulo")
+
+    def test_btg_rendered_card_extracts_title_and_location(self):
+        markup = """
+        <div class="card-job">
+          <div class="btg-grid">
+            <h3><a href="/vagas/tech-data/analista-de-dados/6007277004">
+              Analista de Dados
+            </a></h3>
+            <p class="subtitle">São Paulo</p>
+          </div>
+        </div>
+        """
+        rows = requested_portals_28082026._btg_listing_rows(markup)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["source"], "btg")
+        self.assertEqual(rows[0]["title"], "Analista de Dados")
+        self.assertEqual(rows[0]["native_id"], "6007277004")
+        self.assertEqual(rows[0]["city"], "São Paulo")
+
+
