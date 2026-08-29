@@ -13,7 +13,10 @@ from unittest.mock import patch
 DASHBOARD = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(DASHBOARD))
 
-from sources import _http, digisystem, requested_careers, sankhya_senior  # noqa: E402
+from sources import (  # noqa: E402
+    _http, digisystem, requested_careers, requested_portals_29082026,
+    sankhya_senior,
+)
 
 
 class _Response:
@@ -166,6 +169,60 @@ class SankhyaSeniorTests(unittest.TestCase):
         self.assertEqual(rows[0]["native_id"], "558")
         self.assertEqual(rows[0]["work_model"], "remote")
         self.assertEqual(rows[0]["contract_types"], ["CLT"])
+
+
+    def test_mindsight_board_uses_shared_next_data_parser(self):
+        payload = {"props": {"pageProps": {"publicJobPostings": [{
+            "id": 901, "name": "Analista de Suporte", "city": "São Paulo",
+            "state": "SP", "work_model": "HYBRID", "hire_model": "EFFECTIVE_CLT",
+            "external_publication_start_at": "2026-08-28T00:00:00Z",
+        }]}}}
+        markup = '<script id="__NEXT_DATA__" type="application/json">' + json.dumps(payload) + "</script>"
+        with patch.object(sankhya_senior, "get_text", return_value=markup):
+            rows = requested_portals_29082026.TARGETS[1][1]()
+        self.assertEqual(rows[0]["source"], "azify")
+        self.assertEqual(rows[0]["market"], "BR")
+        self.assertEqual(rows[0]["title"], "Analista de Suporte")
+
+    def test_quark_esig_parser_maps_public_processes(self):
+        payload = {"processosSeletivos": [{
+            "id": 63975497, "tituloProcesso": "Analista de Infraestrutura",
+            "localidade": "NATAL", "vinculo": "CLT",
+            "date_created": "2026-08-11 11:15:53.862",
+        }]}
+        with patch.object(requested_portals_29082026, "get_json", return_value=payload):
+            rows = requested_portals_29082026.fetch_esig()
+        self.assertEqual(rows[0]["source"], "esig")
+        self.assertEqual(rows[0]["title"], "Analista de Infraestrutura")
+        self.assertEqual(rows[0]["market"], "BR")
+        self.assertIn("/esig/63975497", rows[0]["url"])
+
+    def test_yellowipe_parser_reads_next_rsc_data(self):
+        entries = [{
+            "id": "yellow-1", "title": "Desenvolvedor RPA",
+            "positionDescription": "", "location": ["Brazil - São Paulo - Franca"],
+            "workplacePolicy": ["hybrid"], "updatedAt": "",
+        }]
+        rsc = 'b:["$","$L1a",null,{"data":' + json.dumps(entries) + ',"technologies":[]}'
+        markup = "<script>self.__next_f.push([1," + json.dumps(rsc) + "])</script>"
+        rows = requested_portals_29082026._yellow_rows(markup)
+        self.assertEqual(rows[0]["source"], "yellowipe")
+        self.assertEqual(rows[0]["city"], "Franca")
+        self.assertEqual(rows[0]["market"], "BR")
+
+    def test_tivit_parser_maps_public_api_records(self):
+        payload = [{"jobId": 4860, "companyName": "TIVIT",
+                    "title": "Analista de Suporte Jr", "officeLocation": "",
+                    "workMode": "Remoto", "employmentType": "Operacional",
+                    "publicationDate": "2026-08-28",
+                    "registrationUntil": "2026-09-28",
+                    "totalPages": 1}]
+        with patch.object(requested_portals_29082026, "get_json", return_value=payload):
+            rows = requested_portals_29082026.fetch_tivit()
+        self.assertEqual(rows[0]["source"], "tivit")
+        self.assertEqual(rows[0]["work_model"], "remote")
+        self.assertEqual(rows[0]["city"], "Brasil")
+        self.assertEqual(rows[0]["market"], "BR")
 
     def test_senior_normalizes_detail_defaults(self):
         self.assertEqual(sankhya_senior._senior_work_model("Remote"), "remote")

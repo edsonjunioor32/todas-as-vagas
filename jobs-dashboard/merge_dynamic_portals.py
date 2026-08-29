@@ -35,6 +35,7 @@ from sources import (  # noqa: E402
     requested_careers,
     requested_portals_27082026,
     requested_portals_28082026,
+    requested_portals_29082026,
     sankhya_senior,
     spassu,
 )
@@ -54,7 +55,7 @@ TARGETS = (
     ("senior", sankhya_senior.fetch_senior),
     ("bradesco", bradesco.fetch),
     ("nttdata", geekhunter.fetch_ntt_data),
-) + requested_portals_27082026.TARGETS + requested_portals_28082026.TARGETS
+) + requested_portals_27082026.TARGETS + requested_portals_28082026.TARGETS + requested_portals_29082026.TARGETS
 TARGET_NAMES = {name for name, _ in TARGETS}
 
 
@@ -201,7 +202,7 @@ def merge_catalog(rows, collected_counts, db_path=DB_PATH, json_path=JSON_PATH,
         os.replace(temp_json, json_path)
         os.replace(temp_fit, fit_path)
         print(f"  snapshot parcial publicado: {public_count} vagas · {size_mb:.2f} MB")
-        print(f"  removidas apenas dos oito portais: {removed}")
+        print(f"  removidas apenas dos portais do lote: {removed}")
         print(f"  índice de aderência: {fit_changed} entradas atualizadas · {fit_count} total")
         return {
             "public_count": public_count, "removed": removed,

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Structured public career feeds for Sankhya and Senior Sistemas."""
+"""Structured public career feeds for Sankhya, Mindsight and Senior Sistemas."""
 import html
 import json
 import re
@@ -105,12 +105,12 @@ def _senior_bool(value):
     return str(value or "").strip().casefold() in {"1", "true", "yes", "sim"}
 
 
-def _sankhya_rows():
+def _sankhya_rows(source="sankhya", base_url=SANKHYA, company="Sankhya"):
     # Mindsight chooses the locale through Accept-Language. Supplying it is
     # important: a bare urllib request can be redirected back to /sankhya and
     # never receive the Next.js data payload.
     markup = get_text(
-        SANKHYA,
+        base_url,
         headers={
             "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.8",
             "User-Agent": "Mozilla/5.0 (compatible; todas-as-vagas/1.0)",
@@ -127,7 +127,7 @@ def _sankhya_rows():
         raise RuntimeError("Mindsight exposed invalid public vacancy JSON") from error
     entries = ((payload.get("props") or {}).get("pageProps") or {}).get("publicJobPostings")
     if not isinstance(entries, list) or not entries:
-        raise RuntimeError("Sankhya public feed returned no active vacancy cards")
+        raise RuntimeError(f"{company} public feed returned no active vacancy cards")
 
     model_map = {"REMOTE": "remote", "HYBRID": "hybrid", "IN_PERSON": "on-site"}
     hire_map = {
@@ -148,14 +148,14 @@ def _sankhya_rows():
         model = str(data.get("work_model") or "").upper()
         hire_model = str(data.get("hire_model") or "").upper()
         row = job(
-            "sankhya", native_id, title=title, company="Sankhya",
-            url=urljoin(SANKHYA + "/", native_id),
+            source, native_id, title=title, company=company,
+            url=urljoin(base_url + "/", native_id),
             work_model=model_map.get(model, work_model_label(raw=model)),
             city=str(data.get("city") or "Brasil").strip(),
             state=str(data.get("state") or "").strip(), country="BR", market="BR",
             published_date=iso_date(data.get("external_publication_start_at") or data.get("created_at")),
             expires_date=iso_date(data.get("external_publication_end_at")),
-            levels=_levels(title), categories=["Carreiras Sankhya"],
+            levels=_levels(title), categories=[f"Carreiras {company}"],
             contract_types=[hire_map.get(hire_model, hire_model.title())] if hire_model else [],
         )
         for key, target in (("start_salary_range", "salary_min"), ("end_salary_range", "salary_max")):
@@ -167,7 +167,7 @@ def _sankhya_rows():
                 pass
         rows.append(row)
     if not rows:
-        raise RuntimeError("Sankhya public feed contained no recognizable vacancy records")
+        raise RuntimeError(f"{company} public feed contained no recognizable vacancy records")
     return rows
 
 
@@ -283,3 +283,61 @@ def _senior_rows():
 
 def fetch_senior():
     return _senior_rows()
+
+MINDSIGHT_BASE = "https://oportunidades.mindsight.com.br"
+
+
+def _fetch_mindsight_board(slug, company):
+    return _sankhya_rows(
+        source=slug,
+        base_url=f"{MINDSIGHT_BASE}/{slug}",
+        company=company,
+    )
+
+
+def fetch_azify():
+    return _fetch_mindsight_board("azify", "Azify")
+
+
+def fetch_pontotel():
+    return _fetch_mindsight_board("pontotel", "Pontotel")
+
+
+def fetch_grupolev():
+    return _fetch_mindsight_board("grupolev", "Grupo Lev")
+
+
+def fetch_fiotec():
+    return _fetch_mindsight_board("fiotec", "Fiotec")
+
+
+def fetch_pessoaepessoa():
+    return _fetch_mindsight_board("pessoaepessoa", "Pessoa e Pessoa")
+
+
+def fetch_grupokothe():
+    return _fetch_mindsight_board("grupokothe", "Grupo Kothe")
+
+
+def fetch_jb3investimentos():
+    return _fetch_mindsight_board("jb3investimentos", "JB3 Investimentos")
+
+
+def fetch_osklen():
+    return _fetch_mindsight_board("osklen", "Osklen")
+
+
+def fetch_somosglobal():
+    return _fetch_mindsight_board("somosglobal", "Somos Global")
+
+
+def fetch_revemar():
+    return _fetch_mindsight_board("revemar", "Revemar")
+
+
+def fetch_insper():
+    return _fetch_mindsight_board("insper", "Insper")
+
+
+def fetch_guaranamineiro():
+    return _fetch_mindsight_board("guaranamineiro", "Guaraná Mineiro")

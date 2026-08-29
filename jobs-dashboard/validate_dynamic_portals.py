@@ -25,12 +25,13 @@ from sources import (  # noqa: E402
     requested_careers,
     requested_portals_27082026,
     requested_portals_28082026,
+    requested_portals_29082026,
     sankhya_senior,
     spassu,
 )
 
 
-SOURCES = (
+SOURCES = requested_portals_29082026.TARGETS + (
     ("bradesco", bradesco.fetch),
     ("nttdata", geekhunter.fetch_ntt_data),
 ) + requested_portals_28082026.TARGETS + (

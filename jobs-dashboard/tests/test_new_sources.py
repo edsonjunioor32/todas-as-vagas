@@ -17,6 +17,7 @@ from sources import (  # noqa: E402
     quickin,
     requested_portals_27082026,
     requested_portals_28082026,
+    requested_portals_29082026,
     spassu,
 )
 import pipeline  # noqa: E402
@@ -103,6 +104,29 @@ class QuickinTests(unittest.TestCase):
         self.assertEqual(len(details), 1)
         self.assertEqual(details[0][0], "https://jobs.quickin.io/infovagas/jobs/69a587bccb1f7a00136d29fa")
         self.assertEqual(pages, ["https://jobs.quickin.io/infovagas/jobs?page=2"])
+
+
+    def test_finayatech_uses_the_board_specific_quickin_path(self):
+        markup = """
+        <a href="/finayatech/jobs/69e8a992b7f40200135a75e8">
+          Analista de Suporte
+        </a>
+        """
+        details, pages = quickin._catalog_page(markup, board="finayatech")
+        self.assertEqual(len(details), 1)
+        self.assertEqual(
+            details[0][0],
+            "https://jobs.quickin.io/finayatech/jobs/69e8a992b7f40200135a75e8",
+        )
+        self.assertEqual(pages, [])
+        row = quickin._normalize(
+            details[0][0],
+            "<h1>Analista de Suporte</h1><p>Remoto</p>",
+            details[0][1],
+            source="finayatech",
+            detail_re=quickin._detail_pattern("finayatech"),
+        )
+        self.assertEqual(row["source"], "finayatech")
 
     def test_detail_header_normalizes_work_model_and_location(self):
         markup = """
@@ -194,7 +218,9 @@ class RegistryTests(unittest.TestCase):
     def test_new_sources_are_registered_and_guarded(self):
         selected = pipeline.selected_registry("spassu,infovagas")
         self.assertEqual([name for name, _fetch in selected], ["spassu", "infovagas"])
-        self.assertTrue({"spassu", "infovagas", "bradesco", "nttdata", "btg", "luza"}.issubset(pipeline.NONEMPTY_SOURCES))
+        selected_new = pipeline.selected_registry("esig,azify,finayatech,yellowipe,tivit")
+        self.assertEqual([name for name, _fetch in selected_new], ["esig", "azify", "finayatech", "yellowipe", "tivit"])
+        self.assertTrue({"spassu", "infovagas", "bradesco", "nttdata", "btg", "luza", "esig", "azify", "finayatech", "yellowipe", "tivit"}.issubset(pipeline.NONEMPTY_SOURCES))
 
 
 if __name__ == "__main__":

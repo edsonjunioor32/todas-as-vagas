@@ -22,6 +22,7 @@ on:
       - "jobs-dashboard/tests/test_new_sources.py"
       - "jobs-dashboard/sources/requested_portals_27082026.py"
       - "jobs-dashboard/sources/requested_portals_28082026.py"
+      - "jobs-dashboard/sources/requested_portals_29082026.py"
       - "jobs-dashboard/sources/__init__.py"
       - ".github/workflows/validate-dynamic-portals.yml"
   workflow_dispatch:

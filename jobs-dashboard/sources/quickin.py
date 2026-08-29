@@ -14,6 +14,13 @@ from ._rendered import rendered_links
 BASE_URL = "https://jobs.quickin.io"
 LIST_URL = f"{BASE_URL}/infovagas/jobs"
 DETAIL_RE = re.compile(r"/infovagas/jobs/([a-z0-9]{12,})(?:[/?#]|$)", re.I)
+
+
+def _detail_pattern(board):
+    return re.compile(
+        rf"/{re.escape(board)}/jobs/([a-z0-9]{{12,}})(?:[/?#]|$)",
+        re.I,
+    )
 LEVEL_RE = re.compile(
     r"\b(j[uú]nior|jr\.?|pleno|mid(?:[- ]level)?|s[eê]nior|sr\.?|"
     r"especialista|lead|gerente|coordenador|trainee)\b",
@@ -119,8 +126,8 @@ def _contract_types(header):
     return result
 
 
-def _normalize(url, markup, fallback_title=""):
-    match = DETAIL_RE.search(url)
+def _normalize(url, markup, fallback_title="", source="infovagas", detail_re=DETAIL_RE):
+    match = detail_re.search(url)
     if not match:
         return None
     parser = PublicPageParser()
@@ -158,7 +165,7 @@ def _normalize(url, markup, fallback_title=""):
         or parser.meta.get("og:published_time")
     )
     return job(
-        "infovagas",
+        source,
         match.group(1),
         title=title,
         company=company or "InfoVagas",
@@ -178,14 +185,15 @@ def _normalize(url, markup, fallback_title=""):
     )
 
 
-def _catalog_page(markup):
+def _catalog_page(markup, board="infovagas", detail_re=None):
+    detail_re = detail_re or _detail_pattern(board)
     parser = PublicPageParser()
     parser.feed(markup or "")
     detail_links, page_links = [], []
     seen_details, seen_pages = set(), set()
     for href, label in parser.anchors:
         absolute = urljoin(BASE_URL, html.unescape(href).strip())
-        detail = DETAIL_RE.search(absolute)
+        detail = detail_re.search(absolute)
         if detail:
             if detail.group(1).casefold() not in seen_details:
                 seen_details.add(detail.group(1).casefold())
@@ -194,27 +202,28 @@ def _catalog_page(markup):
         parsed = urlparse(absolute)
         if (
             parsed.netloc.casefold() == "jobs.quickin.io"
-            and parsed.path.rstrip("/").casefold() == "/infovagas/jobs"
+            and parsed.path.rstrip("/").casefold() == f"/{board}/jobs"
             and absolute not in seen_pages
         ):
             seen_pages.add(absolute)
             page_links.append(absolute)
     return detail_links, page_links
-
-
-def _fetch_detail(url, label):
+def _fetch_detail(url, label, source="infovagas", detail_re=DETAIL_RE):
     try:
         markup = get_text(url, timeout=35, retries=2)
-        return _normalize(url, markup, label)
+        return _normalize(url, markup, label, source=source, detail_re=detail_re)
     except Exception:
         return None
 
 
-def fetch():
+def _fetch_board(board, source=None):
+    source = source or board
+    list_url = f"{BASE_URL}/{board}/jobs"
+    detail_re = _detail_pattern(board)
     catalog_error = None
     try:
         first_markup = get_text(
-            LIST_URL,
+            list_url,
             headers={
                 "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.8",
                 "User-Agent": "Mozilla/5.0 (compatible; todas-as-vagas/1.0)",
@@ -225,23 +234,23 @@ def fetch():
     except Exception as error:
         first_markup = ""
         catalog_error = error
-    links, page_links = _catalog_page(first_markup)
+    links, page_links = _catalog_page(first_markup, board, detail_re)
     if not links:
         links = [
             (href, strip_html(label))
             for href, label in rendered_links(
-                LIST_URL,
-                r"/infovagas/jobs/[a-z0-9]{12,}(?:[/?#]|$)",
+                list_url,
+                rf"/{re.escape(board)}/jobs/[a-z0-9]{{12,}}(?:[/?#]|$)",
                 timeout=60,
             )
-            if DETAIL_RE.search(href)
+            if detail_re.search(href)
         ]
 
     pages_to_visit = list(page_links)
     if not pages_to_visit and links:
-        pages_to_visit = [f"{LIST_URL}?page={page}" for page in range(2, 21)]
+        pages_to_visit = [f"{list_url}?page={page}" for page in range(2, 21)]
 
-    visited_pages = {LIST_URL}
+    visited_pages = {list_url}
     for page_url in pages_to_visit:
         if page_url in visited_pages:
             continue
@@ -250,10 +259,16 @@ def fetch():
             markup = get_text(page_url, timeout=35, retries=2)
         except Exception:
             continue
-        page_links_found, additional_pages = _catalog_page(markup)
-        known_ids = {DETAIL_RE.search(url).group(1).casefold() for url, _ in links}
+        page_links_found, additional_pages = _catalog_page(
+            markup, board, detail_re
+        )
+        known_ids = {
+            detail_re.search(url).group(1).casefold()
+            for url, _ in links
+            if detail_re.search(url)
+        }
         for url, label in page_links_found:
-            native_id = DETAIL_RE.search(url).group(1).casefold()
+            native_id = detail_re.search(url).group(1).casefold()
             if native_id not in known_ids:
                 known_ids.add(native_id)
                 links.append((url, label))
@@ -265,12 +280,16 @@ def fetch():
 
     if not links:
         detail = f": {catalog_error}" if catalog_error else ""
-        raise RuntimeError(f"Quickin/InfoVagas returned no public vacancy links{detail}")
+        raise RuntimeError(
+            f"Quickin/{source} returned no public vacancy links{detail}"
+        )
 
     rows = []
     with ThreadPoolExecutor(max_workers=min(8, len(links))) as pool:
         futures = {
-            pool.submit(_fetch_detail, url, label): (url, label)
+            pool.submit(
+                _fetch_detail, url, label, source, detail_re
+            ): (url, label)
             for url, label in links
         }
         for future in as_completed(futures):
@@ -278,6 +297,16 @@ def fetch():
             if row:
                 rows.append(row)
     if not rows:
-        raise RuntimeError("InfoVagas public catalogue contained no readable vacancies")
+        raise RuntimeError(
+            f"{source} public catalogue contained no readable vacancies"
+        )
     rows.sort(key=lambda row: row["native_id"])
     return rows
+
+
+def fetch():
+    return _fetch_board("infovagas", "infovagas")
+
+
+def fetch_finayatech():
+    return _fetch_board("finayatech", "finayatech")
