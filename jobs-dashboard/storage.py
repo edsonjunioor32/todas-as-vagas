@@ -172,6 +172,26 @@ def rewrite_source_urls(conn, source, url_builder):
     return len(updates)
 
 
+def rewrite_source_market(conn, source, current_market, replacement):
+    """Repair a source-specific market label already stored in history."""
+    cursor = conn.execute(
+        """
+        UPDATE jobs
+        SET market = ?
+        WHERE source = ?
+          AND LOWER(TRIM(COALESCE(market, ""))) = ?
+        """,
+        (
+            replacement,
+            source,
+            str(current_market or "").strip().casefold(),
+        ),
+    )
+    if cursor.rowcount:
+        conn.commit()
+    return cursor.rowcount
+
+
 def infer_missing_work_models(conn):
     """Infer the modality only when the portal did not provide it.
 

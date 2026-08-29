@@ -140,8 +140,13 @@ def collect(registry):
 
 
 def normalize_market(rows):
-    """Classify a vacancy located only in Brazil as part of the Brazilian market."""
+    """Normalize source-specific geography before publication."""
     for row in rows:
+        source = str(row.get("source") or "").strip().casefold()
+        market = str(row.get("market") or "").strip().casefold()
+        if source == "senior" and market == "global":
+            row["market"] = "BR"
+            continue
         location = str(row.get("city") or "").strip().casefold()
         if location in {"brazil", "brasil"}:
             row["market"] = "BR"
@@ -316,6 +321,12 @@ def main(before_persist=None):
     conn = storage.connect(str(DB_PATH))
     before = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
     storage.upsert(conn, rows)
+    senior_markets_repaired = storage.rewrite_source_market(
+        conn,
+        "senior",
+        "global",
+        "BR",
+    )
     solides_urls_repaired = storage.rewrite_source_urls(
         conn,
         "solides",
@@ -365,7 +376,7 @@ def main(before_persist=None):
     conn.close()
     phases["Banco e fotografia pública"] = time.perf_counter() - stage_started
     phases["total"] = time.perf_counter() - pipeline_started
-    print(f"  base histórica: {after} vagas ({after-before+pruned:+d} nesta execução; {pruned} removidas; {greenhouse_removed} Greenhouse fora do Brasil; {totvs_removed} TOTVS obsoletas/inválidas; {solides_urls_repaired} links Sólides corrigidos; {modality_inferred} modalidades inferidas)")
+    print(f"  base histórica: {after} vagas ({after-before+pruned:+d} nesta execução; {pruned} removidas; {greenhouse_removed} Greenhouse fora do Brasil; {totvs_removed} TOTVS obsoletas/inválidas; {solides_urls_repaired} links Sólides corrigidos; {senior_markets_repaired} mercados Senior corrigidos; {modality_inferred} modalidades inferidas)")
     print(f"  base pública: {count} vagas · {size_mb:.2f} MB · {JSON_PATH.relative_to(ROOT)}")
     print(
         "  tempos: "

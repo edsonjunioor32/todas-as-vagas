@@ -268,7 +268,9 @@ def _senior_rows():
             work_model=_senior_work_model(models),
             city=str(localization.get("city") or "Brasil").strip(),
             state=str(localization.get("province") or "").strip(),
-            country=country_code, market="BR" if country_code == "BR" else "global",
+            # The Senior catalogue marks some Brazilian vacancies as
+            # "global"; this feed is classified as Brazil in this portal.
+            country=country_code, market="BR",
             published_date=iso_date(publication.get("startDate")),
             expires_date=iso_date(publication.get("endDate")),
             levels=_senior_experience(experience, title),

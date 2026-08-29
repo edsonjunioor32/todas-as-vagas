@@ -95,6 +95,19 @@ class GreenhouseLocationTests(unittest.TestCase):
         self.assertEqual(rows[2]["work_model"], "hybrid")
         self.assertEqual(rows[3]["work_model"], "")
 
+    def test_senior_global_market_is_normalized_to_brazil(self):
+        rows = [
+            sample_job("senior", "1", city="São Paulo"),
+            sample_job("other", "2", city="São Paulo"),
+        ]
+        rows[0]["market"] = "Global"
+        rows[1]["market"] = "Global"
+
+        pipeline.normalize_market(rows)
+
+        self.assertEqual(rows[0]["market"], "BR")
+        self.assertEqual(rows[1]["market"], "Global")
+
 
 class StorageTests(unittest.TestCase):
     def test_upsert_preserves_known_modality_and_bulk_inference_repairs_legacy(self):
@@ -118,6 +131,31 @@ class StorageTests(unittest.TestCase):
             self.assertEqual(
                 conn.execute("SELECT work_model FROM jobs WHERE job_uid = 'portal:2'").fetchone()[0],
                 "on-site",
+            )
+            conn.close()
+
+    def test_rewrite_source_market_repairs_legacy_senior_rows(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            conn = storage.connect(str(Path(temporary) / "jobs.db"))
+            legacy = sample_job("senior", "1")
+            legacy["market"] = "global"
+            storage.upsert(conn, [legacy], today="2026-08-20")
+
+            other = sample_job("other", "2")
+            other["market"] = "global"
+            storage.upsert(conn, [other], today="2026-08-20")
+
+            self.assertEqual(
+                storage.rewrite_source_market(conn, "senior", "global", "BR"),
+                1,
+            )
+            self.assertEqual(
+                conn.execute("SELECT market FROM jobs WHERE job_uid = 'senior:1'").fetchone()[0],
+                "BR",
+            )
+            self.assertEqual(
+                conn.execute("SELECT market FROM jobs WHERE job_uid = 'other:2'").fetchone()[0],
+                "global",
             )
             conn.close()
 
