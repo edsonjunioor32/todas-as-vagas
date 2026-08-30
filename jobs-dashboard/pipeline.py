@@ -147,6 +147,9 @@ def normalize_market(rows):
     for row in rows:
         source = str(row.get("source") or "").strip().casefold()
         market = str(row.get("market") or "").strip().casefold()
+        if source == "yellowipe":
+            row["market"] = "Global - Portugal"
+            continue
         if source == "senior" and market == "global":
             row["market"] = "BR"
             continue
@@ -330,6 +333,11 @@ def main(before_persist=None):
         "global",
         "BR",
     )
+    yellowipe_markets_repaired = storage.rewrite_source_market_all(
+        conn,
+        "yellowipe",
+        "Global - Portugal",
+    )
     solides_urls_repaired = storage.rewrite_source_urls(
         conn,
         "solides",
@@ -379,7 +387,7 @@ def main(before_persist=None):
     conn.close()
     phases["Banco e fotografia pública"] = time.perf_counter() - stage_started
     phases["total"] = time.perf_counter() - pipeline_started
-    print(f"  base histórica: {after} vagas ({after-before+pruned:+d} nesta execução; {pruned} removidas; {greenhouse_removed} Greenhouse fora do Brasil; {totvs_removed} TOTVS obsoletas/inválidas; {solides_urls_repaired} links Sólides corrigidos; {senior_markets_repaired} mercados Senior corrigidos; {modality_inferred} modalidades inferidas)")
+    print(f"  base histórica: {after} vagas ({after-before+pruned:+d} nesta execução; {pruned} removidas; {greenhouse_removed} Greenhouse fora do Brasil; {totvs_removed} TOTVS obsoletas/inválidas; {solides_urls_repaired} links Sólides corrigidos; {senior_markets_repaired} mercados Senior corrigidos; {yellowipe_markets_repaired} mercados YellowIpe corrigidos; {modality_inferred} modalidades inferidas)")
     print(f"  base pública: {count} vagas · {size_mb:.2f} MB · {JSON_PATH.relative_to(ROOT)}")
     print(
         "  tempos: "

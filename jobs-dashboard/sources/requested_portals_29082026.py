@@ -193,12 +193,10 @@ def _yellow_rows(markup):
             data.get("location")
         )
         country_key = country_raw.casefold()
-        market = (
-            "BR"
-            if country_key in {"br", "brasil", "brazil"}
-            else "global"
-        )
-        country = "BR" if market == "BR" else country_raw
+        # YellowIpe is intentionally classified in the portal's Portugal
+        # market, even when an individual card lists a Brazilian location.
+        market = "Global - Portugal"
+        country = "BR" if country_key in {"br", "brasil", "brazil"} else country_raw
         workplace = data.get("workplacePolicy") or []
         workplace_text = (
             " ".join(str(item or "") for item in workplace)

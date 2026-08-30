@@ -192,6 +192,22 @@ def rewrite_source_market(conn, source, current_market, replacement):
     return cursor.rowcount
 
 
+def rewrite_source_market_all(conn, source, replacement):
+    """Set one market label for every historical row from a source."""
+    cursor = conn.execute(
+        """
+        UPDATE jobs
+        SET market = ?
+        WHERE source = ?
+          AND COALESCE(market, "") <> ?
+        """,
+        (replacement, source, replacement),
+    )
+    if cursor.rowcount:
+        conn.commit()
+    return cursor.rowcount
+
+
 def infer_missing_work_models(conn):
     """Infer the modality only when the portal did not provide it.
 

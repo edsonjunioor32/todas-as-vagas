@@ -159,6 +159,32 @@ class StorageTests(unittest.TestCase):
             )
             conn.close()
 
+    def test_rewrite_source_market_all_repairs_yellowipe_history(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            conn = storage.connect(str(Path(temporary) / "jobs.db"))
+            legacy = sample_job("yellowipe", "1")
+            legacy["market"] = "BR"
+            storage.upsert(conn, [legacy], today="2026-08-20")
+
+            old_global = sample_job("yellowipe", "2")
+            old_global["market"] = "global"
+            storage.upsert(conn, [old_global], today="2026-08-20")
+
+            self.assertEqual(
+                storage.rewrite_source_market_all(
+                    conn, "yellowipe", "Global - Portugal"
+                ),
+                2,
+            )
+            markets = conn.execute(
+                "SELECT market FROM jobs WHERE source = 'yellowipe' ORDER BY job_uid"
+            ).fetchall()
+            self.assertEqual(
+                [row[0] for row in markets],
+                ["Global - Portugal", "Global - Portugal"],
+            )
+            conn.close()
+
     def test_failed_source_keeps_last_valid_rows_beyond_fresh_window(self):
         with tempfile.TemporaryDirectory() as temporary:
             conn = storage.connect(str(Path(temporary) / "jobs.db"))

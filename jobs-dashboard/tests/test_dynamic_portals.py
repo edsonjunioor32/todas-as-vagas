@@ -208,7 +208,7 @@ class SankhyaSeniorTests(unittest.TestCase):
         rows = requested_portals_29082026._yellow_rows(markup)
         self.assertEqual(rows[0]["source"], "yellowipe")
         self.assertEqual(rows[0]["city"], "Franca")
-        self.assertEqual(rows[0]["market"], "BR")
+        self.assertEqual(rows[0]["market"], "Global - Portugal")
 
     def test_tivit_parser_maps_public_api_records(self):
         payload = [{"jobId": 4860, "companyName": "TIVIT",
