@@ -19,6 +19,7 @@ QUARK_SLUG = "esig"
 
 YELLOW_SITE = "https://www.yellowipe.io"
 YELLOW_LIST = f"{YELLOW_SITE}/pt/jobs"
+YELLOWIPE_MARKET = "Global - Portugal"
 TIVIT_SITE = "https://web.tivit.com/talent"
 TIVIT_API = "https://api.tivit.com/talent/api/job"
 
@@ -195,7 +196,7 @@ def _yellow_rows(markup):
         country_key = country_raw.casefold()
         # YellowIpe is intentionally classified in the portal's Portugal
         # market, even when an individual card lists a Brazilian location.
-        market = "Global - Portugal"
+        market = YELLOWIPE_MARKET
         country = "BR" if country_key in {"br", "brasil", "brazil"} else country_raw
         workplace = data.get("workplacePolicy") or []
         workplace_text = (
