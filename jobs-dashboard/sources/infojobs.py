@@ -370,7 +370,7 @@ def _raw_cards(driver):
 
 
 def fetch():
-    max_jobs = _integer_env("INFOJOBS_MAX_JOBS", 500, 20, 500)
+    max_jobs = _integer_env("INFOJOBS_MAX_JOBS", 2000, 20, 2000)
     # Public regional pages render their full card set immediately. Avoiding
     # speculative scrolling keeps the multi-location collection fast.
     max_scrolls = _integer_env("INFOJOBS_MAX_SCROLLS", 0, 0, 20)

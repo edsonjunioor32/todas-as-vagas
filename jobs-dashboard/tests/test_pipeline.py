@@ -219,6 +219,13 @@ class NerdinTests(unittest.TestCase):
 
 
 class InfoJobsTests(unittest.TestCase):
+    def test_max_jobs_allows_the_two_thousand_vacancy_ceiling(self):
+        with patch.dict(os.environ, {"INFOJOBS_MAX_JOBS": "2000"}):
+            self.assertEqual(
+                infojobs._integer_env("INFOJOBS_MAX_JOBS", 500, 20, 2000),
+                2000,
+            )
+
     def test_job_identifiers_deduplicates_and_ignores_invalid_urls(self):
         identifiers = infojobs._job_identifiers([
             {"href": "https://www.infojobs.com.br/vaga-de-emprego-a__101.aspx"},

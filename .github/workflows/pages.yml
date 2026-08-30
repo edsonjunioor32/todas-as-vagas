@@ -212,7 +212,7 @@ jobs:
           GEEKHUNTER_WORKERS: "4"
           ORACLE_WORKERS: "4"
           GREENHOUSE_WORKERS: "4"
-          INFOJOBS_MAX_JOBS: "500"
+          INFOJOBS_MAX_JOBS: "2000"
           INFOJOBS_MAX_SCROLLS: "0"
         run: python jobs-dashboard/pipeline_fit.py --max-age-months 2
 
