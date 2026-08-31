@@ -3,6 +3,7 @@
 import html
 import json
 import re
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from html.parser import HTMLParser
 from urllib.parse import urljoin
@@ -261,7 +262,7 @@ def _detail_model(posting):
 
 def _detail_data(url):
     try:
-        markup = get_text(url, timeout=35, retries=2)
+        markup = get_text(url, timeout=35, retries=4, backoff=2.5)
     except Exception:
         return {}
     posting = _job_posting(markup)
@@ -284,15 +285,17 @@ def _needs_detail(card):
 
 
 def _hydrate_cards(cards):
-    selected = [card for card in cards if _needs_detail(card)]
+    selected = [
+        card for card in cards
+        if card.get("url") and _needs_detail(card)
+    ]
     if not selected:
         return {}
     details = {}
-    with ThreadPoolExecutor(max_workers=min(4, len(selected))) as executor:
+    with ThreadPoolExecutor(max_workers=min(2, len(selected))) as executor:
         futures = {
             executor.submit(_detail_data, card["url"]): card["url"]
             for card in selected
-            if card.get("url")
         }
         for future in as_completed(futures):
             url = futures[future]
@@ -300,6 +303,15 @@ def _hydrate_cards(cards):
                 details[url] = future.result()
             except Exception:
                 details[url] = {}
+
+    # A temporary 429/edge response should not leave a generic Brasil location
+    # in the public snapshot. Retry missing locations at a lower rate.
+    for card in selected:
+        url = card["url"]
+        if details.get(url, {}).get("city"):
+            continue
+        time.sleep(0.5)
+        details[url] = _detail_data(url)
     return details
 
 
@@ -360,6 +372,8 @@ def fetch():
             contract = next((part for part in parts[1:] if CONTRACT.match(part)), "")
             location = next((part for part in reversed(parts[1:]) if part != contract), "")
             key = f"{path}:{vacancy_id}"
+            if key in out:
+                continue
             out[key] = job(
                 "recrutei", key, parts[0], company, card["url"],
                 work_model=work_model_label(raw=location), city=location,
