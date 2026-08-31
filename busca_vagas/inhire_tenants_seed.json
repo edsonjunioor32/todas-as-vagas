@@ -4,8 +4,60 @@
     "tenantName": "180 Seguros"
   },
   {
+    "slug": "2bizcompany",
+    "tenantName": "2bizcompany"
+  },
+  {
+    "slug": "2fadvbox",
+    "tenantName": "2fadvbox"
+  },
+  {
+    "slug": "2fcactus",
+    "tenantName": "2fcactus"
+  },
+  {
+    "slug": "2fcielo",
+    "tenantName": "2fcielo"
+  },
+  {
+    "slug": "2fcobli",
+    "tenantName": "2fcobli"
+  },
+  {
+    "slug": "2flabwarebrasil",
+    "tenantName": "2flabwarebrasil"
+  },
+  {
+    "slug": "2fmagazineluiza",
+    "tenantName": "2fmagazineluiza"
+  },
+  {
+    "slug": "2fpeers",
+    "tenantName": "2fpeers"
+  },
+  {
+    "slug": "2fseazone",
+    "tenantName": "2fseazone"
+  },
+  {
+    "slug": "2fseventh",
+    "tenantName": "2fseventh"
+  },
+  {
+    "slug": "2fsharepeoplehub",
+    "tenantName": "2fsharepeoplehub"
+  },
+  {
     "slug": "2future",
     "tenantName": "2Future"
+  },
+  {
+    "slug": "2fv360",
+    "tenantName": "2fv360"
+  },
+  {
+    "slug": "2fwestwing",
+    "tenantName": "2fwestwing"
   },
   {
     "slug": "3cplusnow",
@@ -72,12 +124,24 @@
     "tenantName": "Aline Maineri Consultoria RH (TRD)"
   },
   {
+    "slug": "alliage",
+    "tenantName": "alliage"
+  },
+  {
     "slug": "allintra",
     "tenantName": "Allintra"
   },
   {
     "slug": "alloyal",
     "tenantName": "Alloyal"
+  },
+  {
+    "slug": "allset",
+    "tenantName": "allset"
+  },
+  {
+    "slug": "allu",
+    "tenantName": "allu"
   },
   {
     "slug": "altoqi",
@@ -332,6 +396,10 @@
     "tenantName": "InHire"
   },
   {
+    "slug": "carreiras-semantix",
+    "tenantName": "carreiras-semantix"
+  },
+  {
     "slug": "casabugre",
     "tenantName": "Casa Bugre"
   },
@@ -416,6 +484,10 @@
     "tenantName": "Cogna Educação"
   },
   {
+    "slug": "compagas",
+    "tenantName": "compagas"
+  },
+  {
     "slug": "construtoraelevacao",
     "tenantName": "Construtora Elevação"
   },
@@ -496,6 +568,10 @@
     "tenantName": "Dartz Ideal Recruitment"
   },
   {
+    "slug": "dataside",
+    "tenantName": "dataside"
+  },
+  {
     "slug": "db1",
     "tenantName": "DB1 Group"
   },
@@ -562,6 +638,10 @@
   {
     "slug": "ecore",
     "tenantName": "e-Core"
+  },
+  {
+    "slug": "ecossis",
+    "tenantName": "ecossis"
   },
   {
     "slug": "ecx",
@@ -780,6 +860,14 @@
     "tenantName": "Gogroup"
   },
   {
+    "slug": "greenn",
+    "tenantName": "greenn"
+  },
+  {
+    "slug": "growdev",
+    "tenantName": "growdev"
+  },
+  {
     "slug": "grupoagcapital",
     "tenantName": "Grupo AG Capital"
   },
@@ -856,6 +944,10 @@
     "tenantName": "SRM"
   },
   {
+    "slug": "grupostudio",
+    "tenantName": "grupostudio"
+  },
+  {
     "slug": "grupotaking",
     "tenantName": "Grupo Taking"
   },
@@ -894,6 +986,10 @@
   {
     "slug": "hiltonbrasil",
     "tenantName": "Hilton Brasil"
+  },
+  {
+    "slug": "holy-learning",
+    "tenantName": "holy-learning"
   },
   {
     "slug": "icatu",
@@ -1010,6 +1106,10 @@
   {
     "slug": "jeitto",
     "tenantName": "Jeitto"
+  },
+  {
+    "slug": "jobler",
+    "tenantName": "jobler"
   },
   {
     "slug": "jota",
@@ -1224,6 +1324,10 @@
     "tenantName": "MENA"
   },
   {
+    "slug": "mereo",
+    "tenantName": "mereo"
+  },
+  {
     "slug": "midhaus",
     "tenantName": "Midhaus"
   },
@@ -1258,6 +1362,10 @@
   {
     "slug": "movecta",
     "tenantName": "Movecta"
+  },
+  {
+    "slug": "msbtecnologia",
+    "tenantName": "msbtecnologia"
   },
   {
     "slug": "mspestudios",
@@ -1298,6 +1406,10 @@
   {
     "slug": "nomadglobal",
     "tenantName": "Nomad"
+  },
+  {
+    "slug": "nstech",
+    "tenantName": "nstech"
   },
   {
     "slug": "nts",
@@ -1460,6 +1572,10 @@
     "tenantName": "Qive"
   },
   {
+    "slug": "quartavia",
+    "tenantName": "quartavia"
+  },
+  {
     "slug": "querodelivery",
     "tenantName": "Querodelivery"
   },
@@ -1588,6 +1704,10 @@
     "tenantName": "Seu Estágio"
   },
   {
+    "slug": "sevenred",
+    "tenantName": "sevenred"
+  },
+  {
     "slug": "seventh",
     "tenantName": "Seventh"
   },
@@ -1618,6 +1738,10 @@
   {
     "slug": "skeelo",
     "tenantName": "Skeelo"
+  },
+  {
+    "slug": "skopiadigital",
+    "tenantName": "skopiadigital"
   },
   {
     "slug": "skyone",
@@ -1844,6 +1968,10 @@
     "tenantName": "Vagas Confidenciais2"
   },
   {
+    "slug": "valecard",
+    "tenantName": "valecard"
+  },
+  {
     "slug": "vatto",
     "tenantName": "Vatto"
   },
@@ -1910,6 +2038,10 @@
   {
     "slug": "votorantim",
     "tenantName": "Votorantim"
+  },
+  {
+    "slug": "vr",
+    "tenantName": "vr"
   },
   {
     "slug": "vrental",
