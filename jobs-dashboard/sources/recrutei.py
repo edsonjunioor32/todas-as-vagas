@@ -315,6 +315,43 @@ def _hydrate_cards(cards):
     return details
 
 
+def repair_historical_rows(records):
+    """Resolve recent stored Recrutei rows that only have Brasil as location."""
+    candidates = [
+        record for record in records
+        if isinstance(record, dict) and record.get("job_uid") and record.get("url")
+    ]
+    if not candidates:
+        return {}
+
+    details = {}
+    with ThreadPoolExecutor(max_workers=min(2, len(candidates))) as executor:
+        futures = {
+            executor.submit(_detail_data, record["url"]): record["job_uid"]
+            for record in candidates
+        }
+        for future in as_completed(futures):
+            job_uid = futures[future]
+            try:
+                details[job_uid] = future.result()
+            except Exception:
+                details[job_uid] = {}
+
+    updates = {}
+    for record in candidates:
+        detail = details.get(record["job_uid"], {})
+        city = str(detail.get("city") or "").strip()
+        if not city or city.casefold() in {"brasil", "brazil"}:
+            continue
+        updates[record["job_uid"]] = {
+            "city": city,
+            "state": str(detail.get("state") or "").strip(),
+            "work_model": detail.get("work_model") or "on-site",
+            "published_date": detail.get("published_date") or "",
+        }
+    return updates
+
+
 def _public_rows():
     """Collect the current public Recrutei feed, including detail metadata."""
     parser = PublicCards(PUBLIC_CARD, PUBLIC)
