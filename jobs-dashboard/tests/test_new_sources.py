@@ -323,6 +323,12 @@ class RegistryTests(unittest.TestCase):
         self.assertTrue({"spassu", "infovagas", "bradesco", "nttdata", "btg", "luza", "levva", "esig", "azify", "finayatech", "yellowipe", "tivit"}.issubset(pipeline.NONEMPTY_SOURCES))
 
 
+    def test_tarken_is_kept_in_seeded_inhire_tenants(self):
+        seed_path = DASHBOARD.parent / "busca_vagas" / "inhire_tenants_seed.json"
+        data = json.loads(seed_path.read_text(encoding="utf-8"))
+        self.assertIn("tarken", {item["slug"] for item in data})
+
+
 if __name__ == "__main__":
     unittest.main()
 
