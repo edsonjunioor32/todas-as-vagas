@@ -49,6 +49,11 @@ def _location(item):
     state = _clean(item.get("state"))
     if city.casefold() in _GENERIC_LOCATIONS:
         city = "Brasil"
+    else:
+        match = re.match(r"^(?P<state>[A-Za-z]{2})\\s*-\\s*(?P<name>.+)$", city)
+        if match:
+            city = match.group("name").strip()
+            state = state or match.group("state").upper()
     return city, state
 
 
