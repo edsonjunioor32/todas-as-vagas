@@ -174,6 +174,39 @@ def upsert(conn, jobs, today=None):
 
 
 
+def apply_source_repairs(conn, repairs):
+    """Apply source-specific corrections to already stored rows."""
+    updates = []
+    for job_uid, item in (repairs or {}).items():
+        if not job_uid or not isinstance(item, dict):
+            continue
+        city = str(item.get("city") or "").strip()
+        state = str(item.get("state") or "").strip()
+        model = str(item.get("work_model") or "").strip()
+        published = str(item.get("published_date") or "").strip()
+        if not city and not state and not model and not published:
+            continue
+        updates.append((city, state, model, model, published, published, job_uid))
+    if not updates:
+        return 0
+    conn.executemany(
+        """
+        UPDATE jobs
+        SET city = CASE WHEN ? <> '' THEN ? ELSE city END,
+            state = CASE WHEN ? <> '' THEN ? ELSE state END,
+            work_model = CASE WHEN ? <> '' THEN ? ELSE work_model END,
+            published_date = CASE WHEN ? <> '' THEN ? ELSE published_date END
+        WHERE job_uid = ?
+        """,
+        [
+            (city, city, state, state, model, model, published, published, job_uid)
+            for city, state, model, _model, published, _published, job_uid in updates
+        ],
+    )
+    conn.commit()
+    return len(updates)
+
+
 def rewrite_source_urls(conn, source, url_builder):
     """Rewrite stored links for a source after its public URL contract changes."""
     candidates = conn.execute(
