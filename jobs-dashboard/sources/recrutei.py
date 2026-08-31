@@ -207,9 +207,12 @@ def _public_rows():
              and part.casefold() not in {"presencial ou remoto", "remoto ou presencial"}),
             "",
         )
+        model = _public_model(badges)
+        if not model and city.casefold() not in {"brasil", "brazil"}:
+            model = "on-site"
         rows.append(job(
             "recrutei", key, title, company, card["url"],
-            work_model=_public_model(badges) or work_model_label(raw=" ".join(parts)),
+            work_model=model,
             city=city, state=state, country="BR", market="BR",
             contract_types=re.split(r"\s+ou\s+", contract, flags=re.I) if contract else [],
         ))
