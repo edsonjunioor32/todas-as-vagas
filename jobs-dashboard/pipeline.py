@@ -13,7 +13,7 @@ from pathlib import Path
 
 import classify
 import storage
-from sources import REGISTRY, solides as solides_source
+from sources import REGISTRY, recrutei as recrutei_source, solides as solides_source
 
 try:
     sys.stdout.reconfigure(encoding="utf-8")
@@ -343,6 +343,31 @@ def main(before_persist=None):
     conn = storage.connect(str(DB_PATH))
     before = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
     storage.upsert(conn, rows)
+    recrutei_repaired = 0
+    if "recrutei" in selected_sources and "recrutei" not in failed:
+        candidates = conn.execute(
+            """
+            SELECT job_uid, url, city, work_model
+            FROM jobs
+            WHERE source = 'recrutei'
+              AND (
+                  LOWER(TRIM(COALESCE(city, ''))) IN (
+                      'brasil', 'brazil', 'não informado', 'nao informado'
+                  )
+                  OR LOWER(TRIM(COALESCE(city, ''))) LIKE 'publicada %'
+              )
+            """
+        ).fetchall()
+        repairs = recrutei_source.repair_historical_rows([
+            {
+                "job_uid": job_uid,
+                "url": url,
+                "city": city,
+                "work_model": work_model,
+            }
+            for job_uid, url, city, work_model in candidates
+        ])
+        recrutei_repaired = storage.apply_source_repairs(conn, repairs)
     senior_markets_repaired = storage.rewrite_source_market(
         conn,
         "senior",
@@ -407,7 +432,7 @@ def main(before_persist=None):
     conn.close()
     phases["Banco e fotografia pública"] = time.perf_counter() - stage_started
     phases["total"] = time.perf_counter() - pipeline_started
-    print(f"  base histórica: {after} vagas ({after-before+pruned:+d} nesta execução; {pruned} removidas; {greenhouse_removed} Greenhouse fora do Brasil; {totvs_removed} TOTVS obsoletas/inválidas; {solides_urls_repaired} links Sólides corrigidos; {senior_markets_repaired} mercados Senior corrigidos; {yellowipe_markets_repaired} mercados YellowIpe corrigidos; {modality_inferred} modalidades inferidas)")
+    print(f"  base histórica: {after} vagas ({after-before+pruned:+d} nesta execução; {pruned} removidas; {greenhouse_removed} Greenhouse fora do Brasil; {totvs_removed} TOTVS obsoletas/inválidas; {solides_urls_repaired} links Sólides corrigidos; {senior_markets_repaired} mercados Senior corrigidos; {yellowipe_markets_repaired} mercados YellowIpe corrigidos; {recrutei_repaired} localizações Recrutei reparadas; {modality_inferred} modalidades inferidas)")
     print(f"  base pública: {count} vagas · {size_mb:.2f} MB · {JSON_PATH.relative_to(ROOT)}")
     print(
         "  tempos: "
