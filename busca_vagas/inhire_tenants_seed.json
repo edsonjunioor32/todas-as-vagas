@@ -1680,6 +1680,10 @@
     "tenantName": "TalentX Digital"
   },
   {
+    "slug": "tarken",
+    "tenantName": "Tarken"
+  },
+  {
     "slug": "tc",
     "tenantName": "TC"
   },
