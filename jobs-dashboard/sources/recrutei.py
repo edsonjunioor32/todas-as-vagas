@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 """Configured public Recrutei career pages."""
+import html
+import json
 import re
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from html.parser import HTMLParser
 from urllib.parse import urljoin
 
-from ._common import job, work_model_label
+from ._common import iso_date, job, strip_html, work_model_label
 from ._http import get_text
 
 PAGES = {
@@ -28,6 +31,10 @@ PUBLIC = "https://empregos.recrutei.com.br/vagas"
 CARD = re.compile(r"/([^/]+)/vacancy/(\d+)-", re.I)
 PUBLIC_CARD = re.compile(r"/vaga/([^/]+)/(\d+)(?:-[^/?#]+)?", re.I)
 CONTRACT = re.compile(r"^(?:CLT|PJ|CLT ou PJ|Estágio|Temporário|Pessoa Jurídica)$", re.I)
+PUBLICATION_TIME = re.compile(
+    r"\bpublicad[ao]\b|\bh[áa]\s+\d+\s+(?:minuto|hora|dia|semana|m[eê]s)",
+    re.I,
+)
 
 
 class PublicCards(HTMLParser):
@@ -160,8 +167,13 @@ def _company_name(slug):
 
 
 def _public_location(value):
-    parts = [part.strip() for part in re.split(r"\s*,\s*", str(value or "")) if part.strip()]
-    if not parts or parts[0].casefold() in {"não informado", "nao informado"}:
+    text = re.sub(r"\s+", " ", str(value or "")).strip()
+    if not text or text.casefold() in {"não informado", "nao informado"}:
+        return "Brasil", ""
+    if PUBLICATION_TIME.search(text):
+        return "", ""
+    parts = [part.strip() for part in re.split(r"\s*,\s*", text) if part.strip()]
+    if not parts:
         return "Brasil", ""
     if parts[-1].casefold() in {"brasil", "brazil"}:
         return parts[0], parts[-2] if len(parts) >= 3 else ""
@@ -180,10 +192,122 @@ def _public_model(badges):
     return ""
 
 
+def _meta_value(markup, name):
+    wanted = str(name or "").casefold()
+    for tag in re.findall(r"<meta\b[^>]*>", markup or "", re.I):
+        attrs = dict(re.findall(r"""([:\w-]+)\s*=\s*["']([^"']*)["']""", tag))
+        if (
+            attrs.get("property", "").casefold() == wanted
+            or attrs.get("name", "").casefold() == wanted
+        ):
+            return html.unescape(attrs.get("content", "")).strip()
+    return ""
+
+
+def _job_posting(markup):
+    for match in re.finditer(
+        r"<script\b[^>]*type=[\"']application/ld\+json[\"'][^>]*>(.*?)</script>",
+        markup or "",
+        re.I | re.S,
+    ):
+        try:
+            payload = json.loads(html.unescape(match.group(1).strip()))
+        except (TypeError, ValueError):
+            continue
+        candidates = payload if isinstance(payload, list) else [payload]
+        if isinstance(payload, dict) and isinstance(payload.get("@graph"), list):
+            candidates.extend(payload["@graph"])
+        for candidate in candidates:
+            if not isinstance(candidate, dict):
+                continue
+            types = candidate.get("@type")
+            if types == "JobPosting" or (
+                isinstance(types, list) and "JobPosting" in types
+            ):
+                return candidate
+    return {}
+
+
+def _detail_location(posting, markup):
+    location = posting.get("jobLocation") if isinstance(posting, dict) else None
+    if isinstance(location, list):
+        location = next((item for item in location if isinstance(item, dict)), {})
+    if not isinstance(location, dict):
+        location = {}
+    address = location.get("address") or {}
+    if isinstance(address, list):
+        address = next((item for item in address if isinstance(item, dict)), {})
+    if not isinstance(address, dict):
+        address = {}
+    city = str(address.get("addressLocality") or "").strip()
+    state = str(address.get("addressRegion") or "").strip()
+    if city:
+        return city, state
+
+    description = _meta_value(markup, "og:description")
+    match = re.search(r"\bem\s+([^./]+?)/([A-Za-z]{2})\b", description)
+    return (match.group(1).strip(), match.group(2).upper()) if match else ("", "")
+
+
+def _detail_model(posting):
+    value = posting.get("jobLocationType") if isinstance(posting, dict) else ""
+    if isinstance(value, list):
+        value = " ".join(str(item) for item in value)
+    raw = str(value or "")
+    if "telecommute" in raw.casefold():
+        return "remote"
+    return work_model_label(raw=raw)
+
+
+def _detail_data(url):
+    try:
+        markup = get_text(url, timeout=35, retries=2)
+    except Exception:
+        return {}
+    posting = _job_posting(markup)
+    city, state = _detail_location(posting, markup)
+    return {
+        "city": city,
+        "state": state,
+        "work_model": _detail_model(posting),
+        "published_date": iso_date(posting.get("datePosted")),
+    }
+
+
+def _needs_detail(card):
+    location = str(card.get("location") or "").strip()
+    return (
+        not location
+        or not location.casefold() in {"brasil", "brazil", "não informado", "nao informado"}
+        and not PUBLICATION_TIME.search(location)
+    ) is False
+
+
+def _hydrate_cards(cards):
+    selected = [card for card in cards if _needs_detail(card)]
+    if not selected:
+        return {}
+    details = {}
+    with ThreadPoolExecutor(max_workers=min(4, len(selected))) as executor:
+        futures = {
+            executor.submit(_detail_data, card["url"]): card["url"]
+            for card in selected
+            if card.get("url")
+        }
+        for future in as_completed(futures):
+            url = futures[future]
+            try:
+                details[url] = future.result()
+            except Exception:
+                details[url] = {}
+    return details
+
+
 def _public_rows():
-    """Collect the current public Recrutei feed, including card metadata."""
+    """Collect the current public Recrutei feed, including detail metadata."""
     parser = PublicCards(PUBLIC_CARD, PUBLIC)
     parser.feed(get_text(PUBLIC, timeout=40, retries=2))
+    details = _hydrate_cards(parser.rows)
     rows, seen = [], set()
     for card in parser.rows:
         groups = card.get("groups") or ()
@@ -199,7 +323,10 @@ def _public_rows():
             continue
         seen.add(key)
         company = card.get("company") or _company_name(company_slug)
+        detail = details.get(card.get("url"), {})
         city, state = _public_location(card.get("location"))
+        if detail.get("city"):
+            city, state = detail["city"], detail.get("state") or state
         badges = card.get("badges") or []
         contract = next(
             (part for part in badges
@@ -207,13 +334,14 @@ def _public_rows():
              and part.casefold() not in {"presencial ou remoto", "remoto ou presencial"}),
             "",
         )
-        model = _public_model(badges)
+        model = _public_model(badges) or detail.get("work_model", "")
         if not model and city.casefold() not in {"brasil", "brazil"}:
             model = "on-site"
         rows.append(job(
             "recrutei", key, title, company, card["url"],
             work_model=model,
             city=city, state=state, country="BR", market="BR",
+            published_date=detail.get("published_date", ""),
             contract_types=re.split(r"\s+ou\s+", contract, flags=re.I) if contract else [],
         ))
     return rows
