@@ -278,9 +278,9 @@ def _needs_detail(card):
     location = str(card.get("location") or "").strip()
     return (
         not location
-        or not location.casefold() in {"brasil", "brazil", "não informado", "nao informado"}
-        and not PUBLICATION_TIME.search(location)
-    ) is False
+        or location.casefold() in {"brasil", "brazil", "não informado", "nao informado"}
+        or bool(PUBLICATION_TIME.search(location))
+    )
 
 
 def _hydrate_cards(cards):
