@@ -1,224 +1,207 @@
 # -*- coding: utf-8 -*-
-"""Public Levva vacancies from the JavaScript-rendered IziRH board."""
-import hashlib
-import re
-import time
+"""Public Levva vacancies through the IziRH JSON API.
 
-from ._common import job, work_model_label
+The visible Levva board is a JavaScript application.  Its public catalogue is
+served by the same key-free endpoint used by the page, which is more reliable
+for the scheduled runner than depending on browser rendering.
+"""
+import re
+
+from ._common import iso_date, job, work_model_label
+from ._http import get_json, post_json
 
 
 LIST_URL = "https://levva.izirh.io/explorar-vagas"
+SUBDOMAIN = "levva.izirh.io"
 COMPANY = "Levva"
-DETAIL_RE = re.compile(r"/visualizar-vaga/([0-9a-f-]{20,})", re.I)
+CONFIG_URL = "https://izi-api-v2.izirh.io/api/subdomains/levva.izirh.io"
+VACANCIES_URL = "https://izi-api.izirh.io/api/sertec-ms-candidates"
+PAGE_SIZE = 100
 _GENERIC_LOCATIONS = {"", "não informado", "nao informado", "brasil", "brazil"}
-_CARD_SCRIPT = r"""
-return Array.from(document.querySelectorAll("h6")).map((heading, index) => {
-  let card = heading;
-  for (let level = 0; level < 8 && card; level += 1) {
-    if (card.querySelector('[aria-label="Cidade"],[aria-label="Tipo de trabalho"]')) break;
-    card = card.parentElement;
-  }
-  if (!card) return null;
-  const field = (label) => {
-    const node = card.querySelector('[aria-label="' + label + '"]');
-    return node ? (node.innerText || node.textContent || "").replace(/\s+/g, " ").trim() : "";
-  };
-  return {
-    index,
-    title: (heading.innerText || heading.textContent || "").replace(/\s+/g, " ").trim(),
-    city: field("Cidade"),
-    model: field("Tipo de trabalho")
-  };
-}).filter(item => item && item.title);
-"""
 
 
 def _clean(value):
     return re.sub(r"\s+", " ", str(value or "")).strip()
 
 
-def _location(value):
-    text = _clean(value)
-    if text.casefold() in _GENERIC_LOCATIONS:
-        return "Brasil", ""
-    match = re.match(r"^(?P<state>[A-Za-z]{2})\s*-\s*(?P<city>.+)$", text)
-    if match:
-        return match.group("city").strip(), match.group("state").upper()
-    return text, ""
+def _value_name(value):
+    if isinstance(value, dict):
+        return _clean(value.get("name") or value.get("label") or value.get("value"))
+    return _clean(value)
 
 
 def _model(value):
-    normalized = _clean(value).casefold()
+    raw = _value_name(value)
+    normalized = raw.casefold()
     if normalized in {"presencial ou remoto", "remoto ou presencial"}:
         return "hybrid"
     if normalized in {"híbrido", "hibrido", "hybrid"}:
         return "hybrid"
     if normalized in {"presencial", "on-site", "onsite"}:
         return "on-site"
-    if normalized in {"remoto", "remote", "home office"}:
+    if normalized in {"remoto", "remote", "home office", "home-office"}:
         return "remote"
-    return work_model_label(raw=value)
+    return work_model_label(raw=raw)
 
 
-def _stable_native_id(title, city, state, model):
-    value = "|".join((_clean(title), _clean(city), _clean(state), _clean(model)))
-    return "card-" + hashlib.sha1(value.encode("utf-8")).hexdigest()[:20]
+def _location(item):
+    city = _clean(item.get("city"))
+    state = _clean(item.get("state"))
+    if city.casefold() in _GENERIC_LOCATIONS:
+        city = "Brasil"
+    return city, state
 
 
-def _rows_from_cards(cards):
+def _row(item):
+    if not isinstance(item, dict):
+        return None
+    title = _clean(item.get("name") or item.get("title"))
+    native_id = _clean(item.get("id") or item.get("_id") or item.get("vacancyId"))
+    if not title or not native_id:
+        return None
+
+    city, state = _location(item)
+    model = _model(item.get("workModel") or item.get("work_model"))
+    if not model and city.casefold() not in {"brasil", "brazil"}:
+        model = "on-site"
+
+    contract = _value_name(item.get("typeContraction") or item.get("contractType"))
+    url = f"{LIST_URL.rsplit('/', 1)[0]}/visualizar-vaga/{native_id}"
+    published = (
+        item.get("createdAt")
+        or item.get("publishedAt")
+        or item.get("published_date")
+    )
+    return job(
+        "levva",
+        native_id,
+        title,
+        COMPANY,
+        url,
+        work_model=model,
+        city=city,
+        state=state,
+        country="BR",
+        market="BR",
+        published_date=iso_date(published),
+        contract_types=[contract] if contract else [],
+        pcd=bool(item.get("pcd")),
+    )
+
+
+def _rows_from_items(items):
     rows = []
-    for item in cards or []:
-        title = _clean(item.get("title"))
-        if not title:
+    seen = set()
+    for item in items or []:
+        row = _row(item)
+        if not row or row["native_id"] in seen:
             continue
-        city, state = _location(item.get("city"))
-        model = _model(item.get("model"))
-        if not model and city.casefold() not in {"brasil", "brazil"}:
-            model = "on-site"
-        native_id = str(item.get("native_id") or "").strip()
-        if not native_id:
-            native_id = _stable_native_id(title, city, state, model)
-        url = _clean(item.get("url")) or LIST_URL
-        rows.append(job(
-            "levva",
-            native_id,
-            title,
-            COMPANY,
-            url,
-            work_model=model,
-            city=city,
-            state=state,
-            country="BR",
-            market="BR",
-        ))
+        seen.add(row["native_id"])
+        rows.append(row)
     return rows
 
 
-def _driver():
-    try:
-        from selenium import webdriver
-    except ImportError as error:
-        raise RuntimeError("Selenium is required for the Levva rendered careers page") from error
-
-    options = webdriver.ChromeOptions()
-    for argument in (
-        "--headless=new", "--no-sandbox", "--disable-dev-shm-usage",
-        "--disable-gpu", "--disable-extensions", "--window-size=1440,3000",
-        "--lang=pt-BR",
-    ):
-        options.add_argument(argument)
-    options.page_load_strategy = "eager"
-    return webdriver.Chrome(options=options)
+def _result_payload(payload):
+    if not isinstance(payload, dict):
+        return {}
+    result = payload.get("result")
+    return result if isinstance(result, dict) else payload
 
 
-def _card_rows(driver, timeout=60, previous_first=""):
-    deadline = time.monotonic() + timeout
-    while time.monotonic() < deadline:
-        rows = driver.execute_script(_CARD_SCRIPT)
-        if rows and (not previous_first or rows[0].get("title") != previous_first):
-            return rows
-        time.sleep(1)
-    raise RuntimeError("Levva did not render public vacancy cards")
+def _rows_from_api(payload):
+    result = _result_payload(payload)
+    data = result.get("data") or result.get("vacancies") or []
+    return _rows_from_items(data)
 
 
-def _page_number(driver, page):
-    script = """
-    const desired = String(arguments[0]);
-    const buttons = Array.from(document.querySelectorAll("button"));
-    const button = buttons.find(item => {
-      const aria = (item.getAttribute("aria-label") || "").toLowerCase();
-      return aria === "página " + desired ||
-             aria === "ir para a página " + desired;
-    });
-    if (!button) return false;
-    button.click();
-    return true;
-    """
-    return bool(driver.execute_script(script, int(page)))
+def _rows_from_cards(cards):
+    """Keep the small card-normalization seam used by regression tests."""
+    rows = []
+    for item in cards or []:
+        if not isinstance(item, dict):
+            continue
+        normalized = {
+            "id": item.get("native_id") or item.get("id"),
+            "name": item.get("title") or item.get("name"),
+            "city": item.get("city"),
+            "state": item.get("state"),
+            "workModel": {"name": item.get("model")},
+        }
+        row = _row(normalized)
+        if row:
+            if item.get("url"):
+                row["url"] = _clean(item["url"])
+            rows.append(row)
+    return rows
 
 
-def _page_count(driver):
-    return int(driver.execute_script(r"""
-      return Math.max(1, ...Array.from(document.querySelectorAll("button"))
-        .map(button => (button.getAttribute("aria-label") || "")
-          .match(/p[aá]gina\s+(\d+)/i))
-        .filter(Boolean)
-        .map(match => Number(match[1])));
-    """))
+def _configuration():
+    payload = get_json(CONFIG_URL, timeout=30, retries=3)
+    tenant_id = _clean(payload.get("tenantId")) if isinstance(payload, dict) else ""
+    if not tenant_id:
+        raise RuntimeError("Levva public configuration did not expose a tenant id")
+    return tenant_id
 
 
-def _collect_detail_urls(driver, cards, page, first_title):
-    result = []
-    for index, card in enumerate(cards):
-        title = _clean(card.get("title"))
-        try:
-            headings = driver.find_elements("css selector", "h6")
-            if index >= len(headings):
-                raise RuntimeError("card heading disappeared")
-            driver.execute_script(
-                "arguments[0].scrollIntoView({block: 'center'}); arguments[0].click();",
-                headings[index],
-            )
-            deadline = time.monotonic() + 30
-            detail_url = ""
-            while time.monotonic() < deadline:
-                candidate = str(driver.current_url or "")
-                if DETAIL_RE.search(candidate):
-                    detail_url = candidate
-                    break
-                time.sleep(0.5)
-            if not detail_url:
-                raise RuntimeError("detail route did not open")
-            result.append({
-                **card,
-                "url": detail_url,
-                "native_id": DETAIL_RE.search(detail_url).group(1),
-            })
-        except Exception as error:
-            raise RuntimeError(
-                f"Levva detail unavailable for {title or index}: {error}"
-            ) from error
-        finally:
-            driver.get(LIST_URL)
-            visible = _card_rows(driver)
-            if page > 1:
-                if not _page_number(driver, page):
-                    raise RuntimeError(f"Levva page {page} button was not found")
-                visible = _card_rows(driver, previous_first=visible[0].get("title", ""))
-            if not visible or visible[0].get("title") != first_title:
-                raise RuntimeError(
-                    f"Levva returned to an unexpected page after {title or index}"
-                )
+def _fetch_page(tenant_id, offset, limit=PAGE_SIZE):
+    payload = {
+        "command": "get_available_vacancies",
+        "payload": {
+            "companyId": tenant_id,
+            "offset": offset,
+            "limit": limit,
+            "orderBy": {"name": "createdAt", "order": "desc"},
+            "options": {"filters": True},
+            "subdomain": SUBDOMAIN,
+        },
+    }
+    response = post_json(VACANCIES_URL, payload, timeout=45, retries=3)
+    result = _result_payload(response)
+    if not isinstance(result.get("data"), list):
+        raise RuntimeError("Levva public vacancy response has no data list")
     return result
 
 
 def fetch():
-    driver = _driver()
-    rows = []
-    try:
-        driver.set_page_load_timeout(60)
-        driver.get(LIST_URL)
-        page = 1
-        all_cards = []
-        while True:
-            cards = _card_rows(driver)
-            first_title = cards[0].get("title", "")
-            all_cards.extend(_collect_detail_urls(driver, cards, page, first_title))
-            total_pages = _page_count(driver)
-            if page >= total_pages:
-                break
-            if not _page_number(driver, page + 1):
-                next_button = driver.find_element(
-                    "css selector", 'button[aria-label="Ir para a próxima página"]'
-                )
-                if next_button.get_attribute("disabled"):
-                    break
-                next_button.click()
-            _card_rows(driver, previous_first=first_title)
-            page += 1
-        rows = _rows_from_cards(all_cards)
-    finally:
-        driver.quit()
+    tenant_id = _configuration()
+    offset = 0
+    items = []
+    expected = None
+
+    while True:
+        result = _fetch_page(tenant_id, offset)
+        page = result.get("data") or []
+        if expected is None:
+            try:
+                expected = int(result.get("vacanciesNumber"))
+            except (TypeError, ValueError):
+                expected = None
+        items.extend(page)
+        offset += len(page)
+
+        if not page or (expected is not None and offset >= expected):
+            break
+        if expected is None and len(page) < PAGE_SIZE:
+            break
+        if offset > 10000:
+            raise RuntimeError("Levva pagination exceeded the safety limit")
+
+    unique_items = {
+        _clean(item.get("id") or item.get("_id") or item.get("vacancyId")): item
+        for item in items
+        if isinstance(item, dict)
+        and _clean(item.get("id") or item.get("_id") or item.get("vacancyId"))
+    }
+    if expected is not None and len(unique_items) < expected:
+        raise RuntimeError(
+            f"Levva pagination incomplete: {len(unique_items)}/{expected} vacancies"
+        )
+
+    rows = _rows_from_items(unique_items.values())
+    if expected is not None and len(rows) < expected:
+        raise RuntimeError(
+            f"Levva returned {len(rows)}/{expected} recognizable vacancies"
+        )
     if not rows:
         raise RuntimeError("Levva returned no recognizable public vacancy cards")
     return rows
