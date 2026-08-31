@@ -11,6 +11,13 @@ from zoneinfo import ZoneInfo
 
 LOCAL_TIMEZONE = ZoneInfo("America/Fortaleza")
 
+# Friday through Monday have a lower volume of new postings. The public
+# catalogue therefore uses a 63-calendar-day publication window on those
+# local Brazilian weekdays; Tuesday through Thursday keep the normal
+# month-based window.
+EXTENDED_PUBLICATION_WEEKDAYS = frozenset({0, 4, 5, 6})  # Mon, Fri, Sat, Sun
+EXTENDED_PUBLICATION_DAYS = 63
+
 # SmartRecruiters keeps DBC's public postings active while exposing their
 # original release date. This source-specific exception is shared by the
 # collector and the snapshot validator so the same active-feed rule is used
@@ -91,8 +98,23 @@ def local_today():
     return datetime.now(LOCAL_TIMEZONE).date()
 
 
-def publication_cutoff(today=None, max_age_months=2):
+def publication_max_age_days(today=None):
+    """Return the weekday-sensitive publication window in calendar days."""
     today_value = date.fromisoformat(today) if isinstance(today, str) else (today or local_today())
+    if today_value.weekday() in EXTENDED_PUBLICATION_WEEKDAYS:
+        return EXTENDED_PUBLICATION_DAYS
+    return None
+
+
+def publication_cutoff(today=None, max_age_months=2, max_age_days=None):
+    """Return the effective publication cutoff for the local collection date."""
+    today_value = date.fromisoformat(today) if isinstance(today, str) else (today or local_today())
+    effective_days = (
+        publication_max_age_days(today_value)
+        if max_age_days is None else max(0, max_age_days)
+    )
+    if effective_days is not None:
+        return (today_value - timedelta(days=effective_days)).isoformat()
     return months_ago(today_value, max(0, max_age_months)).isoformat()
 
 
@@ -299,10 +321,12 @@ def purge_source_rows_not_in_uids(conn, source, current_uids):
     return len(invalid)
 
 def prune(conn, keep_days=120, today=None, max_age_months=2,
-          active_feed_sources=None):
+          active_feed_sources=None, max_age_days=None):
     today = today or local_today().isoformat()
     seen_cutoff = (date.fromisoformat(today) - timedelta(days=keep_days)).isoformat()
-    age_cutoff = publication_cutoff(today, max_age_months)
+    age_cutoff = publication_cutoff(
+        today, max_age_months, max_age_days=max_age_days
+    )
     active = sorted({str(source).strip() for source in (active_feed_sources or [])
                      if str(source).strip() in ACTIVE_PUBLIC_FEED_SOURCES})
     exemptions = [
@@ -329,7 +353,8 @@ def prune(conn, keep_days=120, today=None, max_age_months=2,
 
 def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
                     max_age_months=2,
-                    max_raw_mb=64, source_counts=None, failed_sources=None):
+                    max_raw_mb=64, source_counts=None, failed_sources=None,
+                    max_age_days=None):
     """Export jobs seen in a recent successful collection window.
 
     A three-day tolerance prevents a temporary portal outage from instantly
@@ -341,7 +366,13 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
     """
     today = today or local_today().isoformat()
     cutoff = (date.fromisoformat(today) - timedelta(days=max(0, fresh_days - 1))).isoformat()
-    age_cutoff = publication_cutoff(today, max_age_months)
+    effective_max_age_days = (
+        publication_max_age_days(today)
+        if max_age_days is None else max(0, max_age_days)
+    )
+    age_cutoff = publication_cutoff(
+        today, max_age_months, max_age_days=effective_max_age_days
+    )
     failed = sorted({str(source).strip() for source in (failed_sources or []) if str(source).strip()})
     failed_clause = ""
     failed_params = []
@@ -452,6 +483,7 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
         "generated_date": today,
         "fresh_days": fresh_days,
         "max_age_months": max_age_months,
+        "max_age_days": effective_max_age_days,
         "publication_cutoff": age_cutoff,
         "count": len(rows),
         "total_base": conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0],

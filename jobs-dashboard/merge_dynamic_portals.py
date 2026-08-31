@@ -32,6 +32,7 @@ from sources import (  # noqa: E402
     experian,
     geekhunter,
     quickin,
+    levva,
     requested_careers,
     requested_portals_27082026,
     requested_portals_28082026,
@@ -47,6 +48,7 @@ FIT_PATH = ROOT / "docs" / "data" / "fit.json"
 TARGETS = (
     ("experian", experian.fetch),
     ("spassu", spassu.fetch),
+    ("levva", levva.fetch),
     ("infovagas", quickin.fetch),
     ("digisystem", digisystem.fetch),
     ("docusign", requested_careers.fetch_docusign),
@@ -70,8 +72,14 @@ def collect_rows():
 
     rows = pipeline.normalize_market(rows)
     rows = pipeline.dedupe_native(rows)
-    cutoff = storage.publication_cutoff(max_age_months=2)
-    rows, dropped_old = pipeline.discard_old_publications(rows, cutoff)
+    today = storage.local_today().isoformat()
+    max_age_days = storage.publication_max_age_days(today)
+    cutoff = storage.publication_cutoff(
+        today=today, max_age_months=2, max_age_days=max_age_days
+    )
+    rows, dropped_old = pipeline.discard_old_publications(
+        rows, cutoff, today=today
+    )
     pipeline.infer_work_models(rows)
     for row in rows:
         classify.classify(row)
@@ -183,6 +191,7 @@ def merge_catalog(rows, collected_counts, db_path=DB_PATH, json_path=JSON_PATH,
             str(temp_json),
             fresh_days=3,
             max_age_months=2,
+            max_age_days=storage.publication_max_age_days(),
             source_counts=dict(sorted(previous_collected.items())),
             failed_sources=failed_after,
         )

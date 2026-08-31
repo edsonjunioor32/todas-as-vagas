@@ -109,6 +109,23 @@ class GreenhouseLocationTests(unittest.TestCase):
         self.assertEqual(rows[1]["market"], "Global")
 
 
+class PublicationWindowTests(unittest.TestCase):
+    def test_extended_window_applies_from_friday_through_monday(self):
+        for value in ("2026-08-28", "2026-08-29", "2026-08-30", "2026-08-31"):
+            self.assertEqual(storage.publication_max_age_days(value), 63)
+        self.assertIsNone(storage.publication_max_age_days("2026-08-25"))
+
+    def test_cutoff_uses_effective_weekday_window(self):
+        self.assertEqual(
+            storage.publication_cutoff("2026-08-31", max_age_months=2),
+            "2026-06-29",
+        )
+        self.assertEqual(
+            storage.publication_cutoff("2026-08-25", max_age_months=2),
+            "2026-06-25",
+        )
+
+
 class StorageTests(unittest.TestCase):
     def test_upsert_preserves_known_modality_and_bulk_inference_repairs_legacy(self):
         with tempfile.TemporaryDirectory() as temporary:

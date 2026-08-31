@@ -22,6 +22,7 @@ from sources import (  # noqa: E402
     experian,
     geekhunter,
     quickin,
+    levva,
     requested_careers,
     requested_portals_27082026,
     requested_portals_28082026,
@@ -31,7 +32,7 @@ from sources import (  # noqa: E402
 )
 
 
-SOURCES = requested_portals_29082026.TARGETS + (
+SOURCES = (("levva", levva.fetch),) + requested_portals_29082026.TARGETS + (
     ("bradesco", bradesco.fetch),
     ("nttdata", geekhunter.fetch_ntt_data),
 ) + requested_portals_28082026.TARGETS + (

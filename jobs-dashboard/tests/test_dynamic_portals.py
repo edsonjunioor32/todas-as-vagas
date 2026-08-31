@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Regression tests for the five portal adapters that load vacancies dynamically."""
+"""Regression tests for portal adapters that load vacancies dynamically."""
 import html
 import json
 import sys

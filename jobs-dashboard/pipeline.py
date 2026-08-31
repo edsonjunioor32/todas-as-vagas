@@ -32,7 +32,7 @@ NONEMPTY_SOURCES = {
     "greenhouse", "spassu", "infovagas",
     # Requested career pages are part of the protected public feed: a
     # transient empty response must never erase their last valid rows.
-    "bradesco", "nttdata", "btg", "luza",
+    "bradesco", "nttdata", "btg", "luza", "levva",
     "esig", "azify", "pontotel", "grupolev", "fiotec", "pessoaepessoa",
     "grupokothe", "jb3investimentos", "osklen", "finayatech", "yellowipe",
     "somosglobal", "revemar", "insper", "guaranamineiro", "tivit",
@@ -289,12 +289,28 @@ def main(before_persist=None):
     stage_started = time.perf_counter()
     rows = normalize_market(rows)
     rows = dedupe_native(rows)
-    publication_cutoff = storage.publication_cutoff(max_age_months=max(0, args.max_age_months))
-    rows, old_dropped = discard_old_publications(rows, publication_cutoff)
+    collection_today = storage.local_today().isoformat()
+    max_age_days = storage.publication_max_age_days(collection_today)
+    publication_cutoff = storage.publication_cutoff(
+        today=collection_today,
+        max_age_months=max(0, args.max_age_months),
+        max_age_days=max_age_days,
+    )
+    rows, old_dropped = discard_old_publications(
+        rows, publication_cutoff, today=collection_today
+    )
     counts = Counter(row["source"] for row in rows)
     print("-" * 72)
     print(f"  coletadas: {len(rows)} vagas · fontes: {len(registry)-len(failed)}/{len(registry)}")
-    print(f"  corte: publicadas desde {publication_cutoff} ou Gupy com prazo vigente · {old_dropped} antigas descartadas")
+    window = (
+        f"{max_age_days} dias (sexta a segunda)"
+        if max_age_days is not None
+        else f"{max(0, args.max_age_months)} meses"
+    )
+    print(
+        f"  corte: publicadas desde {publication_cutoff} · janela: {window} · "
+        f"Gupy com prazo vigente · {old_dropped} antigas descartadas"
+    )
     print(f"  por portal: {dict(sorted(counts.items()))}")
     if failed:
         print(f"  fontes indisponíveis: {', '.join(failed)}")
@@ -372,15 +388,19 @@ def main(before_persist=None):
     pruned = storage.prune(
         conn,
         keep_days=120,
+        today=collection_today,
         max_age_months=max(0, args.max_age_months),
         active_feed_sources=active_feed_sources,
+        max_age_days=max_age_days,
     )
     after = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
     count, size_mb = storage.export_snapshot(
         conn,
         str(JSON_PATH),
         fresh_days=max(1, args.fresh_days),
+        today=collection_today,
         max_age_months=max(0, args.max_age_months),
+        max_age_days=max_age_days,
         source_counts=dict(sorted(counts.items())),
         failed_sources=failed,
     )

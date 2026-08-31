@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Regression tests for the Spassu, InfoVagas and Experian adapters."""
+"""Regression tests for the configured dynamic portal adapters."""
 import json
 import sys
 import unittest
@@ -18,6 +18,8 @@ from sources import (  # noqa: E402
     requested_portals_27082026,
     requested_portals_28082026,
     requested_portals_29082026,
+    recrutei,
+    levva,
     spassu,
 )
 import pipeline  # noqa: E402
@@ -118,6 +120,76 @@ class SpassuTests(unittest.TestCase):
         )
         self.assertEqual(row["work_model"], "remote")
         self.assertEqual(row["contract_types"], ["Efetivo"])
+
+
+class RecruteiTests(unittest.TestCase):
+    def test_public_card_keeps_location_and_authoritative_model(self):
+        markup = """
+        <div class="list-grid-item rounded position-relative">
+          <div class="grid-item-content p-3">
+            <div class="grid-list-desc mt-3">
+              <h6><a class="job-title"
+                href="https://empregos.recrutei.com.br/vaga/inovar/123-assistente">
+                Assistente Financeiro
+              </a></h6>
+              <p class="text-muted f-14 mb-1">Inovar Consultoria RH</p>
+              <p class="text-muted mb-1">Manaus, AM, Brasil</p>
+            </div>
+            <ul class="list-inline">
+              <li><span class="badge bg-primary-light text-white">CLT</span></li>
+              <li><span class="badge bg-primary text-white">Presencial</span></li>
+            </ul>
+          </div>
+        </div>
+        """
+        with patch.object(recrutei, "get_text", return_value=markup):
+            rows = recrutei._public_rows()
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["city"], "Manaus")
+        self.assertEqual(rows[0]["state"], "AM")
+        self.assertEqual(rows[0]["work_model"], "on-site")
+        self.assertEqual(rows[0]["contract_types"], ["CLT"])
+
+    def test_public_card_without_city_does_not_invent_onsite(self):
+        markup = """
+        <div class="list-grid-item">
+          <a class="job-title"
+             href="/vaga/empresa/124-analista">Analista de Suporte</a>
+          <p class="text-muted f-14 mb-1">Empresa</p>
+          <p class="text-muted mb-1">Não informado</p>
+          <span class="badge bg-primary">Remoto</span>
+        </div>
+        """
+        with patch.object(recrutei, "get_text", return_value=markup):
+            rows = recrutei._public_rows()
+        self.assertEqual(rows[0]["city"], "Brasil")
+        self.assertEqual(rows[0]["work_model"], "remote")
+
+
+class LevvaTests(unittest.TestCase):
+    def test_rendered_cards_map_location_and_work_model(self):
+        rows = levva._rows_from_cards([
+            {
+                "title": "Data Product Manager",
+                "city": "SP - Hortolândia",
+                "model": "Híbrido",
+                "url": "https://levva.izirh.io/visualizar-vaga/12345678-1234-1234-1234-123456789012",
+                "native_id": "12345678-1234-1234-1234-123456789012",
+            },
+            {
+                "title": "Engenheiro de Dados Sênior",
+                "city": "",
+                "model": "Remoto",
+                "url": "https://levva.izirh.io/visualizar-vaga/22345678-1234-1234-1234-123456789012",
+                "native_id": "22345678-1234-1234-1234-123456789012",
+            },
+        ])
+        self.assertEqual(len(rows), 2)
+        self.assertEqual((rows[0]["city"], rows[0]["state"]), ("Hortolândia", "SP"))
+        self.assertEqual(rows[0]["work_model"], "hybrid")
+        self.assertEqual(rows[1]["city"], "Brasil")
+        self.assertEqual(rows[1]["work_model"], "remote")
+        self.assertTrue(all(row["market"] == "BR" for row in rows))
 
 
 class QuickinTests(unittest.TestCase):
@@ -246,7 +318,9 @@ class RegistryTests(unittest.TestCase):
         self.assertEqual([name for name, _fetch in selected], ["spassu", "infovagas"])
         selected_new = pipeline.selected_registry("esig,azify,finayatech,yellowipe,tivit")
         self.assertEqual([name for name, _fetch in selected_new], ["esig", "azify", "finayatech", "yellowipe", "tivit"])
-        self.assertTrue({"spassu", "infovagas", "bradesco", "nttdata", "btg", "luza", "esig", "azify", "finayatech", "yellowipe", "tivit"}.issubset(pipeline.NONEMPTY_SOURCES))
+        selected_levva = pipeline.selected_registry("levva")
+        self.assertEqual([name for name, _fetch in selected_levva], ["levva"])
+        self.assertTrue({"spassu", "infovagas", "bradesco", "nttdata", "btg", "luza", "levva", "esig", "azify", "finayatech", "yellowipe", "tivit"}.issubset(pipeline.NONEMPTY_SOURCES))
 
 
 if __name__ == "__main__":
