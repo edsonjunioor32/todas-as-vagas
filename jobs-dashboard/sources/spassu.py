@@ -31,6 +31,11 @@ CONTRACT_RE = re.compile(
     r"part[- ]?time|contract(?:or)?|tempor[aá]ri[oa]|est[aá]gio)\b",
     re.I,
 )
+LOCATION_RE = re.compile(
+    r"(?P<city>[^,|;]{2,100}),\s*(?P<state>[^,|;]{2,100}),\s*"
+    r"(?P<country>Brazil|Brasil)\b",
+    re.I,
+)
 
 
 def _text(value):
@@ -68,6 +73,20 @@ def _location(posting):
     country = _text(address.get("addressCountry") or "BR")
     return city, state, country
 
+
+
+def _location_from_text(values):
+    for value in values:
+        text = strip_html(html.unescape(str(value or "")))
+        match = LOCATION_RE.search(text)
+        if not match:
+            continue
+        city = re.split(r"\s*(?:\||:|\s+-\s+)\s*", match.group("city"))[-1]
+        city = city.strip(" -*–—•")
+        state = match.group("state").strip(" -*–—•")
+        if city and state:
+            return city, state, "BR"
+    return "", "", ""
 
 def _date(value, raw_text=""):
     normalized = iso_date(value)
@@ -166,6 +185,15 @@ def _normalize(url, markup, fallback_title=""):
 
     raw_text = _page_text(parser, markup)
     city, state, country = _location(posting)
+    text_city, text_state, text_country = _location_from_text(
+        list(parser.parts) + list(parser.meta.values()) + [raw_text]
+    )
+    if not city and text_city:
+        city = text_city
+    if not state and text_state:
+        state = text_state
+    if not country and text_country:
+        country = text_country
     location_type = _text(
         posting.get("jobLocationType") or posting.get("job_location_type")
     ).casefold()
@@ -179,6 +207,8 @@ def _normalize(url, markup, fallback_title=""):
     work_model = "remote" if location_type in {
         "telecommute", "remote", "remoto", "work from home"
     } else work_model_label(raw=model_raw)
+    if not work_model and city:
+        work_model = "on-site"
     if not city and re.search(r"\btrabalho\s+remoto\b|\bremot[oa]\b", raw_text, re.I):
         city = "Brasil"
 

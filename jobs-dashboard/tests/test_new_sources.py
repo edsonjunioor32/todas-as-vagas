@@ -66,6 +66,32 @@ class SpassuTests(unittest.TestCase):
         self.assertEqual(row["city"], "Brasil")
         self.assertEqual(row["published_date"], "2026-08-20")
 
+    def test_visible_geographic_location_maps_to_onsite(self):
+        markup = """
+        <h1>Coordenador Compras e Logística</h1>
+        <strong>Vitória, Espírito Santo, Brazil</strong>
+        """
+        row = spassu._normalize(
+            "https://spassu.zohorecruit.com/jobs/Careers/678402000029887215/Coordenador-Compras-e-Logística",
+            markup,
+        )
+        self.assertEqual(row["city"], "Vitória")
+        self.assertEqual(row["state"], "Espírito Santo")
+        self.assertEqual(row["country"], "BR")
+        self.assertEqual(row["work_model"], "on-site")
+
+    def test_visible_remote_label_maps_to_remote(self):
+        markup = """
+        <h1>Consultor Power Platform (PL-400) – PJ</h1>
+        <strong>Trabalho remoto</strong>
+        """
+        row = spassu._normalize(
+            "https://spassu.zohorecruit.com/jobs/Careers/678402000031822205/Consultor-Power-Platform-PL-400",
+            markup,
+        )
+        self.assertEqual(row["work_model"], "remote")
+        self.assertEqual(row["city"], "Brasil")
+
     def test_missing_spassu_location_does_not_become_remote(self):
         row = spassu._normalize(
             "https://spassu.zohorecruit.com/jobs/Careers/123/Analista",
