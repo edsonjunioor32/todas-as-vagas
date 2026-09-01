@@ -568,6 +568,10 @@
     "tenantName": "Dartz Ideal Recruitment"
   },
   {
+    "slug": "data-viz",
+    "tenantName": "data-viz"
+  },
+  {
     "slug": "dataside",
     "tenantName": "dataside"
   },
@@ -1292,6 +1296,10 @@
     "tenantName": "Matera"
   },
   {
+    "slug": "matera-mydw",
+    "tenantName": "matera-mydw"
+  },
+  {
     "slug": "mathgroup",
     "tenantName": "MATH"
   },
@@ -1404,6 +1412,14 @@
     "tenantName": "Ninecon"
   },
   {
+    "slug": "nmcp",
+    "tenantName": "nmcp"
+  },
+  {
+    "slug": "nmcp-dev",
+    "tenantName": "nmcp-dev"
+  },
+  {
     "slug": "nomadglobal",
     "tenantName": "Nomad"
   },
@@ -1506,6 +1522,10 @@
   {
     "slug": "platformbuilders",
     "tenantName": "Platform Builders"
+  },
+  {
+    "slug": "plugin",
+    "tenantName": "plugin"
   },
   {
     "slug": "pmfo",
