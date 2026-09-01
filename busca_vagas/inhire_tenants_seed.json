@@ -1588,6 +1588,10 @@
     "tenantName": "Quero Passagem"
   },
   {
+    "slug": "questores",
+    "tenantName": "questores"
+  },
+  {
     "slug": "quicksoft",
     "tenantName": "QuickSoft"
   },
