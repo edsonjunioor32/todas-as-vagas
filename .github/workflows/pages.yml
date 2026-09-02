@@ -131,6 +131,16 @@ jobs:
           git archive origin/history-data data | tar -x -C jobs-dashboard
           test -s jobs-dashboard/data/jobs.db
 
+      - name: Capturar fotografia anterior para proteção
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin public-data
+          previous_dir="$(mktemp -d)"
+          git archive origin/public-data data/vagas.json | tar -x -C "$previous_dir"
+          cp "$previous_dir/data/vagas.json" .previous-vagas.json
+          test -s .previous-vagas.json
+
       - name: Preparar Node.js
         uses: actions/setup-node@v4
         with:
@@ -222,9 +232,36 @@ jobs:
       - name: Validar privacidade e integridade
         env:
           MIN_PUBLIC_JOBS: "500"
+          PREVIOUS_SNAPSHOT_PATH: ".previous-vagas.json"
+          MIN_GUARDED_PUBLIC_JOBS: "10000"
+          MIN_ALLOWED_PUBLIC_RATIO: "0.5"
         run: |
           python jobs-dashboard/validate_snapshot.py
           python jobs-dashboard/validate_fit.py
+
+      - name: Publicar banco histórico no ramo dedicado
+        shell: bash
+        run: |
+          set -euo pipefail
+          data_worktree="$(mktemp -d)"
+          cleanup() {
+            git worktree remove --force "$data_worktree" >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+          git fetch --no-tags origin history-data
+          git worktree add --detach "$data_worktree" origin/history-data
+          git -C "$data_worktree" switch -C history-data
+          mkdir -p "$data_worktree/data"
+          cp jobs-dashboard/data/jobs.db "$data_worktree/data/jobs.db"
+          git -C "$data_worktree" add data/jobs.db
+          if git -C "$data_worktree" diff --cached --quiet; then
+            echo "Ramo history-data já está atualizado."
+          else
+            git -C "$data_worktree" config user.name "github-actions[bot]"
+            git -C "$data_worktree" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git -C "$data_worktree" commit -m "Atualiza histórico do pipeline"
+            git -C "$data_worktree" push origin HEAD:history-data
+          fi
 
       - name: Publicar snapshots no ramo dedicado
         shell: bash

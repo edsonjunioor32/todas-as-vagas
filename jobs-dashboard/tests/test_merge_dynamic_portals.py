@@ -84,6 +84,13 @@ class PartialCatalogTests(unittest.TestCase):
             self.assertEqual(payload["source_counts"], {"dbccompany": 1})
             conn.close()
 
+    def test_partial_snapshot_guard_rejects_batch_only_publication(self):
+        with self.assertRaisesRegex(RuntimeError, "redução insegura"):
+            merge.ensure_snapshot_not_shrunk(48946, 5139)
+
+    def test_partial_snapshot_guard_allows_normal_variation(self):
+        merge.ensure_snapshot_not_shrunk(48946, 30000)
+
     def test_prune_keeps_old_dbc_when_current_feed_succeeds(self):
         with tempfile.TemporaryDirectory() as temporary:
             conn = storage.connect(str(Path(temporary) / "jobs.db"))

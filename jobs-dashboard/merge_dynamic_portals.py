@@ -63,6 +63,24 @@ TARGET_NAMES = {name for name, _ in TARGETS}
 # partial merge for unrelated portals and are never purged by this job.
 OPTIONAL_EMPTY_SOURCES = {"fiotec", "saleco"}
 
+# A partial run must never replace a complete public catalog with only its batch.
+MIN_GUARDED_SNAPSHOT_COUNT = 10000
+MIN_ALLOWED_SNAPSHOT_RATIO = 0.5
+
+
+def ensure_snapshot_not_shrunk(previous_count, new_count):
+    """Reject catastrophic partial-publication regressions before replacement."""
+    try:
+        previous = int(previous_count or 0)
+        current = int(new_count or 0)
+    except (TypeError, ValueError):
+        return
+    if previous >= MIN_GUARDED_SNAPSHOT_COUNT and current < previous * MIN_ALLOWED_SNAPSHOT_RATIO:
+        raise RuntimeError(
+            "redução insegura do snapshot parcial: "
+            f"{previous} para {current} vagas; publicação abortada"
+        )
+
 
 def collect_rows():
     """Collect and normalize every target before opening the database."""
@@ -193,16 +211,19 @@ def merge_catalog(rows, collected_counts, db_path=DB_PATH, json_path=JSON_PATH,
             removed[source] = storage.purge_source_rows_not_in_uids(
                 conn, source, _source_uids(rows, source)
             )
-        public_count, size_mb = storage.export_snapshot(
-            conn,
-            str(temp_json),
-            fresh_days=3,
-            max_age_months=2,
-            max_age_days=storage.publication_max_age_days(),
-            source_counts=dict(sorted(previous_collected.items())),
-            failed_sources=failed_after,
-        )
-        conn.close()
+        try:
+            public_count, size_mb = storage.export_snapshot(
+                conn,
+                str(temp_json),
+                fresh_days=3,
+                max_age_months=2,
+                max_age_days=storage.publication_max_age_days(),
+                source_counts=dict(sorted(previous_collected.items())),
+                failed_sources=failed_after,
+            )
+        finally:
+            conn.close()
+        ensure_snapshot_not_shrunk(current.get("count"), public_count)
         fit_changed, fit_count = merge_fit_index(rows, fit_path, temp_fit)
 
         if dry_run:

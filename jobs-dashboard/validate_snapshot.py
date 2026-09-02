@@ -31,6 +31,27 @@ def main():
     minimum = int(os.environ.get("MIN_PUBLIC_JOBS") or 1)
     if count < minimum:
         fail(f"somente {count} vagas; mínimo esperado: {minimum}")
+
+    previous_path = os.environ.get("PREVIOUS_SNAPSHOT_PATH", "").strip()
+    if previous_path:
+        previous_file = Path(previous_path)
+        if not previous_file.exists():
+            fail(f"fotografia anterior ausente: {previous_file}")
+        try:
+            previous = json.loads(previous_file.read_text(encoding="utf-8"))
+            previous_count = int(previous.get("count") or 0)
+            ratio = float(os.environ.get("MIN_ALLOWED_PUBLIC_RATIO") or "0.5")
+            guarded_minimum = int(os.environ.get("MIN_GUARDED_PUBLIC_JOBS") or "10000")
+        except (OSError, ValueError, TypeError, json.JSONDecodeError) as error:
+            fail(f"fotografia anterior inválida: {error}")
+        if (
+            previous_count >= guarded_minimum
+            and count < previous_count * ratio
+        ):
+            fail(
+                "redução insegura do snapshot geral: "
+                f"{previous_count} para {count} vagas; publicação bloqueada"
+            )
     if FORBIDDEN_KEYS & set(data):
         fail("a raiz contém campos privados ou descrições")
 
