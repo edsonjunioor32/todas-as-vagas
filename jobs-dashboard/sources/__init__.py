@@ -77,6 +77,7 @@ REGISTRY = [
     ("iberdrola", requested_portals_27082026.fetch_iberdrola),
     ("iqvia", requested_portals_27082026.fetch_iqvia),
     ("mdlz", requested_portals_27082026.fetch_mdlz),
+    ("edenred", requested_portals_27082026.fetch_edenred),
     ("btg", requested_portals_28082026.fetch_btg),
     ("luza", requested_portals_28082026.fetch_luza),
     *requested_portals_29082026.TARGETS,
