@@ -59,11 +59,18 @@ TARGETS = (
     ("nttdata", geekhunter.fetch_ntt_data),
 ) + requested_portals_27082026.TARGETS + requested_portals_28082026.TARGETS + requested_portals_29082026.TARGETS
 TARGET_NAMES = {name for name, _ in TARGETS}
+# Empty current feeds are kept in the general registry, but do not block a
+# partial merge for unrelated portals and are never purged by this job.
+OPTIONAL_EMPTY_SOURCES = {"fiotec", "saleco"}
 
 
 def collect_rows():
     """Collect and normalize every target before opening the database."""
-    rows, failed, metrics = pipeline.collect(list(TARGETS))
+    active_targets = [
+        target for target in TARGETS
+        if target[0] not in OPTIONAL_EMPTY_SOURCES
+    ]
+    rows, failed, metrics = pipeline.collect(active_targets)
     if failed:
         details = ", ".join(
             f"{item['name']}: {item['status']}" for item in metrics if item["name"] in failed
@@ -85,7 +92,7 @@ def collect_rows():
         classify.classify(row)
     rows, dropped_unknown = pipeline.discard_unknown_market(rows)
     counts = Counter(row["source"] for row in rows)
-    missing = sorted(TARGET_NAMES - set(counts))
+    missing = sorted((TARGET_NAMES - OPTIONAL_EMPTY_SOURCES) - set(counts))
     if missing:
         raise RuntimeError(
             "coleta parcial abortada; fontes ficaram sem vagas após os filtros: "
