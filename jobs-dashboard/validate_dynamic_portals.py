@@ -46,6 +46,11 @@ SOURCES = (("levva", levva.fetch),) + requested_portals_29082026.TARGETS + (
     ("infovagas", quickin.fetch),
 ) + requested_portals_27082026.TARGETS
 
+# These two already-registered feeds currently expose no active cards. They
+# stay monitored by the general pipeline, but must not block an isolated merge
+# for other requested portals while their last valid rows remain preserved.
+OPTIONAL_EMPTY_SOURCES = {"fiotec", "saleco"}
+
 
 def _validate_rows(name, rows):
     if not rows:
@@ -70,6 +75,9 @@ def _validate_rows(name, rows):
 def main():
     failures = []
     for name, fetch in SOURCES:
+        if name in OPTIONAL_EMPTY_SOURCES:
+            print(f"[{name}] sem vagas ativas; histórico preservado", flush=True)
+            continue
         started = time.monotonic()
         try:
             count = _validate_rows(name, fetch())
