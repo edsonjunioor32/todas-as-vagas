@@ -14,8 +14,8 @@ DASHBOARD = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(DASHBOARD))
 
 from sources import (  # noqa: E402
-    _http, digisystem, requested_careers, requested_portals_29082026,
-    sankhya_senior,
+    _http, digisystem, requested_careers, requested_portals_27082026,
+    requested_portals_29082026, sankhya_senior,
 )
 
 
@@ -153,6 +153,34 @@ class RequestedCareerTests(unittest.TestCase):
         self.assertEqual(rows[0]["work_model"], "remote")
         self.assertEqual(rows[0]["levels"], ["Mid-Senior Level"])
         self.assertEqual(rows[0]["contract_types"], ["Full-time"])
+
+
+class EdenredWorkdayTests(unittest.TestCase):
+    def test_edenred_uses_public_tenant_and_detail_prefix(self):
+        payload = {
+            "total": 1,
+            "jobPostings": [{
+                "title": "Analista de Suporte",
+                "locationsText": "São Paulo, Brazil",
+                "externalPath": "/job/123/analista-de-suporte",
+                "bulletFields": ["123"],
+                "postedOn": "2026-09-01",
+            }],
+        }
+        with patch.object(requested_portals_27082026, "post_json", return_value=payload) as request:
+            rows = requested_portals_27082026.fetch_edenred()
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["source"], "edenred")
+        self.assertEqual(rows[0]["company"], "Edenred")
+        self.assertEqual(rows[0]["market"], "BR")
+        self.assertEqual(
+            rows[0]["url"],
+            "https://wd3.myworkdaysite.com/recruiting/edenpeople/Edenred_Careers/1/job/123/analista-de-suporte",
+        )
+        self.assertIn(
+            "https://wd3.myworkdaysite.com/wday/cxs/edenpeople/Edenred_Careers/jobs",
+            request.call_args.args[0],
+        )
 
 
 class SankhyaSeniorTests(unittest.TestCase):
