@@ -52,6 +52,14 @@ WORKDAY = {
         "company": "Mondelēz International",
         "url": "https://mdlz.wd3.myworkdayjobs.com/pt-BR/External",
     },
+    "edenred": {
+        "host": "wd3.myworkdaysite.com",
+        "tenant": "edenpeople",
+        "site": "Edenred_Careers",
+        "company": "Edenred",
+        "url": "https://wd3.myworkdaysite.com/recruiting/edenpeople/Edenred_Careers/1/refreshFacet/318c8bb6f553100021d223d9780d30be",
+        "detail_base": "https://wd3.myworkdaysite.com/recruiting/edenpeople/Edenred_Careers/1/",
+    },
 }
 
 WORKDAY_API = "https://{host}/wday/cxs/{tenant}/{site}/jobs"
@@ -102,9 +110,15 @@ def _workday_rows(name):
             if not BRAZIL_WORDS.search(location) and not is_brazil_location(location):
                 continue
             seen.add(native_id)
+            detail_base = str(config.get("detail_base") or "").strip()
+            detail_url = (
+                urljoin(detail_base.rstrip("/") + "/", external.lstrip("/"))
+                if detail_base
+                else urljoin(config["url"], external.lstrip("/"))
+            )
             rows.append(job(
                 name, native_id, title=title, company=config["company"],
-                url=urljoin(config["url"], external.lstrip("/")),
+                url=detail_url,
                 work_model=work_model_label(raw=f"{title} {location}"),
                 city=location or "Brasil", country="BR", market="BR",
                 published_date=iso_date(item.get("postedOn") or item.get("postedDate")),
@@ -139,6 +153,10 @@ def fetch_iqvia():
 
 def fetch_mdlz():
     return _workday_rows("mdlz")
+
+
+def fetch_edenred():
+    return _workday_rows("edenred")
 
 
 def _jsonld_rows(source, url, company):
@@ -518,4 +536,5 @@ TARGETS = (
     ("iberdrola", fetch_iberdrola),
     ("iqvia", fetch_iqvia),
     ("mdlz", fetch_mdlz),
+    ("edenred", fetch_edenred),
 )
