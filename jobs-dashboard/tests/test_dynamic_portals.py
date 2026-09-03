@@ -292,3 +292,30 @@ class SankhyaSeniorTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+class AdditionalMindsightTenantTests(unittest.TestCase):
+    def test_requested_mindsight_tenants_are_registered_with_their_slugs(self):
+        targets = dict(requested_portals_29082026.TARGETS)
+        expected = {
+            "overlabs": "Overlabs",
+            "sicoobcocred": "Sicoob Cocred",
+            "liquidz": "Liquidz",
+            "btcreditos": "BT Créditos",
+            "glcapital": "GL Capital",
+            "grupoamigao": "Grupo Amigão",
+            "true": "True",
+        }
+        self.assertTrue(set(expected).issubset(targets))
+        fake_markup = (
+            '<script id="__NEXT_DATA__" type="application/json">'
+            '{"props":{"pageProps":{"publicJobPostings":['
+            '{"id":1,"name":"Analista","city":"São Paulo","state":"SP",'
+            '"work_model":"IN_PERSON","hire_model":"EFFECTIVE_CLT"}'
+            ']}}}</script>'
+        )
+        with patch.object(sankhya_senior, "get_text", return_value=fake_markup):
+            for slug, company in expected.items():
+                rows = targets[slug]()
+                self.assertEqual(rows[0]["source"], slug)
+                self.assertEqual(rows[0]["company"], company)
+                self.assertEqual(rows[0]["market"], "BR")
