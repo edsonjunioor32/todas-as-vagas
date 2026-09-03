@@ -36,6 +36,8 @@ NONEMPTY_SOURCES = {
     "esig", "azify", "pontotel", "grupolev", "fiotec", "pessoaepessoa",
     "grupokothe", "jb3investimentos", "osklen", "finayatech", "yellowipe",
     "somosglobal", "revemar", "insper", "guaranamineiro", "tivit",
+    "overlabs", "sicoobcocred", "liquidz", "btcreditos", "glcapital",
+    "grupoamigao", "true",
     "avanade", "huntit", "talentodovalesc", "beq", "forza", "saleco", "elis",
     "flash", "neon", "zippi", "bv", "santander", "iberdrola", "iqvia", "mdlz",
 }
