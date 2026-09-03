@@ -438,8 +438,8 @@ class CompanyBatchTests(unittest.TestCase):
             "href": "https://minsaitbrasil.pandape.infojobs.com.br/Detail/3680944",
             "title": "Técnico de suporte jr - Rio de Janeiro",
             "text": (
-                "Técnico de suporte jr - Rio de Janeiro\\n"
-                "Rio de Janeiro - RJ\\nPresencial\\nParcial tardes\\n02 set"
+                "Técnico de suporte jr - Rio de Janeiro\n"
+                "Rio de Janeiro - RJ\nPresencial\nParcial tardes\n02 set"
             ),
         })
         self.assertEqual(row["source"], "minsait")
