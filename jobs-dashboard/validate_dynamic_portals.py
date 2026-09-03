@@ -27,6 +27,7 @@ from sources import (  # noqa: E402
     requested_portals_27082026,
     requested_portals_28082026,
     requested_portals_29082026,
+    requested_portals_03092026,
     sankhya_senior,
     spassu,
 )
@@ -44,7 +45,7 @@ SOURCES = (("levva", levva.fetch),) + requested_portals_29082026.TARGETS + (
     ("experian", experian.fetch),
     ("spassu", spassu.fetch),
     ("infovagas", quickin.fetch),
-) + requested_portals_27082026.TARGETS
+) + requested_portals_27082026.TARGETS + requested_portals_03092026.TARGETS
 
 # These two already-registered feeds currently expose no active cards. They
 # stay monitored by the general pipeline, but must not block an isolated merge
