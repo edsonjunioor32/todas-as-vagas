@@ -341,3 +341,31 @@ def fetch_insper():
 
 def fetch_guaranamineiro():
     return _fetch_mindsight_board("guaranamineiro", "Guaraná Mineiro")
+
+
+def fetch_overlabs():
+    return _fetch_mindsight_board("overlabs", "Overlabs")
+
+
+def fetch_sicoobcocred():
+    return _fetch_mindsight_board("sicoobcocred", "Sicoob Cocred")
+
+
+def fetch_liquidz():
+    return _fetch_mindsight_board("liquidz", "Liquidz")
+
+
+def fetch_btcreditos():
+    return _fetch_mindsight_board("btcreditos", "BT Créditos")
+
+
+def fetch_glcapital():
+    return _fetch_mindsight_board("glcapital", "GL Capital")
+
+
+def fetch_grupoamigao():
+    return _fetch_mindsight_board("grupoamigao", "Grupo Amigão")
+
+
+def fetch_true():
+    return _fetch_mindsight_board("true", "True")
