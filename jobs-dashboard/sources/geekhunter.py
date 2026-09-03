@@ -210,6 +210,10 @@ def _catalog(base, source, company_filter=None, company_override=None):
     unique = {}
     for page in range(1, total_pages + 1):
         for item in pages.get(page, []):
+            # The NTT DATA board can include non-object stream fragments in
+            # the public payload; ignore those fragments before normalization.
+            if not isinstance(item, dict):
+                continue
             ats = item.get("atsJob") or {}
             company_slug = str((ats.get("company") or {}).get("slug") or "").strip()
             if company_filter and not _company_matches(company_slug, company_filter):
