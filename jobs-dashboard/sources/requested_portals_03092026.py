@@ -34,7 +34,6 @@ PANDAPE_DATE_RE = re.compile(
 def _new_pandape_driver():
     try:
         from selenium import webdriver
-        from selenium.webdriver.common.by import By
     except ImportError as error:
         raise RuntimeError("Selenium is required for the Minsait Pandapé feed") from error
     options = webdriver.ChromeOptions()
@@ -70,7 +69,7 @@ def _pandape_total(driver):
 
 
 def _pandape_click_consent(driver):
-    for button in driver.find_elements(By.TAG_NAME, "button"):
+    for button in driver.find_elements("tag name", "button"):
         label = re.sub(r"\s+", " ", button.text or "").strip()
         if re.fullmatch(r"(?:aceitar|agree and close)", label, re.I):
             try:
@@ -81,7 +80,7 @@ def _pandape_click_consent(driver):
 
 
 def _pandape_more_button(driver):
-    for button in driver.find_elements(By.TAG_NAME, "button"):
+    for button in driver.find_elements("tag name", "button"):
         label = re.sub(r"\s+", " ", button.text or "").strip()
         if re.search(r"(?:mostrar|show).*?(?:vagas?|jobs?)", label, re.I):
             return button
