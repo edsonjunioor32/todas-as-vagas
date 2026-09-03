@@ -126,7 +126,8 @@ def _contract_types(header):
     return result
 
 
-def _normalize(url, markup, fallback_title="", source="infovagas", detail_re=DETAIL_RE):
+def _normalize(url, markup, fallback_title="", source="infovagas", detail_re=DETAIL_RE,
+              company_override=""):
     match = detail_re.search(url)
     if not match:
         return None
@@ -168,7 +169,7 @@ def _normalize(url, markup, fallback_title="", source="infovagas", detail_re=DET
         source,
         match.group(1),
         title=title,
-        company=company or "InfoVagas",
+        company=company or company_override or "InfoVagas",
         url=url.split("?", 1)[0],
         work_model=work_model,
         city=city,
@@ -208,15 +209,19 @@ def _catalog_page(markup, board="infovagas", detail_re=None):
             seen_pages.add(absolute)
             page_links.append(absolute)
     return detail_links, page_links
-def _fetch_detail(url, label, source="infovagas", detail_re=DETAIL_RE):
+def _fetch_detail(url, label, source="infovagas", detail_re=DETAIL_RE,
+                  company_override=""):
     try:
         markup = get_text(url, timeout=35, retries=2)
-        return _normalize(url, markup, label, source=source, detail_re=detail_re)
+        return _normalize(
+            url, markup, label, source=source, detail_re=detail_re,
+            company_override=company_override,
+        )
     except Exception:
         return None
 
 
-def _fetch_board(board, source=None):
+def _fetch_board(board, source=None, company_override=""):
     source = source or board
     list_url = f"{BASE_URL}/{board}/jobs"
     detail_re = _detail_pattern(board)
@@ -288,7 +293,7 @@ def _fetch_board(board, source=None):
     with ThreadPoolExecutor(max_workers=min(8, len(links))) as pool:
         futures = {
             pool.submit(
-                _fetch_detail, url, label, source, detail_re
+                _fetch_detail, url, label, source, detail_re, company_override
             ): (url, label)
             for url, label in links
         }
@@ -310,3 +315,13 @@ def fetch():
 
 def fetch_finayatech():
     return _fetch_board("finayatech", "finayatech")
+
+
+
+def fetch_company(board, source=None, company=""):
+    """Collect every public vacancy from one Quickin company board."""
+    return _fetch_board(
+        board,
+        source=source or board,
+        company_override=company,
+    )
