@@ -18,6 +18,7 @@ from sources import (  # noqa: E402
     requested_portals_27082026,
     requested_portals_28082026,
     requested_portals_29082026,
+    requested_portals_03092026,
     recrutei,
     levva,
     spassu,
@@ -420,3 +421,30 @@ class RequestedPortalBatchTests(unittest.TestCase):
         self.assertEqual(rows[0]["city"], "São Paulo")
 
 
+
+
+class CompanyBatchTests(unittest.TestCase):
+    def test_requested_company_boards_are_unique_and_not_global_infovagas(self):
+        names = [name for name, _fetch in requested_portals_03092026.TARGETS]
+        self.assertEqual(len(names), len(set(names)))
+        self.assertEqual(len(names), 153)
+        self.assertIn("meutudo", names)
+        self.assertIn("minsait", names)
+        self.assertIn("emphasys", names)
+        self.assertNotIn("infovagas", names)
+
+    def test_minsait_pandape_card_preserves_company_location_and_modality(self):
+        row = requested_portals_03092026._pandape_row({
+            "href": "https://minsaitbrasil.pandape.infojobs.com.br/Detail/3680944",
+            "title": "Técnico de suporte jr - Rio de Janeiro",
+            "text": (
+                "Técnico de suporte jr - Rio de Janeiro\\n"
+                "Rio de Janeiro - RJ\\nPresencial\\nParcial tardes\\n02 set"
+            ),
+        })
+        self.assertEqual(row["source"], "minsait")
+        self.assertEqual(row["company"], "Minsait Brasil")
+        self.assertEqual(row["city"], "Rio de Janeiro")
+        self.assertEqual(row["state"], "RJ")
+        self.assertEqual(row["work_model"], "on-site")
+        self.assertEqual(row["market"], "BR")
