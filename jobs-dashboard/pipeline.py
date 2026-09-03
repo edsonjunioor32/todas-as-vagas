@@ -13,7 +13,12 @@ from pathlib import Path
 
 import classify
 import storage
-from sources import REGISTRY, recrutei as recrutei_source, solides as solides_source
+from sources import (
+    REGISTRY,
+    recrutei as recrutei_source,
+    solides as solides_source,
+    requested_portals_03092026,
+)
 
 try:
     sys.stdout.reconfigure(encoding="utf-8")
@@ -40,7 +45,7 @@ NONEMPTY_SOURCES = {
     "grupoamigao", "true",
     "avanade", "huntit", "talentodovalesc", "beq", "forza", "saleco", "elis",
     "flash", "neon", "zippi", "bv", "santander", "iberdrola", "iqvia", "mdlz",
-}
+} | {name for name, _fetch in requested_portals_03092026.TARGETS}
 
 def selected_registry(names):
     if not names:
