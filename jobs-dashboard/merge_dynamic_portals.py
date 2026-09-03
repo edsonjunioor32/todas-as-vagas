@@ -37,6 +37,7 @@ from sources import (  # noqa: E402
     requested_portals_27082026,
     requested_portals_28082026,
     requested_portals_29082026,
+    requested_portals_03092026,
     sankhya_senior,
     spassu,
 )
@@ -57,7 +58,7 @@ TARGETS = (
     ("senior", sankhya_senior.fetch_senior),
     ("bradesco", bradesco.fetch),
     ("nttdata", geekhunter.fetch_ntt_data),
-) + requested_portals_27082026.TARGETS + requested_portals_28082026.TARGETS + requested_portals_29082026.TARGETS
+) + requested_portals_27082026.TARGETS + requested_portals_28082026.TARGETS + requested_portals_29082026.TARGETS + requested_portals_03092026.TARGETS
 TARGET_NAMES = {name for name, _ in TARGETS}
 # Empty current feeds are kept in the general registry, but do not block a
 # partial merge for unrelated portals and are never purged by this job.
