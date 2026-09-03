@@ -21,6 +21,7 @@ on:
       - "jobs-dashboard/sources/requested_portals_27082026.py"
       - "jobs-dashboard/sources/requested_portals_28082026.py"
       - "jobs-dashboard/sources/requested_portals_29082026.py"
+      - "jobs-dashboard/sources/requested_portals_03092026.py"
       - "jobs-dashboard/sources/__init__.py"
       - ".github/workflows/merge-dynamic-portals.yml"
   workflow_dispatch:
