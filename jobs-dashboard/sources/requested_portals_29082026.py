@@ -354,4 +354,11 @@ TARGETS = (
     ("insper", sankhya_senior.fetch_insper),
     ("guaranamineiro", sankhya_senior.fetch_guaranamineiro),
     ("tivit", fetch_tivit),
+    ("overlabs", sankhya_senior.fetch_overlabs),
+    ("sicoobcocred", sankhya_senior.fetch_sicoobcocred),
+    ("liquidz", sankhya_senior.fetch_liquidz),
+    ("btcreditos", sankhya_senior.fetch_btcreditos),
+    ("glcapital", sankhya_senior.fetch_glcapital),
+    ("grupoamigao", sankhya_senior.fetch_grupoamigao),
+    ("true", sankhya_senior.fetch_true),
 )
