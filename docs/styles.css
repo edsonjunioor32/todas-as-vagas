@@ -1792,3 +1792,20 @@ select {
 @media (prefers-reduced-motion: reduce) {
   .skeleton { animation: none; }
 }
+.field > small {
+  color: var(--muted);
+  font-size: .68rem;
+  line-height: 1.35;
+}
+
+.privacy-note {
+  max-width: 58rem;
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: .78rem;
+  line-height: 1.5;
+}
+
+.privacy-note a {
+  color: var(--brand);
+}
