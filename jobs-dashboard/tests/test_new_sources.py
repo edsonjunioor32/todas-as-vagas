@@ -3,6 +3,7 @@
 import json
 import sys
 import unittest
+from datetime import date
 from pathlib import Path
 from unittest.mock import patch
 
@@ -14,6 +15,7 @@ from sources import (  # noqa: E402
     bradesco,
     experian,
     geekhunter,
+    infojobs,
     quickin,
     requested_portals_27082026,
     requested_portals_28082026,
@@ -95,6 +97,17 @@ class SpassuTests(unittest.TestCase):
         self.assertEqual(row["work_model"], "remote")
         self.assertEqual(row["city"], "Brasil")
 
+    def test_zoho_remote_job_boolean_maps_remote_without_rendered_text(self):
+        markup = r'''<h1>Analista</h1><script>
+          var jobs = JSON.parse('[{\x22Remote_Job\x22:true,\x22Posting_Title\x22:\x22Analista\x22,\x22City\x22:null}]');
+        </script>'''
+        row = spassu._normalize(
+            "https://spassu.zohorecruit.com/jobs/Careers/123/Analista",
+            markup,
+        )
+        self.assertEqual(row["work_model"], "remote")
+        self.assertEqual(row["city"], "Brasil")
+
     def test_missing_spassu_location_does_not_become_remote(self):
         row = spassu._normalize(
             "https://spassu.zohorecruit.com/jobs/Careers/123/Analista",
@@ -121,6 +134,20 @@ class SpassuTests(unittest.TestCase):
         )
         self.assertEqual(row["work_model"], "remote")
         self.assertEqual(row["contract_types"], ["Efetivo"])
+
+
+class InfoJobsTests(unittest.TestCase):
+    def test_location_slug_fills_missing_card_location(self):
+        row = infojobs._normalize(
+            {
+                "href": "https://www.infojobs.com.br/vaga-de-analista-em-sao-paulo__123.aspx",
+                "title": "Analista de suporte",
+                "text": "Analista de suporte\nHoje\nEmpresa confidencial\nBR\nPresencial",
+            },
+            today=date(2026, 9, 4),
+        )
+        self.assertEqual(row["city"], "São Paulo")
+        self.assertEqual(row["state"], "SP")
 
 
 class RecruteiTests(unittest.TestCase):
