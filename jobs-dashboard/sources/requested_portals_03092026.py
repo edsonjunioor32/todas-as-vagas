@@ -380,7 +380,12 @@ COMPANY_LABELS = {
     "voerh": "VOE RH",
     "weemais": "WeeMais",
     "workrequest": "Work Request",
-    "yukaline": "Yuka Line"
+    "yukaline": "Yuka Line",
+    "evoluetreinamento": "Evolue Treinamento",
+    "levelcinco": "Level Cinco",
+    "lotusict": "Lotus ICT",
+    "postogalo": "Posto Galo",
+    "xlevel": "Xlevel"
 }
 
 QUICKIN_TENANTS = [
@@ -534,7 +539,12 @@ QUICKIN_TENANTS = [
     "ag3solutions",
     "prestorh",
     "genica",
-    "gestaoinovada"
+    "gestaoinovada",
+    "evoluetreinamento",
+    "levelcinco",
+    "lotusict",
+    "postogalo",
+    "xlevel"
 ]
 
 
