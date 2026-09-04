@@ -11,7 +11,7 @@ import os
 import re
 import time
 from datetime import date, datetime, timedelta
-from urllib.parse import urlsplit, urlunsplit
+from urllib.parse import unquote, urlsplit, urlunsplit
 from zoneinfo import ZoneInfo
 
 from ._common import job
@@ -81,6 +81,7 @@ LOCATION_RE = re.compile(
 )
 SIMPLE_LOCATION_RE = re.compile(r"^(.+?)\s+-\s+([A-Z]{2})$", re.I)
 JOB_ID_RE = re.compile(r"__(\d+)\.aspx(?:$|[?#])", re.I)
+URL_LOCATION_RE = re.compile(r"-em-(?P<location>[^_/?#]+)__\d+\.aspx", re.I)
 REMOTE_RE = re.compile(r"\b(?:home\s*-?\s*office|remot[oa])\b", re.I)
 RATING_RE = re.compile(r"^\d(?:[,.]\d)?$")
 SALARY_RE = re.compile(r"^(?:R\$|A combinar\b)", re.I)
@@ -150,6 +151,55 @@ def _location_from_lines(lines, date_index):
             }:
                 return city, state
     return "", ""
+
+
+def _location_from_url(url):
+    """Recover a locality from InfoJobs' public ``-em-...`` slug.
+
+    Some result cards expose only ``BR`` even though the canonical vacancy URL
+    carries the state or city. This fallback keeps the source useful for city
+    filtering without inventing a location when the slug is absent.
+    """
+    match = URL_LOCATION_RE.search(str(url or ""))
+    if not match:
+        return "", ""
+    slug = unquote(match.group("location")).strip("-").casefold()
+    labels = {
+        "sao-paulo": ("São Paulo", "SP"),
+        "rio-de-janeiro": ("Rio de Janeiro", "RJ"),
+        "minas-gerais": ("Minas Gerais", "MG"),
+        "bahia": ("Bahia", "BA"),
+        "parana": ("Paraná", "PR"),
+        "rio-grande-do-sul": ("Rio Grande do Sul", "RS"),
+        "pernambuco": ("Pernambuco", "PE"),
+        "ceara": ("Ceará", "CE"),
+        "santa-catarina": ("Santa Catarina", "SC"),
+        "goias": ("Goiás", "GO"),
+        "distrito-federal": ("Distrito Federal", "DF"),
+        "para": ("Pará", "PA"),
+        "espirito-santo": ("Espírito Santo", "ES"),
+        "mato-grosso": ("Mato Grosso", "MT"),
+        "mato-grosso-do-sul": ("Mato Grosso do Sul", "MS"),
+        "amazonas": ("Amazonas", "AM"),
+        "maranhao": ("Maranhão", "MA"),
+        "paraiba": ("Paraíba", "PB"),
+        "rio-grande-do-norte": ("Rio Grande do Norte", "RN"),
+        "alagoas": ("Alagoas", "AL"),
+        "piaui": ("Piauí", "PI"),
+        "sergipe": ("Sergipe", "SE"),
+        "rondonia": ("Rondônia", "RO"),
+        "tocantins": ("Tocantins", "TO"),
+        "acre": ("Acre", "AC"),
+        "amapa": ("Amapá", "AP"),
+        "roraima": ("Roraima", "RR"),
+    }
+    if slug in labels:
+        return labels[slug]
+    city_slug, separator, state_slug = slug.rpartition(",-" )
+    if separator and city_slug and len(state_slug) == 2:
+        city = city_slug.replace("-", " ").title()
+        return city, state_slug.upper()
+    return slug.replace("-", " ").title(), ""
 
 
 def _company_from_lines(lines, date_index):
@@ -237,6 +287,8 @@ def _normalize(raw, today):
     published_date, date_index = _date_from_lines(card_lines, today)
     company = _company_from_lines(card_lines, date_index)
     city, state = _location_from_lines(card_lines, date_index)
+    if not city:
+        city, state = _location_from_url(url)
     description = _description_from_lines(card_lines)
     return job(
         SOURCE,
