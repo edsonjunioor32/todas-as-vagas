@@ -36,6 +36,10 @@ LOCATION_RE = re.compile(
     r"(?P<country>Brazil|Brasil)\b",
     re.I,
 )
+REMOTE_FIELD_RE = re.compile(
+    r'''(?:\\+x22|")Remote_Job(?:\\+x22|")\s*:\s*(true|false)''',
+    re.I,
+)
 
 
 def _text(value):
@@ -87,6 +91,20 @@ def _location_from_text(values):
         if city and state:
             return city, state, "BR"
     return "", "", ""
+
+
+def _remote_flag(markup):
+    """Read Zoho's structured Remote_Job boolean from the page payload.
+
+    The career site renders the visible "Trabalho remoto" label client-side,
+    while the server response keeps the authoritative boolean in a JSON.parse
+    string. Parsing this small field avoids classifying those vacancies as
+    unknown when the rendered text is not present in a plain HTTP response.
+    """
+    match = REMOTE_FIELD_RE.search(html.unescape(markup or ""))
+    if not match:
+        return None
+    return match.group(1).casefold() == "true"
 
 def _date(value, raw_text=""):
     normalized = iso_date(value)
@@ -194,6 +212,7 @@ def _normalize(url, markup, fallback_title=""):
         state = text_state
     if not country and text_country:
         country = text_country
+    remote_flag = _remote_flag(markup)
     location_type = _text(
         posting.get("jobLocationType") or posting.get("job_location_type")
     ).casefold()
@@ -204,9 +223,16 @@ def _normalize(url, markup, fallback_title=""):
             _text(posting.get("workModel")),
         )
     )
-    work_model = "remote" if location_type in {
-        "telecommute", "remote", "remoto", "work from home"
-    } else work_model_label(raw=model_raw)
+    if remote_flag is True:
+        work_model = "remote"
+    elif remote_flag is False:
+        work_model = "on-site" if city else ""
+    else:
+        work_model = "remote" if location_type in {
+            "telecommute", "remote", "remoto", "work from home"
+        } else work_model_label(raw=model_raw)
+    if remote_flag is True and not city:
+        city = "Brasil"
     if not work_model and city:
         work_model = "on-site"
     if not city and re.search(r"\btrabalho\s+remoto\b|\bremot[oa]\b", raw_text, re.I):
