@@ -223,13 +223,88 @@
     return value || 'Não informado';
   }
 
+  function categoryLabel(value) {
+    const raw = String(value || '').trim();
+    if (!raw) return '';
+    const key = normalize(raw)
+      .replace(/[_–—-]+/g, ' ')
+      .replace(/\s*\/\s*/g, ' / ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    const labels = {
+      'sem / midia paga': 'Marketing e Comunicação',
+      'midia paga': 'Marketing e Comunicação',
+      'social media': 'Marketing e Comunicação',
+      'ensino superior': 'Educação',
+      ensino: 'Educação',
+      educacao: 'Educação',
+      financas: 'Financeiro e Contábil',
+      contabilidade: 'Financeiro e Contábil',
+      'fiscal / tributario': 'Financeiro e Contábil',
+      'meios de pagamento': 'Financeiro e Contábil',
+      conciliacao: 'Financeiro e Contábil',
+      'recursos humanos': 'RH e Pessoas',
+      infraestrutura: 'TI e Desenvolvimento',
+      'tecnologia da informacao': 'TI e Desenvolvimento',
+      logistica: 'Operações e Logística',
+      compras: 'Operações e Logística',
+      administrativo: 'Operações e Logística',
+      operacoes: 'Operações e Logística',
+      atendimento: 'Suporte, Atendimento e CS',
+      'customer service': 'Suporte, Atendimento e CS',
+      vendas: 'Comercial e Vendas',
+      comercial: 'Comercial e Vendas'
+    };
+    return labels[key] || raw;
+  }
+
   function selectedLabel(value, formatter) {
     const raw = String(value || '').trim();
     return raw ? formatter(raw) : '';
   }
 
   function contractLabel(value) {
-    return normalize(value) === 'pj' ? 'CNPJ' : String(value || '');
+    const raw = String(value || '').trim();
+    if (!raw) return '';
+    const key = normalize(raw)
+      .replace(/[_–—-]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    const labels = {
+      pj: 'CNPJ',
+      cnpj: 'CNPJ',
+      'pessoa juridica': 'CNPJ',
+      'autonomous pj': 'CNPJ',
+      clt: 'CLT',
+      efetivo: 'Efetivo',
+      'efetivo clt': 'Efetivo',
+      'clt estrategico': 'CLT',
+      'full time': 'Tempo integral',
+      'full time / contract': 'Tempo integral',
+      fulltime: 'Tempo integral',
+      'part time': 'Meio período',
+      parttime: 'Meio período',
+      temp: 'Temporário',
+      temporary: 'Temporário',
+      temporario: 'Temporário',
+      'contrato temporario': 'Temporário',
+      intern: 'Estágio',
+      internship: 'Estágio',
+      estagio: 'Estágio',
+      estagiario: 'Estágio',
+      aprendiz: 'Jovem Aprendiz',
+      aprendice: 'Jovem Aprendiz',
+      'jovem aprendiz': 'Jovem Aprendiz',
+      associated: 'Associado',
+      associado: 'Associado',
+      cooperated: 'Cooperado',
+      cooperado: 'Cooperado',
+      contract: 'Contrato',
+      contractor: 'Contrato',
+      trainee: 'Trainee',
+      'talent pool': 'Banco de talentos'
+    };
+    return labels[key] || raw;
   }
 
   function normalizeUrl(value) {
@@ -314,7 +389,7 @@
         source,
         sourceLabel: sourceLabel(source),
         company: get('company', jobs.cmp[index]) || 'Empresa não informada',
-        category: get('area', jobs.area[index]) || 'Outros',
+        category: categoryLabel(get('area', jobs.area[index])) || 'Outros',
         seniority: get('seniority', jobs.sen[index]) || 'Não informado',
         workplaceType: workplaceLabel(get('work_model', jobs.wm[index])),
         market: marketLabel(get('market', jobs.mk[index])),
@@ -429,7 +504,7 @@
         current.count += 1;
       }
     }
-    return [...cities.values()].sort((a, b) => collator.compare(a.label, b.label));
+    return [...cities.values()].sort((a, b) => b.count - a.count || collator.compare(a.label, b.label));
   }
 
   function countContracts(jobs) {
@@ -438,8 +513,9 @@
       for (const value of job.contractTypes || []) {
         const raw = String(value || '').trim();
         if (!raw) continue;
-        const key = normalize(raw === 'CNPJ' ? 'PJ' : raw);
-        const current = counts.get(key) || { value: raw === 'CNPJ' ? 'PJ' : raw, count: 0 };
+        const label = contractLabel(raw);
+        const key = normalize(label);
+        const current = counts.get(key) || { value: label, count: 0 };
         current.count += 1;
         counts.set(key, current);
       }
@@ -462,7 +538,9 @@
         `${contractLabel(contract.value)} (${numberFormatter.format(contract.count)})`
       );
     }
-    for (const city of countCities(state.jobs)) {
+    // Free text still accepts every locality; suggestions prioritize the most
+    // frequent 120 so the native datalist remains usable on large snapshots.
+    for (const city of countCities(state.jobs).slice(0, 120)) {
       const option = document.createElement('option');
       option.value = city.label;
       option.label = `${numberFormatter.format(city.count)} ${city.count === 1 ? 'vaga' : 'vagas'}`;
@@ -486,7 +564,11 @@
     elements.sourceFilter.value = params.get('portal') || '';
     elements.workplaceFilter.value = params.get('modalidade') || '';
     const requestedContract = params.get('contratacao') || '';
-    elements.contractFilter.value = normalize(requestedContract) === 'pj' ? 'CNPJ' : requestedContract;
+    const requestedContractLabel = contractLabel(requestedContract);
+    elements.contractFilter.value = [...elements.contractFilter.options]
+      .some(option => option.value === requestedContractLabel)
+      ? requestedContractLabel
+      : '';
     elements.cityFilter.value = params.get('cidade') || '';
     elements.marketFilter.value = params.get('mercado') || '';
     elements.categoryFilter.value = params.get('area') || '';
@@ -643,7 +725,9 @@
     const market = elements.marketFilter.value;
     const category = elements.categoryFilter.value;
     const seniority = elements.seniorityFilter.value;
-    const days = Number(elements.periodFilter.value || 60);
+    // The published snapshot already applies the two-month retention window.
+    // An empty period means that default snapshot, not a second rolling filter.
+    const days = Number(elements.periodFilter.value || 0);
     const pcdOnly = elements.pcdOnly.checked;
     const duplicatesOnly = elements.duplicatesOnly.checked;
     const now = Date.now();
@@ -653,8 +737,8 @@
       if (source && job.source !== source) return false;
       if (workplace && job.workplaceType !== workplace) return false;
       if (contract) {
-        const target = normalize(contract === 'CNPJ' ? 'PJ' : contract);
-        if (!job.contractTypes.some(type => normalize(type) === target)) return false;
+        const target = normalize(contractLabel(contract));
+        if (!job.contractTypes.some(type => normalize(contractLabel(type)) === target)) return false;
       }
       if (city) {
         const cityMatch = job.cities.some(item => normalize(item).includes(city)) || job._location.includes(city);
