@@ -108,6 +108,19 @@ class SpassuTests(unittest.TestCase):
         self.assertEqual(row["work_model"], "remote")
         self.assertEqual(row["city"], "Brasil")
 
+    def test_zoho_fields_map_city_state_and_contract_without_rendered_text(self):
+        markup = r'''<h1>Analista de Qualidade</h1><script>
+          var jobs = JSON.parse('[{\x22Remote_Job\x22:false,\x22City\x22:\x22Itaboraí\x22,\x22State\x22:\x22Rio de Janeiro\x22,\x22Country\x22:\x22Brasil\x22,\x22Job_Type\x22:\x22Efetivo\x22}]');
+        </script>'''
+        row = spassu._normalize(
+            "https://spassu.zohorecruit.com/jobs/Careers/123/Analista",
+            markup,
+        )
+        self.assertEqual(row["work_model"], "on-site")
+        self.assertEqual(row["city"], "Itaboraí")
+        self.assertEqual(row["state"], "Rio de Janeiro")
+        self.assertIn("Efetivo", row["contract_types"])
+
     def test_missing_spassu_location_does_not_become_remote(self):
         row = spassu._normalize(
             "https://spassu.zohorecruit.com/jobs/Careers/123/Analista",
