@@ -20,7 +20,12 @@
     <meta property="og:title" content="Todas as Vagas — Aqui você encontra a sua vaga">
     <meta property="og:description" content="Pesquise oportunidades em diferentes portais e encontre a vaga ideal em um só lugar.">
     <meta property="og:type" content="website">
+    <meta property="og:url" content="https://edsonjunioor32.github.io/todas-as-vagas/">
+    <meta property="og:image" content="https://edsonjunioor32.github.io/todas-as-vagas/og-image.svg">
+    <meta property="og:image:alt" content="Todas as Vagas — oportunidades de vários portais em um só lugar">
+    <meta name="twitter:card" content="summary_large_image">
     <title>Todas as Vagas — Aqui você encontra a sua vaga</title>
+    <link rel="canonical" href="https://edsonjunioor32.github.io/todas-as-vagas/">
     <link rel="icon" href="./favicon.svg?v=4" type="image/svg+xml">
     <script src="./theme.js?v=2"></script>
     <link rel="stylesheet" href="./styles.css?v=18">
@@ -144,8 +149,9 @@
 
             <div class="field field-compact">
               <label for="cityFilter">Localização</label>
-              <input id="cityFilter" name="cidade" type="search" list="cityOptions" placeholder="Ex.: João Pessoa" spellcheck="false">
+              <input id="cityFilter" name="cidade" type="search" list="cityOptions" placeholder="Ex.: João Pessoa" spellcheck="false" aria-describedby="cityFilterHint">
               <datalist id="cityOptions"></datalist>
+              <small id="cityFilterHint">Digite livremente; as sugestões priorizam as localidades mais frequentes.</small>
             </div>
 
             <div class="field field-compact">
@@ -211,7 +217,7 @@
             </label>
           </form>
 
-          <div class="active-filters" id="activeFilters" aria-label="Filtros ativos" hidden></div>
+          <div class="active-filters" id="activeFilters" role="status" aria-live="polite" aria-atomic="true" aria-label="Filtros ativos" hidden></div>
 
           <section class="recent-companies" id="recentCompanies" aria-labelledby="recentCompaniesTitle" hidden>
             <h3 id="recentCompaniesTitle">EMPRESAS ADICIONADAS RECENTEMENTE</h3>
@@ -228,7 +234,7 @@
         <section class="results" id="resultados" aria-labelledby="resultsTitle">
           <div class="results-toolbar">
             <div>
-              <h2 id="resultsTitle"><span id="resultCount">—</span> vagas</h2>
+              <h2 id="resultsTitle" aria-live="polite" aria-atomic="true"><span id="resultCount">—</span> vagas</h2>
             </div>
             <div class="toolbar-actions">
               <label class="compact-field" for="sortFilter">
@@ -277,6 +283,7 @@
             <p>Qualquer valor faz diferença. Se não puder contribuir, compartilhar o Portal com quem está procurando uma oportunidade também é uma grande ajuda. 🤝</p>
             <p class="support-pix"><strong>Pix:</strong> edsonjunior32@hotmail.com</p>
           </section>
+          <p class="privacy-note"><strong>Privacidade:</strong> usamos métricas de visita para melhorar o portal. Não coletamos dados de candidatura. <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer">Saiba como desativar o Google Analytics</a>.</p>
         </div>
         <p>
           O projeto não possui vínculo com os portais ou empresas listados. Não republica descrições completas e direciona a candidatura para a página original.
