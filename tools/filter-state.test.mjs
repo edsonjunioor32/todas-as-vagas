@@ -33,3 +33,17 @@ const html = fs.readFileSync(path.join(root, 'docs', 'index.html'), 'utf8');
 assert.doesNotMatch(html, /EMPRESAS MONITORADAS/i, 'O quadro de empresas monitoradas não deve aparecer no portal.');
 assert.doesNotMatch(html, /id="monitoredCompanies"/, 'O contêiner de empresas monitoradas deve ser removido.');
 assert.doesNotMatch(app, /renderMonitoredCompanies|greenhouse-watchlist/, 'A interface não deve buscar nem renderizar a lista removida.');
+assert.match(
+  app,
+  /const days = Number\(elements\.periodFilter\.value \|\| 0\)/,
+  'A consulta padrão deve respeitar o recorte do snapshot sem aplicar um segundo filtro móvel de 60 dias.'
+);
+assert.match(
+  app,
+  /function categoryLabel\(value\)/,
+  'Categorias de fontes diferentes devem passar por uma taxonomia de exibição comum.'
+);
+assert.match(html, /<link rel="canonical" href="https:\/\/edsonjunioor32\.github\.io\/todas-as-vagas\/">/);
+assert.match(html, /meta property="og:url" content="https:\/\/edsonjunioor32\.github\.io\/todas-as-vagas\/"/);
+assert.match(html, /id="resultsTitle" aria-live="polite"/);
+assert.match(html, /id="activeFilters" role="status" aria-live="polite"/);
