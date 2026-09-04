@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Todas as Vagas</title>
+  <desc id="desc">Oportunidades de vários portais em um só lugar.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#061317"/>
+      <stop offset="1" stop-color="#0d2931"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#1de1bd"/>
+      <stop offset="1" stop-color="#379dff"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#background)"/>
+  <circle cx="1030" cy="90" r="220" fill="#1de1bd" opacity=".08"/>
+  <circle cx="1100" cy="520" r="260" fill="#379dff" opacity=".08"/>
+  <rect x="90" y="102" width="112" height="112" rx="28" fill="none" stroke="url(#accent)" stroke-width="10"/>
+  <path d="M125 156h42m-21-21v42" stroke="#1de1bd" stroke-width="10" stroke-linecap="round"/>
+  <text x="90" y="325" fill="#f4f8f9" font-family="Inter,Segoe UI,sans-serif" font-size="78" font-weight="800">Todas as Vagas</text>
+  <rect x="95" y="365" width="390" height="8" rx="4" fill="url(#accent)"/>
+  <text x="90" y="445" fill="#c8d9dc" font-family="Inter,Segoe UI,sans-serif" font-size="34">Oportunidades de vários portais</text>
+  <text x="90" y="492" fill="#c8d9dc" font-family="Inter,Segoe UI,sans-serif" font-size="34">em um só lugar.</text>
+</svg>
