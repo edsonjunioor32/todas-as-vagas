@@ -26,7 +26,7 @@ jobs:
       - name: Baixar o repositório
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Aplicar fallback de descoberta
         run: python .github/scripts/patch_recrutei_discovery.py
