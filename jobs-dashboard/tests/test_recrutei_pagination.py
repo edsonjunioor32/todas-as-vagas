@@ -96,6 +96,15 @@ class RecruteiPaginationTests(unittest.TestCase):
         }
         self.assertFalse(recrutei._needs_detail(card))
 
+    def test_explicit_onsite_brazil_card_does_not_require_detail_request(self):
+        card = {
+            "url": "https://empregos.recrutei.com.br/vaga/empresa/125-analista",
+            "location": "Brasil",
+            "badges": ["CLT", "Presencial"],
+            "publication": "Publicada há 2 dias",
+        }
+        self.assertFalse(recrutei._needs_detail(card))
+
     def test_old_generic_card_does_not_require_detail_request(self):
         card = {
             "url": "https://empregos.recrutei.com.br/vaga/empresa/124-analista",
