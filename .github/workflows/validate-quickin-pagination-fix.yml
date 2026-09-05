@@ -42,8 +42,8 @@ jobs:
           python -m unittest discover -s jobs-dashboard/tests -p 'test_new_sources.py' -v
           python -m unittest discover -s jobs-dashboard/tests -p 'test_quickin_pagination.py' -v
 
-      - name: Coletar InfoVagas isoladamente
+      - name: Coletar boards Quickin isoladamente
         env:
           PYTHONUNBUFFERED: "1"
-          JOBS_SOURCE_WORKERS: "1"
-        run: python jobs-dashboard/pipeline.py --dry-run --sources infovagas --max-age-months 2
+          JOBS_SOURCE_WORKERS: "4"
+        run: python jobs-dashboard/pipeline.py --dry-run --sources infovagas,sinqia,reply,seidor --max-age-months 2
