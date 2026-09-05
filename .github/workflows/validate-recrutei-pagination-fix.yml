@@ -8,6 +8,7 @@ on:
       - "jobs-dashboard/sources/recrutei.py"
       - "jobs-dashboard/tests/test_recrutei_pagination.py"
       - ".github/scripts/patch_recrutei_discovery.py"
+      - ".github/scripts/patch_recrutei_details.py"
       - ".github/workflows/validate-recrutei-pagination-fix.yml"
   workflow_dispatch:
 
@@ -28,8 +29,10 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Aplicar fallback de descoberta
-        run: python .github/scripts/patch_recrutei_discovery.py
+      - name: Aplicar correções candidatas
+        run: |
+          python .github/scripts/patch_recrutei_discovery.py
+          python .github/scripts/patch_recrutei_details.py
 
       - name: Preparar Python
         uses: actions/setup-python@v5
@@ -59,10 +62,10 @@ jobs:
           set -euo pipefail
           git add jobs-dashboard/sources/recrutei.py
           if git diff --cached --quiet; then
-            echo "Fonte Recrutei já contém o fallback validado."
+            echo "Fonte Recrutei já contém a correção validada."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "Torna paginação Recrutei independente do contador renderizado"
+          git commit -m "Corrige paginação completa e hidratação do Recrutei"
           git push origin HEAD:fix/recrutei-complete-pagination-20260905
