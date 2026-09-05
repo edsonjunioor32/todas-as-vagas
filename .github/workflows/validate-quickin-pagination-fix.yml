@@ -1,0 +1,49 @@
+name: Validar correção de paginação Quickin
+
+on:
+  push:
+    branches:
+      - fix/quickin-complete-pagination-20260905
+    paths:
+      - "jobs-dashboard/sources/_rendered.py"
+      - "jobs-dashboard/sources/quickin.py"
+      - "jobs-dashboard/tests/test_quickin_pagination.py"
+      - ".github/workflows/validate-quickin-pagination-fix.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-quickin-pagination-fix
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: jobs-dashboard/requirements.txt
+
+      - name: Instalar dependências
+        run: pip install -r jobs-dashboard/requirements.txt
+
+      - name: Validar sintaxe e regressões Quickin
+        run: |
+          python -m py_compile jobs-dashboard/sources/_rendered.py jobs-dashboard/sources/quickin.py
+          python -m unittest discover -s jobs-dashboard/tests -p 'test_new_sources.py' -v
+          python -m unittest discover -s jobs-dashboard/tests -p 'test_quickin_pagination.py' -v
+
+      - name: Coletar InfoVagas isoladamente
+        env:
+          PYTHONUNBUFFERED: "1"
+          JOBS_SOURCE_WORKERS: "1"
+        run: python jobs-dashboard/pipeline.py --dry-run --sources infovagas --max-age-months 2
