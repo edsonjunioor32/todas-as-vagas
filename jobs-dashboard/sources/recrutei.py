@@ -5,6 +5,7 @@ import json
 import re
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import date, timedelta
 from html.parser import HTMLParser
 from urllib.parse import urljoin
 
@@ -36,6 +37,12 @@ PUBLICATION_TIME = re.compile(
     r"\bpublicad[ao]\b|\bh[áa]\s+\d+\s+(?:minuto|hora|dia|semana|m[eê]s)",
     re.I,
 )
+PUBLIC_RESULTS = re.compile(
+    r"Exibindo\s+Resultados\s+(\d+)\s*-\s*(\d+)\s+de\s+um\s+total\s+de\s+([\d.]+)\s+vagas",
+    re.I,
+)
+PUBLIC_PAGE_WORKERS = 8
+MAX_PUBLIC_PAGES = 500
 
 
 class PublicCards(HTMLParser):
@@ -78,6 +85,10 @@ class PublicCards(HTMLParser):
         self.card["parts"] = [
             self._clean(value) for value in self.card["parts"] if self._clean(value)
         ]
+        self.card["publication"] = next(
+            (value for value in self.card["parts"] if PUBLICATION_TIME.search(value)),
+            "",
+        )
         self.rows.append(self.card)
         self.card = None
 
@@ -95,6 +106,7 @@ class PublicCards(HTMLParser):
                     "company": "",
                     "location": "",
                     "badges": [],
+                    "publication": "",
                 }
                 self._card_depth = self._div_depth
         if self.card:
@@ -193,6 +205,93 @@ def _public_model(badges):
     return ""
 
 
+def _relative_publication_date(value, today=None):
+    """Convert Recrutei's visible relative publication label to an ISO date."""
+    text = re.sub(r"\s+", " ", str(value or "")).strip().casefold()
+    if not text:
+        return ""
+    base = today or date.today()
+    if "hoje" in text:
+        return base.isoformat()
+    if "ontem" in text:
+        return (base - timedelta(days=1)).isoformat()
+    match = re.search(
+        r"\bh[áa]\s+(\d+)\s+(minutos?|horas?|dias?|semanas?|m[eê]s(?:es)?)\b",
+        text,
+        re.I,
+    )
+    if not match:
+        return ""
+    amount = int(match.group(1))
+    unit = match.group(2).casefold()
+    if unit.startswith("minuto") or unit.startswith("hora"):
+        days = 0
+    elif unit.startswith("dia"):
+        days = amount
+    elif unit.startswith("semana"):
+        days = amount * 7
+    else:
+        days = amount * 30
+    return (base - timedelta(days=days)).isoformat()
+
+
+def _public_page_count(markup, first_count):
+    """Read the portal's own result counter and calculate the full page count."""
+    text = re.sub(r"\s+", " ", strip_html(markup or "")).strip()
+    match = PUBLIC_RESULTS.search(text)
+    if not match:
+        if first_count >= 10:
+            raise RuntimeError(
+                "Recrutei public listing is full but pagination metadata is missing"
+            )
+        return 1
+    start, end = int(match.group(1)), int(match.group(2))
+    total = int(re.sub(r"\D", "", match.group(3)) or "0")
+    page_size = max(1, end - start + 1)
+    pages = max(1, (total + page_size - 1) // page_size)
+    if pages > MAX_PUBLIC_PAGES:
+        raise RuntimeError(
+            f"Recrutei announced {pages} pages; safety limit is {MAX_PUBLIC_PAGES}"
+        )
+    return pages
+
+
+def _parse_public_cards(markup):
+    parser = PublicCards(PUBLIC_CARD, PUBLIC)
+    parser.feed(markup or "")
+    return parser.rows
+
+
+def _fetch_public_cards():
+    """Fetch every page announced by the Recrutei public catalogue."""
+    first_markup = get_text(PUBLIC, timeout=40, retries=2)
+    first_cards = _parse_public_cards(first_markup)
+    page_count = _public_page_count(first_markup, len(first_cards))
+    if page_count <= 1:
+        return first_cards
+
+    pages = {1: first_cards}
+
+    def fetch_page(page):
+        markup = get_text(f"{PUBLIC}?page={page}", timeout=40, retries=3, backoff=1.5)
+        return _parse_public_cards(markup)
+
+    workers = min(PUBLIC_PAGE_WORKERS, page_count - 1)
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        futures = {
+            executor.submit(fetch_page, page): page
+            for page in range(2, page_count + 1)
+        }
+        for future in as_completed(futures):
+            page = futures[future]
+            cards = future.result()
+            if not cards and page < page_count:
+                raise RuntimeError(f"Recrutei page {page} returned no vacancy cards")
+            pages[page] = cards
+
+    return [card for page in sorted(pages) for card in pages[page]]
+
+
 def _meta_value(markup, name):
     wanted = str(name or "").casefold()
     for tag in re.findall(r"<meta\b[^>]*>", markup or "", re.I):
@@ -277,9 +376,15 @@ def _detail_data(url):
 
 def _needs_detail(card):
     location = str(card.get("location") or "").strip()
+    normalized = location.casefold()
+    model = _public_model(card.get("badges") or [])
+    if model == "remote" and normalized in {
+        "", "brasil", "brazil", "não informado", "nao informado"
+    }:
+        return False
     return (
         not location
-        or location.casefold() in {"brasil", "brazil", "não informado", "nao informado"}
+        or normalized in {"brasil", "brazil", "não informado", "nao informado"}
         or bool(PUBLICATION_TIME.search(location))
     )
 
@@ -292,7 +397,7 @@ def _hydrate_cards(cards):
     if not selected:
         return {}
     details = {}
-    with ThreadPoolExecutor(max_workers=min(2, len(selected))) as executor:
+    with ThreadPoolExecutor(max_workers=min(4, len(selected))) as executor:
         futures = {
             executor.submit(_detail_data, card["url"]): card["url"]
             for card in selected
@@ -304,14 +409,23 @@ def _hydrate_cards(cards):
             except Exception:
                 details[url] = {}
 
-    # A temporary 429/edge response should not leave a generic Brasil location
-    # in the public snapshot. Retry missing locations at a lower rate.
-    for card in selected:
-        url = card["url"]
-        if details.get(url, {}).get("city"):
-            continue
+    retry = [
+        card for card in selected
+        if not details.get(card["url"], {}).get("city")
+    ]
+    if retry:
         time.sleep(0.5)
-        details[url] = _detail_data(url)
+        with ThreadPoolExecutor(max_workers=min(2, len(retry))) as executor:
+            futures = {
+                executor.submit(_detail_data, card["url"]): card["url"]
+                for card in retry
+            }
+            for future in as_completed(futures):
+                url = futures[future]
+                try:
+                    details[url] = future.result()
+                except Exception:
+                    details[url] = {}
     return details
 
 
@@ -353,12 +467,11 @@ def repair_historical_rows(records):
 
 
 def _public_rows():
-    """Collect the current public Recrutei feed, including detail metadata."""
-    parser = PublicCards(PUBLIC_CARD, PUBLIC)
-    parser.feed(get_text(PUBLIC, timeout=40, retries=2))
-    details = _hydrate_cards(parser.rows)
+    """Collect the complete public Recrutei feed, including detail metadata."""
+    cards = _fetch_public_cards()
+    details = _hydrate_cards(cards)
     rows, seen = [], set()
-    for card in parser.rows:
+    for card in cards:
         groups = card.get("groups") or ()
         if len(groups) < 2:
             continue
@@ -386,11 +499,15 @@ def _public_rows():
         model = _public_model(badges) or detail.get("work_model", "")
         if not model and city.casefold() not in {"brasil", "brazil"}:
             model = "on-site"
+        published = (
+            detail.get("published_date", "")
+            or _relative_publication_date(card.get("publication"))
+        )
         rows.append(job(
             "recrutei", key, title, company, card["url"],
             work_model=model,
             city=city, state=state, country="BR", market="BR",
-            published_date=detail.get("published_date", ""),
+            published_date=published,
             contract_types=re.split(r"\s+ou\s+", contract, flags=re.I) if contract else [],
         ))
     return rows
