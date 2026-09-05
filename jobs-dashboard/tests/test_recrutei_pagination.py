@@ -57,6 +57,28 @@ class RecruteiPaginationTests(unittest.TestCase):
         self.assertIn(f"{recrutei.PUBLIC}?page=2", requested)
         self.assertIn(f"{recrutei.PUBLIC}?page=3", requested)
 
+    def test_full_page_without_counter_discovers_end_safely(self):
+        page1 = "".join(
+            self._card(200 + index, f"Vaga {index}") for index in range(10)
+        )
+        page2 = self._card(999, "Vaga Final")
+        requested = []
+
+        def fake_get_text(url, *args, **kwargs):
+            requested.append(url)
+            if "page=2" in url:
+                return page2
+            if "?page=" in url:
+                return "<html><body>Nenhuma vaga encontrada</body></html>"
+            return page1
+
+        with patch.object(recrutei, "get_text", side_effect=fake_get_text):
+            rows = recrutei._public_rows()
+
+        self.assertEqual(len(rows), 11)
+        self.assertIn(f"{recrutei.PUBLIC}?page=2", requested)
+        self.assertIn(f"{recrutei.PUBLIC}?page=3", requested)
+
     def test_relative_publication_date_is_normalized(self):
         self.assertEqual(
             recrutei._relative_publication_date("Publicada há 2 semanas", today=date(2026, 9, 5)),
