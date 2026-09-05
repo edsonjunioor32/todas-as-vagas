@@ -236,15 +236,11 @@ def _relative_publication_date(value, today=None):
 
 
 def _public_page_count(markup, first_count):
-    """Read the portal's own result counter and calculate the full page count."""
+    """Use the portal counter when present; otherwise signal discovery mode."""
     text = re.sub(r"\s+", " ", strip_html(markup or "")).strip()
     match = PUBLIC_RESULTS.search(text)
     if not match:
-        if first_count >= 10:
-            raise RuntimeError(
-                "Recrutei public listing is full but pagination metadata is missing"
-            )
-        return 1
+        return None if first_count >= 10 else 1
     start, end = int(match.group(1)), int(match.group(2))
     total = int(re.sub(r"\D", "", match.group(3)) or "0")
     page_size = max(1, end - start + 1)
@@ -263,11 +259,14 @@ def _parse_public_cards(markup):
 
 
 def _fetch_public_cards():
-    """Fetch every page announced by the Recrutei public catalogue."""
+    """Fetch the complete Recrutei catalogue without trusting rendered metadata."""
     first_markup = get_text(PUBLIC, timeout=40, retries=2)
     first_cards = _parse_public_cards(first_markup)
+    if not first_cards:
+        raise RuntimeError("Recrutei first public page returned no vacancy cards")
+
     page_count = _public_page_count(first_markup, len(first_cards))
-    if page_count <= 1:
+    if page_count == 1:
         return first_cards
 
     pages = {1: first_cards}
@@ -276,20 +275,57 @@ def _fetch_public_cards():
         markup = get_text(f"{PUBLIC}?page={page}", timeout=40, retries=3, backoff=1.5)
         return _parse_public_cards(markup)
 
-    workers = min(PUBLIC_PAGE_WORKERS, page_count - 1)
-    with ThreadPoolExecutor(max_workers=workers) as executor:
-        futures = {
-            executor.submit(fetch_page, page): page
-            for page in range(2, page_count + 1)
-        }
-        for future in as_completed(futures):
-            page = futures[future]
-            cards = future.result()
-            if not cards and page < page_count:
-                raise RuntimeError(f"Recrutei page {page} returned no vacancy cards")
+    if page_count:
+        workers = min(PUBLIC_PAGE_WORKERS, max(1, page_count - 1))
+        with ThreadPoolExecutor(max_workers=workers) as executor:
+            futures = {
+                executor.submit(fetch_page, page): page
+                for page in range(2, page_count + 1)
+            }
+            for future in as_completed(futures):
+                page = futures[future]
+                cards = future.result()
+                if not cards and page < page_count:
+                    raise RuntimeError(f"Recrutei page {page} returned no vacancy cards")
+                pages[page] = cards
+        return [card for page in sorted(pages) for card in pages[page]]
+
+    # Some edge responses omit the visible result counter even though ?page=N
+    # works. Discover the end in bounded concurrent batches. Recrutei may keep
+    # returning the last available page for page numbers beyond the real end, so
+    # an exact repeated page signature is also an end-of-catalogue signal.
+    def signature(cards):
+        return tuple(
+            (card.get("groups") or (), card.get("url") or "")
+            for card in cards
+        )
+
+    seen_signatures = {signature(first_cards)}
+    next_page = 2
+    while next_page <= MAX_PUBLIC_PAGES:
+        batch = list(range(next_page, min(next_page + PUBLIC_PAGE_WORKERS, MAX_PUBLIC_PAGES + 1)))
+        batch_rows = {}
+        with ThreadPoolExecutor(max_workers=len(batch)) as executor:
+            futures = {executor.submit(fetch_page, page): page for page in batch}
+            for future in as_completed(futures):
+                page = futures[future]
+                batch_rows[page] = future.result()
+
+        for page in batch:
+            cards = batch_rows[page]
+            if not cards:
+                return [card for page_no in sorted(pages) for card in pages[page_no]]
+            page_signature = signature(cards)
+            if page_signature in seen_signatures:
+                return [card for page_no in sorted(pages) for card in pages[page_no]]
+            seen_signatures.add(page_signature)
             pages[page] = cards
 
-    return [card for page in sorted(pages) for card in pages[page]]
+        next_page = batch[-1] + 1
+
+    raise RuntimeError(
+        f"Recrutei pagination reached safety limit of {MAX_PUBLIC_PAGES} pages without an end"
+    )
 
 
 def _meta_value(markup, name):
@@ -375,10 +411,21 @@ def _detail_data(url):
 
 
 def _needs_detail(card):
+    publication = _relative_publication_date(card.get("publication"))
+    if publication:
+        try:
+            published_day = date.fromisoformat(publication)
+        except ValueError:
+            published_day = None
+        if published_day and published_day < date.today() - timedelta(days=70):
+            return False
+
     location = str(card.get("location") or "").strip()
     normalized = location.casefold()
     model = _public_model(card.get("badges") or [])
-    if model == "remote" and normalized in {
+    # The public card is authoritative when Recrutei already exposes a work model.
+    # Do not open hundreds of details only to refine a generic Brasil location.
+    if model and normalized in {
         "", "brasil", "brazil", "não informado", "nao informado"
     }:
         return False
