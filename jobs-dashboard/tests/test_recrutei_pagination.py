@@ -57,7 +57,7 @@ class RecruteiPaginationTests(unittest.TestCase):
         self.assertIn(f"{recrutei.PUBLIC}?page=2", requested)
         self.assertIn(f"{recrutei.PUBLIC}?page=3", requested)
 
-    def test_full_page_without_counter_discovers_end_safely(self):
+    def test_full_page_without_counter_stops_when_last_page_repeats(self):
         page1 = "".join(
             self._card(200 + index, f"Vaga {index}") for index in range(10)
         )
@@ -66,10 +66,8 @@ class RecruteiPaginationTests(unittest.TestCase):
 
         def fake_get_text(url, *args, **kwargs):
             requested.append(url)
-            if "page=2" in url:
-                return page2
             if "?page=" in url:
-                return "<html><body>Nenhuma vaga encontrada</body></html>"
+                return page2
             return page1
 
         with patch.object(recrutei, "get_text", side_effect=fake_get_text):
