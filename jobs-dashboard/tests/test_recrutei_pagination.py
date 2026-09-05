@@ -92,6 +92,16 @@ class RecruteiPaginationTests(unittest.TestCase):
             "url": "https://empregos.recrutei.com.br/vaga/empresa/123-analista",
             "location": "Brasil",
             "badges": ["Pessoa Jurídica", "Remoto"],
+            "publication": "Publicada há 2 dias",
+        }
+        self.assertFalse(recrutei._needs_detail(card))
+
+    def test_old_generic_card_does_not_require_detail_request(self):
+        card = {
+            "url": "https://empregos.recrutei.com.br/vaga/empresa/124-analista",
+            "location": "Brasil",
+            "badges": ["CLT", "Presencial"],
+            "publication": "Publicada há 3 meses",
         }
         self.assertFalse(recrutei._needs_detail(card))
 
