@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Public vacancies from InfoVagas, hosted by Quickin."""
+"""Public vacancies from InfoVagas and company boards hosted by Quickin."""
 import html
 import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -8,11 +8,12 @@ from urllib.parse import urljoin, urlparse
 from ._common import iso_date, job, strip_html, work_model_label
 from ._http import get_text
 from ._html import PublicPageParser, job_posting
-from ._rendered import rendered_links
+from ._rendered import rendered_paginated_links
 
 
 BASE_URL = "https://jobs.quickin.io"
 LIST_URL = f"{BASE_URL}/infovagas/jobs"
+QUICKIN_PAGE_SIZE = 10
 DETAIL_RE = re.compile(r"/infovagas/jobs/([a-z0-9]{12,})(?:[/?#]|$)", re.I)
 
 
@@ -21,6 +22,8 @@ def _detail_pattern(board):
         rf"/{re.escape(board)}/jobs/([a-z0-9]{{12,}})(?:[/?#]|$)",
         re.I,
     )
+
+
 LEVEL_RE = re.compile(
     r"\b(j[uú]nior|jr\.?|pleno|mid(?:[- ]level)?|s[eê]nior|sr\.?|"
     r"especialista|lead|gerente|coordenador|trainee)\b",
@@ -209,6 +212,27 @@ def _catalog_page(markup, board="infovagas", detail_re=None):
             seen_pages.add(absolute)
             page_links.append(absolute)
     return detail_links, page_links
+
+
+def _merge_links(links, additional, detail_re):
+    merged = list(links)
+    known_ids = {
+        detail_re.search(url).group(1).casefold()
+        for url, _ in merged
+        if detail_re.search(url)
+    }
+    for url, label in additional:
+        match = detail_re.search(url)
+        if not match:
+            continue
+        native_id = match.group(1).casefold()
+        if native_id in known_ids:
+            continue
+        known_ids.add(native_id)
+        merged.append((url, strip_html(label)))
+    return merged
+
+
 def _fetch_detail(url, label, source="infovagas", detail_re=DETAIL_RE,
                   company_override=""):
     try:
@@ -239,22 +263,14 @@ def _fetch_board(board, source=None, company_override=""):
     except Exception as error:
         first_markup = ""
         catalog_error = error
+
     links, page_links = _catalog_page(first_markup, board, detail_re)
-    if not links:
-        links = [
-            (href, strip_html(label))
-            for href, label in rendered_links(
-                list_url,
-                rf"/{re.escape(board)}/jobs/[a-z0-9]{{12,}}(?:[/?#]|$)",
-                timeout=60,
-            )
-            if detail_re.search(href)
-        ]
+    first_page_count = len(links)
 
+    # Keep the cheap HTTP path when the board exposes real page links in HTML.
+    # Do not fabricate ?page=N URLs: Quickin's current UI does not guarantee
+    # that query-string contract and that fallback silently repeated page 1.
     pages_to_visit = list(page_links)
-    if not pages_to_visit and links:
-        pages_to_visit = [f"{list_url}?page={page}" for page in range(2, 21)]
-
     visited_pages = {list_url}
     for page_url in pages_to_visit:
         if page_url in visited_pages:
@@ -264,24 +280,25 @@ def _fetch_board(board, source=None, company_override=""):
             markup = get_text(page_url, timeout=35, retries=2)
         except Exception:
             continue
-        page_links_found, additional_pages = _catalog_page(
-            markup, board, detail_re
-        )
-        known_ids = {
-            detail_re.search(url).group(1).casefold()
-            for url, _ in links
-            if detail_re.search(url)
-        }
-        for url, label in page_links_found:
-            native_id = detail_re.search(url).group(1).casefold()
-            if native_id not in known_ids:
-                known_ids.add(native_id)
-                links.append((url, label))
+        page_links_found, additional_pages = _catalog_page(markup, board, detail_re)
+        links = _merge_links(links, page_links_found, detail_re)
         for additional in additional_pages:
             if additional not in visited_pages and additional not in pages_to_visit:
                 pages_to_visit.append(additional)
-        if not page_links and not page_links_found and "?" in page_url:
-            break
+
+    # Quickin currently shows 10 vacancies per page. A full first page is not
+    # evidence of a complete catalogue: verify it by navigating the visible
+    # pagination controls in a browser and merge every discovered vacancy.
+    # If that verification fails, propagate the failure so the pipeline keeps
+    # the last valid snapshot instead of publishing a partial 10-job board.
+    if not links or first_page_count >= QUICKIN_PAGE_SIZE:
+        rendered = rendered_paginated_links(
+            list_url,
+            rf"/{re.escape(board)}/jobs/[a-z0-9]{{12,}}(?:[/?#]|$)",
+            timeout=120,
+            max_pages=100,
+        )
+        links = _merge_links(links, rendered, detail_re)
 
     if not links:
         detail = f": {catalog_error}" if catalog_error else ""
@@ -315,7 +332,6 @@ def fetch():
 
 def fetch_finayatech():
     return _fetch_board("finayatech", "finayatech")
-
 
 
 def fetch_company(board, source=None, company=""):
