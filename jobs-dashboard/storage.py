@@ -125,6 +125,7 @@ ACTIVE_PUBLIC_FEED_SOURCES = {
     "peoplemeet",
     "pipastudios",
     "po2hc",
+    "pontotel",
     "prefeituramunicipaldexaxim",
     "prestorh",
     "principiaskin",
