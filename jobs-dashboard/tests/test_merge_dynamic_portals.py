@@ -46,6 +46,21 @@ class PartialCatalogTests(unittest.TestCase):
         self.assertEqual(len(rows), 1)
         self.assertEqual(dropped, 0)
 
+    def test_mindsight_active_feeds_keep_old_publication_dates(self):
+        rows, dropped = pipeline.discard_old_publications(
+            [
+                sample("liquidz", "old-liquidz", published="2026-07-07"),
+                sample("pontotel", "old-pontotel", published="2026-07-07"),
+            ],
+            "2026-07-08",
+            today="2026-09-08",
+        )
+        self.assertEqual(
+            {row["source"] for row in rows},
+            {"liquidz", "pontotel"},
+        )
+        self.assertEqual(dropped, 0)
+
     def test_fit_merge_preserves_existing_jobs(self):
         description = (
             "Requisitos: experiência com SQL e APIs REST para suporte de sistemas. "
