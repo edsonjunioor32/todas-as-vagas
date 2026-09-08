@@ -130,6 +130,7 @@ jobs:
           mkdir -p jobs-dashboard/data
           git archive origin/history-data data | tar -x -C jobs-dashboard
           # history-data is compressed because GitHub rejects blobs above 100 MiB.
+          # This refresh validates the complete recovery path after the fix.
           if [ -f jobs-dashboard/data/jobs.db.gz ]; then
             gzip -dc jobs-dashboard/data/jobs.db.gz > jobs-dashboard/data/jobs.db
           fi
