@@ -58,6 +58,10 @@ jobs:
           git fetch --no-tags origin history-data
           mkdir -p jobs-dashboard/data
           git archive origin/history-data data | tar -x -C jobs-dashboard
+          # history-data is compressed because GitHub rejects blobs above 100 MiB.
+          if [ -f jobs-dashboard/data/jobs.db.gz ]; then
+            gzip -dc jobs-dashboard/data/jobs.db.gz > jobs-dashboard/data/jobs.db
+          fi
           test -s jobs-dashboard/data/jobs.db
 
       - name: Restaurar snapshots públicos
@@ -109,8 +113,10 @@ jobs:
           git worktree add --detach "$data_worktree" origin/history-data
           git -C "$data_worktree" switch -C history-data
           mkdir -p "$data_worktree/data"
-          cp jobs-dashboard/data/jobs.db "$data_worktree/data/jobs.db"
-          git -C "$data_worktree" add data/jobs.db
+          # Keep the large SQLite database below GitHub's per-file limit.
+          gzip -n -c -9 jobs-dashboard/data/jobs.db > "$data_worktree/data/jobs.db.gz"
+          git -C "$data_worktree" rm --ignore-unmatch data/jobs.db
+          git -C "$data_worktree" add data/jobs.db.gz
           if git -C "$data_worktree" diff --cached --quiet; then
             echo "Ramo history-data já está atualizado."
           else
