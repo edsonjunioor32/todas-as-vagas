@@ -102,6 +102,7 @@ ACTIVE_PUBLIC_FEED_SOURCES = {
     "lagoazuldistribuicao",
     "lenarge",
     "lifentechpeopleinnovation",
+    "liquidz",
     "lmveterinaria",
     "ludwigpoloni",
     "m2consult",
