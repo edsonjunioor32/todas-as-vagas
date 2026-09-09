@@ -32,9 +32,13 @@ JSON_PATH = ROOT / "docs" / "data" / "vagas.json"
 
 # These portals are expected to expose public vacancies. An empty response is
 # an integration regression, never a successful refresh.
+# Journy is refreshed by its dedicated 02:17 Brasília workflow, not by the
+# four daytime refreshes that serve the other portals.
+NIGHTLY_ONLY_SOURCES = {"journy"}
+
 NONEMPTY_SOURCES = {
     "digisystem", "recrutei", "docusign", "dbccompany", "sankhya", "senior", "mercadolivre",
-    "greenhouse", "spassu", "infovagas",
+    "greenhouse", "spassu", "infovagas", "journy",
     # Requested career pages are part of the protected public feed: a
     # transient empty response must never erase their last valid rows.
     "bradesco", "nttdata", "btg", "luza", "levva", "edenred",
@@ -49,7 +53,7 @@ NONEMPTY_SOURCES = {
 
 def selected_registry(names):
     if not names:
-        return REGISTRY
+        return [(name, fetch) for name, fetch in REGISTRY if name not in NIGHTLY_ONLY_SOURCES]
     wanted = {part.strip().lower() for part in names.split(",") if part.strip()}
     selected = [(name, fetch) for name, fetch in REGISTRY if name in wanted]
     missing = wanted - {name for name, _ in selected}
