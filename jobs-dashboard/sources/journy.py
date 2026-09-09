@@ -153,7 +153,7 @@ def _normalize(item, description=""):
     location_type = str(item.get("location_type") or "").strip().casefold()
     location_label = str(item.get("location_label") or "").strip()
     remote = location_type == "remote"
-    city = "Brasil" if remote else location_label
+    city = "Brasil" if remote else ""
     skills = []
     for key in ("required_skills", "desired_skills"):
         values = item.get(key) or []
@@ -181,12 +181,12 @@ def _normalize(item, description=""):
         market="BR",
         salary_min=_number(item.get("min_salary")),
         salary_max=_number(item.get("max_salary")),
-        salary_currency="BRL" if item.get("min_salary") is not None or item.get("max_salary") is not None else None,
+        salary_currency="BRL" if (item.get("min_salary") or item.get("max_salary")) else None,
         published_date="",
         description=strip_html(description),
         skills=skills[:20],
         levels=[seniority] if seniority else [],
-        categories=[],
+        categories=["Journy"],
         contract_types=[contract] if contract else [],
     )
 
