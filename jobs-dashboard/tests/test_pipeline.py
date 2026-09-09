@@ -364,7 +364,7 @@ class SolidesTests(unittest.TestCase):
                 "createdAt": "2026-09-09",
             }
         )
-        self.assertEqual(row["native_id"], 918136)
+        self.assertEqual(row["native_id"], "918136")
         self.assertEqual(row["city"], "São Paulo, SP")
         self.assertEqual(row["categories"], ["Recursos Humanos"])
         self.assertEqual(row["contract_types"], ["CLT"])
