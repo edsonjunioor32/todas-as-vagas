@@ -21,7 +21,7 @@ DETAIL_URL = CAREERS_URL + "/{0}"
 SOURCE = "journy"
 _RSC_MARKER = '"vagas"'
 _SCRIPT_RE = re.compile(
-    r"<script[^>]*type=["']application/json["'][^>]*>(.*?)</script>",
+    r'''<script[^>]*type=["']application/json["'][^>]*>(.*?)</script>''',
     re.I | re.S,
 )
 _UUID_RE = re.compile(
