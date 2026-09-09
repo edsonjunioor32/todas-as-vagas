@@ -289,24 +289,24 @@ def _text(rows, page, pages):
             portals = 1
         portal_count = f" • {portals} portais" if portals > 1 else ""
         lines.append(
-            f"💼 <b>Cargo:</b> <a href=\"{url}\"><b>{title}</b></a>\\n"
-            f"🧩 <b>Portal:</b> {portal}{portal_count}\\n"
-            f"🏢 <b>Empresa:</b> {company}\\n"
-            f"♿ <b>PCD:</b> {pcd}\\n"
-            f"🧭 <b>Área de atuação:</b> {category}\\n"
-            f"📍 <b>Local:</b> {location}\\n"
-            f"🖥️ <b>Modelo:</b> {model}\\n"
-            f"📄 <b>Contrato:</b> {contract}\\n"
-            f"📊 <b>Nível:</b> {seniority}\\n"
-            f"🌎 <b>Mercado:</b> {market}\\n"
-            f"🗓️ <b>Publicada:</b> {published}\\n"
+            f"💼 <b>Cargo:</b> <a href=\"{url}\"><b>{title}</b></a>\n"
+            f"🧩 <b>Portal:</b> {portal}{portal_count}\n"
+            f"🏢 <b>Empresa:</b> {company}\n"
+            f"♿ <b>PCD:</b> {pcd}\n"
+            f"🧭 <b>Área de atuação:</b> {category}\n"
+            f"📍 <b>Local:</b> {location}\n"
+            f"🖥️ <b>Modelo:</b> {model}\n"
+            f"📄 <b>Contrato:</b> {contract}\n"
+            f"📊 <b>Nível:</b> {seniority}\n"
+            f"🌎 <b>Mercado:</b> {market}\n"
+            f"🗓️ <b>Publicada:</b> {published}\n"
             f"🔗 <a href=\"{url}\">Ver detalhes e candidatar-se</a>"
         )
     lines.extend([
         "",
         f"🌐 <b>Veja todas as vagas:</b> <a href=\"{PORTAL_URL}\">Acessar o portal Todas as Vagas</a>",
     ])
-    return "\\n".join(lines)
+    return "\n".join(lines)
 
 
 def _groups(rows, max_rows=10, max_chars=3700):
