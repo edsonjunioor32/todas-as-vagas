@@ -1,0 +1,177 @@
+name: Atualizar portal Journy na madrugada
+
+on:
+  workflow_dispatch:
+  schedule:
+    # GitHub Actions usa UTC; Brasília/Fortaleza permanece em UTC-3.
+    - cron: "17 5 * * *"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: vagas-main-writer
+  cancel-in-progress: false
+
+jobs:
+  atualizar-journy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment:
+      name: github-pages
+      url: \${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Restaurar banco histórico
+        id: jobs-cache
+        uses: actions/cache@v4
+        with:
+          path: jobs-dashboard/data/jobs.db
+          key: jobs-db-v1-\${{ github.run_id }}
+          restore-keys: |
+            jobs-db-v1-
+
+      - name: Recuperar banco histórico de reserva
+        if: steps.jobs-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f jobs-dashboard/data/jobs.db ]; then
+            echo "Banco histórico já está disponível."
+            exit 0
+          fi
+          git fetch --no-tags origin history-data
+          mkdir -p jobs-dashboard/data
+          git archive origin/history-data data | tar -x -C jobs-dashboard
+          if [ -f jobs-dashboard/data/jobs.db.gz ]; then
+            gzip -dc jobs-dashboard/data/jobs.db.gz > jobs-dashboard/data/jobs.db
+          fi
+          test -s jobs-dashboard/data/jobs.db
+
+      - name: Restaurar snapshots públicos
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin public-data
+          mkdir -p docs
+          git archive origin/public-data data | tar -x -C docs
+          cp docs/data/vagas.json .previous-vagas.json
+          test -s docs/data/vagas.json
+          test -s docs/data/fit.json
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: jobs-dashboard/requirements.txt
+
+      - name: Instalar dependências
+        run: pip install -r jobs-dashboard/requirements.txt
+
+      - name: Testar coleta e seleção noturna
+        run: python -m unittest discover -s jobs-dashboard/tests -v
+
+      - name: Coletar somente o Journy
+        env:
+          JOBS_SOURCE_WORKERS: "1"
+        run: python jobs-dashboard/nightly_journy.py --max-age-months 2
+
+      - name: Validar snapshot
+        env:
+          MIN_PUBLIC_JOBS: "500"
+          PREVIOUS_SNAPSHOT_PATH: ".previous-vagas.json"
+          MIN_GUARDED_PUBLIC_JOBS: "10000"
+          MIN_ALLOWED_PUBLIC_RATIO: "0.5"
+        run: |
+          python jobs-dashboard/validate_snapshot.py
+          python jobs-dashboard/validate_fit.py
+
+      - name: Publicar banco histórico no ramo dedicado
+        shell: bash
+        run: |
+          set -euo pipefail
+          data_worktree="$(mktemp -d)"
+          cleanup() {
+            git worktree remove --force "$data_worktree" >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+          git fetch --no-tags origin history-data
+          git worktree add --detach "$data_worktree" origin/history-data
+          git -C "$data_worktree" switch -C history-data
+          mkdir -p "$data_worktree/data"
+          gzip -n -c -9 jobs-dashboard/data/jobs.db > "$data_worktree/data/jobs.db.gz"
+          git -C "$data_worktree" rm --ignore-unmatch data/jobs.db
+          git -C "$data_worktree" add data/jobs.db.gz
+          if git -C "$data_worktree" diff --cached --quiet; then
+            echo "Ramo history-data já está atualizado."
+          else
+            git -C "$data_worktree" config user.name "github-actions[bot]"
+            git -C "$data_worktree" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git -C "$data_worktree" commit -m "Atualiza histórico do pipeline Journy"
+            git -C "$data_worktree" push origin HEAD:history-data
+          fi
+
+      - name: Publicar snapshots no ramo dedicado
+        shell: bash
+        run: |
+          set -euo pipefail
+          data_worktree="$(mktemp -d)"
+          cleanup() {
+            git worktree remove --force "$data_worktree" >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+          git fetch --no-tags origin public-data
+          git worktree add --detach "$data_worktree" origin/public-data
+          git -C "$data_worktree" switch -C public-data
+          mkdir -p "$data_worktree/data"
+          cp docs/data/vagas.json "$data_worktree/data/vagas.json"
+          cp docs/data/fit.json "$data_worktree/data/fit.json"
+          git -C "$data_worktree" add data/vagas.json data/fit.json
+          if git -C "$data_worktree" diff --cached --quiet; then
+            echo "Ramo public-data já está atualizado."
+          else
+            git -C "$data_worktree" config user.name "github-actions[bot]"
+            git -C "$data_worktree" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git -C "$data_worktree" commit -m "Atualiza snapshots públicos Journy"
+            git -C "$data_worktree" push origin HEAD:public-data
+          fi
+
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Preparar dependências do site
+        run: npm install --no-audit --no-fund --package-lock=false
+
+      - name: Validar e preparar interface
+        run: |
+          npm run test:fit
+          node --check docs/fit-entry.js
+          node --input-type=module --check < docs/aderencia/fit-engine.js
+          node --input-type=module --check < docs/aderencia/app.js
+          npm run prepare:fit
+
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Preparar arquivos do site
+        uses: actions/upload-pages-artifact@v4
+        with:
+          name: github-pages-\${{ github.run_id }}-\${{ github.run_attempt }}
+          path: docs
+
+      - name: Publicar
+        id: deployment
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages-\${{ github.run_id }}-\${{ github.run_attempt }}
