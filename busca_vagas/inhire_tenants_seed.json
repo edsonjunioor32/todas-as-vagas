@@ -384,6 +384,10 @@
     "tenantName": "CAPEF"
   },
   {
+    "slug": "cappta",
+    "tenantName": "cappta"
+  },
+  {
     "slug": "carbigdata",
     "tenantName": "Carbigdata"
   },
