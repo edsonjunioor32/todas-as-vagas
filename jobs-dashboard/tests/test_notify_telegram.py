@@ -79,9 +79,8 @@ class TelegramNotificationTests(unittest.TestCase):
             f'Não encontrou o que queria? <a href="{notify_telegram.PORTAL_URL}">Acesse o portal Todas as Vagas</a>',
             message,
         )
-        self.assertIn("🌎 <b>Mercado:</b>", message)
-        self.assertIn("🖥️ <b>Modelo:</b>", message)
-        self.assertIn("🔗 <a href=", message)
+        self.assertNotIn("Modalidade:", message)
+        self.assertNotIn("Mercado:", message)
 
 
 if __name__ == "__main__":
