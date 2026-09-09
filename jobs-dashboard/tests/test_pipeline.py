@@ -15,7 +15,7 @@ sys.path.insert(0, str(DASHBOARD))
 
 import pipeline  # noqa: E402
 import storage  # noqa: E402
-from sources import ats_boards, infojobs, nerdin  # noqa: E402
+from sources import ats_boards, infojobs, nerdin, solides  # noqa: E402
 from discover_greenhouse_br import is_brazilian  # noqa: E402
 
 
@@ -299,6 +299,77 @@ class InfoJobsTests(unittest.TestCase):
         row = infojobs._normalize(raw, today=date(2026, 8, 20))
         self.assertEqual(row["work_model"], "")
         self.assertEqual((row["city"], row["state"]), ("", ""))
+
+
+class SolidesTests(unittest.TestCase):
+    def test_current_portal_url_uses_stable_page_size(self):
+        self.assertEqual(solides.PAGE_SIZE, 20)
+        self.assertEqual(
+            solides._url(3),
+            "https://vagas.solides.com.br/api/vacancies?page=3&take=20",
+        )
+
+    def test_page_accepts_current_portal_payload(self):
+        payload = {
+            "totalPages": 2,
+            "currentPage": 1,
+            "count": 1,
+            "data": [{"id": 918136, "title": "Analista"}],
+        }
+        with patch.object(solides, "get_json", return_value=payload):
+            model, rows = solides._page(1)
+        self.assertEqual(model["totalPages"], 2)
+        self.assertEqual(rows, payload["data"])
+
+    def test_page_keeps_legacy_envelope_compatibility(self):
+        payload = {
+            "success": True,
+            "data": {"totalPages": 1, "data": [{"id": 7}]},
+        }
+        with patch.object(solides, "get_json", return_value=payload):
+            model, rows = solides._page(1)
+        self.assertEqual(model["totalPages"], 1)
+        self.assertEqual(rows, payload["data"]["data"])
+
+    def test_normalize_maps_current_portal_objects_without_contract_change(self):
+        row = solides._normalize(
+            {
+                "id": 918136,
+                "title": "Analista de Gestão de Pessoas",
+                "companyName": "Empresa Teste",
+                "description": "<p>Descrição da vaga</p>",
+                "city": {"id": 3830, "name": "São Paulo", "stateId": 20},
+                "state": {"id": 20, "name": "São Paulo", "code": "SP"},
+                "address": {
+                    "country": {"id": 30, "name": "Brasil", "code": "BR"},
+                },
+                "salary": {
+                    "type": "simple",
+                    "showRangeToApplicant": True,
+                    "initialRange": 0,
+                    "finalRange": 0,
+                },
+                "occupationAreas": {
+                    "id": 349594,
+                    "name": "Recursos Humanos",
+                    "level": None,
+                },
+                "recruitmentContractType": {
+                    "id": 10,
+                    "name": "CLT",
+                    "level": None,
+                },
+                "jobType": "hibrido",
+                "homeOffice": False,
+                "createdAt": "2026-09-09",
+            }
+        )
+        self.assertEqual(row["native_id"], "918136")
+        self.assertEqual(row["city"], "São Paulo, SP")
+        self.assertEqual(row["categories"], ["Recursos Humanos"])
+        self.assertEqual(row["contract_types"], ["CLT"])
+        self.assertEqual(row["description"], "Descrição da vaga")
+        self.assertIn("/918136/analista-de-gestao-de-pessoas", row["url"])
 
 
 if __name__ == "__main__":

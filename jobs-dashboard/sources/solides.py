@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Sólides Vagas — recent public catalogue from the portal's key-free API.
 
-The public endpoint fixes pages at ten records. The live catalogue contains
+The public portal is queried in stable pages of twenty records. The live catalogue contains
 tens of thousands of vacancies, so the default refresh intentionally covers
 the 3,000 most recent records. SOLIDES_MAX_PAGES can tune that window without
 changing the adapter; bounded concurrency keeps the scheduled run practical.
@@ -16,8 +16,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from ._common import iso_date, job, strip_html, work_model_label
 from ._http import get_json
 
-API = "https://apigw.solides.com.br/jobs/v3/portal-vacancies-new"
-PAGE_SIZE = 10
+API = "https://vagas.solides.com.br/api/vacancies"
+PAGE_SIZE = 20
 DEFAULT_MAX_PAGES = 300
 PORTAL = "https://vagas.solides.com.br/vaga"
 DEFAULT_PAGE_TIMEOUT = 30
@@ -60,13 +60,31 @@ def _page(page, cache_stats=None):
         cache_file=_cache_file(page),
         cache_stats=cache_stats,
     )
-    if not payload.get("success"):
-        raise RuntimeError(f"Sólides returned success=false on page {page}")
-    model = payload.get("data") or {}
-    return model, model.get("data") or []
+    if not isinstance(payload, dict):
+        raise RuntimeError(f"Sólides returned an invalid payload on page {page}")
+
+    # The retired gateway wrapped the result in success/data/data.  The
+    # current public portal returns pagination metadata and rows at the top
+    # level, so accept both formats while the cache is migrated.
+    if "success" in payload:
+        if not payload.get("success"):
+            raise RuntimeError(f"Sólides returned success=false on page {page}")
+        model = payload.get("data") or {}
+        if not isinstance(model, dict):
+            raise RuntimeError(f"Sólides returned invalid legacy data on page {page}")
+        return model, model.get("data") or []
+
+    rows = payload.get("data")
+    if not isinstance(rows, list):
+        raise RuntimeError(f"Sólides returned no vacancy rows on page {page}")
+    return payload, rows
 
 
 def _names(values):
+    if isinstance(values, dict):
+        values = [values]
+    elif isinstance(values, (str, int, float)):
+        values = [values]
     output = []
     for value in values or []:
         name = value.get("name") if isinstance(value, dict) else value
@@ -93,9 +111,18 @@ def _normalize(item):
     city_data = item.get("city") or address.get("city") or {}
     state_data = item.get("state") or address.get("state") or {}
     country_data = address.get("country") or {}
-    city = str(city_data.get("name") or "").strip()
-    state = str(state_data.get("code") or state_data.get("name") or "").strip()
-    country = str(country_data.get("code") or country_data.get("name") or "BR").strip()
+
+    def field_name(value, *keys):
+        if isinstance(value, dict):
+            for key in keys:
+                if value.get(key):
+                    return str(value[key]).strip()
+            return ""
+        return str(value or "").strip()
+
+    city = field_name(city_data, "name")
+    state = field_name(state_data, "code", "name")
+    country = field_name(country_data, "code", "name") or "BR"
     market = "BR" if country.upper() in {"BR", "BRASIL", "BRAZIL"} else "Global"
 
     salary_min, salary_max, currency = _salary(item.get("salary"))
