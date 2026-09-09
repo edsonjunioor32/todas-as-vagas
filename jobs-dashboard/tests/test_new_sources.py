@@ -24,6 +24,7 @@ from sources import (  # noqa: E402
     recrutei,
     levva,
     spassu,
+    journy,
 )
 import pipeline  # noqa: E402
 
@@ -368,6 +369,67 @@ class RegistryTests(unittest.TestCase):
         seed_path = DASHBOARD.parent / "busca_vagas" / "inhire_tenants_seed.json"
         data = json.loads(seed_path.read_text(encoding="utf-8"))
         self.assertIn("tarken", {item["slug"] for item in data})
+
+
+
+class JournyTests(unittest.TestCase):
+    def test_extracts_rsc_vacancies_and_deduplicates_by_uuid(self):
+        markup = StringRSC = (
+            '<script>self.__next_f.push([1,"\\\"vagas\\\":[{'
+            '\\"id\\\":\\"c823cdd1-6cf6-4c72-9684-749b42c987b8\\",'
+            '\\"title\\\":\\"Analista\\",'
+            '\\"contratante_name\\\":\\"Empresa\\",'
+            '\\"location_type\\\":\\"remote\\",'
+            '\\"location_label\\\":\\"Remoto\\",'
+            '\\"required_skills\\\":[\\"Python\\"]}, {'
+            '\\"id\\\":\\"c823cdd1-6cf6-4c72-9684-749b42c987b8\\",'
+            '\\"title\\\":\\"Analista\\",'
+            '\\"contratante_name\\\":\\"Empresa\\",'
+            '\\"location_type\\\":\\"remote\\",'
+            '\\"location_label\\\":\\"Remoto\\",'
+            '\\"required_skills\\\":[\\"Python\\"]}]"])</script>'
+        )
+        rows = journy._extract_vacancies(markup)
+        self.assertEqual(len(rows), 2)
+        normalized = journy._unique_rows(rows)
+        self.assertEqual(len(normalized), 1)
+        self.assertEqual(normalized[0]["id"], "c823cdd1-6cf6-4c72-9684-749b42c987b8")
+
+    def test_normalize_preserves_public_keywords_and_valid_detail_url(self):
+        item = {
+            "id": "c823cdd1-6cf6-4c72-9684-749b42c987b8",
+            "title": "Desenvolvedor Full Stack",
+            "contratante_name": "Empresa Teste",
+            "location_type": "remote",
+            "location_label": "Remoto",
+            "seniority_label": "Sênior",
+            "contract_type_label": "PJ",
+            "required_skills": ["Python", "React"],
+            "desired_skills": ["AWS"],
+            "min_salary": 5000,
+            "max_salary": 8000,
+        }
+        row = journy._normalize(item, "Descrição <strong>pública</strong>")
+        self.assertEqual(row["source"], "journy")
+        self.assertEqual(row["native_id"], item["id"])
+        self.assertEqual(row["work_model"], "remote")
+        self.assertEqual(row["city"], "Brasil")
+        self.assertEqual(row["skills"], ["Python", "React", "AWS"])
+        self.assertEqual(row["levels"], ["Sênior"])
+        self.assertEqual(row["contract_types"], ["PJ"])
+        self.assertEqual(row["description"], "Descrição pública")
+        self.assertEqual(row["url"], "https://main.d3mg4gpkl052zo.amplifyapp.com/carreiras/" + item["id"])
+
+    def test_detail_description_parser_reads_marked_div(self):
+        markup = '<div data-testid="vaga-descricao"><p>Requisitos</p><ul><li>Python</li></ul></div>'
+        self.assertEqual(
+            journy._description(markup),
+            "Requisitos Python",
+        )
+
+    def test_rejects_malformed_or_empty_listing(self):
+        with self.assertRaises(RuntimeError):
+            journy._unique_rows([{"id": "not-a-uuid", "title": "Vaga"}])
 
 
 if __name__ == "__main__":
