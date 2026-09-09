@@ -552,3 +552,11 @@ class CompanyBatchTests(unittest.TestCase):
         self.assertEqual(row["state"], "RJ")
         self.assertEqual(row["work_model"], "on-site")
         self.assertEqual(row["market"], "BR")
+
+
+class JournyScheduleTests(unittest.TestCase):
+    def test_journy_is_excluded_from_daytime_registry_but_explicitly_selectable(self):
+        regular_names = {name for name, _fetch in pipeline.selected_registry("")}
+        nightly_names = {name for name, _fetch in pipeline.selected_registry("journy")}
+        self.assertNotIn("journy", regular_names)
+        self.assertEqual(nightly_names, {"journy"})
