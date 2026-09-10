@@ -1,5 +1,7 @@
 name: Notificar novas vagas no Telegram
 
+# O envio automático do Telegram é mantido exclusivamente no repositório dedicado.
+# Este workflow permanece disponível apenas para testes/reenvios manuais.
 on:
   workflow_dispatch:
     inputs:
@@ -15,12 +17,6 @@ on:
         description: "Teste pontual: URL da vaga que deve ser enviada uma única vez"
         required: false
         type: string
-  workflow_run:
-    workflows:
-      - Atualizar vagas multiportal e publicar GitHub Pages
-      - Inserir lote dos portais dinâmicos (isolado)
-    types:
-      - completed
 
 permissions:
   contents: write
@@ -31,9 +27,7 @@ concurrency:
 
 jobs:
   notify:
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
