@@ -576,6 +576,10 @@
     "tenantName": "data-viz"
   },
   {
+    "slug": "datacrazy",
+    "tenantName": "datacrazy"
+  },
+  {
     "slug": "dataside",
     "tenantName": "dataside"
   },
