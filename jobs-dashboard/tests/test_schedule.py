@@ -1,6 +1,9 @@
 import json
 import re
+import os
+import stat
 import sys
+import tempfile
 import unittest
 from datetime import datetime, timezone
 from pathlib import Path
@@ -18,6 +21,9 @@ from github_scheduler import (
     dispatch_collection as scheduler_dispatch_collection,
     fetch_runs,
     latest_slot,
+    SchedulerLock,
+    load_state,
+    save_state,
 )
 
 
@@ -176,6 +182,25 @@ class ScheduleTests(unittest.TestCase):
         self.assertEqual(request.get_method(), "POST")
         self.assertEqual(json.loads(request.data.decode("utf-8")), {"ref": "main"})
         self.assertEqual(request.get_header("Authorization"), "Bearer secret")
+
+    def test_vps_scheduler_persists_state_with_private_permissions(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "state.json"
+            expected = {"dispatched_slots": {"2026-09-11T14:00:00+00:00": "2026-09-11T14:31:00+00:00"}}
+            save_state(path, expected)
+            self.assertEqual(load_state(path), expected)
+            self.assertEqual(stat.S_IMODE(os.stat(path).st_mode), 0o600)
+
+    def test_vps_scheduler_lock_prevents_overlapping_processes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "scheduler.lock"
+            first = SchedulerLock(path)
+            second = SchedulerLock(path)
+            self.assertTrue(first.acquire())
+            try:
+                self.assertFalse(second.acquire())
+            finally:
+                first.release()
 
 
 if __name__ == "__main__":
