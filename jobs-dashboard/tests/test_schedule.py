@@ -90,7 +90,7 @@ class ScheduleTests(unittest.TestCase):
             "created_at": "2026-09-11T11:31:00Z",
         }
         self.assertEqual(
-            catalog_decide(datetime(2026-09-11, 11, 45, tzinfo=utc), [dispatched])["action"],
+            catalog_decide(datetime(2026, 9, 11, 11, 45, tzinfo=utc), [dispatched])["action"],
             "skip",
         )
 
