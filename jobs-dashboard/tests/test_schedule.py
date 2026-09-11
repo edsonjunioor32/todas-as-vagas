@@ -18,6 +18,17 @@ class ScheduleTests(unittest.TestCase):
             cron_entries(".github/workflows/pages.yml"),
         )
 
+    def test_catalog_catchup_guard_is_scheduled_and_can_dispatch(self):
+        workflow = (ROOT / ".github/workflows/catalog-catchup.yml").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn('    - cron: "*/15 * * * *"', workflow)
+        self.assertIn("  workflow_dispatch:", workflow)
+        self.assertIn("  actions: write", workflow)
+        self.assertIn("actions/workflows/pages.yml/dispatches", workflow)
+        self.assertIn("vagas-main-writer", workflow)
+        self.assertIn("CATCHUP_GRACE_MINUTES", workflow)
+
 
 if __name__ == "__main__":
     unittest.main()
