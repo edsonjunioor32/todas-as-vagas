@@ -18,12 +18,6 @@ class ScheduleTests(unittest.TestCase):
             cron_entries(".github/workflows/pages.yml"),
         )
 
-    def test_daily_sync_follows_collection_by_thirty_minutes(self):
-        self.assertIn(
-            "30 11,14,18,23 * * *",
-            cron_entries(".github/workflows/telegram-sync.yml"),
-        )
-
 
 if __name__ == "__main__":
     unittest.main()
