@@ -1,0 +1,12 @@
+[Unit]
+Description=Agendador externo idempotente do catálogo todas-as-vagas
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 %h/todas-as-vagas/ops/github_scheduler.py
+Environment=GITHUB_REPOSITORY=edsonjunioor32/todas-as-vagas
+Environment=GITHUB_SCHEDULER_STATE=%h/.local/state/todas-as-vagas/github-scheduler.json
+Environment=GITHUB_SCHEDULER_LOCK=%h/.local/state/todas-as-vagas/github-scheduler.lock
+EnvironmentFile=-%h/.config/todas-as-vagas/github-scheduler.env
