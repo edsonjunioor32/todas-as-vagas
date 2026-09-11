@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-11T16:58:01.958259+00:00",
+  "generated_at": "2026-09-11T18:35:55.642962+00:00",
   "candidate_count": 8331,
-  "company_count": 201,
+  "company_count": 200,
   "companies": [
     {
       "board": "abinbev",
@@ -27,7 +27,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 159
+      "brazil_jobs": 158
     },
     {
       "board": "agilize",
@@ -217,7 +217,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 157
+      "brazil_jobs": 156
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -342,7 +342,7 @@
     {
       "board": "ebanx",
       "company": "EBANX",
-      "brazil_jobs": 22
+      "brazil_jobs": 21
     },
     {
       "board": "ebury",
@@ -737,7 +737,7 @@
     {
       "board": "rdstation",
       "company": "RD Station",
-      "brazil_jobs": 9
+      "brazil_jobs": 10
     },
     {
       "board": "rdsourcing",
@@ -780,14 +780,9 @@
       "brazil_jobs": 3
     },
     {
-      "board": "sertradingsa",
-      "company": "Sertrading",
-      "brazil_jobs": 7
-    },
-    {
       "board": "sezzle",
       "company": "Sezzle",
-      "brazil_jobs": 21
+      "brazil_jobs": 20
     },
     {
       "board": "shifttechnology",
@@ -972,7 +967,7 @@
     {
       "board": "wildlifestudios",
       "company": "Wildlife Studios",
-      "brazil_jobs": 17
+      "brazil_jobs": 16
     },
     {
       "board": "agencywithin",
@@ -1002,12 +997,12 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 177
+      "brazil_jobs": 176
     },
     {
       "board": "ilia",
       "company": "ília",
-      "brazil_jobs": 11
+      "brazil_jobs": 15
     }
   ]
 }
