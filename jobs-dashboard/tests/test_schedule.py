@@ -9,8 +9,16 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "jobs-dashboard"))
+sys.path.insert(0, str(ROOT / "ops"))
 
-from catalog_catchup import decide, dispatch_collection, latest_slot
+from catalog_catchup import decide as catalog_decide, dispatch_collection, latest_slot as catalog_latest_slot
+from github_scheduler import (
+    BRASILIA,
+    decide,
+    dispatch_collection as scheduler_dispatch_collection,
+    fetch_runs,
+    latest_slot,
+)
 
 
 def cron_entries(path: str) -> list[str]:
@@ -59,11 +67,11 @@ class ScheduleTests(unittest.TestCase):
         utc = timezone.utc
         slot = datetime(2026, 9, 11, 11, 0, tzinfo=utc)
         self.assertEqual(
-            latest_slot(datetime(2026, 9, 11, 11, 20, tzinfo=utc)),
+            catalog_latest_slot(datetime(2026, 9, 11, 11, 20, tzinfo=utc)),
             slot,
         )
         self.assertEqual(
-            decide(datetime(2026, 9, 11, 11, 20, tzinfo=utc), [])["action"],
+            catalog_decide(datetime(2026, 9, 11, 11, 20, tzinfo=utc), [])["action"],
             "grace",
         )
         active = {
@@ -72,7 +80,7 @@ class ScheduleTests(unittest.TestCase):
             "created_at": "2026-09-11T11:05:00Z",
         }
         self.assertEqual(
-            decide(datetime(2026, 9, 11, 11, 45, tzinfo=utc), [active])["action"],
+            catalog_decide(datetime(2026, 9, 11, 11, 45, tzinfo=utc), [active])["action"],
             "skip",
         )
         dispatched = {
@@ -82,13 +90,13 @@ class ScheduleTests(unittest.TestCase):
             "created_at": "2026-09-11T11:31:00Z",
         }
         self.assertEqual(
-            decide(datetime(2026, 9, 11, 11, 45, tzinfo=utc), [dispatched])["action"],
+            catalog_decide(datetime(2026-09-11, 11, 45, tzinfo=utc), [dispatched])["action"],
             "skip",
         )
 
     def test_guard_dispatches_when_the_slot_has_no_collection_run(self):
         utc = timezone.utc
-        result = decide(datetime(2026, 9, 11, 11, 45, tzinfo=utc), [])
+        result = catalog_decide(datetime(2026, 9, 11, 11, 45, tzinfo=utc), [])
         self.assertEqual(result["action"], "dispatch")
         self.assertEqual(result["reason"], "slot_missing")
 
@@ -101,9 +109,73 @@ class ScheduleTests(unittest.TestCase):
             "created_at": "2026-09-11T11:01:00Z",
         }
         self.assertEqual(
-            decide(datetime(2026, 9, 11, 11, 45, tzinfo=utc), [successful])["action"],
+            catalog_decide(datetime(2026, 9, 11, 11, 45, tzinfo=utc), [successful])["action"],
             "skip",
         )
+
+    def test_vps_scheduler_maps_latest_slot_to_explicit_brasilia_time(self):
+        slot = latest_slot(datetime(2026, 9, 11, 14, 10, tzinfo=timezone.utc))
+        self.assertEqual(slot, datetime(2026, 9, 11, 14, 0, tzinfo=timezone.utc))
+        self.assertEqual(slot.astimezone(BRASILIA).strftime("%H:%M"), "11:00")
+
+    def test_vps_scheduler_waits_then_dispatches_only_missing_slot(self):
+        now = datetime(2026, 9, 11, 14, 45, tzinfo=timezone.utc)
+        self.assertEqual(decide(now, [], {})["action"], "dispatch")
+        self.assertEqual(
+            decide(
+                now,
+                [],
+                {"dispatched_slots": {"2026-09-11T14:00:00+00:00": "2026-09-11T14:45:00+00:00"}},
+            )["action"],
+            "skip",
+        )
+
+    def test_vps_scheduler_does_not_dispatch_over_active_or_successful_collection(self):
+        now = datetime(2026, 9, 11, 14, 45, tzinfo=timezone.utc)
+        active = {"event": "schedule", "status": "in_progress", "created_at": "2026-09-11T14:05:00Z"}
+        successful = {
+            "event": "schedule",
+            "status": "completed",
+            "conclusion": "success",
+            "created_at": "2026-09-11T14:02:00Z",
+        }
+        self.assertEqual(decide(now, [active], {})["reason"], "collection_active")
+        self.assertEqual(decide(now, [successful], {})["reason"], "slot_succeeded")
+
+    def test_vps_scheduler_retries_a_failed_dispatch_when_not_locally_confirmed(self):
+        now = datetime(2026, 9, 11, 14, 45, tzinfo=timezone.utc)
+        failed = {
+            "event": "workflow_dispatch",
+            "status": "completed",
+            "conclusion": "failure",
+            "created_at": "2026-09-11T14:31:00Z",
+        }
+        result = decide(now, [failed], {})
+        self.assertEqual(result["action"], "dispatch")
+        self.assertEqual(result["reason"], "slot_missing")
+
+    def test_vps_scheduler_reads_runs_with_bearer_token(self):
+        class Response:
+            def __enter__(self):
+                return self
+            def __exit__(self, *args):
+                return None
+            def read(self):
+                return b'{"workflow_runs": [{"id": 1}]}'
+
+        with patch("github_scheduler.urllib.request.urlopen", return_value=Response()) as urlopen:
+            self.assertEqual(fetch_runs("edsonjunioor32/todas-as-vagas", "secret"), [{"id": 1}])
+        request = urlopen.call_args.args[0]
+        self.assertIn("actions/workflows/pages.yml/runs", request.full_url)
+        self.assertEqual(request.get_header("Authorization"), "Bearer secret")
+
+    def test_vps_scheduler_dispatches_pages_workflow(self):
+        with patch("github_scheduler.urllib.request.urlopen") as urlopen:
+            scheduler_dispatch_collection("edsonjunioor32/todas-as-vagas", "secret")
+        request = urlopen.call_args.args[0]
+        self.assertEqual(request.get_method(), "POST")
+        self.assertEqual(json.loads(request.data.decode("utf-8")), {"ref": "main"})
+        self.assertEqual(request.get_header("Authorization"), "Bearer secret")
 
 
 if __name__ == "__main__":
