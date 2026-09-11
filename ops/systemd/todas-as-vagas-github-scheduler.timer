@@ -1,0 +1,12 @@
+[Unit]
+Description=Executa o agendador do catálogo a cada 15 minutos
+
+[Timer]
+OnCalendar=*-*-* *:00/15:00 UTC
+Persistent=true
+AccuracySec=1min
+RandomizedDelaySec=0
+Unit=todas-as-vagas-github-scheduler.service
+
+[Install]
+WantedBy=timers.target
