@@ -12,9 +12,9 @@ on:
       - ".github/workflows/pages.yml"
   workflow_dispatch:
   schedule:
-    # GitHub Actions usa UTC: 12h17, 14h17, 18h17 e 23h17.
-    # Equivale a 08h17, 11h17, 15h17 e 20h17 em Brasília/Fortaleza (UTC-3).
-    - cron: "17 11,14,18,23 * * *"
+    # GitHub Actions usa UTC; Brasília/Fortaleza permanece em UTC-3.
+    # Equivale a 08h00, 11h00, 15h00 e 20h00 em Brasília/Fortaleza.
+    - cron: "0 11,14,18,23 * * *"
     # Atualização semanal do catálogo Greenhouse: domingo às 04h37 (UTC-3).
     - cron: "37 7 * * 0"
 
