@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-12T14:34:38.017279+00:00",
+  "generated_at": "2026-09-12T18:35:06.326589+00:00",
   "candidate_count": 8331,
-  "company_count": 200,
+  "company_count": 199,
   "companies": [
     {
       "board": "abinbev",
@@ -22,7 +22,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 152
+      "brazil_jobs": 149
     },
     {
       "board": "agilize",
@@ -218,11 +218,6 @@
       "board": "candidaturasdirecionadasxpinc",
       "company": "Candidaturas Direcionadas",
       "brazil_jobs": 15
-    },
-    {
-      "board": "capco",
-      "company": "Capco",
-      "brazil_jobs": 145
     },
     {
       "board": "careaccess",
