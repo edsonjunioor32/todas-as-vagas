@@ -3,7 +3,7 @@
 
 The public portal is queried in stable pages of twenty records. The live catalogue contains
 tens of thousands of vacancies, so the default refresh intentionally covers
-the 3,000 most recent records. SOLIDES_MAX_PAGES can tune that window without
+the 12,000 most recent records. SOLIDES_MAX_PAGES can tune that window without
 changing the adapter; bounded concurrency keeps the scheduled run practical.
 """
 import os
@@ -18,7 +18,7 @@ from ._http import get_json
 
 API = "https://vagas.solides.com.br/api/vacancies"
 PAGE_SIZE = 20
-DEFAULT_MAX_PAGES = 300
+DEFAULT_MAX_PAGES = 600
 PORTAL = "https://vagas.solides.com.br/vaga"
 DEFAULT_PAGE_TIMEOUT = 30
 # Keep one recovery attempt for transient DNS/edge failures without returning
