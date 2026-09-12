@@ -8,15 +8,19 @@ O painel publica somente vagas anunciadas nos **últimos dois meses**. Quando um
 
 ## Portais incluídos
 
-- Brasil: **InHire, Empregare, Gupy, Sólides, GeekHunter, Nerdin e InfoJobs**;
+- Brasil: **InHire, Empregare, Gupy, Sólides, Recrut.AI, Taggui RH, GeekHunter, Nerdin e InfoJobs**;
 - globais: **The Muse, Remotive, Jobicy, Remote OK, Himalayas, Working Nomads, Arbeitnow e We Work Remotely**;
 - páginas públicas de empresas: **Stone, iFood, PicPay, Banco Original, Braskem, GM Financial, Dell Technologies, ArcelorMittal, Grupo Mateus, AutoZone, NOV, Arcor Brasil, Greenhouse Brasil, Lever e Ashby**.
 
 O painel permite combinar pesquisa livre com filtros de cidade, portal, modalidade, mercado, área, senioridade, data, vagas afirmativas para PcD e oportunidades encontradas em mais de um portal. O campo de cidade oferece sugestões a partir das localidades presentes na base e também aceita digitação livre. A exportação CSV respeita os filtros selecionados. O botão de tema no cabeçalho alterna entre os modos claro e escuro, salva a escolha no navegador e, na primeira visita, respeita a preferência do sistema.
 
-## Sólides, GeekHunter e InfoJobs
+## Sólides, Recrut.AI, Taggui RH, GeekHunter e InfoJobs
 
-A Sólides é consultada pelo catálogo público utilizado pelo próprio portal. Como a interface pública limita cada página a 10 registros e o catálogo possui dezenas de milhares de anúncios, cada atualização percorre até as **3.000 vagas mais recentes**. O limite pode ser alterado pela variável `SOLIDES_MAX_PAGES`; aumentar muito esse valor também aumenta o tempo e a carga da coleta. A deduplicação pode reduzir a quantidade efetivamente incorporada.
+A Sólides é consultada pelo catálogo público utilizado pelo próprio portal. A interface pública é percorrida em páginas de **20 registros** e cada atualização cobre até as **12.000 vagas mais recentes** (`SOLIDES_MAX_PAGES=600`). Aumentar muito esse valor também aumenta o tempo, a carga da coleta e a possibilidade de limitação temporária pelo portal. A deduplicação pode reduzir a quantidade efetivamente incorporada.
+
+A Recrut.AI é consultada pelas páginas públicas de empresas hospedadas na plataforma: Petlove, Economart, Grupo Savegnago (incluindo a sublistagem do Paulistão Atacadista), Grupo Luck, Grupo Koch, Atakarejo, Grupo Bravante, Supermercados Vianense, Recibom, Atacadão Dia a Dia, Grupo Vanguarda, Laticínios Tirol e Novo Mateus. As rotas individuais `/job/XXXXXX` são apenas detalhes das vagas e não são registradas como portais separados. O coletor usa o código nativo da vaga, remove parâmetros de rastreamento e consolida a sublistagem do Paulistão com o tenant Savegnago.
+
+A página geral da Taggui RH é coletada separadamente. Links incompletos terminados apenas em `/job/` e detalhes que já não estão disponíveis são ignorados; se uma fonte não expuser vagas válidas, a falha fica isolada das demais.
 
 A GeekHunter é consultada pelas páginas públicas de vagas, que já entregam dados estruturados no HTML. O adaptador percorre todas as páginas disponíveis, normaliza modalidade, localização, senioridade, remuneração e tecnologias e não publica a descrição integral.
 
