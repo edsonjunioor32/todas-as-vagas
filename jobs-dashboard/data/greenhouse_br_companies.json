@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-11T23:32:30.328801+00:00",
+  "generated_at": "2026-09-12T11:33:12.263066+00:00",
   "candidate_count": 8331,
-  "company_count": 177,
+  "company_count": 200,
   "companies": [
     {
       "board": "abinbev",
@@ -615,6 +615,11 @@
       "brazil_jobs": 7
     },
     {
+      "board": "tripactions",
+      "company": "Navan",
+      "brazil_jobs": 1
+    },
+    {
       "board": "nearform",
       "company": "Nearform",
       "brazil_jobs": 1
@@ -812,7 +817,7 @@
     {
       "board": "speechify",
       "company": "Speechify",
-      "brazil_jobs": 30
+      "brazil_jobs": 28
     },
     {
       "board": "sterlingtonpllc",
@@ -875,14 +880,124 @@
       "brazil_jobs": 1
     },
     {
+      "board": "thrivedigital",
+      "company": "Thrive Digital",
+      "brazil_jobs": 3
+    },
+    {
+      "board": "thunes",
+      "company": "Thunes",
+      "brazil_jobs": 2
+    },
+    {
+      "board": "toradex",
+      "company": "Toradex",
+      "brazil_jobs": 11
+    },
+    {
+      "board": "trinks",
+      "company": "Trinks",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "trustedhealth",
+      "company": "Trusted Health",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "turing",
+      "company": "Turing",
+      "brazil_jobs": 4
+    },
+    {
+      "board": "twilio",
+      "company": "Twilio",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "twitch",
+      "company": "Twitch",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "usergems",
+      "company": "UserGems",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "valtech",
+      "company": "Valtech",
+      "brazil_jobs": 7
+    },
+    {
+      "board": "vectranetworks",
+      "company": "Vectra",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "verve",
+      "company": "Verve",
+      "brazil_jobs": 2
+    },
+    {
+      "board": "vitta",
+      "company": "Vitta",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "wundermanthompson",
+      "company": "VML",
+      "brazil_jobs": 29
+    },
+    {
+      "board": "vmlenterprisesolutions",
+      "company": "VML/WPP Enterprise Solutions",
+      "brazil_jobs": 17
+    },
+    {
+      "board": "vtex",
+      "company": "VTEX",
+      "brazil_jobs": 19
+    },
+    {
       "board": "gympass",
       "company": "Wellhub",
       "brazil_jobs": 43
     },
     {
+      "board": "wildlifestudios",
+      "company": "Wildlife Studios",
+      "brazil_jobs": 16
+    },
+    {
       "board": "agencywithin",
       "company": "WITHIN",
       "brazil_jobs": 2
+    },
+    {
+      "board": "wizinc",
+      "company": "Wiz, Inc.",
+      "brazil_jobs": 6
+    },
+    {
+      "board": "worldsurfleague",
+      "company": "World Surf League",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "wpp",
+      "company": "WPP",
+      "brazil_jobs": 8
+    },
+    {
+      "board": "wppmedia",
+      "company": "WPP Media",
+      "brazil_jobs": 35
+    },
+    {
+      "board": "xpinc",
+      "company": "XP Inc.",
+      "brazil_jobs": 178
     },
     {
       "board": "ilia",
