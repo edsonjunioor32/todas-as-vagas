@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-12T11:33:12.263066+00:00",
+  "generated_at": "2026-09-12T14:34:38.017279+00:00",
   "candidate_count": 8331,
   "company_count": 200,
   "companies": [
@@ -187,7 +187,7 @@
     {
       "board": "brex",
       "company": "Brex",
-      "brazil_jobs": 12
+      "brazil_jobs": 11
     },
     {
       "board": "broadsign",
@@ -967,7 +967,7 @@
     {
       "board": "wildlifestudios",
       "company": "Wildlife Studios",
-      "brazil_jobs": 16
+      "brazil_jobs": 15
     },
     {
       "board": "agencywithin",
