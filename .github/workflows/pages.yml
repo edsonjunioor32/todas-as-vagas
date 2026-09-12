@@ -221,7 +221,7 @@ jobs:
       - name: Coletar, normalizar e consolidar todos os portais
         env:
           JOBS_SOURCE_WORKERS: "5"
-          SOLIDES_MAX_PAGES: "300"
+          SOLIDES_MAX_PAGES: "600"
           SOLIDES_WORKERS: "8"
           SOLIDES_PAGE_TIMEOUT: "30"
           SOLIDES_PAGE_RETRIES: "2"
