@@ -11,6 +11,8 @@ from ._rendered import rendered_links
 DOCUSIGN = "https://careers.docusign.com/careers-home/jobs?locations=Sao%20Paulo,S%C3%A3o%20Paulo,Brazil%7C,,Brazil&page={page}"
 DBC = "https://vagas.dbccompany.com.br/vagas"
 CloudWalk = "https://www.cloudwalk.io/jobs"
+CLOUDWALK_CURRENT = "https://lp.cloudwalk.io/jobs"
+CLOUDWALK_LEGACY = "https://www.cloudwalk.io"
 DOCUSIGN_API = "https://careers.docusign.com/api/jobs"
 SMARTRECRUITERS_API = "https://api.smartrecruiters.com/v1/companies/dbc/postings"
 ANCHOR_RE = re.compile(r'<a[^>]+href=["\']([^"\']*(?:/jobs/|/vagas/)[^"\']*)["\'][^>]*>([\s\S]*?)</a>', re.I)
