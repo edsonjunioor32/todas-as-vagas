@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-13T11:33:05.680178+00:00",
+  "generated_at": "2026-09-13T14:33:31.326838+00:00",
   "candidate_count": 8331,
   "company_count": 200,
   "companies": [
@@ -747,7 +747,7 @@
     {
       "board": "ripple",
       "company": "Ripple",
-      "brazil_jobs": 1
+      "brazil_jobs": 2
     },
     {
       "board": "riskified",
@@ -962,7 +962,7 @@
     {
       "board": "gympass",
       "company": "Wellhub",
-      "brazil_jobs": 43
+      "brazil_jobs": 44
     },
     {
       "board": "wildlifestudios",
