@@ -152,7 +152,3 @@ python -m http.server 8000 --directory docs
 ```
 
 Depois acesse `http://localhost:8000`. O arquivo `index.html` não deve ser aberto diretamente por duplo clique, pois o navegador bloqueia a leitura local do JSON.
-
-## Origem e créditos
-
-A arquitetura multiportal foi adaptada do projeto público [Job-Market Explorer, de Rodrigo Carvalho](https://github.com/rodrigo-carfon/rodrigo-carfon.github.io/tree/master/jobs-dashboard), disponibilizado sob Unlicense. A integração InHire e a interface em português foram incorporadas ao mesmo fluxo; Empregare, Sólides, GeekHunter, Stone, iFood, Greenhouse Brasil e as páginas de empresas no Oracle Recruiting Cloud foram acrescentadas por suas interfaces públicas.
