@@ -17,6 +17,7 @@ from sources import (  # noqa: E402
     geekhunter,
     infojobs,
     quickin,
+    requested_careers,
     requested_portals_27082026,
     requested_portals_28082026,
     requested_portals_29082026,
@@ -148,6 +149,29 @@ class SpassuTests(unittest.TestCase):
         )
         self.assertEqual(row["work_model"], "remote")
         self.assertEqual(row["contract_types"], ["Efetivo"])
+
+
+class CloudWalkTests(unittest.TestCase):
+    def test_current_listing_extracts_jobs_links_and_ignores_listing_cta(self):
+        markup = """
+        <a href="/jobs"><span>View openings</span></a>
+        <article>
+          <a href="/jobs/1082">
+            <h3>Security Engineer</h3>
+            <span>Risk and Compliance</span>
+            <span>Apply</span>
+          </a>
+          <a href="/jobs/1082"><span>Apply</span></a>
+          <a href="/jobs/1083">Brand Designer Apply</a>
+        </article>
+        """
+        with patch.object(requested_careers, "get_text", return_value=markup):
+            rows = requested_careers.fetch_cloudwalk()
+
+        self.assertEqual([row["native_id"] for row in rows], ["1082", "1083"])
+        self.assertEqual(rows[0]["title"], "Security Engineer")
+        self.assertEqual(rows[0]["url"], "https://lp.cloudwalk.io/jobs/1082")
+        self.assertEqual(rows[1]["title"], "Brand Designer")
 
 
 class InfoJobsTests(unittest.TestCase):
