@@ -143,11 +143,61 @@ def fetch_dbccompany():
     return rows
 
 
-def fetch_cloudwalk():
-    """CloudWalk publishes its active Webflow CMS cards in the public HTML.
+def _cloudwalk_title(markup):
+    """Extract a vacancy title from either a heading or a visible link label."""
+    heading = re.search(r"<h[1-6][^>]*>([\s\S]*?)</h[1-6]>", markup, re.I)
+    value = heading.group(1) if heading else markup
+    value = strip_html(html.unescape(value))
+    value = re.sub(
+        r"\s+(?:apply|view job|view opening|view openings)\s*$",
+        "",
+        value,
+        flags=re.I,
+    )
+    if value.casefold() in {"apply", "view job", "view opening", "view openings"}:
+        return ""
+    return value.strip(" -|")
 
-    The portal exposes no publication date, so the pipeline intentionally uses
-    its normal first-seen fallback and removes records after two months.
+
+def _cloudwalk_link_rows(page):
+    """Extract current CloudWalk /jobs/<id> links from the public listing."""
+    candidates = {}
+    for href, label in ANCHOR_RE.findall(page):
+        href = html.unescape(href).strip()
+        if not re.search(r"/jobs/[^/?#]+", href, re.I):
+            continue
+        title = _cloudwalk_title(label)
+        if not title:
+            continue
+        absolute = urljoin(CLOUDWALK_CURRENT, href)
+        native_id = re.search(r"/jobs/([^/?#]+)", absolute, re.I).group(1)
+        current = candidates.get(absolute)
+        if current is None or len(title) > len(current[0]):
+            candidates[absolute] = (title, native_id, label)
+
+    if not candidates:
+        for href, label in rendered_links(
+            CLOUDWALK_CURRENT, r"/jobs/[^/?#]+", timeout=45
+        ):
+            title = _cloudwalk_title(label)
+            if not title:
+                continue
+            absolute = urljoin(CLOUDWALK_CURRENT, href)
+            native_match = re.search(r"/jobs/([^/?#]+)", absolute, re.I)
+            if not native_match:
+                continue
+            candidates.setdefault(
+                absolute, (title, native_match.group(1), label)
+            )
+    return list(candidates.items())
+
+
+def fetch_cloudwalk():
+    """Collect active CloudWalk vacancies from both old and current layouts.
+
+    CloudWalk moved its listing from the old Webflow /jobs-positions pages
+    to the current lp.cloudwalk.io/jobs/<id> application. Keep the legacy
+    parser for existing layouts and use the link catalogue as the fallback.
     """
     page = get_text(CloudWalk, timeout=35, retries=2)
     card_re = re.compile(
@@ -168,8 +218,24 @@ def fetch_cloudwalk():
         detail_text = ' '.join(details)
         location = next((value for value in details if value and value.casefold() not in {"remote", "full time", "full time - remote"}), "Brasil")
         rows.append(job("cloudwalk", native_id, title=title, company="CloudWalk",
-            url=urljoin(CloudWalk, path), work_model=work_model_label(raw=detail_text),
+            url=urljoin(CLOUDWALK_LEGACY, path), work_model=work_model_label(raw=detail_text),
             city=location, country="BR", market="BR", categories=["CloudWalk"]))
+    if rows:
+        return rows
+
+    for absolute, (title, native_id, label) in _cloudwalk_link_rows(page):
+        rows.append(job(
+            "cloudwalk",
+            native_id,
+            title=title,
+            company="CloudWalk",
+            url=absolute,
+            work_model=work_model_label(raw=label),
+            city="Brasil",
+            country="BR",
+            market="BR",
+            categories=["CloudWalk"],
+        ))
     if not rows:
-        raise RuntimeError("CloudWalk page returned no active vacancy cards")
+        raise RuntimeError("CloudWalk page returned no active vacancy links")
     return rows
