@@ -6,6 +6,53 @@ Este projeto consulta fontes públicas de vagas, converte os formatos diferentes
 
 O painel publica somente vagas anunciadas nos **últimos dois meses**. Quando um portal não fornece uma data de publicação confiável, o sistema usa a primeira data em que encontrou o anúncio e o remove após dois meses.
 
+## Contexto atual e integrações
+
+O `todas-as-vagas` é o repositório central do catálogo: coleta vagas em fontes públicas, normaliza os formatos, elimina duplicidades, aplica as regras de qualidade e publica o painel no GitHub Pages.
+
+O projeto não é apenas uma página estática. Ele mantém a fotografia pública do catálogo para que os canais de distribuição consultem a mesma base, sem duplicar a coleta nem expor credenciais.
+
+### Site e dados publicados
+
+- **Portal público:** [Todas as Vagas](https://edsonjunioor32.github.io/todas-as-vagas/).
+- **Código e interface:** a branch `main` contém os adaptadores, o pipeline, os testes e o diretório `docs` publicado no GitHub Pages.
+- **Snapshot para consumo:** a branch `public-data` mantém `data/vagas.json` e `data/fit.json`. O snapshot de vagas pode ser lido por integrações pelo endereço [raw do catálogo](https://raw.githubusercontent.com/edsonjunioor32/todas-as-vagas/public-data/data/vagas.json).
+- **Histórico:** a branch `history-data` armazena o banco SQLite compactado usado para preservar o histórico entre atualizações.
+
+### Integração com Telegram
+
+O canal do Telegram é uma saída de notificações do catálogo. O workflow [`telegram.yml`](.github/workflows/telegram.yml) deste repositório fica disponível para execução manual, testes pontuais, reenvios e operação controlada. Ele compara o snapshot atual com um snapshot anterior e mantém o estado das notificações para evitar reenvios desnecessários.
+
+A distribuição automática regular do canal é mantida no repositório dedicado do Telegram. Quando este workflow é executado, ele usa somente os secrets `TELEGRAM_BOT_TOKEN` e `TELEGRAM_CHAT_ID`; os valores nunca devem ser gravados no código ou no README.
+
+### Integração com WhatsApp
+
+O bot do WhatsApp fica no repositório separado [`botwhats`](https://github.com/edsonjunioor32/botwhats). Ele consulta o snapshot público da branch `public-data` e usa o OpenWA como gateway para receber e enviar mensagens.
+
+Na arquitetura atual:
+
+1. este repositório coleta e publica `data/vagas.json`;
+2. o `botwhats` baixa esse snapshot e mantém uma cópia local em seu volume Docker;
+3. o OpenWA, executado na VPS Oracle, entrega as mensagens ao WhatsApp;
+4. o bot responde às consultas e encaminha a pessoa candidata ao portal oficial.
+
+O bot e o OpenWA não dependem de uma aba do navegador para o catálogo ser atualizado. A comunicação interna entre os containers usa a rede Docker `openwa_net`, com o OpenWA acessível ao bot por `http://openwa:2785`. As chaves do OpenWA, do webhook e demais credenciais pertencem ao ambiente do `botwhats`/VPS e não devem ser adicionadas a este repositório.
+
+### Fluxo completo
+
+```text
+Fontes públicas
+      ↓
+Coleta, normalização, deduplicação e validação
+      ↓
+Snapshot público (public-data/data/vagas.json)
+      ├── GitHub Pages: portal pesquisável
+      ├── Telegram: notificações de novas vagas
+      └── WhatsApp: consulta interativa pelo botwhats/OpenWA
+```
+
+Assim, o catálogo permanece em um único ponto de verdade: uma atualização bem-sucedida alimenta o site e deixa os dados disponíveis para os dois canais, enquanto cada canal mantém sua própria camada de entrega e suas próprias credenciais.
+
 ## Portais incluídos
 
 - Brasil: **InHire, Empregare, Gupy, Sólides, Recrut.AI, Taggui RH, GeekHunter, Nerdin e InfoJobs**;
@@ -114,12 +161,12 @@ O workflow é executado diariamente às **08h17**, **11h17**, **15h17** e **20h1
 
 Se um portal falhar, os demais continuam. Resultados vistos recentemente podem permanecer no painel por até três dias, evitando que uma indisponibilidade momentânea esvazie uma fonte inteira.
 
-Após uma atualização bem-sucedida do Pages ou do lote isolado de portais dinâmicos, o workflow `Notificar novas vagas no Telegram` compara o snapshot atual com o anterior e envia ao canal somente as vagas ainda não notificadas.
+O workflow `.github/workflows/telegram.yml` deste repositório é acionado manualmente (`workflow_dispatch`) para testes, reenvios e operação controlada. Ele compara snapshots e registra o estado das notificações. O envio automático regular do canal é mantido no repositório dedicado do Telegram. O bot do WhatsApp consulta o snapshot público da branch `public-data` por meio do repositório `botwhats`.
 
 ### Otimizações do pipeline
 
 - até cinco fontes independentes são consultadas em paralelo, sem alterar a ordem determinística da consolidação;
-- a Sólides mantém a cobertura das 3.000 vagas mais recentes e usa até oito requisições simultâneas;
+- a Sólides mantém a cobertura de até 12.000 vagas mais recentes (600 páginas de 20 registros) e usa até oito requisições simultâneas;
 - detalhes da InHire são reutilizados por até 24 horas por meio do cache do GitHub Actions; vagas novas ou com título, local ou modalidade alterados são consultadas imediatamente;
 - o Nerdin participa da coleta geral e, por isso, usa a mesma transação SQLite e a mesma exportação JSON das demais fontes;
 - uma atualização nova cancela outra ainda em andamento antes do commit, evitando a fila de execuções equivalentes;
