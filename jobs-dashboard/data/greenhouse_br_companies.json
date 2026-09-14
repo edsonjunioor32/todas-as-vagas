@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-13T18:33:53.839701+00:00",
+  "generated_at": "2026-09-13T23:33:46.043775+00:00",
   "candidate_count": 8331,
   "company_count": 200,
   "companies": [
@@ -22,7 +22,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 148
+      "brazil_jobs": 149
     },
     {
       "board": "agilize",
@@ -217,7 +217,7 @@
     {
       "board": "candidaturasdirecionadasxpinc",
       "company": "Candidaturas Direcionadas",
-      "brazil_jobs": 15
+      "brazil_jobs": 16
     },
     {
       "board": "capco",
@@ -997,7 +997,7 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 178
+      "brazil_jobs": 179
     },
     {
       "board": "ilia",
