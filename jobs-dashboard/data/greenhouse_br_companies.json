@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-13T23:33:46.043775+00:00",
+  "generated_at": "2026-09-14T11:34:59.368341+00:00",
   "candidate_count": 8331,
   "company_count": 200,
   "companies": [
@@ -102,7 +102,7 @@
     {
       "board": "assessoriadeinvestimentosxp",
       "company": "Assessoria de Investimentos - XP Inc.",
-      "brazil_jobs": 30
+      "brazil_jobs": 29
     },
     {
       "board": "atolls",
@@ -512,7 +512,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 131
+      "brazil_jobs": 132
     },
     {
       "board": "interbrand",
@@ -822,7 +822,7 @@
     {
       "board": "sterlingtonpllc",
       "company": "Sterlington, PLLC",
-      "brazil_jobs": 4
+      "brazil_jobs": 5
     },
     {
       "board": "stonepatrocina",
@@ -987,7 +987,7 @@
     {
       "board": "wpp",
       "company": "WPP",
-      "brazil_jobs": 8
+      "brazil_jobs": 7
     },
     {
       "board": "wppmedia",
@@ -997,7 +997,7 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 179
+      "brazil_jobs": 178
     },
     {
       "board": "ilia",
