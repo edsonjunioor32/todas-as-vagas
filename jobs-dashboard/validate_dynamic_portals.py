@@ -33,6 +33,7 @@ from sources import (  # noqa: E402
     journy,
     wellfound,
     workable,
+    workable_brazil,
 )
 
 
@@ -52,6 +53,7 @@ SOURCES = (("levva", levva.fetch),) + requested_portals_29082026.TARGETS + (
 ) + requested_portals_27082026.TARGETS + requested_portals_03092026.TARGETS + (
     ("wellfound", wellfound.fetch),
     ("recargapay", workable.fetch),
+    ("workable_brazil", workable_brazil.fetch),
 )
 
 # These two already-registered feeds currently expose no active cards. They

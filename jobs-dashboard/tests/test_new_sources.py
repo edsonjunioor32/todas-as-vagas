@@ -28,6 +28,7 @@ from sources import (  # noqa: E402
     journy,
     wellfound,
     workable,
+    workable_brazil,
 )
 import pipeline  # noqa: E402
 
@@ -698,13 +699,80 @@ class RecargaPayWorkableTests(unittest.TestCase):
         self.assertEqual(row["contract_types"], ["Full time"])
 
 
+
+class WorkableBrazilTests(unittest.TestCase):
+    def test_public_json_normalizes_metadata_and_description(self):
+        item = {
+            "id": "workable-1",
+            "title": "Analista de Dados",
+            "state": "published",
+            "url": "https://jobs.workable.com/view/workable-1/analista-de-dados",
+            "department": "Data",
+            "employmentType": "Full-time",
+            "workplace": "remote",
+            "created": "2026-09-15T12:34:56.000Z",
+            "locations": ["TELECOMMUTE", "Brazil"],
+            "location": {"city": "", "subregion": None, "countryName": "Brazil"},
+            "description": "<p>Construir relatórios.</p>",
+            "requirementsSection": "<ul><li>SQL</li></ul>",
+            "benefitsSection": "<p>Plano de saúde</p>",
+            "company": {"title": "Empresa Teste"},
+        }
+        row = workable_brazil._normalize(item)
+        self.assertEqual(row["source"], "workable_brazil")
+        self.assertEqual(row["native_id"], "workable-1")
+        self.assertEqual(row["company"], "Empresa Teste")
+        self.assertEqual(row["work_model"], "remote")
+        self.assertEqual(row["city"], "Brasil")
+        self.assertEqual(row["country"], "BR")
+        self.assertEqual(row["market"], "BR")
+        self.assertEqual(row["categories"], ["Data"])
+        self.assertEqual(row["contract_types"], ["Full-time"])
+        self.assertEqual(row["published_date"], "2026-09-15T12:34:56+00:00")
+        self.assertIn("Construir relatórios.", row["description"])
+        self.assertIn("SQL", row["description"])
+
+    def test_fetch_follows_cursor_and_deduplicates_ids(self):
+        first = {
+            "id": "workable-1",
+            "title": "Analista de Dados",
+            "state": "published",
+            "url": "https://jobs.workable.com/view/workable-1/analista-de-dados",
+            "company": {"title": "Empresa Teste"},
+            "location": {"countryName": "Brazil"},
+            "locations": ["Brazil"],
+        }
+        duplicate = dict(first, title="Título antigo")
+        second = dict(
+            first,
+            id="workable-2",
+            title="Engenheiro de Dados",
+            url="https://jobs.workable.com/view/workable-2/engenheiro-de-dados",
+        )
+        pages = [
+            {"jobs": [first], "nextPageToken": "cursor-2"},
+            {"jobs": [duplicate, second], "nextPageToken": ""},
+        ]
+        with patch.object(workable_brazil, "get_json", side_effect=pages) as request:
+            with patch.object(workable_brazil.time, "sleep"):
+                rows = workable_brazil.fetch()
+
+        self.assertEqual([row["native_id"] for row in rows], ["workable-1", "workable-2"])
+        self.assertEqual(rows[0]["title"], "Analista de Dados")
+        self.assertEqual(request.call_count, 2)
+        self.assertIn("location=Brazil", request.call_args_list[0][0][0])
+        self.assertIn("location=Brazil&pageToken=cursor-2", request.call_args_list[1][0][0])
+
+
 class NewSourceRegistryTests(unittest.TestCase):
     def test_wellfound_and_recargapay_are_registered_and_guarded(self):
         names = {name for name, _fetch in pipeline.REGISTRY}
         self.assertIn("wellfound", names)
         self.assertIn("recargapay", names)
+        self.assertIn("workable_brazil", names)
         self.assertIn("wellfound", pipeline.NONEMPTY_SOURCES)
         self.assertIn("recargapay", pipeline.NONEMPTY_SOURCES)
+        self.assertIn("workable_brazil", pipeline.NONEMPTY_SOURCES)
 
 
 if __name__ == "__main__":
