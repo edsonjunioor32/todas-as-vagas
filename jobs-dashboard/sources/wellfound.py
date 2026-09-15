@@ -116,7 +116,7 @@ def _employment_types(posting):
 
 def _categories(posting):
     value = posting.get("industry") or ""
-    values = re.split(r",|\\band\\b", str(value), flags=re.I)
+    values = re.split(r",|\band\b", str(value), flags=re.I)
     return list(dict.fromkeys(
         strip_html(item).strip(" ,") for item in values if strip_html(item).strip(" ,")
     ))[:12]
@@ -165,12 +165,12 @@ def _normalize_detail(url, markup, fallback_title=""):
         remote_flag=location_type.casefold() in {"telecommute", "remote"},
         raw=raw_model,
     )
-    if not work_model and re.search(r"\\b(remote|remoto)\\b", raw_model, re.I):
+    if not work_model and re.search(r"\b(remote|remoto)\b", raw_model, re.I):
         work_model = "remote"
 
     salary_min, salary_max, salary_currency = _salary(posting)
     description = strip_html(posting.get("description") or visible)
-    country = country or ("BR" if re.search(r"\\b(brazil|brasil)\\b", visible, re.I) else "")
+    country = country or ("BR" if re.search(r"\b(brazil|brasil)\b", visible, re.I) else "")
     city = city or ("Brasil" if work_model == "remote" and country in {"BR", "Brazil", "Brasil"} else "")
 
     return job(
