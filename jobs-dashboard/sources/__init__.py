@@ -40,6 +40,7 @@ from . import (
     wise,
     wellfound,
     workable,
+    workable_brazil,
 )
 
 REGISTRY = [
@@ -121,6 +122,7 @@ REGISTRY = [
     ("wise", wise.fetch),
     ("wellfound", wellfound.fetch),
     ("recargapay", workable.fetch),
+    ("workable_brazil", workable_brazil.fetch),
     ("greenhouse", ats_boards.fetch_greenhouse),
     ("lever", ats_boards.fetch_lever),
     ("ashby", ats_boards.fetch_ashby),
