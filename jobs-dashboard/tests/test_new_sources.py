@@ -650,6 +650,61 @@ class WellfoundTests(unittest.TestCase):
 
 
 class RecargaPayWorkableTests(unittest.TestCase):
+    def test_public_widget_json_normalizes_recargapay_job(self):
+        item = {
+            "title": "Compliance Regulatory Specialist",
+            "shortcode": "DE34450196",
+            "employment_type": "Full-time",
+            "telecommuting": True,
+            "department": "Legal & Compliance",
+            "country": "Brazil",
+            "city": "",
+            "state": "",
+            "published_on": "2026-09-15T12:00:00Z",
+            "shortlink": "https://apply.workable.com/j/DE34450196",
+            "full_description": "<p>Monitorar riscos e controles.</p>",
+        }
+        row = workable._normalize_api_job(item)
+        self.assertEqual(row["source"], "recargapay")
+        self.assertEqual(row["native_id"], "DE34450196")
+        self.assertEqual(
+            row["url"],
+            "https://apply.workable.com/recargapay/j/DE34450196/",
+        )
+        self.assertEqual(row["company"], "RecargaPay")
+        self.assertEqual(row["work_model"], "remote")
+        self.assertEqual(row["city"], "Brasil")
+        self.assertEqual(row["country"], "BR")
+        self.assertEqual(row["market"], "BR")
+        self.assertEqual(row["contract_types"], ["Full-time"])
+        self.assertEqual(row["categories"], ["Legal & Compliance"])
+        self.assertEqual(row["published_date"], "2026-09-15T12:00:00+00:00")
+        self.assertEqual(row["description"], "Monitorar riscos e controles.")
+
+    def test_fetch_prefers_public_widget_feed(self):
+        item = {
+            "title": "Compliance Regulatory Specialist",
+            "shortcode": "DE34450196",
+            "employment_type": "Full-time",
+            "telecommuting": True,
+            "country": "Brazil",
+            "shortlink": "https://apply.workable.com/j/DE34450196",
+        }
+        with patch.object(workable, "get_json", return_value={"jobs": [item]}) as request:
+            with patch.object(
+                workable,
+                "_rendered_links",
+                side_effect=AssertionError("fallback não deveria ser usado"),
+            ):
+                rows = workable.fetch()
+
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["native_id"], "DE34450196")
+        self.assertEqual(
+            request.call_args.args[0],
+            "https://apply.workable.com/api/v1/widget/accounts/recargapay?details=true",
+        )
+
     def test_workable_server_markup_recovers_accessible_job_labels(self):
         markup = """
         <a aria-labelledby="job-1 job-1-posted job-1-details"
