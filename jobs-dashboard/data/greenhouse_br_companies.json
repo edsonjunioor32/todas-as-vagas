@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-14T23:34:54.096927+00:00",
+  "generated_at": "2026-09-15T11:33:51.066791+00:00",
   "candidate_count": 8331,
   "company_count": 200,
   "companies": [
     {
       "board": "abinbev",
       "company": "AB InBev  | Growth Group",
-      "brazil_jobs": 54
+      "brazil_jobs": 52
     },
     {
       "board": "adyen",
@@ -157,7 +157,7 @@
     {
       "board": "bees",
       "company": "BEES",
-      "brazil_jobs": 46
+      "brazil_jobs": 45
     },
     {
       "board": "betsson",
@@ -168,6 +168,11 @@
       "board": "blip-global",
       "company": "Blip Global",
       "brazil_jobs": 13
+    },
+    {
+      "board": "boldmetrics",
+      "company": "Bold Metrics",
+      "brazil_jobs": 2
     },
     {
       "board": "brandwatch",
@@ -290,11 +295,6 @@
       "brazil_jobs": 1
     },
     {
-      "board": "coursera",
-      "company": "Coursera",
-      "brazil_jobs": 1
-    },
-    {
       "board": "databricks",
       "company": "Databricks",
       "brazil_jobs": 6
@@ -347,7 +347,7 @@
     {
       "board": "encora10",
       "company": "Encora",
-      "brazil_jobs": 15
+      "brazil_jobs": 16
     },
     {
       "board": "enforce",
@@ -457,7 +457,7 @@
     {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 74
+      "brazil_jobs": 75
     },
     {
       "board": "hotmartcareersbr",
@@ -507,7 +507,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 138
+      "brazil_jobs": 139
     },
     {
       "board": "interbrand",
@@ -707,7 +707,7 @@
     {
       "board": "powerdigitalmarketing",
       "company": "Power Digital",
-      "brazil_jobs": 59
+      "brazil_jobs": 58
     },
     {
       "board": "pfm",
@@ -722,7 +722,7 @@
     {
       "board": "rdstation",
       "company": "RD Station",
-      "brazil_jobs": 9
+      "brazil_jobs": 8
     },
     {
       "board": "rdsourcing",
@@ -882,7 +882,7 @@
     {
       "board": "toradex",
       "company": "Toradex",
-      "brazil_jobs": 10
+      "brazil_jobs": 9
     },
     {
       "board": "trinks",
