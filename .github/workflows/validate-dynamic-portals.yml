@@ -30,6 +30,7 @@ on:
       - "jobs-dashboard/sources/__init__.py"
       - "jobs-dashboard/sources/wellfound.py"
       - "jobs-dashboard/sources/workable.py"
+      - "jobs-dashboard/sources/workable_brazil.py"
       - ".github/workflows/validate-dynamic-portals.yml"
   workflow_dispatch:
 
