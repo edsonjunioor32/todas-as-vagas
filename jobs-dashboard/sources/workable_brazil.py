@@ -65,12 +65,15 @@ def _location_fields(item):
 
     if not city and fallback:
         parts = [part.strip() for part in fallback.split(",") if part.strip()]
-        if parts:
+        is_bare_country = bool(parts) and parts[0].casefold() in {"brazil", "brasil"}
+        if parts and not is_bare_country:
             city = parts[0]
         if len(parts) >= 2 and not state:
             state = parts[-2] if len(parts) >= 3 else ""
         if not country_name and len(parts) >= 2:
             country_name = parts[-1]
+        elif not country_name and is_bare_country:
+            country_name = parts[0]
 
     is_brazil = country_name.casefold() in {"brazil", "brasil"} or any(
         "brazil" in value.casefold() or "brasil" in value.casefold()
