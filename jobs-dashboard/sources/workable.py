@@ -182,9 +182,9 @@ def _relative_date(label):
 
 def _section_text(markup, section_name):
     pattern = re.compile(
-        r"<section\b(?=[^>]*data-ui=["']job-"
+        r'<section\b(?=[^>]*data-ui=["\']job-'
         + re.escape(section_name)
-        + r"["'])[^>]*>([\s\S]*?)</section>",
+        + r'["\'])[^>]*>([\s\S]*?)</section>',
         re.I,
     )
     match = pattern.search(markup or "")
