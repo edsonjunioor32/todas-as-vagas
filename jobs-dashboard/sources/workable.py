@@ -97,15 +97,15 @@ def _rendered_links():
                     const seen = new Set();
                     for (const anchor of document.querySelectorAll('a[href]')) {
                       const href = anchor.href || '';
-                      if (!/\\/recargapay\\/j\\/[A-Z0-9]+(?:[\\/?#]|$)/i.test(href)) continue;
+                      if (!/\/recargapay\/j\/[A-Z0-9]+(?:[\/?#]|$)/i.test(href)) continue;
                       if (seen.has(href)) continue;
-                      const ids = (anchor.getAttribute('aria-labelledby') || '').split(/\\s+/).filter(Boolean);
+                      const ids = (anchor.getAttribute('aria-labelledby') || '').split(/\s+/).filter(Boolean);
                       const labelled = ids.map(id => {
                         const node = document.getElementById(id);
                         return node ? (node.innerText || node.textContent || '') : '';
                       }).join(' ');
                       const text = (anchor.innerText || anchor.textContent || labelled)
-                        .replace(/\\s+/g, ' ').trim();
+                        .replace(/\s+/g, ' ').trim();
                       if (!text) continue;
                       seen.add(href);
                       result.push([href, text]);
@@ -152,7 +152,7 @@ def _rendered_links():
                 current = driver.execute_script(
                     """
                     return Array.from(document.querySelectorAll('a[href]'))
-                      .filter(a => /\\/recargapay\\/j\\/[A-Z0-9]+(?:[\\/?#]|$)/i.test(a.href))
+                      .filter(a => /\/recargapay\/j\/[A-Z0-9]+(?:[\/?#]|$)/i.test(a.href))
                       .map(a => a.href);
                     """
                 ) or []
@@ -166,15 +166,15 @@ def _rendered_links():
 def _relative_date(label):
     text = str(label or "").casefold()
     today = date.today()
-    if re.search(r"posted\\s+(?:few hours|an hour|today)", text):
+    if re.search(r"posted\s+(?:few hours|an hour|today)", text):
         return today.isoformat()
-    match = re.search(r"posted\\s+(\\d+)\\s+day", text)
+    match = re.search(r"posted\s+(\d+)\s+day", text)
     if match:
         return (today - timedelta(days=int(match.group(1)))).isoformat()
-    match = re.search(r"posted\\s+(?:about\\s+)?(\\d+)\\s+week", text)
+    match = re.search(r"posted\s+(?:about\s+)?(\d+)\s+week", text)
     if match:
         return (today - timedelta(days=int(match.group(1)) * 7)).isoformat()
-    match = re.search(r"posted\\s+(?:about\\s+)?(\\d+)\\s+month", text)
+    match = re.search(r"posted\s+(?:about\s+)?(\d+)\s+month", text)
     if match:
         return (today - timedelta(days=int(match.group(1)) * 30)).isoformat()
     return ""
@@ -182,9 +182,9 @@ def _relative_date(label):
 
 def _section_text(markup, section_name):
     pattern = re.compile(
-        r"<section\\b(?=[^>]*data-ui=["']job-"
+        r"<section\b(?=[^>]*data-ui=["']job-"
         + re.escape(section_name)
-        + r"["'])[^>]*>([\\s\\S]*?)</section>",
+        + r"["'])[^>]*>([\s\S]*?)</section>",
         re.I,
     )
     match = pattern.search(markup or "")
@@ -193,11 +193,11 @@ def _section_text(markup, section_name):
 
 def _contracts(visible):
     values = []
-    if re.search(r"\\bfull[ -]time\\b", visible, re.I):
+    if re.search(r"\bfull[ -]time\b", visible, re.I):
         values.append("Full time")
-    if re.search(r"\\bpart[ -]time\\b", visible, re.I):
+    if re.search(r"\bpart[ -]time\b", visible, re.I):
         values.append("Part time")
-    if re.search(r"\\b(contract|contractor)\\b", visible, re.I):
+    if re.search(r"\b(contract|contractor)\b", visible, re.I):
         values.append("Contract")
     return values
 
@@ -225,7 +225,7 @@ def _normalize_detail(url, markup, fallback_label=""):
         " ".join(part for part in description_parts if part)
         or visible
     )
-    country = "BR" if re.search(r"\\b(brazil|brasil)\\b", raw_model, re.I) else ""
+    country = "BR" if re.search(r"\b(brazil|brasil)\b", raw_model, re.I) else ""
     city = "Brasil" if country else ""
     return job(
         "recargapay",
