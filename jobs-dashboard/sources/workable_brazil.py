@@ -13,6 +13,7 @@ from ._common import iso_date, job, strip_html, work_model_label
 from ._http import get_json
 
 
+SEARCH_URL = "https://jobs.workable.com/search?location=Brazil"
 API_URL = "https://jobs.workable.com/api/v1/jobs"
 LOCATION = "Brazil"
 DEFAULT_MAX_PAGES = 100
@@ -199,5 +200,5 @@ def fetch():
             time.sleep(_page_delay())
 
     if not rows:
-        raise RuntimeError("Workable não retornou vagas publicadas para o Brasil")
+        raise RuntimeError(f"Workable não retornou vagas publicadas para o Brasil: {SEARCH_URL}")
     return list(rows.values())
