@@ -26,6 +26,8 @@ from sources import (  # noqa: E402
     levva,
     spassu,
     journy,
+    wellfound,
+    workable,
 )
 import pipeline  # noqa: E402
 
@@ -584,3 +586,130 @@ class JournyScheduleTests(unittest.TestCase):
         nightly_names = {name for name, _fetch in pipeline.selected_registry("journy")}
         self.assertNotIn("journy", regular_names)
         self.assertEqual(nightly_names, {"journy"})
+
+
+class WellfoundTests(unittest.TestCase):
+    def test_location_pages_are_paginated_and_job_links_are_canonicalized(self):
+        markup = """
+        <h2>Page 1 of 2</h2>
+        <a href="/jobs/12345-analista-de-dados">Analista de Dados</a>
+        <a href="https://wellfound.com/jobs/12345-analista-de-dados?utm_source=x">duplicada</a>
+        <a href="/company/example">Empresa</a>
+        """
+        links = wellfound._listing_links(
+            markup, "https://wellfound.com/location/brazil"
+        )
+        self.assertEqual(wellfound._page_count(markup), 2)
+        self.assertEqual(len(links), 1)
+        self.assertEqual(
+            links[0][0], "https://wellfound.com/jobs/12345"
+        )
+
+    def test_jobposting_preserves_company_location_salary_and_description(self):
+        posting = {
+            "@type": "JobPosting",
+            "title": "Senior Data Engineer",
+            "identifier": {"@type": "PropertyValue", "value": "98765"},
+            "employmentType": "FULL_TIME",
+            "hiringOrganization": {"name": "Startup Brasil"},
+            "jobLocationType": "TELECOMMUTE",
+            "jobLocation": [{
+                "address": {
+                    "addressLocality": "São Paulo",
+                    "addressRegion": "State of São Paulo",
+                    "addressCountry": "Brazil",
+                }
+            }],
+            "datePosted": "2026-09-10T12:00:00Z",
+            "baseSalary": {
+                "currency": "USD",
+                "value": {"minValue": 90000, "maxValue": 120000},
+            },
+            "industry": "SaaS, Data",
+            "description": "<p>Construir pipelines de dados.</p>",
+        }
+        markup = (
+            "<h1>Senior Data Engineer</h1>"
+            '<script type="application/ld+json">'
+            + json.dumps(posting, ensure_ascii=False)
+            + "</script>"
+        )
+        row = wellfound._normalize_detail(
+            "https://wellfound.com/jobs/98765-senior-data-engineer",
+            markup,
+        )
+        self.assertEqual(row["native_id"], "98765")
+        self.assertEqual(row["company"], "Startup Brasil")
+        self.assertEqual(row["work_model"], "remote")
+        self.assertEqual(row["city"], "São Paulo")
+        self.assertEqual(row["state"], "State of São Paulo")
+        self.assertEqual(row["country"], "Brazil")
+        self.assertEqual(row["market"], "BR")
+        self.assertEqual(row["salary_min"], 90000)
+        self.assertEqual(row["salary_max"], 120000)
+        self.assertEqual(row["published_date"], "2026-09-10T12:00:00+00:00")
+        self.assertEqual(row["description"], "Construir pipelines de dados.")
+        self.assertEqual(row["categories"], ["SaaS", "Data"])
+
+
+class RecargaPayWorkableTests(unittest.TestCase):
+    def test_workable_server_markup_recovers_accessible_job_labels(self):
+        markup = """
+        <a aria-labelledby="job-1 job-1-posted job-1-details"
+           href="/recargapay/j/ABC123/"></a>
+        <h3 id="job-1">Analista de Risco</h3>
+        <small id="job-1-posted">Posted 2 days ago</small>
+        <div id="job-1-details"><strong>Remote</strong> · Risks · Full time Brazil</div>
+        """
+        links = workable._listing_links_from_markup(markup)
+        self.assertEqual(len(links), 1)
+        self.assertEqual(links[0][0], "https://apply.workable.com/recargapay/j/ABC123/")
+        self.assertIn("Analista de Risco", links[0][1])
+        self.assertIn("Posted 2 days ago", links[0][1])
+
+    def test_workable_detail_preserves_description_and_remote_market(self):
+        markup = """
+        <h1>Analista de Risco</h1>
+        <p><strong>Remote</strong> · Risks · Full time</p>
+        <div>Brazil</div>
+        <section data-ui="job-description">
+          <h2>Description</h2>
+          <div><p>Monitorar riscos e indicadores.</p></div>
+        </section>
+        <section data-ui="job-requirements">
+          <h2>Requirements</h2>
+          <ul><li>SQL</li><li>Python</li></ul>
+        </section>
+        <section data-ui="job-benefits">
+          <h2>Benefits</h2>
+          <ul><li>Trabalho remoto</li></ul>
+        </section>
+        """
+        row = workable._normalize_detail(
+            "https://apply.workable.com/recargapay/j/ABC123/",
+            markup,
+            "Analista de Risco Posted 2 days ago Remote Risks Full time Brazil",
+        )
+        self.assertEqual(row["native_id"], "ABC123")
+        self.assertEqual(row["company"], "RecargaPay")
+        self.assertEqual(row["work_model"], "remote")
+        self.assertEqual(row["city"], "Brasil")
+        self.assertEqual(row["country"], "BR")
+        self.assertEqual(row["market"], "BR")
+        self.assertEqual(row["published_date"], (date.today() - __import__("datetime").timedelta(days=2)).isoformat())
+        self.assertIn("Monitorar riscos e indicadores.", row["description"])
+        self.assertIn("SQL", row["description"])
+        self.assertEqual(row["contract_types"], ["Full time"])
+
+
+class NewSourceRegistryTests(unittest.TestCase):
+    def test_wellfound_and_recargapay_are_registered_and_guarded(self):
+        names = {name for name, _fetch in pipeline.REGISTRY}
+        self.assertIn("wellfound", names)
+        self.assertIn("recargapay", names)
+        self.assertIn("wellfound", pipeline.NONEMPTY_SOURCES)
+        self.assertIn("recargapay", pipeline.NONEMPTY_SOURCES)
+
+
+if __name__ == "__main__":
+    unittest.main()
