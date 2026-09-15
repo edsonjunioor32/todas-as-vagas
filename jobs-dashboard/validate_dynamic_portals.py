@@ -31,6 +31,8 @@ from sources import (  # noqa: E402
     sankhya_senior,
     spassu,
     journy,
+    wellfound,
+    workable,
 )
 
 
@@ -47,7 +49,10 @@ SOURCES = (("levva", levva.fetch),) + requested_portals_29082026.TARGETS + (
     ("spassu", spassu.fetch),
     ("infovagas", quickin.fetch),
     ("journy", journy.fetch),
-) + requested_portals_27082026.TARGETS + requested_portals_03092026.TARGETS
+) + requested_portals_27082026.TARGETS + requested_portals_03092026.TARGETS + (
+    ("wellfound", wellfound.fetch),
+    ("recargapay", workable.fetch),
+)
 
 # These two already-registered feeds currently expose no active cards. They
 # stay monitored by the general pipeline, but must not block an isolated merge

@@ -46,7 +46,7 @@ NONEMPTY_SOURCES = {
     "grupokothe", "jb3investimentos", "osklen", "finayatech", "yellowipe",
     "somosglobal", "revemar", "insper", "guaranamineiro", "tivit",
     "overlabs", "sicoobcocred", "liquidz", "btcreditos", "glcapital",
-    "grupoamigao", "true", "sensedia",
+    "grupoamigao", "true", "sensedia", "wellfound", "recargapay",
     "avanade", "huntit", "talentodovalesc", "beq", "forza", "saleco", "elis",
     "flash", "neon", "zippi", "bv", "santander", "iberdrola", "iqvia", "mdlz",
 } | {name for name, _fetch in requested_portals_03092026.TARGETS}

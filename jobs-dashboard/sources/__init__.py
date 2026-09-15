@@ -38,6 +38,8 @@ from . import (
     themuse,
     wwr,
     wise,
+    wellfound,
+    workable,
 )
 
 REGISTRY = [
@@ -117,6 +119,8 @@ REGISTRY = [
     ("arbeitnow", remote_boards.fetch_arbeitnow),
     ("weworkremotely", wwr.fetch),
     ("wise", wise.fetch),
+    ("wellfound", wellfound.fetch),
+    ("recargapay", workable.fetch),
     ("greenhouse", ats_boards.fetch_greenhouse),
     ("lever", ats_boards.fetch_lever),
     ("ashby", ats_boards.fetch_ashby),
