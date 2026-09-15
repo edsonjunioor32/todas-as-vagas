@@ -3,7 +3,7 @@
 import json
 import sys
 import unittest
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 from unittest.mock import patch
 
@@ -458,10 +458,6 @@ class JournyTests(unittest.TestCase):
             journy._unique_rows([{"id": "not-a-uuid", "title": "Vaga"}])
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class GeekHunterTests(unittest.TestCase):
     def test_ntt_data_adapter_keeps_company_and_source(self):
         item = {
@@ -696,7 +692,7 @@ class RecargaPayWorkableTests(unittest.TestCase):
         self.assertEqual(row["city"], "Brasil")
         self.assertEqual(row["country"], "BR")
         self.assertEqual(row["market"], "BR")
-        self.assertEqual(row["published_date"], (date.today() - __import__("datetime").timedelta(days=2)).isoformat())
+        self.assertEqual(row["published_date"], (date.today() - timedelta(days=2)).isoformat())
         self.assertIn("Monitorar riscos e indicadores.", row["description"])
         self.assertIn("SQL", row["description"])
         self.assertEqual(row["contract_types"], ["Full time"])
