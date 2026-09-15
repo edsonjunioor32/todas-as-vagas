@@ -28,6 +28,8 @@ on:
       - "jobs-dashboard/sources/requested_portals_29082026.py"
       - "jobs-dashboard/sources/requested_portals_03092026.py"
       - "jobs-dashboard/sources/__init__.py"
+      - "jobs-dashboard/sources/wellfound.py"
+      - "jobs-dashboard/sources/workable.py"
       - ".github/workflows/validate-dynamic-portals.yml"
   workflow_dispatch:
 
