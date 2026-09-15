@@ -438,7 +438,11 @@ def _normalize_api_job(item):
 def _fetch_public_api():
     payload = get_json(
         f"{PUBLIC_API_URL}?details=true",
-        headers={"Accept-Language": "en-US,en;q=0.9,pt-BR;q=0.8"},
+        headers={
+            "Accept-Language": "en-US,en;q=0.9,pt-BR;q=0.8",
+            "Cache-Control": "no-cache",
+            "Pragma": "no-cache",
+        },
         timeout=45,
         retries=3,
     )
