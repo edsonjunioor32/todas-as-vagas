@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 """Public RecargaPay vacancies from its Workable careers board.
 
-The requested RecargaPay page delegates the live openings to Workable. The
-public Workable board is rendered without authentication; this adapter clicks
-its public "Show more" control and hydrates each detail page for descriptions.
+The account exposes a key-free Workable widget feed. The adapter reads that
+JSON first, retaining a browser-rendered fallback for transient feed changes.
 """
 import os
 import re
@@ -14,12 +13,13 @@ from urllib.parse import urljoin, urlsplit, urlunsplit
 
 from ._common import iso_date, job, strip_html, work_model_label
 from ._html import PublicPageParser
-from ._http import get_text
+from ._http import get_json, get_text
 from ._rendered import _webdriver
 
 
 ORIGIN_URL = "https://recargapay.com.br/carreiras#nossasvagas"
 LIST_URL = "https://apply.workable.com/recargapay/"
+PUBLIC_API_URL = "https://apply.workable.com/api/v1/widget/accounts/recargapay"
 JOB_RE = re.compile(r"/recargapay/j/([A-Z0-9]+)(?:/|[?#]|$)", re.I)
 ANCHOR_RE = re.compile(
     r"""<a\b(?P<attrs>[^>]*\bhref\s*=\s*["'](?P<href>[^"']+)["'][^>]*)>
@@ -40,12 +40,19 @@ LOAD_MORE_SELECTOR = '[data-ui="load-more-button"]'
 def _canonical_url(href, base_url=LIST_URL):
     absolute = urljoin(base_url, str(href or "").strip())
     parsed = urlsplit(absolute)
-    match = JOB_RE.search(parsed.path or "")
+    path = parsed.path or ""
+    match = JOB_RE.search(path)
+    if not match:
+        match = re.search(
+            r"/jobs/([A-Z0-9_-]+)(?:/|$)",
+            path,
+            re.I,
+        )
     if not match:
         return ""
     return urlunsplit((
-        parsed.scheme or "https",
-        parsed.netloc or "apply.workable.com",
+        "https",
+        "apply.workable.com",
         f"/recargapay/j/{match.group(1).upper()}/",
         "",
         "",
@@ -244,7 +251,221 @@ def _normalize_detail(url, markup, fallback_label=""):
     )
 
 
+def _text(value):
+    return str(value or "").strip()
+
+
+def _api_native_id(item):
+    for key in ("shortcode", "id", "code"):
+        value = _text(item.get(key))
+        if value:
+            return value.upper()
+    for key in ("shortlink", "url", "application_url"):
+        match = re.search(
+            r"/(?:j|jobs)/([A-Z0-9_-]+)(?:/|$)",
+            _text(item.get(key)),
+            re.I,
+        )
+        if match:
+            return match.group(1).upper()
+    return ""
+
+
+def _api_job_url(item, native_id):
+    for key in ("shortlink", "application_url", "url"):
+        canonical = _canonical_url(item.get(key))
+        if canonical:
+            return canonical
+    return (
+        f"https://apply.workable.com/recargapay/j/{native_id}/"
+        if native_id
+        else ""
+    )
+
+
+def _api_location(item):
+    city = ""
+    state = ""
+    country = ""
+    values = []
+
+    location = item.get("location")
+    if isinstance(location, dict):
+        city = _text(location.get("city"))
+        state = _text(
+            location.get("state")
+            or location.get("region")
+            or location.get("state_code")
+            or location.get("region_code")
+        )
+        country = _text(
+            location.get("country")
+            or location.get("country_name")
+            or location.get("countryName")
+            or location.get("country_code")
+        )
+        values.append(_text(location.get("location_str")))
+    elif location:
+        values.append(_text(location))
+
+    locations = item.get("locations") or []
+    if not isinstance(locations, list):
+        locations = [locations]
+    for entry in locations:
+        if isinstance(entry, dict):
+            if not city:
+                city = _text(entry.get("city"))
+            if not state:
+                state = _text(
+                    entry.get("state")
+                    or entry.get("subregion")
+                    or entry.get("state_code")
+                    or entry.get("region")
+                )
+            if not country:
+                country = _text(
+                    entry.get("country")
+                    or entry.get("country_name")
+                    or entry.get("countryName")
+                    or entry.get("country_code")
+                )
+            values.append(
+                _text(
+                    entry.get("location_str")
+                    or entry.get("name")
+                    or entry.get("city")
+                )
+            )
+        elif _text(entry):
+            values.append(_text(entry))
+
+    visible = " ".join(value for value in values if value)
+    if not city and visible:
+        parts = [part.strip() for part in visible.split(",") if part.strip()]
+        if parts and parts[0].casefold() not in {"brazil", "brasil", "remote"}:
+            city = parts[0]
+        if len(parts) >= 2 and not state:
+            state = parts[-2] if len(parts) >= 3 else ""
+        if not country and parts and parts[-1].casefold() in {"brazil", "brasil", "br"}:
+            country = parts[-1]
+
+    is_brazil = (
+        country.casefold() in {"brazil", "brasil", "br"}
+        or "brazil" in visible.casefold()
+        or "brasil" in visible.casefold()
+    )
+    return {
+        "city": city or "Brasil",
+        "state": state,
+        "country": "BR" if is_brazil or not country else country,
+        "text": visible,
+    }
+
+
+def _api_work_model(item, location):
+    telecommuting = item.get("telecommuting")
+    if telecommuting is True or _text(telecommuting).casefold() in {"true", "1", "yes"}:
+        return "remote"
+    raw = " ".join(
+        _text(value)
+        for value in (
+            item.get("workplace_type"),
+            item.get("workplace"),
+            item.get("location_type"),
+            location.get("text"),
+        )
+        if _text(value)
+    )
+    return work_model_label(raw=raw) or "on-site"
+
+
+def _api_contracts(item):
+    value = (
+        item.get("employment_type")
+        or item.get("employmentType")
+        or item.get("contract_type")
+        or item.get("work_type")
+    )
+    if isinstance(value, list):
+        return [_text(part) for part in value if _text(part)]
+    return [_text(value)] if _text(value) else []
+
+
+def _api_description(item):
+    parts = [
+        item.get("full_description"),
+        item.get("description"),
+        item.get("requirements"),
+        item.get("benefits"),
+    ]
+    values = [_text(part) for part in parts if _text(part)]
+    return strip_html(" ".join(values))[:6000]
+
+
+def _normalize_api_job(item):
+    if not isinstance(item, dict):
+        return None
+    native_id = _api_native_id(item)
+    title = _text(item.get("title"))
+    url = _api_job_url(item, native_id)
+    if not native_id or not title or not url:
+        return None
+
+    location = _api_location(item)
+    department = _text(item.get("department"))
+    return job(
+        "recargapay",
+        native_id,
+        title=title,
+        company="RecargaPay",
+        url=url,
+        work_model=_api_work_model(item, location),
+        city=location["city"],
+        state=location["state"],
+        country=location["country"],
+        market="BR",
+        published_date=iso_date(
+            item.get("published_on")
+            or item.get("published_at")
+            or item.get("created_at")
+        ),
+        description=_api_description(item),
+        categories=[department] if department else [],
+        contract_types=_api_contracts(item),
+    )
+
+
+def _fetch_public_api():
+    payload = get_json(
+        f"{PUBLIC_API_URL}?details=true",
+        headers={"Accept-Language": "en-US,en;q=0.9,pt-BR;q=0.8"},
+        timeout=45,
+        retries=3,
+    )
+    if not isinstance(payload, dict):
+        raise RuntimeError("Workable RecargaPay retornou um payload inválido")
+    jobs = payload.get("jobs") or []
+    if not isinstance(jobs, list):
+        raise RuntimeError("Workable RecargaPay retornou uma lista de vagas inválida")
+    rows = {}
+    for item in jobs:
+        row = _normalize_api_job(item)
+        if row:
+            rows.setdefault(row["native_id"], row)
+    return list(rows.values())
+
+
 def fetch():
+    api_error = ""
+    try:
+        rows = _fetch_public_api()
+        if rows:
+            return rows
+        api_error = "feed público sem vagas reconhecíveis"
+    except Exception as error:
+        api_error = str(error)[:180]
+        print(f"    [recargapay] API pública indisponível: {api_error}")
+
     try:
         links = _rendered_links()
     except Exception as error:
@@ -260,7 +481,10 @@ def fetch():
             links = []
 
     if not links:
-        raise RuntimeError("RecargaPay não expôs vagas públicas no Workable")
+        raise RuntimeError(
+            "RecargaPay não expôs vagas públicas no Workable"
+            + (f" ({api_error})" if api_error else "")
+        )
 
     workers = min(max(1, int(
         os.environ.get("RECARGAPAY_DETAIL_WORKERS") or DEFAULT_DETAIL_WORKERS
