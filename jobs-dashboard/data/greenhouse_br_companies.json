@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-15T23:33:10.504489+00:00",
+  "generated_at": "2026-09-16T11:33:40.421009+00:00",
   "candidate_count": 8331,
-  "company_count": 194,
+  "company_count": 196,
   "companies": [
     {
       "board": "abinbev",
@@ -138,6 +138,11 @@
       "board": "blab",
       "company": "B Lab",
       "brazil_jobs": 3
+    },
+    {
+      "board": "b12",
+      "company": "B12",
+      "brazil_jobs": 1
     },
     {
       "board": "b2c2",
@@ -337,7 +342,7 @@
     {
       "board": "elastic",
       "company": "Elastic",
-      "brazil_jobs": 4
+      "brazil_jobs": 3
     },
     {
       "board": "encora10",
@@ -382,7 +387,7 @@
     {
       "board": "feverup",
       "company": "FeverUp",
-      "brazil_jobs": 12
+      "brazil_jobs": 14
     },
     {
       "board": "figma",
@@ -497,7 +502,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 136
+      "brazil_jobs": 135
     },
     {
       "board": "interbrand",
@@ -715,6 +720,16 @@
       "brazil_jobs": 1
     },
     {
+      "board": "remotecom",
+      "company": "Remote",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "ripple",
+      "company": "Ripple",
+      "brazil_jobs": 2
+    },
+    {
       "board": "riskified",
       "company": "Riskified",
       "brazil_jobs": 2
@@ -737,7 +752,7 @@
     {
       "board": "securityscorecard",
       "company": "SecurityScorecard",
-      "brazil_jobs": 3
+      "brazil_jobs": 2
     },
     {
       "board": "sertradingsa",
@@ -822,7 +837,7 @@
     {
       "board": "takealotcom",
       "company": "takealot.com",
-      "brazil_jobs": 3
+      "brazil_jobs": 2
     },
     {
       "board": "teachablecareers",
@@ -857,11 +872,6 @@
     {
       "board": "trinks",
       "company": "Trinks",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "trustedhealth",
-      "company": "Trusted Health",
       "brazil_jobs": 1
     },
     {
