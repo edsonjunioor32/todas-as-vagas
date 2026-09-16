@@ -51,6 +51,20 @@ NONEMPTY_SOURCES = {
     "flash", "neon", "zippi", "bv", "santander", "iberdrola", "iqvia", "mdlz",
 } | {name for name, _fetch in requested_portals_03092026.TARGETS}
 
+# These adapters are paused after repeated upstream failures. Their stored
+# rows remain eligible through the normal publication/expiration rules.
+PAUSED_SOURCES = frozenset({"azify", "assefaz", "cprocco"})
+
+def sources_to_preserve(failed_sources):
+    """Return unavailable sources whose last valid rows must remain eligible."""
+    failed = {
+        str(source).strip()
+        for source in (failed_sources or [])
+        if str(source).strip()
+    }
+    return sorted(failed | PAUSED_SOURCES)
+
+
 def selected_registry(names):
     if not names:
         return [(name, fetch) for name, fetch in REGISTRY if name not in NIGHTLY_ONLY_SOURCES]
@@ -296,6 +310,7 @@ def main(before_persist=None):
     print("=" * 72)
     stage_started = time.perf_counter()
     rows, failed, source_metrics = collect(registry)
+    preserved_sources = sources_to_preserve(failed)
     phases["Coleta das fontes"] = time.perf_counter() - stage_started
     stage_started = time.perf_counter()
     rows = normalize_market(rows)
@@ -325,6 +340,12 @@ def main(before_persist=None):
     print(f"  por portal: {dict(sorted(counts.items()))}")
     if failed:
         print(f"  fontes indisponíveis: {', '.join(failed)}")
+
+    if PAUSED_SOURCES:
+        print(
+            "  fontes pausadas (vagas armazenadas preservadas até a janela normal): "
+            + ", ".join(sorted(PAUSED_SOURCES))
+        )
 
     if not rows:
         raise SystemExit("No jobs were collected; refusing to overwrite the public snapshot")
@@ -438,7 +459,7 @@ def main(before_persist=None):
         max_age_months=max(0, args.max_age_months),
         max_age_days=max_age_days,
         source_counts=dict(sorted(counts.items())),
-        failed_sources=failed,
+        failed_sources=preserved_sources,
     )
     conn.close()
     phases["Banco e fotografia pública"] = time.perf_counter() - stage_started

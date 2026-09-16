@@ -339,7 +339,6 @@ def fetch_tivit():
 
 TARGETS = (
     ("esig", fetch_esig),
-    ("azify", sankhya_senior.fetch_azify),
     ("pontotel", sankhya_senior.fetch_pontotel),
     ("grupolev", sankhya_senior.fetch_grupolev),
     ("fiotec", sankhya_senior.fetch_fiotec),

@@ -2,6 +2,7 @@
 """Regression tests for the configured dynamic portal adapters."""
 import json
 import sys
+import tempfile
 import unittest
 from datetime import date, timedelta
 from pathlib import Path
@@ -32,6 +33,7 @@ from sources import (  # noqa: E402
     workable_brazil,
 )
 import pipeline  # noqa: E402
+import storage  # noqa: E402
 
 
 class SpassuTests(unittest.TestCase):
@@ -818,6 +820,59 @@ class WorkableBrazilTests(unittest.TestCase):
         self.assertEqual(request.call_count, 2)
         self.assertIn("location=Brazil", request.call_args_list[0][0][0])
         self.assertIn("location=Brazil&pageToken=cursor-2", request.call_args_list[1][0][0])
+
+
+class PausedSourceTests(unittest.TestCase):
+    def test_paused_sources_are_not_collection_targets_but_are_preserved(self):
+        selected = {name for name, _fetch in pipeline.selected_registry("")}
+        self.assertTrue(pipeline.PAUSED_SOURCES.isdisjoint(selected))
+        self.assertEqual(
+            set(pipeline.sources_to_preserve(["other"])),
+            pipeline.PAUSED_SOURCES | {"other"},
+        )
+        for name in pipeline.PAUSED_SOURCES:
+            with self.assertRaises(SystemExit):
+                pipeline.selected_registry(name)
+
+    def test_paused_rows_remain_public_until_normal_age_or_expiry(self):
+        row = {
+            "source": "azify",
+            "native_id": "active",
+            "title": "Analista de Suporte",
+            "company": "Azify",
+            "work_model": "on-site",
+            "city": "São Paulo",
+            "state": "SP",
+            "country": "BR",
+            "market": "BR",
+            "published_date": "2026-09-10",
+            "expires_date": "",
+            "url": "https://azify.example/jobs/active",
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            conn = storage.connect(str(Path(temporary) / "jobs.db"))
+            storage.upsert(conn, [row], today="2026-09-10")
+            out = Path(temporary) / "vagas.json"
+            count, _ = storage.export_snapshot(
+                conn,
+                str(out),
+                fresh_days=3,
+                today="2026-09-16",
+                failed_sources=pipeline.sources_to_preserve([]),
+            )
+            self.assertEqual(count, 1)
+
+            expired = dict(row, native_id="expired", expires_date="2026-09-15")
+            storage.upsert(conn, [expired], today="2026-09-10")
+            count, _ = storage.export_snapshot(
+                conn,
+                str(out),
+                fresh_days=3,
+                today="2026-09-16",
+                failed_sources=pipeline.sources_to_preserve([]),
+            )
+            self.assertEqual(count, 1)
+            conn.close()
 
 
 class NewSourceRegistryTests(unittest.TestCase):
