@@ -8,6 +8,7 @@ on:
       - "jobs-dashboard/sources/_html.py"
       - "jobs-dashboard/sources/_rendered.py"
       - "jobs-dashboard/sources/experian.py"
+      - "jobs-dashboard/sources/ey.py"
       - "jobs-dashboard/sources/bradesco.py"
       - "jobs-dashboard/sources/geekhunter.py"
       - "jobs-dashboard/sources/quickin.py"
