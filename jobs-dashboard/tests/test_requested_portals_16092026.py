@@ -125,11 +125,83 @@ class RequestedPortalsTests(unittest.TestCase):
             portals._asa_date("15/01", today, rollover=True), "2027-01-15"
         )
 
+    def test_unlockcareer_reads_visible_brazil_roles_and_normalizes_them(self):
+        driver = MagicMock()
+        search = MagicMock()
+        driver.find_element.return_value = search
+        driver.execute_script.return_value = [
+            {
+                "title": "Engineering Expert",
+                "url": (
+                    "https://unlockcareer.ai/jobs/mavila-consulting/apply/"
+                    "154da33d-caf9-42c5-925c-f180ca93098c"
+                ),
+                "text": (
+                    "AI Trainer / Data Annotator Brazil Colombia Senior Remote "
+                    "Python Electrical Engineering\nRole Overview: Create and "
+                    "validate engineering simulation tasks.\nPosted 15/09/2026"
+                ),
+            },
+            {
+                "title": "Regional Consultant",
+                "url": (
+                    "https://unlockcareer.ai/jobs/mavila-consulting/apply/"
+                    "6a4b3a40-9947-4bd0-a174-31f74559f4a1"
+                ),
+                "text": "Consulting United States On-site\nPosted 14/09/2026",
+            },
+        ]
+        with (
+            patch.object(portals, "_new_unlockcareer_driver", return_value=driver),
+            patch.object(portals, "_wait_for_unlockcareer_element"),
+        ):
+            rows = portals.fetch_unlockcareer_mavila(today=date(2026, 9, 16))
+
+        search.clear.assert_called_once()
+        search.send_keys.assert_called_once_with("Brazil")
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["source"], "unlockcareer_mavila")
+        self.assertEqual(
+            rows[0]["native_id"], "154da33d-caf9-42c5-925c-f180ca93098c"
+        )
+        self.assertEqual(rows[0]["company"], "Mavila Consulting")
+        self.assertEqual(rows[0]["country"], "BR")
+        self.assertEqual(rows[0]["market"], "BR")
+        self.assertEqual(rows[0]["work_model"], "remote")
+        self.assertEqual(rows[0]["published_date"], "2026-09-15")
+        self.assertIn("engineering simulation tasks", rows[0]["description"])
+        driver.quit.assert_called_once()
+
+    def test_unlockcareer_fails_closed_when_no_brazil_roles_are_rendered(self):
+        driver = MagicMock()
+        driver.find_element.return_value = MagicMock()
+        driver.execute_script.return_value = [
+            {
+                "title": "Regional Consultant",
+                "url": (
+                    "https://unlockcareer.ai/jobs/mavila-consulting/apply/"
+                    "6a4b3a40-9947-4bd0-a174-31f74559f4a1"
+                ),
+                "text": "United States On-site",
+            }
+        ]
+        with (
+            patch.object(portals, "_new_unlockcareer_driver", return_value=driver),
+            patch.object(portals, "_wait_for_unlockcareer_element"),
+            self.assertRaisesRegex(RuntimeError, "no Brazilian vacancies"),
+        ):
+            portals.fetch_unlockcareer_mavila(today=date(2026, 9, 16))
+
+        driver.quit.assert_called_once()
+
     def test_requested_public_sources_are_registered(self):
         registry = dict(REGISTRY)
         self.assertIs(registry["blacklion"], portals.fetch_blacklion)
         self.assertIs(registry["jobgether"], portals.fetch_jobgether)
         self.assertIs(registry["asa"], portals.fetch_asa)
+        self.assertIs(
+            registry["unlockcareer_mavila"], portals.fetch_unlockcareer_mavila
+        )
 
 
 if __name__ == "__main__":
