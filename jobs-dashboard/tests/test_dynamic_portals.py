@@ -207,7 +207,7 @@ class SankhyaSeniorTests(unittest.TestCase):
         }]}}}
         markup = '<script id="__NEXT_DATA__" type="application/json">' + json.dumps(payload) + "</script>"
         with patch.object(sankhya_senior, "get_text", return_value=markup):
-            rows = requested_portals_29082026.TARGETS[1][1]()
+            rows = sankhya_senior.fetch_azify()
         self.assertEqual(rows[0]["source"], "azify")
         self.assertEqual(rows[0]["market"], "BR")
         self.assertEqual(rows[0]["title"], "Analista de Suporte")
@@ -319,3 +319,4 @@ class AdditionalMindsightTenantTests(unittest.TestCase):
                 self.assertEqual(rows[0]["source"], slug)
                 self.assertEqual(rows[0]["company"], company)
                 self.assertEqual(rows[0]["market"], "BR")
+

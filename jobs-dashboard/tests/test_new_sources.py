@@ -2,6 +2,7 @@
 """Regression tests for the configured dynamic portal adapters."""
 import json
 import sys
+import tempfile
 import unittest
 from datetime import date, timedelta
 from pathlib import Path
@@ -32,6 +33,7 @@ from sources import (  # noqa: E402
     workable_brazil,
 )
 import pipeline  # noqa: E402
+import storage  # noqa: E402
 
 
 class SpassuTests(unittest.TestCase):
@@ -386,8 +388,8 @@ class RegistryTests(unittest.TestCase):
     def test_new_sources_are_registered_and_guarded(self):
         selected = pipeline.selected_registry("spassu,infovagas")
         self.assertEqual([name for name, _fetch in selected], ["spassu", "infovagas"])
-        selected_new = pipeline.selected_registry("esig,azify,finayatech,yellowipe,tivit")
-        self.assertEqual([name for name, _fetch in selected_new], ["esig", "azify", "finayatech", "yellowipe", "tivit"])
+        selected_new = pipeline.selected_registry("esig,finayatech,yellowipe,tivit")
+        self.assertEqual([name for name, _fetch in selected_new], ["esig", "finayatech", "yellowipe", "tivit"])
         selected_levva = pipeline.selected_registry("levva")
         self.assertEqual([name for name, _fetch in selected_levva], ["levva"])
         self.assertTrue({"spassu", "infovagas", "bradesco", "nttdata", "btg", "luza", "levva", "esig", "azify", "finayatech", "yellowipe", "tivit"}.issubset(pipeline.NONEMPTY_SOURCES))
@@ -553,7 +555,7 @@ class CompanyBatchTests(unittest.TestCase):
     def test_requested_company_boards_are_unique_and_not_global_infovagas(self):
         names = [name for name, _fetch in requested_portals_03092026.TARGETS]
         self.assertEqual(len(names), len(set(names)))
-        self.assertEqual(len(names), 158)
+        self.assertEqual(len(names), 156)
         self.assertIn("meutudo", names)
         self.assertIn("minsait", names)
         self.assertIn("emphasys", names)
@@ -820,6 +822,59 @@ class WorkableBrazilTests(unittest.TestCase):
         self.assertIn("location=Brazil&pageToken=cursor-2", request.call_args_list[1][0][0])
 
 
+class PausedSourceTests(unittest.TestCase):
+    def test_paused_sources_are_not_collection_targets_but_are_preserved(self):
+        selected = {name for name, _fetch in pipeline.selected_registry("")}
+        self.assertTrue(pipeline.PAUSED_SOURCES.isdisjoint(selected))
+        self.assertEqual(
+            set(pipeline.sources_to_preserve(["other"])),
+            pipeline.PAUSED_SOURCES | {"other"},
+        )
+        for name in pipeline.PAUSED_SOURCES:
+            with self.assertRaises(SystemExit):
+                pipeline.selected_registry(name)
+
+    def test_paused_rows_remain_public_until_normal_age_or_expiry(self):
+        row = {
+            "source": "azify",
+            "native_id": "active",
+            "title": "Analista de Suporte",
+            "company": "Azify",
+            "work_model": "on-site",
+            "city": "São Paulo",
+            "state": "SP",
+            "country": "BR",
+            "market": "BR",
+            "published_date": "2026-09-10",
+            "expires_date": "",
+            "url": "https://azify.example/jobs/active",
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            conn = storage.connect(str(Path(temporary) / "jobs.db"))
+            storage.upsert(conn, [row], today="2026-09-10")
+            out = Path(temporary) / "vagas.json"
+            count, _ = storage.export_snapshot(
+                conn,
+                str(out),
+                fresh_days=3,
+                today="2026-09-16",
+                failed_sources=pipeline.sources_to_preserve([]),
+            )
+            self.assertEqual(count, 1)
+
+            expired = dict(row, native_id="expired", expires_date="2026-09-15")
+            storage.upsert(conn, [expired], today="2026-09-10")
+            count, _ = storage.export_snapshot(
+                conn,
+                str(out),
+                fresh_days=3,
+                today="2026-09-16",
+                failed_sources=pipeline.sources_to_preserve([]),
+            )
+            self.assertEqual(count, 1)
+            conn.close()
+
+
 class NewSourceRegistryTests(unittest.TestCase):
     def test_wellfound_and_recargapay_are_registered_and_guarded(self):
         names = {name for name, _fetch in pipeline.REGISTRY}
@@ -881,3 +936,4 @@ class EYTechEYTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
