@@ -128,6 +128,7 @@ REGISTRY = [
     ("workable_brazil", workable_brazil.fetch),
     ("blacklion", requested_portals_16092026.fetch_blacklion),
     ("jobgether", requested_portals_16092026.fetch_jobgether),
+    ("asa", requested_portals_16092026.fetch_asa),
     ("greenhouse", ats_boards.fetch_greenhouse),
     ("lever", ats_boards.fetch_lever),
     ("ashby", ats_boards.fetch_ashby),
