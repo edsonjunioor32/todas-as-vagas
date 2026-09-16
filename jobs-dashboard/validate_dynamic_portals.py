@@ -19,6 +19,7 @@ if str(ROOT) not in sys.path:
 from sources import (  # noqa: E402
     bradesco,
     digisystem,
+    ey,
     experian,
     geekhunter,
     quickin,
@@ -54,6 +55,7 @@ SOURCES = (("levva", levva.fetch),) + requested_portals_29082026.TARGETS + (
     ("wellfound", wellfound.fetch),
     ("recargapay", workable.fetch),
     ("workable_brazil", workable_brazil.fetch),
+    ("ey", ey.fetch),
 )
 
 # These two already-registered feeds currently expose no active cards. They

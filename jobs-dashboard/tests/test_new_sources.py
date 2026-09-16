@@ -13,6 +13,7 @@ sys.path.insert(0, str(DASHBOARD))
 
 from sources import (  # noqa: E402
     bradesco,
+    ey,
     experian,
     geekhunter,
     infojobs,
@@ -825,9 +826,57 @@ class NewSourceRegistryTests(unittest.TestCase):
         self.assertIn("wellfound", names)
         self.assertIn("recargapay", names)
         self.assertIn("workable_brazil", names)
+        self.assertIn("ey", names)
         self.assertIn("wellfound", pipeline.NONEMPTY_SOURCES)
         self.assertIn("recargapay", pipeline.NONEMPTY_SOURCES)
         self.assertIn("workable_brazil", pipeline.NONEMPTY_SOURCES)
+        self.assertIn("ey", pipeline.NONEMPTY_SOURCES)
+
+
+class EYTechEYTests(unittest.TestCase):
+    def test_public_techey_listing_normalizes_detail_and_location(self):
+        listing = """
+        <table id="searchresults">
+          <tr class="data-row">
+            <td class="colTitle">
+              <a class="jobTitle-link"
+                 href="/ey/job/Sao-Paulo-Analista-de-Dados-SP/1435864233/">
+                Analista de Dados Sênior
+              </a>
+            </td>
+            <td class="colLocation">
+              <span class="jobLocation">São Paulo, SP, BR, 01000-000</span>
+            </td>
+          </tr>
+        </table>
+        """
+        detail = """
+        <div class="jobdescription">
+          <p>Atuar com Python e engenharia de dados.</p>
+          <p>Modelo Híbrido.</p>
+        </div>
+        <div>Data da abertura da vaga: 10 de set. de 2026</div>
+        """
+        with patch.object(ey, "get_text", side_effect=[listing, detail]) as request:
+            rows = ey.fetch()
+
+        self.assertEqual(request.call_count, 2)
+        self.assertEqual(len(rows), 1)
+        row = rows[0]
+        self.assertEqual(row["source"], "ey")
+        self.assertEqual(row["native_id"], "1435864233")
+        self.assertEqual(row["company"], "EY")
+        self.assertEqual(row["city"], "São Paulo")
+        self.assertEqual(row["state"], "SP")
+        self.assertEqual(row["country"], "BR")
+        self.assertEqual(row["market"], "BR")
+        self.assertEqual(row["work_model"], "hybrid")
+        self.assertEqual(row["published_date"], "2026-09-10")
+        self.assertIn("Python", row["description"])
+        self.assertEqual(
+            row["url"],
+            "https://careers.ey.com/ey/job/Sao-Paulo-Analista-de-Dados-SP/1435864233/",
+        )
 
 
 if __name__ == "__main__":
