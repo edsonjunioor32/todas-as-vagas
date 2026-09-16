@@ -194,7 +194,7 @@ def _field_after_label(text, label):
     return ""
 
 
-def _asa_date(value, today):
+def _asa_date(value, today, rollover=False):
     """Normalize Elevo+'s visible DD/MM deadline/publication date."""
     match = ASA_DATE_RE.search(str(value or ""))
     if not match:
@@ -205,7 +205,7 @@ def _asa_date(value, today):
         parsed = date(year, int(month), int(day))
     except ValueError:
         return ""
-    if not match.group(3) and parsed < today - timedelta(days=30):
+    if rollover and not match.group(3) and parsed < today - timedelta(days=30):
         try:
             parsed = parsed.replace(year=parsed.year + 1)
         except ValueError:
@@ -277,7 +277,7 @@ def _normalize_asa_card(card, detail, today):
         country="BR",
         market="BR",
         published_date=_asa_date(published, today),
-        expires_date=_asa_date(expires, today),
+        expires_date=_asa_date(expires, today, rollover=True),
         description=description,
         levels=levels,
         categories=[area] if area else [],
