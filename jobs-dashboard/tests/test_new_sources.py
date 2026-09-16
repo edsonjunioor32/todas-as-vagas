@@ -826,9 +826,11 @@ class NewSourceRegistryTests(unittest.TestCase):
         self.assertIn("wellfound", names)
         self.assertIn("recargapay", names)
         self.assertIn("workable_brazil", names)
+        self.assertIn("ey", names)
         self.assertIn("wellfound", pipeline.NONEMPTY_SOURCES)
         self.assertIn("recargapay", pipeline.NONEMPTY_SOURCES)
         self.assertIn("workable_brazil", pipeline.NONEMPTY_SOURCES)
+        self.assertIn("ey", pipeline.NONEMPTY_SOURCES)
 
 
 class EYTechEYTests(unittest.TestCase):
