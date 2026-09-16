@@ -69,7 +69,7 @@ class ScheduleTests(unittest.TestCase):
         )
         self.assertIn("  cancel-in-progress: false", workflow)
 
-    def test_guard_waits_for_grace_and_never_duplicates_active_or_dispatched_runs(self):
+    def test_guard_waits_for_grace_and_never_duplicates_active_or_recent_dispatched_runs(self):
         utc = timezone.utc
         slot = datetime(2026, 9, 11, 11, 0, tzinfo=utc)
         self.assertEqual(
@@ -93,11 +93,16 @@ class ScheduleTests(unittest.TestCase):
             "event": "workflow_dispatch",
             "status": "completed",
             "conclusion": "failure",
-            "created_at": "2026-09-11T11:31:00Z",
+            "created_at": "2026-09-11T11:40:00Z",
         }
         self.assertEqual(
             catalog_decide(datetime(2026, 9, 11, 11, 45, tzinfo=utc), [dispatched])["action"],
             "skip",
+        )
+        failed_old = {**dispatched, "created_at": "2026-09-11T11:31:00Z"}
+        self.assertEqual(
+            catalog_decide(datetime(2026, 9, 11, 11, 45, tzinfo=utc), [failed_old])["action"],
+            "dispatch",
         )
 
     def test_guard_dispatches_when_the_slot_has_no_collection_run(self):
@@ -105,6 +110,17 @@ class ScheduleTests(unittest.TestCase):
         result = catalog_decide(datetime(2026, 9, 11, 11, 45, tzinfo=utc), [])
         self.assertEqual(result["action"], "dispatch")
         self.assertEqual(result["reason"], "slot_missing")
+
+    def test_guard_retries_failed_dispatch_after_cooldown(self):
+        utc = timezone.utc
+        failed = {
+            "event": "workflow_dispatch",
+            "status": "completed",
+            "conclusion": "failure",
+            "created_at": "2026-09-11T14:31:00Z",
+        }
+        result = catalog_decide(datetime(2026, 9, 11, 14, 45, tzinfo=utc), [failed])
+        self.assertEqual(result["action"], "dispatch")
 
     def test_guard_accepts_a_successful_collection_run(self):
         utc = timezone.utc
