@@ -1,6 +1,7 @@
 import json
 import sys
 import tempfile
+import os
 import unittest
 from pathlib import Path
 
@@ -102,7 +103,8 @@ class FitRequirementsTests(unittest.TestCase):
                 invalid_url: {"m": [], "p": [], "c": [], "x": [], "q": 95, "t": "description " * 30},
             },
         }
-        clean, rejected = pf.quarantine_invalid_entries(payload)
+        with patch.dict(os.environ, {"FIT_MAX_QUARANTINE_RATIO": "0.50"}):
+            clean, rejected = pf.quarantine_invalid_entries(payload)
         self.assertEqual(list(clean["jobs"]), [valid_url])
         self.assertEqual(clean["count"], 1)
         self.assertEqual(rejected[0]["url"], invalid_url)
@@ -112,7 +114,7 @@ class FitRequirementsTests(unittest.TestCase):
         jobs = {
             f"https://example.com/job/{index}": {
                 "m": [], "p": [], "c": [], "x": [], "q": 95,
-                "t": "description " * (30 if index == 0 else 1),
+                "t": "description " * (30 if index == 0 else 0) or "Analista",
             }
             for index in range(10)
         }
