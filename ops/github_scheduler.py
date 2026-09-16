@@ -111,9 +111,9 @@ def decide(
 ) -> dict[str, str | datetime]:
     """Decide whether a dispatch is needed for the current slot.
 
-    A confirmed local dispatch is authoritative for idempotency. A failed
-    workflow_dispatch run is not considered successful, so a later invocation
-    can retry it unless the local state already records a confirmed POST.
+    A local dispatch is used only as a short cooldown for eventual consistency.
+    A failed workflow_dispatch run is not considered successful, so a later
+    invocation can retry it after the cooldown.
     """
     current = _as_utc(now)
     slot = latest_slot(current)
