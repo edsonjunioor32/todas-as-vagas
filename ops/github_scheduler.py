@@ -24,6 +24,7 @@ UTC = timezone.utc
 BRASILIA = ZoneInfo("America/Sao_Paulo")
 COLLECTION_HOURS_UTC = (11, 14, 18, 23)
 DEFAULT_GRACE_MINUTES = 30
+DEFAULT_DISPATCH_COOLDOWN_MINUTES = 10
 DEFAULT_REPOSITORY = "edsonjunioor32/todas-as-vagas"
 DEFAULT_STATE_PATH = "~/.local/state/todas-as-vagas/github-scheduler.json"
 DEFAULT_LOCK_PATH = "~/.local/state/todas-as-vagas/github-scheduler.lock"
@@ -76,9 +77,29 @@ def is_collection_run(run: dict) -> bool:
     return False
 
 
-def _state_has_slot(state: dict, key: str) -> bool:
+
+def _state_posted_at(state: dict, key: str) -> datetime | None:
     slots = state.get("dispatched_slots") if isinstance(state, dict) else None
-    return isinstance(slots, dict) and key in slots
+    if not isinstance(slots, dict) or key not in slots:
+        return None
+    value = slots[key]
+    if isinstance(value, dict):
+        value = value.get("posted_at_utc")
+    if not isinstance(value, str):
+        return None
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone(UTC)
+    except ValueError:
+        return None
+
+
+def _recent_dispatch(run, current, cooldown_minutes):
+    if str(run.get("event") or "") != "workflow_dispatch":
+        return False
+    created = _run_time(run)
+    if created is None:
+        return False
+    return created >= current - timedelta(minutes=max(0, int(cooldown_minutes)))
 
 
 def decide(
@@ -86,6 +107,7 @@ def decide(
     runs: list[dict],
     state: dict,
     grace_minutes: int = DEFAULT_GRACE_MINUTES,
+    dispatch_cooldown_minutes: int = DEFAULT_DISPATCH_COOLDOWN_MINUTES,
 ) -> dict[str, str | datetime]:
     """Decide whether a dispatch is needed for the current slot.
 
@@ -100,9 +122,6 @@ def decide(
 
     if current < grace_end:
         return {"action": "wait", "reason": "within_grace", "slot": slot}
-    if _state_has_slot(state, key):
-        return {"action": "skip", "reason": "already_dispatched", "slot": slot}
-
     collection_runs = [run for run in runs if is_collection_run(run)]
     if any(
         str(run.get("status") or "") in {"queued", "in_progress"}
@@ -121,6 +140,14 @@ def decide(
         for run in slot_runs
     ):
         return {"action": "skip", "reason": "slot_succeeded", "slot": slot}
+    if any(
+        _recent_dispatch(run, current, dispatch_cooldown_minutes)
+        for run in slot_runs
+    ):
+        return {"action": "skip", "reason": "dispatch_cooldown", "slot": slot}
+    posted_at = _state_posted_at(state, key)
+    if posted_at is not None and posted_at >= current - timedelta(minutes=max(0, int(dispatch_cooldown_minutes))):
+        return {"action": "skip", "reason": "dispatch_cooldown", "slot": slot}
 
     return {"action": "dispatch", "reason": "slot_missing", "slot": slot}
 
@@ -299,11 +326,18 @@ def main() -> int:
         now = datetime.now(UTC)
         state = load_state(_state_path())
         runs = fetch_runs(repository, token)
+        try:
+            cooldown_minutes = int(
+                os.environ.get("CATCHUP_DISPATCH_COOLDOWN_MINUTES", str(DEFAULT_DISPATCH_COOLDOWN_MINUTES))
+            )
+        except ValueError:
+            cooldown_minutes = DEFAULT_DISPATCH_COOLDOWN_MINUTES
         result = decide(
             now,
             runs,
             state,
             int(os.environ.get("CATCHUP_GRACE_MINUTES", DEFAULT_GRACE_MINUTES)),
+            cooldown_minutes,
         )
         slot = result["slot"]
         assert isinstance(slot, datetime)
