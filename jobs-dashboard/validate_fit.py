@@ -19,6 +19,34 @@ def fail(message):
     raise SystemExit(1)
 
 
+def validate_entry(url, entry, term_count):
+    """Return the existing validation error for one fit entry, if any."""
+    if not str(url).startswith("https://"):
+        return f"URL inválida no índice: {url}"
+    if not isinstance(entry, dict) or set(entry) - ALLOWED_ENTRY_KEYS:
+        return f"estrutura de requisitos inválida: {url}"
+    try:
+        confidence = int(entry.get("q") or 0)
+    except (TypeError, ValueError):
+        return f"confiança inválida: {url}"
+    if not 0 <= confidence <= 100:
+        return f"confiança fora de 0-100: {url}"
+    for key in ("m", "p", "c", "x"):
+        values = entry.get(key) or []
+        if not isinstance(values, list):
+            return f"campo {key} inválido: {url}"
+        for index in values:
+            if not isinstance(index, int) or not 0 <= index < term_count:
+                return f"índice de termo inválido em {url}"
+    for key, limit in META_LIMITS.items():
+        value = str(entry.get(key) or "")
+        if len(value) > limit:
+            return f"metadado {key} longo demais: {url}"
+        if "description" in value.casefold() or len(value.split()) > 28:
+            return f"metadado {key} parece conter texto indevido: {url}"
+    return None
+
+
 def main():
     if not FIT.exists() or not TAXONOMY.exists():
         fail("fit.json ou fit-taxonomy.json ausente")
@@ -43,26 +71,9 @@ def main():
         if len(text.split()) > 12:
             fail("termo se parece com trecho de descrição")
     for url, entry in jobs.items():
-        if not str(url).startswith("https://"):
-            fail(f"URL inválida no índice: {url}")
-        if not isinstance(entry, dict) or set(entry) - ALLOWED_ENTRY_KEYS:
-            fail(f"estrutura de requisitos inválida: {url}")
-        confidence = int(entry.get("q") or 0)
-        if not 0 <= confidence <= 100:
-            fail(f"confiança fora de 0-100: {url}")
-        for key in ("m", "p", "c", "x"):
-            values = entry.get(key) or []
-            if not isinstance(values, list):
-                fail(f"campo {key} inválido: {url}")
-            for index in values:
-                if not isinstance(index, int) or not 0 <= index < len(terms):
-                    fail(f"índice de termo inválido em {url}")
-        for key, limit in META_LIMITS.items():
-            value = str(entry.get(key) or "")
-            if len(value) > limit:
-                fail(f"metadado {key} longo demais: {url}")
-            if "description" in value.casefold() or len(value.split()) > 28:
-                fail(f"metadado {key} parece conter texto indevido: {url}")
+        error = validate_entry(url, entry, len(terms))
+        if error:
+            fail(error)
     print(f"OK: índice de aderência com {len(jobs)} vagas, {len(terms)} termos, sem descrições/PII")
 
 

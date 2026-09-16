@@ -14,6 +14,7 @@ import urllib.request
 UTC = timezone.utc
 COLLECTION_HOURS_UTC = (11, 14, 18, 23)
 DEFAULT_GRACE_MINUTES = 30
+DEFAULT_DISPATCH_COOLDOWN_MINUTES = 10
 API_BASE = "https://api.github.com"
 
 
@@ -56,10 +57,20 @@ def is_collection_run(run: dict) -> bool:
     return False
 
 
+def _recent_dispatch(run, current, cooldown_minutes):
+    if str(run.get("event") or "") != "workflow_dispatch":
+        return False
+    created = _run_time(run)
+    if created is None:
+        return False
+    return created >= current - timedelta(minutes=max(0, int(cooldown_minutes)))
+
+
 def decide(
     now: datetime,
     runs: list[dict],
     grace_minutes: int = DEFAULT_GRACE_MINUTES,
+    dispatch_cooldown_minutes: int = DEFAULT_DISPATCH_COOLDOWN_MINUTES,
 ) -> dict[str, str | datetime]:
     """Decide whether a catch-up dispatch is safe for the latest slot."""
     current = _as_utc(now)
@@ -89,10 +100,10 @@ def decide(
         return {"action": "skip", "reason": "slot_succeeded", "slot": slot}
 
     if any(
-        str(run.get("event") or "") == "workflow_dispatch"
+        _recent_dispatch(run, current, dispatch_cooldown_minutes)
         for run in slot_runs
     ):
-        return {"action": "skip", "reason": "catchup_already_dispatched", "slot": slot}
+        return {"action": "skip", "reason": "dispatch_cooldown", "slot": slot}
 
     return {"action": "dispatch", "reason": "slot_missing", "slot": slot}
 
@@ -147,9 +158,15 @@ def main() -> None:
         )
     except ValueError:
         grace_minutes = DEFAULT_GRACE_MINUTES
+    try:
+        dispatch_cooldown_minutes = int(
+            os.environ.get("CATCHUP_DISPATCH_COOLDOWN_MINUTES", str(DEFAULT_DISPATCH_COOLDOWN_MINUTES))
+        )
+    except ValueError:
+        dispatch_cooldown_minutes = DEFAULT_DISPATCH_COOLDOWN_MINUTES
 
     runs = fetch_collection_runs(repository, token)
-    result = decide(datetime.now(UTC), runs, grace_minutes)
+    result = decide(datetime.now(UTC), runs, grace_minutes, dispatch_cooldown_minutes)
     slot = result["slot"].isoformat()
     print(
         f"CATCHUP_STATUS={result['action']} "
