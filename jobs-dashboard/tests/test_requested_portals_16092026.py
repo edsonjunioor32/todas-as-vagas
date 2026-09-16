@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import patch
 
+from sources import REGISTRY
 from sources import requested_portals_16092026 as portals
 
 
@@ -59,6 +60,11 @@ class RequestedPortalsTests(unittest.TestCase):
         with patch.object(portals, "get_json", return_value=[]):
             with self.assertRaisesRegex(RuntimeError, "no Brazilian vacancies"):
                 portals.fetch_jobgether()
+
+    def test_blacklion_and_jobgether_are_registered(self):
+        registry = dict(REGISTRY)
+        self.assertIs(registry["blacklion"], portals.fetch_blacklion)
+        self.assertIs(registry["jobgether"], portals.fetch_jobgether)
 
 
 if __name__ == "__main__":
