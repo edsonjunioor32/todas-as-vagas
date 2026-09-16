@@ -3,6 +3,7 @@ import sys
 import tempfile
 import os
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
