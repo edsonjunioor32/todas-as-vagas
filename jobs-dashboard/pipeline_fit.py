@@ -58,9 +58,13 @@ def _record_quarantine(rejected):
     if not summary_path:
         return
     lines = [
-        "", "### Entradas do índice de aderência em quarentena", "",
+        "",
+        "### Entradas do índice de aderência em quarentena",
+        "",
         f"Foram removidas **{len(rejected)}** entradas inválidas; o catálogo principal não foi alterado.",
-        "", "| URL | Motivo |", "|---|---|",
+        "",
+        "| URL | Motivo |",
+        "|---|---|",
     ]
     lines.extend(
         f"| {item['url'].replace('|', '%7C')} | {item['reason'].replace('|', '%7C')} |"
@@ -68,7 +72,7 @@ def _record_quarantine(rejected):
     )
     try:
         with open(summary_path, "a", encoding="utf-8") as summary:
-            summary.write("\\n".join(lines) + "\\n")
+            summary.write("\n".join(lines) + "\n")
     except OSError as error:
         print(f"  aviso: não foi possível registrar a quarentena no resumo: {error}")
 
