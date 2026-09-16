@@ -7,6 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "jobs-dashboard"))
 import fit_requirements as fr
+import pipeline_fit as pf
 
 
 class FitRequirementsTests(unittest.TestCase):
@@ -88,6 +89,36 @@ class FitRequirementsTests(unittest.TestCase):
             out = Path(tmp) / "fit.json"
             count, _ = fr.export_fit_index(rows, out, taxonomy_path=ROOT / "docs" / "data" / "fit-taxonomy.json")
             self.assertEqual(count, 0)
+
+    def test_quarantine_removes_only_invalid_fit_entry(self):
+        valid_url = "https://example.com/job/valid"
+        invalid_url = "https://example.com/job/invalid"
+        payload = {
+            "schema_version": 1,
+            "count": 2,
+            "terms": ["Python"],
+            "jobs": {
+                valid_url: {"m": [0], "p": [], "c": [], "x": [], "q": 95, "t": "Analista"},
+                invalid_url: {"m": [], "p": [], "c": [], "x": [], "q": 95, "t": "description " * 30},
+            },
+        }
+        clean, rejected = pf.quarantine_invalid_entries(payload)
+        self.assertEqual(list(clean["jobs"]), [valid_url])
+        self.assertEqual(clean["count"], 1)
+        self.assertEqual(rejected[0]["url"], invalid_url)
+        self.assertIn("metadado t", rejected[0]["reason"])
+
+    def test_quarantine_blocks_degradation_above_configured_ratio(self):
+        jobs = {
+            f"https://example.com/job/{index}": {
+                "m": [], "p": [], "c": [], "x": [], "q": 95,
+                "t": "description " * (30 if index == 0 else 1),
+            }
+            for index in range(10)
+        }
+        payload = {"schema_version": 1, "count": 10, "terms": [], "jobs": jobs}
+        with self.assertRaisesRegex(RuntimeError, "proporção"):
+            pf.quarantine_invalid_entries(payload)
 
 
 if __name__ == "__main__":
