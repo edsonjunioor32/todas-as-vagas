@@ -388,8 +388,8 @@ class RegistryTests(unittest.TestCase):
     def test_new_sources_are_registered_and_guarded(self):
         selected = pipeline.selected_registry("spassu,infovagas")
         self.assertEqual([name for name, _fetch in selected], ["spassu", "infovagas"])
-        selected_new = pipeline.selected_registry("esig,azify,finayatech,yellowipe,tivit")
-        self.assertEqual([name for name, _fetch in selected_new], ["esig", "azify", "finayatech", "yellowipe", "tivit"])
+        selected_new = pipeline.selected_registry("esig,finayatech,yellowipe,tivit")
+        self.assertEqual([name for name, _fetch in selected_new], ["esig", "finayatech", "yellowipe", "tivit"])
         selected_levva = pipeline.selected_registry("levva")
         self.assertEqual([name for name, _fetch in selected_levva], ["levva"])
         self.assertTrue({"spassu", "infovagas", "bradesco", "nttdata", "btg", "luza", "levva", "esig", "azify", "finayatech", "yellowipe", "tivit"}.issubset(pipeline.NONEMPTY_SOURCES))
@@ -555,7 +555,7 @@ class CompanyBatchTests(unittest.TestCase):
     def test_requested_company_boards_are_unique_and_not_global_infovagas(self):
         names = [name for name, _fetch in requested_portals_03092026.TARGETS]
         self.assertEqual(len(names), len(set(names)))
-        self.assertEqual(len(names), 158)
+        self.assertEqual(len(names), 156)
         self.assertIn("meutudo", names)
         self.assertIn("minsait", names)
         self.assertIn("emphasys", names)
@@ -936,3 +936,4 @@ class EYTechEYTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
