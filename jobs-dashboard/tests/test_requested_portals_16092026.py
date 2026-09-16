@@ -118,6 +118,13 @@ class RequestedPortalsTests(unittest.TestCase):
 
         driver.quit.assert_called_once()
 
+    def test_asa_preserves_published_dates_and_rolls_over_deadlines(self):
+        today = date(2026, 9, 16)
+        self.assertEqual(portals._asa_date("15/07", today), "2026-07-15")
+        self.assertEqual(
+            portals._asa_date("15/01", today, rollover=True), "2027-01-15"
+        )
+
     def test_requested_public_sources_are_registered(self):
         registry = dict(REGISTRY)
         self.assertIs(registry["blacklion"], portals.fetch_blacklion)
