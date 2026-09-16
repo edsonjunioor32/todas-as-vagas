@@ -4,6 +4,7 @@ from unittest.mock import MagicMock, patch
 
 from sources import REGISTRY
 from sources import requested_portals_16092026 as portals
+from sources import unlockcareer as unlockcareer_portals
 
 
 class RequestedPortalsTests(unittest.TestCase):
@@ -152,10 +153,14 @@ class RequestedPortalsTests(unittest.TestCase):
             },
         ]
         with (
-            patch.object(portals, "_new_unlockcareer_driver", return_value=driver),
-            patch.object(portals, "_wait_for_unlockcareer_element"),
+            patch.object(
+                unlockcareer_portals, "_new_driver", return_value=driver
+            ),
+            patch.object(unlockcareer_portals, "_wait_for_element"),
         ):
-            rows = portals.fetch_unlockcareer_mavila(today=date(2026, 9, 16))
+            rows = unlockcareer_portals.fetch_mavila_consulting(
+                today=date(2026, 9, 16)
+            )
 
         search.clear.assert_called_once()
         search.send_keys.assert_called_once_with("Brazil")
@@ -186,13 +191,27 @@ class RequestedPortalsTests(unittest.TestCase):
             }
         ]
         with (
-            patch.object(portals, "_new_unlockcareer_driver", return_value=driver),
-            patch.object(portals, "_wait_for_unlockcareer_element"),
+            patch.object(
+                unlockcareer_portals, "_new_driver", return_value=driver
+            ),
+            patch.object(unlockcareer_portals, "_wait_for_element"),
             self.assertRaisesRegex(RuntimeError, "no Brazilian vacancies"),
         ):
-            portals.fetch_unlockcareer_mavila(today=date(2026, 9, 16))
+            unlockcareer_portals.fetch_mavila_consulting(
+                today=date(2026, 9, 16)
+            )
 
         driver.quit.assert_called_once()
+
+    def test_unlockcareer_normalizes_posted_dates_without_locale_ambiguity(self):
+        self.assertEqual(
+            unlockcareer_portals._posted_date("Posted 15/09/2026"),
+            "2026-09-15",
+        )
+        self.assertEqual(
+            unlockcareer_portals._posted_date("Posted 9/15/2026"),
+            "2026-09-15",
+        )
 
     def test_requested_public_sources_are_registered(self):
         registry = dict(REGISTRY)
@@ -200,7 +219,8 @@ class RequestedPortalsTests(unittest.TestCase):
         self.assertIs(registry["jobgether"], portals.fetch_jobgether)
         self.assertIs(registry["asa"], portals.fetch_asa)
         self.assertIs(
-            registry["unlockcareer_mavila"], portals.fetch_unlockcareer_mavila
+            registry["unlockcareer_mavila"],
+            unlockcareer_portals.fetch_mavila_consulting,
         )
 
 
