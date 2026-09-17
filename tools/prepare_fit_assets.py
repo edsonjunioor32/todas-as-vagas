@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """Prepara apenas as bibliotecas locais do analisador para o artifact do Pages.
 
-Os acessos visíveis ao analisador permanecem temporariamente ocultos do portal
-principal enquanto a lógica de aderência é revisada.
+A entrada pública do analisador permanece disponível no portal principal, com
+processamento local e sem envio do currículo.
 """
 from pathlib import Path
 import shutil
@@ -13,18 +13,20 @@ INDEX = DOCS / "index.html"
 VENDOR = DOCS / "vendor"
 
 
-def remove_public_entry_points():
+def verify_public_entry_point():
+    """Ensure the public, privacy-first analyzer link remains available."""
     text = INDEX.read_text(encoding="utf-8")
-    text = text.replace('    <link rel="stylesheet" href="./fit-entry.css?v=1">\n', '')
-    text = text.replace('    <script src="./fit-entry.js?v=1" defer></script>\n', '')
-
-    start = text.find('<div class="hero-fit-actions">')
-    if start >= 0:
-        end = text.find('</div>', start)
-        if end >= 0:
-            text = text[:start] + text[end + len('</div>'):]
-
-    INDEX.write_text(text, encoding="utf-8")
+    required = (
+        "fit-entry.css",
+        "hero-fit-actions",
+        "data-fit-entry",
+        "./aderencia/",
+    )
+    missing = [marker for marker in required if marker not in text]
+    if missing:
+        raise RuntimeError(
+            "acesso público ao analisador ausente: " + ", ".join(missing)
+        )
 
 
 def copy_vendor():
@@ -41,13 +43,13 @@ def copy_vendor():
 
 
 def verify():
-    text = INDEX.read_text(encoding="utf-8")
-    forbidden = ('fit-entry.css', 'fit-entry.js', 'hero-fit-cta', 'Analisar meu currículo')
-    for marker in forbidden:
-        if marker in text:
-            raise RuntimeError(f"acesso público ao analisador ainda presente: {marker}")
+    verify_public_entry_point()
 
-    required = [VENDOR / "pdf.mjs", VENDOR / "pdf.worker.mjs", VENDOR / "mammoth.browser.min.js"]
+    required = [
+        VENDOR / "pdf.mjs",
+        VENDOR / "pdf.worker.mjs",
+        VENDOR / "mammoth.browser.min.js",
+    ]
     if any(not path.exists() or path.stat().st_size < 1000 for path in required):
         raise RuntimeError("bibliotecas locais do analisador não foram preparadas")
     if not (DOCS / "aderencia" / "index.html").exists():
@@ -55,10 +57,10 @@ def verify():
 
 
 def main():
-    remove_public_entry_points()
+    verify_public_entry_point()
     copy_vendor()
     verify()
-    print("OK: analisador mantido sem acessos visíveis no portal público")
+    print("OK: analisador público local preparado sem envio do currículo")
 
 
 if __name__ == "__main__":
