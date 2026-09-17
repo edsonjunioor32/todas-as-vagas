@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-16T23:33:38.454216+00:00",
+  "generated_at": "2026-09-17T11:34:02.328917+00:00",
   "candidate_count": 8331,
   "company_count": 196,
   "companies": [
@@ -72,7 +72,7 @@
     {
       "board": "arcoeducacao",
       "company": "Arco Educação",
-      "brazil_jobs": 68
+      "brazil_jobs": 69
     },
     {
       "board": "arctouch",
@@ -190,11 +190,6 @@
       "brazil_jobs": 11
     },
     {
-      "board": "broadsign",
-      "company": "Broadsign Careers",
-      "brazil_jobs": 1
-    },
-    {
       "board": "bugcrowd",
       "company": "Bugcrowd",
       "brazil_jobs": 2
@@ -212,7 +207,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 157
+      "brazil_jobs": 156
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -327,7 +322,7 @@
     {
       "board": "ebanx",
       "company": "EBANX",
-      "brazil_jobs": 23
+      "brazil_jobs": 22
     },
     {
       "board": "ebury",
@@ -380,6 +375,11 @@
       "brazil_jobs": 16
     },
     {
+      "board": "fanaticscollectibles",
+      "company": "Fanatics Collectibles",
+      "brazil_jobs": 1
+    },
+    {
       "board": "feedzai",
       "company": "Feedzai",
       "brazil_jobs": 1
@@ -423,6 +423,11 @@
       "board": "gacampus",
       "company": "General Atlantic - Campus",
       "brazil_jobs": 2
+    },
+    {
+      "board": "gigs",
+      "company": "Gigs",
+      "brazil_jobs": 1
     },
     {
       "board": "gitlab",
@@ -502,7 +507,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 153
+      "brazil_jobs": 152
     },
     {
       "board": "interbrand",
@@ -597,7 +602,7 @@
     {
       "board": "mrbeastyoutube",
       "company": "MrBeast",
-      "brazil_jobs": 1
+      "brazil_jobs": 2
     },
     {
       "board": "mutato",
@@ -707,7 +712,7 @@
     {
       "board": "rdstation",
       "company": "RD Station",
-      "brazil_jobs": 6
+      "brazil_jobs": 7
     },
     {
       "board": "rdsourcing",
@@ -797,7 +802,7 @@
     {
       "board": "speechify",
       "company": "Speechify",
-      "brazil_jobs": 10
+      "brazil_jobs": 11
     },
     {
       "board": "sterlingtonpllc",
@@ -842,11 +847,6 @@
     {
       "board": "teachablecareers",
       "company": "Teachable",
-      "brazil_jobs": 5
-    },
-    {
-      "board": "telnyx54",
-      "company": "Telnyx",
       "brazil_jobs": 5
     },
     {
@@ -967,12 +967,12 @@
     {
       "board": "wppmedia",
       "company": "WPP Media",
-      "brazil_jobs": 36
+      "brazil_jobs": 37
     },
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 180
+      "brazil_jobs": 178
     },
     {
       "board": "xpengmotors",
