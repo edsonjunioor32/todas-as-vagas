@@ -555,13 +555,30 @@ class CompanyBatchTests(unittest.TestCase):
     def test_requested_company_boards_are_unique_and_not_global_infovagas(self):
         names = [name for name, _fetch in requested_portals_03092026.TARGETS]
         self.assertEqual(len(names), len(set(names)))
-        self.assertEqual(len(names), 156)
+        self.assertEqual(len(names), 157)
         self.assertIn("meutudo", names)
         self.assertIn("minsait", names)
         self.assertIn("emphasys", names)
         for tenant in ("evoluetreinamento", "levelcinco", "lotusict", "postogalo", "xlevel"):
             self.assertIn(tenant, names)
         self.assertNotIn("infovagas", names)
+
+    def test_banco_bari_quickin_tenant_is_registered_once_with_label(self):
+        self.assertEqual(
+            requested_portals_03092026.COMPANY_LABELS["bancobari"],
+            "Banco Bari",
+        )
+        self.assertEqual(
+            requested_portals_03092026.QUICKIN_TENANTS.count("bancobari"),
+            1,
+        )
+        target_names = [
+            name for name, _fetch in requested_portals_03092026.TARGETS
+        ]
+        self.assertEqual(target_names.count("bancobari"), 1)
+        self.assertIn("bancobari", {
+            name for name, _fetch in requested_portals_03092026.QUICKIN_TARGETS
+        })
 
     def test_minsait_pandape_card_preserves_company_location_and_modality(self):
         row = requested_portals_03092026._pandape_row({
