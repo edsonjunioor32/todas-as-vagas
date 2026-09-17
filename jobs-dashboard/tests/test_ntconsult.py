@@ -15,7 +15,7 @@ class NTConsultSourceTests(unittest.TestCase):
         second_page = '<a href="/Visualizar/102">Visualizar Vaga</a>'
         detail = """
         <html><head>
-          <meta property="og:title" content="AI Engineer Pleno">
+          <meta property="og:title" content="Oportunidade de AI Engineer Pleno">
           <meta property="og:description" content="Python, APIs REST e Docker.">
         </head><body>
           <h1>AI Engineer Pleno</h1>
