@@ -107,6 +107,7 @@ function evaluate(requirements, resume, index, resumeLength) {
   else if (mandatory.missing.length >= 2 && mandatory.ratio < 0.75) score = Math.min(score, 69);
   else if (mandatory.missing.length >= 1 && mandatory.total <= 3) score = Math.min(score, 79);
   if (!mandatory.total && Number(requirements?.confidence || 0) < 60) score = Math.min(score, 75);
+  if (!mandatory.total && context.total) score = Math.min(score, 75);
 
   const resumeQuality = resumeLength >= 900 ? 100 : resumeLength >= 450 ? 80 : resumeLength >= 220 ? 55 : 30;
   const extractionConfidence = Math.max(0, Math.min(100, Number(requirements?.confidence || 0)));
@@ -158,4 +159,46 @@ export function rankJobs(jobs, fitData, resumeText, taxonomy, limit = 30) {
   }
   results.sort((a, b) => b.result.score - a.result.score || b.result.coverage - a.result.coverage || String(a.job.title).localeCompare(String(b.job.title), 'pt-BR'));
   return results.slice(0, Math.max(1, limit));
+}
+
+
+const DESCRIPTION_MANDATORY_HINTS=['obrigatorio','obrigatória','essencial','necessario','necessária','imprescindivel','imprescindível','requisito','requisitos','experiencia','experiência','conhecimento','formacao','formação','qualificacao','qualificação','deve possuir','required','must have'];
+const DESCRIPTION_PREFERRED_HINTS=['diferencial','diferenciais','desejavel','desejável','nice to have','preferred','plus'];
+
+function uniqueLabels(values){return [...new Set(values.filter(Boolean))]}
+
+function nearbyDescriptionContext(text,position,length){
+  return text.slice(Math.max(0,position-180),Math.min(text.length,position+length+180));
+}
+
+export function extractRequirementsFromDescription(description,taxonomy){
+  const raw=String(description||'').trim();
+  const normalized=normalizeText(raw);
+  const index=buildTaxonomyIndex(taxonomy);
+  const mandatory=[],preferred=[],context=[];
+  for(const entry of index.entries||[]){
+    const label=String(entry.label||'').trim();
+    if(!label)continue;
+    const aliases=[label,...(entry.aliases||[])];
+    let matchedAlias='',position=-1;
+    for(const alias of aliases){
+      const token=normalizeText(alias);
+      if(token&&containsAlias(normalized,token)){matchedAlias=token;position=normalized.indexOf(token);break}
+    }
+    if(position<0)continue;
+    const nearby=nearbyDescriptionContext(normalized,position,matchedAlias.length);
+    const isPreferred=DESCRIPTION_PREFERRED_HINTS.some(hint=>nearby.includes(normalizeText(hint)));
+    const isMandatory=!isPreferred&&DESCRIPTION_MANDATORY_HINTS.some(hint=>nearby.includes(normalizeText(hint)));
+    if(isPreferred)preferred.push(label);
+    else if(isMandatory)mandatory.push(label);
+    else context.push(label);
+  }
+  const mandatoryLabels=uniqueLabels(mandatory);
+  const preferredLabels=uniqueLabels(preferred).filter(label=>!mandatoryLabels.includes(label));
+  const contextLabels=uniqueLabels(context).filter(label=>!mandatoryLabels.includes(label)&&!preferredLabels.includes(label));
+  const allCount=mandatoryLabels.length+preferredLabels.length+contextLabels.length;
+  const hasStructuredSections=/(requisit|qualific|responsabil|atividade|diferencial|mandatory|preferred)/.test(normalized);
+  const confidence=allCount?Math.min(95,Math.max(35,45+Math.min(25,Math.floor(normalized.length/120))+(hasStructuredSections?20:0))):0;
+  const manual=raw.split(/\n+/).map(line=>line.trim()).filter(line=>line&&/(salario|salário|remuner|beneficio|benefício|escala|horario|horário|viagem|disponibilidade|localiza)/i.test(line)).slice(0,6);
+  return{mandatory:mandatoryLabels,preferred:preferredLabels,context:contextLabels,manual,confidence,scoreable:allCount>0,source:'manual-description'};
 }

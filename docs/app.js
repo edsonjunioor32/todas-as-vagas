@@ -325,15 +325,6 @@
     return String(value || '').trim().replace(/^http:\/\//i, 'https://');
   }
 
-  function fitUrlForJob(job) {
-    const params = new URLSearchParams({
-      job: normalizeUrl(job.url),
-      title: String(job.title || '').trim(),
-      company: String(job.company || '').trim()
-    });
-    return `./aderencia/?${params.toString()}`;
-  }
-
   function buildSearchText(job) {
     return normalize([
       job.title, job.company, job.sourceLabel, job.category, job.seniority,
@@ -938,16 +929,6 @@
     date.textContent = publicationLabel(job);
     date.title = activityLabel(job);
     date.setAttribute('aria-label', publicationLabel(job));
-    const actions = document.createElement('div');
-    actions.className = 'job-fit-actions';
-    if (job.url) {
-      const fitLink = document.createElement('a');
-      fitLink.className = 'fit-link';
-      fitLink.href = fitUrlForJob(job);
-      fitLink.textContent = 'Analisar aderência';
-      fitLink.setAttribute('aria-label', `Analisar aderência do currículo para ${job.title}`);
-      actions.append(fitLink);
-    }
     const link = document.createElement('a');
     link.className = 'primary-link';
     link.href = job.url;
@@ -955,8 +936,7 @@
     link.rel = 'noopener noreferrer';
     link.textContent = 'Ver vaga original ↗';
     link.setAttribute('aria-label', `Ver vaga ${job.title} no portal ${job.sourceLabel}`);
-    actions.append(link);
-    footer.append(date, actions);
+    footer.append(date, link);
 
     article.append(head, footer);
     return article;
