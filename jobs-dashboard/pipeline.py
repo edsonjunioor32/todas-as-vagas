@@ -37,7 +37,7 @@ JSON_PATH = ROOT / "docs" / "data" / "vagas.json"
 NIGHTLY_ONLY_SOURCES = {"journy"}
 
 NONEMPTY_SOURCES = {
-    "digisystem", "recrutei", "docusign", "dbccompany", "sankhya", "senior", "mercadolivre",
+    "digisystem", "recrutei", "docusign", "dbccompany", "boschgroup", "sankhya", "senior", "mercadolivre",
     "greenhouse", "spassu", "infovagas", "journy",
     # Requested career pages are part of the protected public feed: a
     # transient empty response must never erase their last valid rows.
