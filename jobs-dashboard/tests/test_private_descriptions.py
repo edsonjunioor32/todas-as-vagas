@@ -27,8 +27,8 @@ class PrivateDescriptionTests(unittest.TestCase):
         payload = b"""
         <html><head>
           <script type="application/ld+json">
-          {"@type":"JobPosting","description":"Experiência com suporte Linux e APIs REST. "
-          "Atendimento de chamados e documentação técnica."}
+          {"@type":"JobPosting","description":"Experiência com suporte Linux e APIs REST. Atendimento de chamados, "
+          "documentação técnica, análise de incidentes e sustentação de aplicações."}
           </script>
         </head><body><nav>Menu</nav><main>Resumo curto</main></body></html>
         """
