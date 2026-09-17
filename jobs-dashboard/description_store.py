@@ -187,7 +187,6 @@ def pending_jobs(
             )
         """
         parameters.extend([now, refresh_cutoff])
-    parameters.append(seen_at)
     return connection.execute(
         f"""
         SELECT job_uid, source, native_id, title, company, url, description,
