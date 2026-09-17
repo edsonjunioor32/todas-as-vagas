@@ -371,7 +371,7 @@ def search(
                    d.description, d.content_kind, d.fetched_at
             FROM job_descriptions_fts f
             JOIN job_descriptions d ON d.job_uid = f.job_uid
-            WHERE job_descriptions_fts MATCH ?
+            WHERE f MATCH ?
             ORDER BY rank
             LIMIT ?
             """,
