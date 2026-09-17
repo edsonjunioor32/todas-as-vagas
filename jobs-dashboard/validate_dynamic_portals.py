@@ -25,6 +25,7 @@ from sources import (  # noqa: E402
     quickin,
     levva,
     requested_careers,
+    smartrecruiters_brazil,
     requested_portals_27082026,
     requested_portals_28082026,
     requested_portals_29082026,
@@ -44,6 +45,7 @@ SOURCES = (("levva", levva.fetch),) + requested_portals_29082026.TARGETS + (
 ) + requested_portals_28082026.TARGETS + (
     ("digisystem", digisystem.fetch),
     ("docusign", requested_careers.fetch_docusign),
+    ("smartrecruiters_brazil", smartrecruiters_brazil.fetch),
     ("dbccompany", requested_careers.fetch_dbccompany),
     ("boschgroup", requested_careers.fetch_boschgroup),
     ("sankhya", sankhya_senior.fetch_sankhya),

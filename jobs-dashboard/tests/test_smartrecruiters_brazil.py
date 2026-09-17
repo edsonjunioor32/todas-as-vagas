@@ -97,6 +97,10 @@ class SmartRecruitersBrazilTests(unittest.TestCase):
         }
         with patch.object(
             smartrecruiters_brazil,
+            "get_text",
+            return_value="<html></html>",
+        ), patch.object(
+            smartrecruiters_brazil,
             "discover_companies",
             return_value=["RedBull", "BrokenCompany", "RedBull"],
         ), patch.object(
