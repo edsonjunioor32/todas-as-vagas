@@ -45,6 +45,7 @@ SOURCES = (("levva", levva.fetch),) + requested_portals_29082026.TARGETS + (
     ("digisystem", digisystem.fetch),
     ("docusign", requested_careers.fetch_docusign),
     ("dbccompany", requested_careers.fetch_dbccompany),
+    ("boschgroup", requested_careers.fetch_boschgroup),
     ("sankhya", sankhya_senior.fetch_sankhya),
     ("senior", sankhya_senior.fetch_senior),
     ("experian", experian.fetch),

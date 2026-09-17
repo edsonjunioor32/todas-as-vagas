@@ -72,6 +72,7 @@ REGISTRY = [
     ("nerdin", nerdin.fetch),
     ("docusign", requested_careers.fetch_docusign),
     ("dbccompany", requested_careers.fetch_dbccompany),
+    ("boschgroup", requested_careers.fetch_boschgroup),
     ("cloudwalk", requested_careers.fetch_cloudwalk),
     ("sensedia", trakstar.fetch),
     ("mercadolivre", mercadolivre.fetch),

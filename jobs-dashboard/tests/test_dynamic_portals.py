@@ -155,6 +155,50 @@ class RequestedCareerTests(unittest.TestCase):
         self.assertEqual(rows[0]["contract_types"], ["Full-time"])
 
 
+    def test_boschgroup_uses_shared_smartrecruiters_collector_and_filters_brazil(self):
+        payload = {"content": [
+            {
+                "id": "br-987",
+                "name": "Engenheiro de Software",
+                "location": {
+                    "city": "Campinas",
+                    "region": "SP",
+                    "country": "Brazil",
+                    "fullLocation": "Campinas, SP, Brazil",
+                    "remote": False,
+                },
+                "releasedDate": "2026-09-15T10:00:00Z",
+                "typeOfEmployment": {"label": "Full-time"},
+                "experienceLevel": {"label": "Professional"},
+                "department": {"label": "Engineering"},
+            },
+            {
+                "id": "de-654",
+                "name": "Software Engineer",
+                "location": {
+                    "city": "Stuttgart",
+                    "region": "BW",
+                    "country": "Germany",
+                    "fullLocation": "Stuttgart, Germany",
+                },
+            },
+        ]}
+        with patch.object(requested_careers, "get_json", return_value=payload):
+            rows = requested_careers.fetch_boschgroup()
+
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["source"], "boschgroup")
+        self.assertEqual(rows[0]["native_id"], "br-987")
+        self.assertEqual(rows[0]["company"], "Bosch")
+        self.assertEqual(rows[0]["country"], "BR")
+        self.assertEqual(rows[0]["market"], "BR")
+        self.assertEqual(rows[0]["city"], "Campinas")
+        self.assertEqual(
+            rows[0]["url"],
+            "https://jobs.smartrecruiters.com/BoschGroup/br-987-engenheiro-de-software",
+        )
+
+
 class EdenredWorkdayTests(unittest.TestCase):
     def test_edenred_uses_public_tenant_and_detail_prefix(self):
         payload = {

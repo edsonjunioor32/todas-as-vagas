@@ -14,7 +14,8 @@ CloudWalk = "https://www.cloudwalk.io/jobs"
 CLOUDWALK_CURRENT = "https://lp.cloudwalk.io/jobs"
 CLOUDWALK_LEGACY = "https://www.cloudwalk.io"
 DOCUSIGN_API = "https://careers.docusign.com/api/jobs"
-SMARTRECRUITERS_API = "https://api.smartrecruiters.com/v1/companies/dbc/postings"
+SMARTRECRUITERS_API = "https://api.smartrecruiters.com/v1/companies/{company}/postings"
+SMARTRECRUITERS_PAGE_SIZE = 100
 ANCHOR_RE = re.compile(r'<a[^>]+href=["\']([^"\']*(?:/jobs/|/vagas/)[^"\']*)["\'][^>]*>([\s\S]*?)</a>', re.I)
 
 
@@ -91,31 +92,79 @@ def fetch_docusign():
     return rows
 
 
-def fetch_dbccompany():
-    """Read DBC's official SmartRecruiters public postings API.
 
-    ``vagas.dbccompany.com.br/vagas`` now returns 404; the live company
-    catalogue is served by SmartRecruiters and exposes the same public jobs as
-    JSON, including location, modality, contract and seniority metadata.
-    """
-    payload = get_json(f"{SMARTRECRUITERS_API}?limit=100", timeout=45, retries=3)
-    entries = payload.get("content") if isinstance(payload, dict) else None
-    if not entries:
-        raise RuntimeError("DBC SmartRecruiters API returned no public postings")
+def _smartrecruiters_location_text(location):
+    values = []
+    for key in ("country", "countryCode", "country_code", "fullLocation", "address", "city", "region"):
+        value = location.get(key)
+        if isinstance(value, dict):
+            values.extend(str(item).strip() for item in value.values() if item)
+        elif value:
+            values.append(str(value).strip())
+    return " ".join(value for value in values if value)
 
+
+def _smartrecruiters_country_code(location):
+    value = location.get("country") or location.get("countryCode") or location.get("country_code") or ""
+    if isinstance(value, dict):
+        value = value.get("code") or value.get("label") or value.get("name") or ""
+    value = str(value).strip()
+    normalized = value.casefold()
+    if normalized in {"br", "brasil", "brazil"}:
+        return "BR"
+    return value.upper() if len(value) == 2 else value
+
+
+def _is_brazil_location(location):
+    country = _smartrecruiters_country_code(location)
+    if country == "BR":
+        return True
+    return bool(re.search(r"\b(?:brasil|brazil)\b", _smartrecruiters_location_text(location), re.I))
+
+
+def _smartrecruiters_entries(company_id):
+    offset = 0
+    while True:
+        endpoint = SMARTRECRUITERS_API.format(company=company_id)
+        query = urlencode({"limit": SMARTRECRUITERS_PAGE_SIZE, "offset": offset})
+        payload = get_json(f"{endpoint}?{query}", timeout=45, retries=3)
+        entries = payload.get("content") if isinstance(payload, dict) else None
+        if not isinstance(entries, list) or not entries:
+            break
+        yield from entries
+
+        offset += len(entries)
+        total = (
+            (payload.get("totalFound") or payload.get("total"))
+            if isinstance(payload, dict)
+            else None
+        )
+        try:
+            total = int(total) if total is not None else None
+        except (TypeError, ValueError):
+            total = None
+        if len(entries) < SMARTRECRUITERS_PAGE_SIZE or total is None or offset >= total:
+            break
+
+
+def fetch_smartrecruiters(company_id, source, company, *, market="global", country_filter=None):
+    """Collect one SmartRecruiters company feed using the shared adapter."""
     rows, seen = [], set()
-    for data in entries:
+    for data in _smartrecruiters_entries(company_id):
         if not isinstance(data, dict):
             continue
+        location = data.get("location") or {}
+        location = location if isinstance(location, dict) else {}
+        if country_filter == "BR" and not _is_brazil_location(location):
+            continue
+
         native_id = str(data.get("id") or "").strip()
         title = str(data.get("name") or "").strip()
         if not native_id or not title or native_id in seen:
             continue
         seen.add(native_id)
-        location = data.get("location") or {}
-        location = location if isinstance(location, dict) else {}
-        country = str(location.get("country") or "").strip()
-        country_code = country.upper() if len(country) == 2 else country
+
+        country_code = _smartrecruiters_country_code(location)
         city = str(location.get("city") or location.get("address") or "Brasil").strip()
         categories = []
         for key in ("industry", "department", "function"):
@@ -126,22 +175,48 @@ def fetch_dbccompany():
         employment = data.get("typeOfEmployment") or {}
         experience = data.get("experienceLevel") or {}
         slug = re.sub(r"[^a-z0-9]+", "-", title.casefold()).strip("-")
-        url = f"https://jobs.smartrecruiters.com/DBC/{native_id}-{slug}"
+        url = f"https://jobs.smartrecruiters.com/{company_id}/{native_id}-{slug}"
         rows.append(job(
-            "dbccompany", native_id, title=title, company="DBC Company", url=url,
+            source, native_id, title=title, company=company, url=url,
             work_model=work_model_label(
                 remote_flag=bool(location.get("remote")),
                 raw=str(location.get("fullLocation") or location.get("address") or ""),
             ),
             city=city, state=str(location.get("region") or "").strip(),
-            country=country_code or "US", market="global",
+            country=country_code or ("BR" if country_filter == "BR" else "US"),
+            market=market,
             published_date=iso_date(data.get("releasedDate")),
             levels=[str(experience.get("label")).strip()] if experience.get("label") else [],
-            categories=categories or ["Carreiras DBC"],
+            categories=categories or [f"Carreiras {company}"],
             contract_types=[str(employment.get("label")).strip()] if employment.get("label") else [],
         ))
+    return rows
+
+
+def fetch_dbccompany():
+    """Read DBC's official SmartRecruiters public postings API."""
+    rows = fetch_smartrecruiters(
+        "DBC",
+        "dbccompany",
+        "DBC Company",
+        market="global",
+    )
     if not rows:
         raise RuntimeError("DBC SmartRecruiters API returned no recognizable postings")
+    return rows
+
+
+def fetch_boschgroup():
+    """Read Bosch's SmartRecruiters postings limited to Brazil."""
+    rows = fetch_smartrecruiters(
+        "BoschGroup",
+        "boschgroup",
+        "Bosch",
+        market="BR",
+        country_filter="BR",
+    )
+    if not rows:
+        raise RuntimeError("Bosch SmartRecruiters API returned no Brazil postings")
     return rows
 
 
