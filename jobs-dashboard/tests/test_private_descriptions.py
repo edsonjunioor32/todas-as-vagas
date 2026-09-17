@@ -24,14 +24,14 @@ class PrivateDescriptionTests(unittest.TestCase):
             path.unlink(missing_ok=True)
 
     def test_extracts_jsonld_job_posting(self):
-        payload = b"""
+        payload = """
         <html><head>
           <script type="application/ld+json">
           {"@type":"JobPosting","description":"Experiência com suporte Linux e APIs REST. Atendimento de chamados, "
           "documentação técnica, análise de incidentes e sustentação de aplicações."}
           </script>
         </head><body><nav>Menu</nav><main>Resumo curto</main></body></html>
-        """
+        """.encode("utf-8")
         description, kind = description_crawler.extract_description(payload)
         self.assertEqual(kind, "jsonld")
         self.assertIn("Linux", description)
