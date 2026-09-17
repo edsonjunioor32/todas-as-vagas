@@ -563,6 +563,23 @@ class CompanyBatchTests(unittest.TestCase):
             self.assertIn(tenant, names)
         self.assertNotIn("infovagas", names)
 
+    def test_banco_bari_quickin_tenant_is_registered_once_with_label(self):
+        self.assertEqual(
+            requested_portals_03092026.COMPANY_LABELS["bancobari"],
+            "Banco Bari",
+        )
+        self.assertEqual(
+            requested_portals_03092026.QUICKIN_TENANTS.count("bancobari"),
+            1,
+        )
+        target_names = [
+            name for name, _fetch in requested_portals_03092026.TARGETS
+        ]
+        self.assertEqual(target_names.count("bancobari"), 1)
+        self.assertIn("bancobari", {
+            name for name, _fetch in requested_portals_03092026.QUICKIN_TARGETS
+        })
+
     def test_minsait_pandape_card_preserves_company_location_and_modality(self):
         row = requested_portals_03092026._pandape_row({
             "href": "https://minsaitbrasil.pandape.infojobs.com.br/Detail/3680944",
