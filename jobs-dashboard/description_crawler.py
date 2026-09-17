@@ -243,6 +243,7 @@ def fetch_page(
     *,
     timeout: float,
     user_agent: str,
+    max_bytes: int = MAX_RESPONSE_BYTES,
 ) -> tuple[bytes, str, int]:
     request = urllib.request.Request(
         url.replace("http://", "https://", 1),
@@ -253,11 +254,11 @@ def fetch_page(
     )
     try:
         with urllib.request.urlopen(request, timeout=timeout) as response:
-            body = response.read(MAX_RESPONSE_BYTES + 1)
-            if len(body) > MAX_RESPONSE_BYTES:
+            body = response.read(max_bytes + 1)
+            if len(body) > max_bytes:
                 raise FetchError(
                     "response_too_large",
-                    f"resposta maior que {MAX_RESPONSE_BYTES} bytes",
+                    f"resposta maior que {max_bytes} bytes",
                     retryable=False,
                 )
             return body, response.headers.get("Content-Type", ""), response.status
@@ -340,7 +341,12 @@ def load_catalog(path: str, url: str, *, timeout: float, user_agent: str) -> lis
     if path:
         payload = json.loads(Path(path).expanduser().read_text(encoding="utf-8"))
     else:
-        body, _, _ = fetch_page(url, timeout=timeout, user_agent=user_agent)
+        body, _, _ = fetch_page(
+            url,
+            timeout=timeout,
+            user_agent=user_agent,
+            max_bytes=32 * 1024 * 1024,
+        )
         payload = json.loads(body.decode("utf-8"))
     rows = decode_catalog(payload)
     if not rows:
