@@ -904,6 +904,13 @@ class NewSourceRegistryTests(unittest.TestCase):
         self.assertIn("workable_brazil", pipeline.NONEMPTY_SOURCES)
         self.assertIn("ey", pipeline.NONEMPTY_SOURCES)
 
+    def test_boschgroup_is_registered_and_selectable_as_brazil_source(self):
+        names = {name for name, _fetch in pipeline.REGISTRY}
+        self.assertIn("boschgroup", names)
+        self.assertIn("boschgroup", pipeline.NONEMPTY_SOURCES)
+        selected = pipeline.selected_registry("boschgroup")
+        self.assertEqual([name for name, _fetch in selected], ["boschgroup"])
+
 
 class EYTechEYTests(unittest.TestCase):
     def test_public_techey_listing_normalizes_detail_and_location(self):

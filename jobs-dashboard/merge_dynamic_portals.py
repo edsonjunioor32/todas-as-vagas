@@ -54,6 +54,7 @@ TARGETS = (
     ("digisystem", digisystem.fetch),
     ("docusign", requested_careers.fetch_docusign),
     ("dbccompany", requested_careers.fetch_dbccompany),
+    ("boschgroup", requested_careers.fetch_boschgroup),
     ("sankhya", sankhya_senior.fetch_sankhya),
     ("senior", sankhya_senior.fetch_senior),
     ("bradesco", bradesco.fetch),
