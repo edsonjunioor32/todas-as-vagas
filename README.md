@@ -172,6 +172,36 @@ O workflow `.github/workflows/telegram.yml` deste repositório é acionado manua
 - uma atualização nova cancela outra ainda em andamento antes do commit, evitando a fila de execuções equivalentes;
 - cada execução mostra no resumo do GitHub Actions o tempo por etapa, a duração de cada fonte, suas contagens e eventuais falhas.
 
+## Índice privado de descrições (VPS)
+
+O catálogo público continua sem descrições integrais. Para viabilizar a futura busca por aderência, o projeto agora inclui um coletor opcional que lê o snapshot público, acessa os links oficiais das vagas em baixa velocidade e guarda as descrições somente em um SQLite privado no VPS.
+
+- O arquivo fica fora do checkout por padrão, em `~/todas-as-vagas-private/descriptions.sqlite3`, e possui índice FTS5 quando disponível.
+- Cada vaga é processada com checkpoint, hash, data da última tentativa, status, código HTTP e próxima tentativa. Uma falha não interrompe a fila nem apaga uma descrição já armazenada.
+- O coletor respeita `robots.txt`, usa uma única requisição por vez por padrão e limita o tempo de cada execução. Páginas que exigem JavaScript, bloqueiam acesso ou não têm conteúdo extraível ficam registradas para nova tentativa.
+- A carga inicial é retomada automaticamente: o timer noturno executa por até seis horas por noite, sem refazer as vagas já concluídas. Com cerca de 71 mil vagas, a primeira carga ocorrerá em várias noites, conforme a resposta dos portais.
+- O conteúdo bruto não é enviado para GitHub Pages, `public-data`, `history-data`, logs, Telegram ou WhatsApp.
+
+Instalação no VPS (após atualizar o checkout):
+
+```bash
+sudo install -d -o ubuntu -g ubuntu -m 700 /home/ubuntu/todas-as-vagas-private
+sudo install -m 644 ops/systemd/todas-as-vagas-descriptions.service /etc/systemd/system/
+sudo install -m 644 ops/systemd/todas-as-vagas-descriptions.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now todas-as-vagas-descriptions.timer
+systemctl status todas-as-vagas-descriptions.timer --no-pager
+```
+
+Para uma execução controlada antes de ativar a madrugada:
+
+```bash
+cd /home/ubuntu/todas-as-vagas
+python3 jobs-dashboard/description_crawler.py --limit 10 --max-seconds 120 --min-interval 1
+```
+
+O resultado dessa primeira etapa é uma base privada pronta para a próxima etapa: comparar o currículo com requisitos extraídos das descrições e ranquear as vagas. Nenhuma tela pública é alterada nesta fase.
+
 ## Privacidade e conteúdo
 
 O site publica apenas metadados: cargo, empresa, portal, modalidade, localização, classificação, datas, salário quando disponível e link original. Descrições completas não são gravadas no JSON público nem no banco versionado.

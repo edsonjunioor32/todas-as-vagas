@@ -1,0 +1,18 @@
+[Unit]
+Description=Coleta privada e incremental de descricoes de vagas
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/todas-as-vagas
+Environment=PRIVATE_DESCRIPTIONS_DB=/home/ubuntu/todas-as-vagas-private/descriptions.sqlite3
+Environment=DESCRIPTION_CATALOG_URL=https://raw.githubusercontent.com/edsonjunioor32/todas-as-vagas/public-data/data/vagas.json
+Environment=DESCRIPTION_MAX_SECONDS=21600
+Environment=DESCRIPTION_MIN_INTERVAL=1.0
+Environment=DESCRIPTION_PAGE_TIMEOUT=25
+ExecStart=/usr/bin/python3 jobs-dashboard/description_crawler.py --max-seconds 21600 --min-interval 1.0
+UMask=0077
+TimeoutStartSec=7h
