@@ -158,6 +158,7 @@ def _detail_row(url):
             "",
         )
     title = strip_html(title)
+    title = re.sub(r"^(?:oportunidade|vaga)\\s+(?:de\\s+)?", "", title, flags=re.I).strip()
     if not title:
         return None
 
