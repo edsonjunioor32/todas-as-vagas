@@ -7,12 +7,12 @@
     <meta name="theme-color" content="#061317">
     <meta name="referrer" content="no-referrer">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'">
-    <meta name="description" content="Compare seu currículo com vagas do Todas as Vagas. Cole, edite ou carregue um arquivo; a análise é local e não há armazenamento nem envio.">
+    <meta name="description" content="Compare localmente seu currículo com a descrição de uma vaga. O conteúdo não é enviado nem armazenado.">
     <title>Análise de aderência — Todas as Vagas</title>
     <link rel="icon" href="../favicon.svg?v=4" type="image/svg+xml">
     <script src="../theme.js?v=2"></script>
     <link rel="stylesheet" href="../styles.css?v=14">
-    <link rel="stylesheet" href="./styles.css?v=1">
+    <link rel="stylesheet" href="./styles.css?v=2">
   </head>
   <body>
     <a class="skip-link" href="#analisador">Pular para o analisador</a>
@@ -33,11 +33,11 @@
       <section class="fit-hero">
         <div class="shell fit-hero-grid">
           <div>
-            <p class="section-kicker">ADERÊNCIA CANDIDATO × VAGA</p>
-            <h1>Descubra onde seu currículo <span>realmente</span> combina.</h1>
-            <p class="fit-lead">Carregue um arquivo ou cole o texto do currículo, revise e edite o conteúdo antes de comparar requisitos obrigatórios, diferenciais e competências. O resultado é uma estimativa baseada no que foi possível identificar.</p>
+            <p class="section-kicker">ADERÊNCIA CURRÍCULO × VAGA</p>
+            <h1>Compare seu currículo com a vaga <span>real</span>.</h1>
+            <p class="fit-lead">Carregue ou cole seu currículo e cole a descrição completa da vaga. Você pode revisar os dois conteúdos antes de iniciar a comparação.</p>
           </div>
-          <aside class="privacy-card" aria-label="Privacidade do currículo"><strong>🔒 Processamento local</strong><p>Seu currículo é lido somente no navegador. Não há armazenamento nem envio: o arquivo e o texto extraído não saem desta sessão e não são adicionados ao GitHub.</p></aside>
+          <aside class="privacy-card" aria-label="Privacidade dos dados"><strong>🔒 Processamento local</strong><p>O currículo e a descrição da vaga são analisados somente no navegador. Nada é enviado, armazenado ou adicionado ao GitHub.</p></aside>
         </div>
       </section>
 
@@ -51,19 +51,23 @@
           <div class="resume-divider"><span>ou</span></div>
           <label class="resume-paste-label" for="resumePaste">Cole ou edite o texto do currículo</label>
           <textarea id="resumePaste" rows="7" aria-describedby="resumeEditHint" placeholder="Cole aqui o conteúdo do seu currículo. Você pode revisar e editar o texto antes da análise."></textarea>
-          <p class="resume-helper" id="resumeEditHint">Você pode colar o currículo nesta caixa e ajustar o conteúdo antes de analisar.</p>
+          <p class="resume-helper" id="resumeEditHint">O texto permanece somente nesta sessão do navegador.</p>
           <div class="resume-status" id="resumeStatus" role="status" aria-live="polite">Nenhum currículo carregado.</div>
           <div class="resume-signals" id="resumeSignals" hidden><span><strong id="resumeChars">0</strong> caracteres analisáveis</span><span><strong id="resumeSkills">0</strong> competências reconhecidas</span></div>
         </section>
 
         <section class="fit-panel job-panel" aria-labelledby="jobTitle">
-          <div class="fit-panel-heading"><div><p class="section-kicker">2. VAGA</p><h2 id="jobTitle">Escolha como analisar</h2></div></div>
-          <article class="selected-job" id="selectedJob" hidden>
-            <p class="selected-job-label">Vaga selecionada</p><h3 id="selectedJobTitle"></h3><p id="selectedJobCompany"></p>
-            <div class="selected-job-actions"><a id="selectedJobLink" class="secondary-button" target="_blank" rel="noopener noreferrer">Ver vaga original ↗</a><button id="analyzeSelected" class="primary-button fit-primary-button" type="button" disabled>Analisar esta vaga</button></div>
-          </article>
-          <div class="find-best-card"><strong>Quer descobrir as melhores oportunidades?</strong><p>Depois de carregar, colar ou editar o currículo, podemos comparar localmente as vagas que possuem requisitos extraídos.</p><button id="rankJobs" class="primary-button fit-primary-button" type="button" disabled>Encontrar melhores vagas para mim</button></div>
-          <p class="fit-note">A aderência é sempre uma estimativa baseada no texto disponível no anúncio e no currículo editado por você. Ela não representa probabilidade de contratação e não substitui a leitura da vaga original. O currículo não é armazenado nem enviado.</p>
+          <div class="fit-panel-heading"><div><p class="section-kicker">2. DESCRIÇÃO DA VAGA</p><h2 id="jobTitle">Cole os dados da vaga</h2></div></div>
+          <div class="job-fields">
+            <label class="job-field" for="jobTitleInput"><span>Cargo (opcional)</span><input id="jobTitleInput" type="text" placeholder="Ex.: Analista de Dados"></label>
+            <label class="job-field" for="jobCompanyInput"><span>Empresa (opcional)</span><input id="jobCompanyInput" type="text" placeholder="Ex.: Empresa contratante"></label>
+            <label class="job-field" for="jobUrlInput"><span>Link original (opcional)</span><input id="jobUrlInput" type="url" placeholder="https://..."></label>
+            <label class="job-field job-description-field" for="jobDescription"><span>Descrição completa da vaga</span><textarea id="jobDescription" rows="10" aria-describedby="jobDescriptionHint" placeholder="Cole aqui as atividades, requisitos, qualificações, diferenciais, benefícios e demais informações do anúncio."></textarea></label>
+          </div>
+          <p class="resume-helper" id="jobDescriptionHint">Quanto mais completa a descrição, melhor a identificação de requisitos obrigatórios e diferenciais.</p>
+          <div class="job-description-status" id="jobDescriptionStatus" role="status" aria-live="polite">Cole a descrição da vaga para continuar.</div>
+          <button id="analyzeJob" class="primary-button fit-primary-button" type="button" disabled>Comparar currículo com a vaga</button>
+          <p class="fit-note">A comparação é uma estimativa local. Confirme requisitos, condições e disponibilidade no anúncio original.</p>
         </section>
       </div>
 
@@ -72,7 +76,7 @@
         <div class="score-grid">
           <article class="score-card score-main"><span class="score-value" id="fitScore">—</span><strong id="fitLabel">Aderência estimada</strong><p>Estimativa de compatibilidade com os requisitos identificados.</p></article>
           <article class="score-card"><span class="score-value small" id="mandatoryScore">—</span><strong>Obrigatórios atendidos</strong><p id="mandatoryDetail">—</p></article>
-          <article class="score-card"><span class="score-value small" id="coverageScore">—</span><strong>Cobertura da análise</strong><p>Quanto do anúncio e do currículo pôde ser avaliado com confiança.</p></article>
+          <article class="score-card"><span class="score-value small" id="coverageScore">—</span><strong>Cobertura da análise</strong><p>Quanto do texto da vaga e do currículo pôde ser avaliado com confiança.</p></article>
         </div>
         <div class="analysis-columns">
           <article class="analysis-card good-card"><h3>✓ Evidências encontradas</h3><div class="chip-list" id="matchedList"></div></article>
@@ -81,15 +85,10 @@
           <article class="analysis-card manual-card"><h3>☑ Confirme manualmente</h3><div class="chip-list" id="manualList"></div></article>
         </div>
       </section>
-
-      <section class="shell ranking-section" id="rankingSection" hidden aria-labelledby="rankingTitle">
-        <div class="analysis-header"><div><p class="section-kicker">MELHORES CORRESPONDÊNCIAS</p><h2 id="rankingTitle">Vagas priorizadas para o currículo</h2></div><p id="rankingMeta" class="ranking-meta"></p></div>
-        <div class="fit-ranking-list" id="rankingList"></div>
-      </section>
     </main>
 
-    <footer class="site-footer fit-footer"><div class="shell footer-grid"><div><strong>Todas as Vagas</strong><p>O analisador não envia nem armazena o currículo. Fechar ou atualizar a página encerra a sessão de análise.</p></div><p>Confirme requisitos, elegibilidade e condições diretamente no anúncio original.</p></div></footer>
+    <footer class="site-footer fit-footer"><div class="shell footer-grid"><div><strong>Todas as Vagas</strong><p>O analisador não envia nem armazena o currículo ou a descrição da vaga. Fechar ou atualizar a página encerra a sessão.</p></div><p>Confirme requisitos, elegibilidade e condições diretamente no anúncio original.</p></div></footer>
     <script src="../vendor/mammoth.browser.min.js"></script>
-    <script type="module" src="./app.js?v=1"></script>
+    <script type="module" src="./app.js?v=2"></script>
   </body>
 </html>
