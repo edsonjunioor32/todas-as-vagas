@@ -107,6 +107,7 @@ function evaluate(requirements, resume, index, resumeLength) {
   else if (mandatory.missing.length >= 2 && mandatory.ratio < 0.75) score = Math.min(score, 69);
   else if (mandatory.missing.length >= 1 && mandatory.total <= 3) score = Math.min(score, 79);
   if (!mandatory.total && Number(requirements?.confidence || 0) < 60) score = Math.min(score, 75);
+  if (!mandatory.total && context.total) score = Math.min(score, 75);
 
   const resumeQuality = resumeLength >= 900 ? 100 : resumeLength >= 450 ? 80 : resumeLength >= 220 ? 55 : 30;
   const extractionConfidence = Math.max(0, Math.min(100, Number(requirements?.confidence || 0)));
