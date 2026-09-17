@@ -35,6 +35,7 @@ from sources import (  # noqa: E402
     levva,
     requested_careers,
     smartrecruiters_brazil,
+    ntconsult,
     requested_portals_27082026,
     requested_portals_28082026,
     requested_portals_29082026,
@@ -61,6 +62,7 @@ TARGETS = (
     ("senior", sankhya_senior.fetch_senior),
     ("bradesco", bradesco.fetch),
     ("nttdata", geekhunter.fetch_ntt_data),
+    ("ntconsult", ntconsult.fetch),
 ) + requested_portals_27082026.TARGETS + requested_portals_28082026.TARGETS + requested_portals_29082026.TARGETS + requested_portals_03092026.TARGETS
 TARGET_NAMES = {name for name, _ in TARGETS}
 # Empty current feeds are kept in the general registry, but do not block a
