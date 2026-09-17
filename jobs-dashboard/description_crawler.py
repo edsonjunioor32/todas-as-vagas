@@ -302,6 +302,11 @@ def _catalog_value(dictionaries: dict, name: str, code: object) -> str:
         return ""
 
 
+def _column_value(columns: dict, name: str, index: int) -> object:
+    values = columns.get(name) or []
+    return values[index] if index < len(values) else ""
+
+
 def decode_catalog(payload: dict) -> list[dict]:
     """Decode the compact public snapshot into crawler manifest rows."""
     dictionaries = payload.get("dict") or {}
@@ -309,9 +314,11 @@ def decode_catalog(payload: dict) -> list[dict]:
     count = int(payload.get("count") or 0)
     rows = []
     for index in range(count):
-        source = _catalog_value(dictionaries, "source", columns.get("src", [])[index])
-        title = str((columns.get("title") or [""])[index] or "").strip()
-        url = str((columns.get("url") or [""])[index] or "").strip()
+        source = _catalog_value(
+            dictionaries, "source", _column_value(columns, "src", index)
+        )
+        title = str(_column_value(columns, "title", index) or "").strip()
+        url = str(_column_value(columns, "url", index) or "").strip()
         if not source or not title or not url:
             continue
         native_id = url
@@ -321,7 +328,7 @@ def decode_catalog(payload: dict) -> list[dict]:
                 "native_id": native_id,
                 "title": title,
                 "company": _catalog_value(
-                    dictionaries, "company", (columns.get("cmp") or [""])[index]
+                    dictionaries, "company", _column_value(columns, "cmp", index)
                 ),
                 "url": url.replace("http://", "https://", 1),
             }
