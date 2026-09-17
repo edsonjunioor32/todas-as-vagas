@@ -180,7 +180,7 @@ O catálogo público continua sem descrições integrais. Para viabilizar a futu
 - Cada vaga é processada com checkpoint, hash, data da última tentativa, status, código HTTP e próxima tentativa. Uma falha não interrompe a fila nem apaga uma descrição já armazenada.
 - O coletor respeita `robots.txt`, usa uma única requisição por vez por padrão e limita o tempo de cada execução. Páginas que exigem JavaScript, bloqueiam acesso ou não têm conteúdo extraível ficam registradas para nova tentativa.
 - A carga inicial é retomada automaticamente: o timer noturno executa por até seis horas por noite, sem refazer as vagas já concluídas. Com cerca de 71 mil vagas, a primeira carga ocorrerá em várias noites, conforme a resposta dos portais.
-- O conteúdo bruto não é enviado para GitHub Pages, `public-data`, `history-data), logs, Telegram ou WhatsApp.
+- O conteúdo bruto não é enviado para GitHub Pages, `public-data`, `history-data`, logs, Telegram ou WhatsApp.
 
 Instalação no VPS (após atualizar o checkout):
 
