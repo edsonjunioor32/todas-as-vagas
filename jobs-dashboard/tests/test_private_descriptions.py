@@ -27,8 +27,7 @@ class PrivateDescriptionTests(unittest.TestCase):
         payload = """
         <html><head>
           <script type="application/ld+json">
-          {"@type":"JobPosting","description":"Experiência com suporte Linux e APIs REST. Atendimento de chamados, "
-          "documentação técnica, análise de incidentes e sustentação de aplicações."}
+          {"@type":"JobPosting","description":"Experiência com suporte Linux e APIs REST. Atendimento de chamados, documentação técnica, análise de incidentes e sustentação de aplicações."}
           </script>
         </head><body><nav>Menu</nav><main>Resumo curto</main></body></html>
         """.encode("utf-8")
@@ -61,15 +60,16 @@ class PrivateDescriptionTests(unittest.TestCase):
         )
         self.assertEqual(len(pending), 2)
 
+        support_job = next(row for row in pending if row["source"] == "solides")
         description_store.record_success(
             self.connection,
-            pending[0],
+            support_job,
             "Experiência com Linux, Python e APIs REST.",
             content_kind="jsonld",
         )
         current = self.connection.execute(
             "SELECT * FROM job_descriptions WHERE job_uid = ?",
-            (pending[0]["job_uid"],),
+            (support_job["job_uid"],),
         ).fetchone()
         self.assertEqual(current["status"], "fetched")
         self.assertGreater(len(current["description_sha256"]), 20)
@@ -78,7 +78,7 @@ class PrivateDescriptionTests(unittest.TestCase):
             self.connection, seen_at=seen_at
         )
         self.assertEqual(len(remaining), 1)
-        self.assertEqual(remaining[0]["job_uid"], pending[1]["job_uid"])
+        self.assertNotEqual(remaining[0]["job_uid"], support_job["job_uid"])
 
         results = description_store.search(self.connection, "Python")
         self.assertEqual(len(results), 1)
