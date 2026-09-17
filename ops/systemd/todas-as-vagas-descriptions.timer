@@ -1,0 +1,11 @@
+[Unit]
+Description=Executa a coleta privada de descricoes durante a madrugada
+
+[Timer]
+OnCalendar=*-*-* 00:30:00 UTC
+Persistent=true
+RandomizedDelaySec=300
+Unit=todas-as-vagas-descriptions.service
+
+[Install]
+WantedBy=timers.target
