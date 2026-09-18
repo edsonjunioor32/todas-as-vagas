@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-18T11:33:39.021276+00:00",
+  "generated_at": "2026-09-18T14:36:26.401386+00:00",
   "candidate_count": 8331,
-  "company_count": 199,
+  "company_count": 200,
   "companies": [
     {
       "board": "abinbev",
@@ -22,7 +22,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 145
+      "brazil_jobs": 143
     },
     {
       "board": "agilize",
@@ -72,7 +72,7 @@
     {
       "board": "arcoeducacao",
       "company": "Arco Educação",
-      "brazil_jobs": 69
+      "brazil_jobs": 71
     },
     {
       "board": "arctouch",
@@ -162,7 +162,7 @@
     {
       "board": "blip-global",
       "company": "Blip Global",
-      "brazil_jobs": 15
+      "brazil_jobs": 14
     },
     {
       "board": "boldmetrics",
@@ -207,7 +207,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 154
+      "brazil_jobs": 155
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -342,7 +342,7 @@
     {
       "board": "enforce",
       "company": "Enforce",
-      "brazil_jobs": 12
+      "brazil_jobs": 11
     },
     {
       "board": "enova",
@@ -457,7 +457,7 @@
     {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 73
+      "brazil_jobs": 72
     },
     {
       "board": "hotmartcareersbr",
@@ -507,7 +507,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 150
+      "brazil_jobs": 148
     },
     {
       "board": "interbrand",
@@ -537,7 +537,7 @@
     {
       "board": "kaizengaming",
       "company": "Kaizen Gaming",
-      "brazil_jobs": 5
+      "brazil_jobs": 4
     },
     {
       "board": "knowbe4",
@@ -722,7 +722,7 @@
     {
       "board": "rdstation",
       "company": "RD Station",
-      "brazil_jobs": 7
+      "brazil_jobs": 6
     },
     {
       "board": "rdsourcing",
@@ -822,7 +822,7 @@
     {
       "board": "stonepatrocina",
       "company": "Stone - Indeed",
-      "brazil_jobs": 252
+      "brazil_jobs": 253
     },
     {
       "board": "stripe",
@@ -942,7 +942,7 @@
     {
       "board": "vmlenterprisesolutions",
       "company": "VML/WPP Enterprise Solutions",
-      "brazil_jobs": 19
+      "brazil_jobs": 18
     },
     {
       "board": "vtex",
@@ -987,11 +987,16 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 178
+      "brazil_jobs": 176
     },
     {
       "board": "xpengmotors",
       "company": "XPENG",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "zscaler",
+      "company": "Zscaler",
       "brazil_jobs": 1
     },
     {
