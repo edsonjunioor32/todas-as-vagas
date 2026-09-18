@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-18T14:36:26.401386+00:00",
+  "generated_at": "2026-09-18T18:34:00.118491+00:00",
   "candidate_count": 8331,
-  "company_count": 200,
+  "company_count": 199,
   "companies": [
     {
       "board": "abinbev",
@@ -22,7 +22,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 143
+      "brazil_jobs": 139
     },
     {
       "board": "agilize",
@@ -207,7 +207,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 155
+      "brazil_jobs": 154
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -217,7 +217,7 @@
     {
       "board": "capco",
       "company": "Capco",
-      "brazil_jobs": 159
+      "brazil_jobs": 157
     },
     {
       "board": "careaccess",
@@ -237,7 +237,7 @@
     {
       "board": "caylent",
       "company": "Caylent",
-      "brazil_jobs": 17
+      "brazil_jobs": 16
     },
     {
       "board": "chainguard",
@@ -257,7 +257,7 @@
     {
       "board": "clara",
       "company": "Clara",
-      "brazil_jobs": 59
+      "brazil_jobs": 60
     },
     {
       "board": "classpass",
@@ -297,7 +297,7 @@
     {
       "board": "datadog",
       "company": "Datadog",
-      "brazil_jobs": 16
+      "brazil_jobs": 17
     },
     {
       "board": "deliveryassociates",
@@ -322,7 +322,7 @@
     {
       "board": "ebanx",
       "company": "EBANX",
-      "brazil_jobs": 23
+      "brazil_jobs": 22
     },
     {
       "board": "ebury",
@@ -342,7 +342,7 @@
     {
       "board": "enforce",
       "company": "Enforce",
-      "brazil_jobs": 11
+      "brazil_jobs": 10
     },
     {
       "board": "enova",
@@ -392,7 +392,7 @@
     {
       "board": "figma",
       "company": "Figma",
-      "brazil_jobs": 4
+      "brazil_jobs": 3
     },
     {
       "board": "figureai",
@@ -577,7 +577,7 @@
     {
       "board": "mindbody",
       "company": "Mindbody",
-      "brazil_jobs": 6
+      "brazil_jobs": 5
     },
     {
       "board": "mintel",
@@ -625,11 +625,6 @@
       "brazil_jobs": 1
     },
     {
-      "board": "nearform",
-      "company": "Nearform",
-      "brazil_jobs": 1
-    },
-    {
       "board": "neo4j",
       "company": "Neo4j",
       "brazil_jobs": 1
@@ -662,7 +657,7 @@
     {
       "board": "oliverbrazil",
       "company": "OLIVER Agency - Brasil",
-      "brazil_jobs": 2
+      "brazil_jobs": 1
     },
     {
       "board": "onrunning",
@@ -822,7 +817,7 @@
     {
       "board": "stonepatrocina",
       "company": "Stone - Indeed",
-      "brazil_jobs": 253
+      "brazil_jobs": 254
     },
     {
       "board": "stripe",
@@ -832,7 +827,7 @@
     {
       "board": "sumup",
       "company": "SumUp",
-      "brazil_jobs": 32
+      "brazil_jobs": 31
     },
     {
       "board": "syndigo",
