@@ -135,6 +135,7 @@ REGISTRY = [
     ("blacklion", requested_portals_16092026.fetch_blacklion),
     ("jobgether", requested_portals_16092026.fetch_jobgether),
     ("asa", requested_portals_16092026.fetch_asa),
+    ("gft", requested_portals_16092026.fetch_gft),
     ("unlockcareer_mavila", unlockcareer.fetch_mavila_consulting),
     ("greenhouse", ats_boards.fetch_greenhouse),
     ("lever", ats_boards.fetch_lever),
