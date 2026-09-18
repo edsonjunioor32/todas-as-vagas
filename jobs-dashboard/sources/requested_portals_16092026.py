@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 """Public listings requested on 2026-09-16."""
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date, datetime, timedelta
+import html
+import json
 import re
-from urllib.parse import urlsplit
+from urllib.parse import unquote, urljoin, urlsplit
 from zoneinfo import ZoneInfo
 
 from . import quickin
 from ._common import is_brazil_location, iso_date, job, strip_html, work_model_label
-from ._http import get_json
+from ._http import get_json, get_text
 from .ats_boards import PER_COMPANY
 
 
@@ -331,3 +334,239 @@ def fetch_asa(today=None):
     if not rows:
         raise RuntimeError("ASA public page returned no public vacancies")
     return rows
+
+
+GFT_LISTING_URL = (
+    "https://jobs.gft.com/go/brazil/4412501/"
+    "?createNewAlert=false&q=&locationsearch=&optionsFacetsDD_country=BR"
+    "&optionsFacetsDD_customfield1=&optionsFacetsDD_shifttype=&optionsFacetsDD_facility="
+)
+GFT_BASE_URL = "https://jobs.gft.com"
+GFT_PAGE_SIZE = 25
+GFT_MAX_PAGES = 20
+GFT_DETAIL_WORKERS = 4
+GFT_ANCHOR_RE = re.compile(
+    r'<a\b[^>]*\bhref\s*=\s*["\']'
+    r'(?P<href>(?:https://jobs\.gft\.com)?/job/[^"\']+)["\'][^>]*>'
+    r'(?P<label>.*?)</a>',
+    re.I | re.S,
+)
+GFT_JSONLD_RE = re.compile(
+    r'<script[^>]+type=["\']application/ld\+json["\'][^>]*>'
+    r'(?P<body>.*?)</script>',
+    re.I | re.S,
+)
+GFT_TITLE_RE = re.compile(r"<h1[^>]*>(?P<title>.*?)</h1>", re.I | re.S)
+
+
+def _gft_text(value):
+    return re.sub(
+        r"\s+",
+        " ",
+        strip_html(html.unescape(str(value or ""))).strip(),
+    )
+
+
+def _gft_jsonld(markup):
+    """Return the JobPosting object from the public detail page JSON-LD."""
+    for raw in GFT_JSONLD_RE.findall(markup or ""):
+        try:
+            payload = json.loads(html.unescape(raw).strip())
+        except (TypeError, ValueError):
+            continue
+
+        if isinstance(payload, list):
+            candidates = payload
+        elif isinstance(payload, dict) and isinstance(payload.get("@graph"), list):
+            candidates = payload["@graph"]
+        else:
+            candidates = [payload]
+
+        for candidate in candidates:
+            if not isinstance(candidate, dict):
+                continue
+            job_type = candidate.get("@type")
+            if job_type == "JobPosting" or (
+                isinstance(job_type, list) and "JobPosting" in job_type
+            ):
+                return candidate
+    return {}
+
+
+def _gft_job_url(href):
+    url = urljoin(GFT_BASE_URL, html.unescape(str(href or "")).strip())
+    parsed = urlsplit(url)
+    if (
+        parsed.scheme != "https"
+        or parsed.netloc.casefold() != GFT_BASE_URL.removeprefix("https://").casefold()
+        or not parsed.path.startswith("/job/")
+    ):
+        return ""
+    return f"{GFT_BASE_URL}{parsed.path}"
+
+
+def _gft_listing_rows(markup):
+    """Extract unique public GFT detail links from one listing page."""
+    rows = {}
+    for match in GFT_ANCHOR_RE.finditer(markup or ""):
+        url = _gft_job_url(match.group("href"))
+        if not url:
+            continue
+
+        parsed = urlsplit(url)
+        parts = [unquote(part).strip() for part in parsed.path.rstrip("/").split("/") if part]
+        if len(parts) < 2 or parts[0].casefold() != "job":
+            continue
+
+        native_id = parts[-1]
+        if not native_id:
+            continue
+        title = _gft_text(match.group("label"))
+        if not title:
+            title = re.sub(r"[-_]+", " ", parts[-2]).strip()
+        rows.setdefault(
+            native_id,
+            {
+                "native_id": native_id,
+                "title": title,
+                "url": url,
+            },
+        )
+    return list(rows.values())
+
+
+def _gft_location(posting):
+    location = posting.get("jobLocation") or {}
+    if isinstance(location, list):
+        location = location[0] if location else {}
+    if not isinstance(location, dict):
+        return "", "", ""
+
+    address = location.get("address") or {}
+    if isinstance(address, list):
+        address = address[0] if address else {}
+    if not isinstance(address, dict):
+        address = {}
+
+    city = _gft_text(address.get("addressLocality") or location.get("addressLocality"))
+    state = _gft_text(address.get("addressRegion") or location.get("addressRegion"))
+    country = _gft_text(
+        address.get("addressCountry")
+        or location.get("addressCountry")
+        or posting.get("jobLocationCountry")
+    )
+    return city, state, country
+
+
+def _gft_employment_types(value):
+    if isinstance(value, list):
+        values = value
+    else:
+        values = [value]
+    return [
+        _gft_text(item)
+        for item in values
+        if _gft_text(item)
+    ]
+
+
+def _gft_fallback(row):
+    return job(
+        "gft",
+        row["native_id"],
+        title=row["title"],
+        company="GFT Technologies",
+        url=row["url"],
+        work_model=work_model_label(raw=row["title"]),
+        country="BR",
+        market="BR",
+    )
+
+
+def _gft_detail(row):
+    """Read one public GFT detail page and normalize its JSON-LD."""
+    markup = get_text(row["url"], timeout=45, retries=2)
+    posting = _gft_jsonld(markup)
+    title = _gft_text(posting.get("title"))
+    if not title:
+        title_match = GFT_TITLE_RE.search(markup or "")
+        title = _gft_text(title_match.group("title")) if title_match else ""
+    title = title or row["title"]
+
+    description = strip_html(
+        str(posting.get("description") or ""),
+        limit=12000,
+    )
+    city, state, country = _gft_location(posting)
+    raw_context = " ".join(
+        [
+            title,
+            city,
+            state,
+            country,
+            description[:4000],
+            _gft_text(posting.get("employmentType")),
+        ]
+    )
+
+    return job(
+        "gft",
+        row["native_id"],
+        title=title,
+        company="GFT Technologies",
+        url=row["url"],
+        work_model=work_model_label(raw=raw_context),
+        city=city,
+        state=state,
+        country=country or "BR",
+        market="BR",
+        published_date=iso_date(posting.get("datePosted")),
+        description=description,
+        contract_types=_gft_employment_types(posting.get("employmentType")),
+        categories=[_gft_text(posting.get("occupationalCategory"))]
+        if _gft_text(posting.get("occupationalCategory"))
+        else [],
+    )
+
+
+def fetch_gft():
+    """Collect every public Brazilian GFT vacancy, preserving official links."""
+    cards = {}
+    for page in range(GFT_MAX_PAGES):
+        offset = page * GFT_PAGE_SIZE
+        url = GFT_LISTING_URL
+        if offset:
+            url = f"{GFT_LISTING_URL}&startrow={offset}"
+        markup = get_text(url, timeout=45, retries=3)
+        page_rows = _gft_listing_rows(markup)
+        if not page_rows:
+            break
+
+        previous_count = len(cards)
+        for row in page_rows:
+            cards.setdefault(row["native_id"], row)
+        if len(cards) == previous_count:
+            break
+        if len(page_rows) < GFT_PAGE_SIZE:
+            break
+
+    if not cards:
+        raise RuntimeError("GFT public Brazil page returned no public vacancies")
+
+    rows = []
+    workers = min(GFT_DETAIL_WORKERS, len(cards))
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        futures = {
+            executor.submit(_gft_detail, row): row
+            for row in cards.values()
+        }
+        for future in as_completed(futures):
+            row = futures[future]
+            try:
+                rows.append(future.result())
+            except Exception:
+                rows.append(_gft_fallback(row))
+
+    if not rows:
+        raise RuntimeError("GFT public Brazil page returned no public vacancies")
+    return sorted(rows, key=lambda row: row["native_id"])
