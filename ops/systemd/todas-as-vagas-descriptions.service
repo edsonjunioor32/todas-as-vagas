@@ -9,13 +9,14 @@ StartLimitBurst=3
 Type=simple
 User=ubuntu
 Group=ubuntu
+RuntimeDirectory=todas-as-vagas-descriptions
 WorkingDirectory=/home/ubuntu/todas-as-vagas
 Environment=PRIVATE_DESCRIPTIONS_DB=/home/ubuntu/todas-as-vagas-private/descriptions.sqlite3
 Environment=DESCRIPTION_CATALOG_URL=https://raw.githubusercontent.com/edsonjunioor32/todas-as-vagas/public-data/data/vagas.json
 Environment=DESCRIPTION_MAX_SECONDS=21600
 Environment=DESCRIPTION_MIN_INTERVAL=1.0
 Environment=DESCRIPTION_PAGE_TIMEOUT=25
-ExecStart=/usr/bin/flock --nonblock /run/lock/todas-as-vagas-descriptions.lock /usr/bin/python3 jobs-dashboard/description_crawler.py --limit 1000 --max-seconds 21600 --min-interval 1.0
+ExecStart=/usr/bin/flock --nonblock /run/todas-as-vagas-descriptions/collector.lock /usr/bin/python3 jobs-dashboard/description_crawler.py --limit 1000 --max-seconds 21600 --min-interval 1.0
 Restart=on-failure
 RestartSec=300
 UMask=0077
