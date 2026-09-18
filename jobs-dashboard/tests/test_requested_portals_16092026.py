@@ -213,11 +213,95 @@ class RequestedPortalsTests(unittest.TestCase):
             "2026-09-15",
         )
 
+
+    def test_gft_parses_paginated_public_listing(self):
+        listing_one = "".join(
+            (
+                f'<a href="/job/Alphaville-Remote-Engineer-{1001 + index}/'
+                f'{1001 + index}/">Remote Python Engineer {index}</a>'
+            )
+            for index in range(25)
+        )
+        listing_two = (
+            '<a href="/job/Sao-Paulo-Data-Engineer-2001/2001/">'
+            "Data Engineer"
+            "</a>"
+        )
+        detail_rows = []
+
+        def fake_detail(row):
+            detail_rows.append(row)
+            return portals.job(
+                "gft",
+                row["native_id"],
+                title=row["title"],
+                company="GFT Technologies",
+                url=row["url"],
+                country="BR",
+                market="BR",
+            )
+
+        with (
+            patch.object(
+                portals,
+                "get_text",
+                side_effect=[listing_one, listing_two],
+            ) as get_text,
+            patch.object(portals, "_gft_detail", side_effect=fake_detail),
+        ):
+            rows = portals.fetch_gft()
+
+        self.assertEqual(len(rows), 26)
+        self.assertEqual(
+            [call.args[0] for call in get_text.call_args_list],
+            [portals.GFT_LISTING_URL, portals.GFT_LISTING_URL + "&startrow=25"],
+        )
+        self.assertEqual(
+            {row["native_id"] for row in detail_rows},
+            {str(1001 + index) for index in range(25)} | {"2001"},
+        )
+
+    def test_gft_normalizes_public_jobposting_metadata(self):
+        detail = (
+            '<script type="application/ld+json">'
+            '{"@type":"JobPosting","title":"Cloud Security Specialist",'
+            '"datePosted":"2026-09-17","description":"<p>Remote GCP security.</p>",'
+            '"employmentType":"FULL_TIME",'
+            '"jobLocation":{"address":{"addressLocality":"Barueri",'
+            '"addressRegion":"SP","addressCountry":"BR"}},'
+            '"occupationalCategory":"Technology"}'
+            "</script>"
+        )
+        row = {
+            "native_id": "1437281333",
+            "title": "Cloud Security Specialist",
+            "url": (
+                "https://jobs.gft.com/job/Barueri-Cloud-Security-1437281333/"
+                "1437281333/"
+            ),
+        }
+        with patch.object(portals, "get_text", return_value=detail):
+            vacancy = portals._gft_detail(row)
+
+        self.assertEqual(vacancy["source"], "gft")
+        self.assertEqual(vacancy["company"], "GFT Technologies")
+        self.assertEqual(vacancy["city"], "Barueri")
+        self.assertEqual(vacancy["state"], "SP")
+        self.assertEqual(vacancy["country"], "BR")
+        self.assertEqual(vacancy["market"], "BR")
+        self.assertEqual(vacancy["published_date"], "2026-09-17")
+        self.assertEqual(vacancy["contract_types"], ["FULL_TIME"])
+        self.assertEqual(vacancy["categories"], ["Technology"])
+        self.assertEqual(vacancy["work_model"], "remote")
+        self.assertIn("Remote GCP security", vacancy["description"])
+
+
     def test_requested_public_sources_are_registered(self):
         registry = dict(REGISTRY)
         self.assertIs(registry["blacklion"], portals.fetch_blacklion)
         self.assertIs(registry["jobgether"], portals.fetch_jobgether)
         self.assertIs(registry["asa"], portals.fetch_asa)
+        self.assertIs(registry["gft"], portals.fetch_gft)
         self.assertIs(
             registry["unlockcareer_mavila"],
             unlockcareer_portals.fetch_mavila_consulting,
