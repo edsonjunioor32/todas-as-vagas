@@ -29,7 +29,7 @@
     <link rel="icon" href="./favicon.svg?v=4" type="image/svg+xml">
     <script src="./theme.js?v=2"></script>
     <link rel="stylesheet" href="./styles.css?v=18">
-    <link rel="stylesheet" href="./fit-entry.css?v=1">
+    <link rel="stylesheet" href="./fit-entry.css?v=2">
     <script src="./fit-entry.js?v=1" defer></script>
     <script src="./app.js?v=17" defer></script>
   </head>
@@ -101,12 +101,16 @@
                 <span class="hero-cta-arrow" aria-hidden="true">↗</span>
               </a>
             </div>
-            <div class="hero-fit-actions" role="group" aria-label="Ferramenta de aderência">
+            <div class="hero-fit-actions" role="group" aria-labelledby="fitEntryTitle">
+              <p class="hero-fit-lead" id="fitEntryTitle">Encontre a sua vaga e ajuste o seu currículo para que ele fique mais aderente a ela.</p>
               <a class="hero-fit-cta" data-fit-entry href="./aderencia/" aria-label="Abrir análise manual de currículo e descrição da vaga">
-                <span aria-hidden="true">✦</span>
-                <span>Analisar meu currículo</span>
+                <span class="hero-fit-icon" aria-hidden="true">✦</span>
+                <span class="hero-fit-copy">
+                  <strong>Analisar meu currículo</strong>
+                  <small>Compare seu currículo com a vaga e identifique como se preparar melhor.</small>
+                </span>
+                <span class="hero-fit-arrow" aria-hidden="true">↗</span>
               </a>
-              <span>Cole o currículo e a descrição da vaga para comparar.</span>
             </div>
             <p class="updated" id="updatedLabel" aria-live="polite">Carregando a atualização mais recente…</p>
             <p class="source-warning" id="sourceWarning" hidden></p>
