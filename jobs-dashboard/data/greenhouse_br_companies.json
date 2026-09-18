@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-17T23:34:57.286499+00:00",
+  "generated_at": "2026-09-18T07:48:04.949841+00:00",
   "candidate_count": 8331,
-  "company_count": 198,
+  "company_count": 199,
   "companies": [
     {
       "board": "abinbev",
@@ -87,11 +87,6 @@
     {
       "board": "arionkoder",
       "company": "Arionkoder",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "armada",
-      "company": "Armada",
       "brazil_jobs": 1
     },
     {
@@ -262,7 +257,7 @@
     {
       "board": "clara",
       "company": "Clara",
-      "brazil_jobs": 58
+      "brazil_jobs": 59
     },
     {
       "board": "classpass",
@@ -527,6 +522,11 @@
     {
       "board": "interviewengineering",
       "company": "Interview Engineering",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "invisibletech",
+      "company": "Invisible Technologies",
       "brazil_jobs": 1
     },
     {
@@ -960,6 +960,11 @@
       "brazil_jobs": 14
     },
     {
+      "board": "agencywithin",
+      "company": "WITHIN",
+      "brazil_jobs": 2
+    },
+    {
       "board": "wizinc",
       "company": "Wiz, Inc.",
       "brazil_jobs": 6
@@ -992,7 +997,7 @@
     {
       "board": "ilia",
       "company": "ília",
-      "brazil_jobs": 13
+      "brazil_jobs": 12
     }
   ]
 }
