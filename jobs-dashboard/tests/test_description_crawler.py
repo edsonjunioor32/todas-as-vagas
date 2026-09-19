@@ -11,7 +11,7 @@ from description_crawler import RobotsCache
 
 class RobotsCacheTests(unittest.TestCase):
     def test_robots_fetch_uses_finite_timeout_and_caches_policy_per_origin(self):
-        robots = b"User-agent: crawler-test\nDisallow: /private\nAllow: /private/open\n"
+        robots = b"User-agent: crawler-test\nAllow: /private/open\nDisallow: /private\n"
         with patch("urllib.request.urlopen", return_value=io.BytesIO(robots)) as open_url:
             cache = RobotsCache("crawler-test", timeout=2.5)
 
