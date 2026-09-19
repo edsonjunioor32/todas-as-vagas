@@ -14,7 +14,6 @@
   --brand-strong: #0ec8a7;
   --accent-blue: #379dff;
   --accent-gold: #ffc933;
-  --whatsapp: #25d366;
   --danger: #ffb6a5;
   --danger-soft: rgba(133, 71, 57, 0.24);
   --tag-bg: rgba(15, 36, 47, 0.86);
@@ -50,7 +49,6 @@
   --brand-strong: #089781;
   --accent-blue: #258af3;
   --accent-gold: #e7a900;
-  --whatsapp: #087447;
   --danger: #a84c34;
   --danger-soft: rgba(255, 242, 236, 0.95);
   --tag-bg: #f4f8f9;
@@ -1861,7 +1859,7 @@ select {
 }
 
 
-/* Use the full hero width for the four primary access cards. */
+/* Hero layout: centered metrics and balanced two-column access cards */
 .hero .hero-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -1870,94 +1868,14 @@ select {
 
 .hero .hero-top {
   display: grid;
-  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
-  align-items: center;
-  gap: clamp(24px, 3vw, 48px);
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 20px;
 }
 
 .hero .hero-top .hero-copy-block {
   min-width: 0;
   padding: 0;
-}
-
-.hero .hero-top .stats {
-  width: 100%;
-  max-width: none;
-  margin: 0;
-}
-
-.hero .hero-fit-lead {
-  max-width: none;
-  margin: 0;
-  font-size: clamp(0.95rem, 1.05vw, 1.08rem);
-  line-height: 1.45;
-}
-
-.hero .hero-access-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  align-items: stretch;
-  gap: 16px;
-  width: 100%;
-}
-
-.hero .hero-access-grid > .hero-cta {
-  box-sizing: border-box;
-  width: 100%;
-  min-width: 0;
-  min-height: 112px;
-  height: 100%;
-  grid-template-columns: clamp(88px, 22%, 152px) minmax(0, 1fr) 32px;
-  gap: 0;
-  padding: 0 16px 0 0;
-  border-radius: 16px;
-  background: linear-gradient(180deg, var(--surface-soft), var(--surface-alt));
-  color: var(--ink);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    inset 0 -2px 0 rgba(0, 0, 0, 0.2),
-    0 8px 17px rgba(0, 0, 0, 0.22);
-}
-
-.hero .hero-cta-fit {
-  border-color: rgba(46, 226, 173, 0.82);
-  background: linear-gradient(118deg, #082b25 0%, #075b48 54%, #0b7358 100%);
-}
-
-.hero .hero-cta-fit .hero-cta-icon-fit {
-  border-color: rgba(46, 226, 173, 0.86);
-  border-radius: 50%;
-  color: #061317;
-  background: var(--brand);
-}
-
-@media (max-width: 1120px) {
-  .hero .hero-top {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 22px;
-  }
-
-  .hero .hero-access-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 680px) {
-  .hero .hero-access-grid {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 10px;
-  }
-
-  .hero .hero-access-grid > .hero-cta {
-    min-height: 76px;
-  }
-}
-
-
-/* Center the hero metrics and balance the four access buttons in two columns. */
-.hero .hero-top {
-  grid-template-columns: minmax(0, 1fr);
-  align-items: start;
 }
 
 .hero .hero-top .stats {
@@ -1969,24 +1887,323 @@ select {
 }
 
 .hero .hero-fit-lead {
-  width: 100%;
-  max-width: 1440px;
+  width: min(100%, 1080px);
+  max-width: 1080px;
+  margin-inline: auto;
   justify-self: center;
+  font-size: clamp(0.95rem, 1.05vw, 1.08rem);
+  line-height: 1.45;
 }
 
 .hero .hero-access-grid {
-  width: 100%;
-  max-width: 1440px;
+  width: min(100%, 1080px);
+  max-width: 1080px;
   margin-inline: auto;
   justify-self: center;
+  display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
   gap: 16px;
 }
 
+/* Base action card styling with dedicated icon dock */
 .hero .hero-access-grid > .hero-cta {
-  min-height: 112px;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  min-height: 82px;
+  height: 100%;
+  padding: 14px 18px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-soft);
+  background: linear-gradient(135deg, rgba(13, 29, 40, 0.95), rgba(8, 24, 34, 0.98));
+  color: var(--ink);
+  text-decoration: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 6px 18px rgba(0, 0, 0, 0.28);
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease, background .18s ease;
 }
 
+.hero .hero-access-grid > .hero-cta:hover {
+  transform: translateY(-2px);
+}
+
+.hero .hero-access-grid > .hero-cta:focus-visible {
+  outline: 3px solid rgba(46, 226, 173, 0.85);
+  outline-offset: 3px;
+}
+
+/* Dedicated, well-proportioned icon dock inspired by the reference */
+.hero .hero-access-grid > .hero-cta .hero-cta-icon {
+  box-sizing: border-box;
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  min-height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.2),
+    0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.hero .hero-access-grid > .hero-cta:hover .hero-cta-icon {
+  transform: scale(1.04);
+}
+
+.hero .hero-access-grid > .hero-cta .hero-cta-svg {
+  display: block;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+/* Todos os Cursos card */
+.hero .hero-access-grid > .hero-cta-courses {
+  border-color: rgba(249, 197, 38, 0.35);
+}
+
+.hero .hero-access-grid > .hero-cta-courses:hover {
+  border-color: rgba(249, 197, 38, 0.85);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 10px 24px rgba(0, 0, 0, 0.32),
+    0 0 18px rgba(249, 197, 38, 0.18);
+}
+
+.hero .hero-access-grid > .hero-cta-courses .hero-cta-icon {
+  background: linear-gradient(140deg, #f9c526 0%, #d97706 100%);
+  border-color: rgba(255, 240, 180, 0.45);
+  padding: 0;
+}
+
+.hero .hero-access-grid > .hero-cta-courses .hero-cta-icon-image img {
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  object-fit: cover;
+  display: block;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Telegram card */
+.hero .hero-access-grid > .hero-cta-telegram {
+  border-color: rgba(66, 167, 251, 0.35);
+}
+
+.hero .hero-access-grid > .hero-cta-telegram:hover {
+  border-color: rgba(66, 167, 251, 0.85);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 10px 24px rgba(0, 0, 0, 0.32),
+    0 0 18px rgba(66, 167, 251, 0.18);
+}
+
+.hero .hero-access-grid > .hero-cta-telegram .hero-cta-icon {
+  background: linear-gradient(140deg, #42a7fb 0%, #1668c7 100%);
+  border-color: rgba(186, 226, 255, 0.45);
+  color: #ffffff;
+}
+
+.hero .hero-access-grid > .hero-cta-telegram .hero-cta-svg-telegram {
+  transform: translate(-1px, 1px);
+}
+
+/* WhatsApp card */
+.hero .hero-access-grid > .hero-cta-whatsapp {
+  border-color: rgba(37, 211, 102, 0.35);
+}
+
+.hero .hero-access-grid > .hero-cta-whatsapp:hover {
+  border-color: rgba(37, 211, 102, 0.85);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 10px 24px rgba(0, 0, 0, 0.32),
+    0 0 18px rgba(37, 211, 102, 0.18);
+}
+
+.hero .hero-access-grid > .hero-cta-whatsapp .hero-cta-icon {
+  background: linear-gradient(140deg, #25d366 0%, #0d7943 100%);
+  border-color: rgba(187, 247, 208, 0.45);
+  color: #ffffff;
+}
+
+/* Analisar currículo card */
+.hero .hero-access-grid > .hero-cta-fit {
+  border-color: rgba(46, 226, 173, 0.4);
+}
+
+.hero .hero-access-grid > .hero-cta-fit:hover {
+  border-color: rgba(46, 226, 173, 0.9);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 10px 24px rgba(0, 0, 0, 0.32),
+    0 0 18px rgba(46, 226, 173, 0.2);
+}
+
+.hero .hero-access-grid > .hero-cta-fit .hero-cta-icon {
+  background: linear-gradient(140deg, #2ee2ad 0%, #089781 100%);
+  border-color: rgba(199, 254, 237, 0.5);
+  color: #061317;
+}
+
+/* Typography and content */
+.hero .hero-access-grid .hero-cta-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  gap: 3px;
+}
+
+.hero .hero-access-grid .hero-cta-copy strong {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.hero .hero-access-grid .hero-cta-copy small {
+  font-size: 0.79rem;
+  color: var(--muted);
+  line-height: 1.35;
+  opacity: 0.9;
+}
+
+/* Directional action arrow */
+.hero .hero-access-grid .hero-cta-arrow {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.05);
+  transition: transform .18s ease, color .18s ease, background .18s ease;
+}
+
+.hero .hero-access-grid > .hero-cta:hover .hero-cta-arrow {
+  transform: translate(2px, -2px);
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.hero .hero-access-grid > .hero-cta-courses:hover .hero-cta-arrow {
+  color: #f9c526;
+}
+
+.hero .hero-access-grid > .hero-cta-telegram:hover .hero-cta-arrow {
+  color: #42a7fb;
+}
+
+.hero .hero-access-grid > .hero-cta-whatsapp:hover .hero-cta-arrow {
+  color: #25d366;
+}
+
+.hero .hero-access-grid > .hero-cta-fit:hover .hero-cta-arrow {
+  color: #2ee2ad;
+}
+
+/* Light theme adaptations */
+:root[data-theme="light"] .hero .hero-access-grid > .hero-cta {
+  background: linear-gradient(135deg, #ffffff 0%, #f7fafb 100%);
+  border-color: rgba(187, 208, 214, 0.85);
+  box-shadow:
+    inset 0 1px 0 #ffffff,
+    0 4px 14px rgba(20, 55, 68, 0.08);
+}
+
+:root[data-theme="light"] .hero .hero-access-grid > .hero-cta:hover {
+  box-shadow:
+    inset 0 1px 0 #ffffff,
+    0 8px 22px rgba(20, 55, 68, 0.14);
+}
+
+:root[data-theme="light"] .hero .hero-access-grid > .hero-cta .hero-cta-copy strong {
+  color: #0b1620;
+}
+
+:root[data-theme="light"] .hero .hero-access-grid > .hero-cta .hero-cta-copy small {
+  color: #52666e;
+}
+
+:root[data-theme="light"] .hero .hero-access-grid .hero-cta-arrow {
+  color: #637780;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+:root[data-theme="light"] .hero .hero-access-grid > .hero-cta:hover .hero-cta-arrow {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+:root[data-theme="light"] .hero .hero-access-grid > .hero-cta-courses {
+  border-color: rgba(231, 169, 0, 0.45);
+}
+
+:root[data-theme="light"] .hero .hero-access-grid > .hero-cta-courses:hover {
+  border-color: rgba(231, 169, 0, 0.9);
+  box-shadow: 0 8px 22px rgba(231, 169, 0, 0.2);
+}
+
+:root[data-theme="light"] .hero .hero-access-grid > .hero-cta-telegram {
+  border-color: rgba(37, 138, 243, 0.45);
+}
+
+:root[data-theme="light"] .hero .hero-access-grid > .hero-cta-telegram:hover {
+  border-color: rgba(37, 138, 243, 0.9);
+  box-shadow: 0 8px 22px rgba(37, 138, 243, 0.2);
+}
+
+:root[data-theme="light"] .hero .hero-access-grid > .hero-cta-whatsapp {
+  border-color: rgba(21, 168, 80, 0.45);
+}
+
+:root[data-theme="light"] .hero .hero-access-grid > .hero-cta-whatsapp:hover {
+  border-color: rgba(21, 168, 80, 0.9);
+  box-shadow: 0 8px 22px rgba(21, 168, 80, 0.2);
+}
+
+:root[data-theme="light"] .hero .hero-access-grid > .hero-cta-fit {
+  border-color: rgba(8, 184, 155, 0.45);
+}
+
+:root[data-theme="light"] .hero .hero-access-grid > .hero-cta-fit:hover {
+  border-color: rgba(8, 184, 155, 0.9);
+  box-shadow: 0 8px 22px rgba(8, 184, 155, 0.2);
+}
+
+/* Tablet & Mobile responsiveness */
+@media (max-width: 768px) {
+  .hero .hero-top .stats {
+    width: 100%;
+  }
+
+  .hero .hero-access-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+}
+
+/* Mobile responsiveness */
 @media (max-width: 680px) {
   .hero .hero-top .stats {
     width: min(100%, 420px);
@@ -2000,91 +2217,54 @@ select {
   }
 
   .hero .hero-access-grid > .hero-cta {
-    min-height: 76px;
-  }
-}
-
-
-/* CTA cards: a clear, balanced grid that keeps the portal palette in focus. */
-.hero .hero-access-grid > .hero-cta {
-  min-height: 148px;
-  grid-template-columns: 58px minmax(0, 1fr) auto;
-  gap: 16px;
-  padding: 20px 18px;
-  border: 1px solid var(--border);
-  border-top: 3px solid var(--cta-accent, var(--brand));
-  border-radius: 18px;
-  background: linear-gradient(145deg, var(--surface), var(--surface-alt));
-  color: var(--ink);
-  box-shadow: var(--card-shadow);
-}
-
-.hero .hero-access-grid > .hero-cta:hover {
-  border-color: var(--cta-accent, var(--brand));
-  box-shadow: 0 14px 28px rgba(0, 0, 0, .2), 0 0 0 3px color-mix(in srgb, var(--cta-accent, var(--brand)) 13%, transparent);
-}
-
-.hero-cta-courses { --cta-accent: var(--accent-gold); }
-.hero-cta-telegram { --cta-accent: var(--accent-blue); }
-.hero-cta-whatsapp { --cta-accent: var(--whatsapp); }
-.hero-cta-fit { --cta-accent: var(--brand); }
-.hero .hero-access-grid > .hero-cta-courses::before { display: none; }
-
-.hero .hero-access-grid > .hero-cta .hero-cta-icon {
-  width: 58px;
-  height: 58px;
-  align-self: center;
-  border: 1px solid color-mix(in srgb, var(--cta-accent, var(--brand)) 62%, var(--border));
-  border-radius: 16px;
-  background: color-mix(in srgb, var(--cta-accent, var(--brand)) 16%, var(--surface));
-  color: var(--cta-accent, var(--brand));
-  font-size: 1.5rem;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
-}
-
-.hero .hero-access-grid > .hero-cta-courses .hero-cta-icon-image {
-  padding: 8px;
-  border-color: color-mix(in srgb, var(--accent-gold) 62%, var(--border));
-  background: color-mix(in srgb, var(--accent-gold) 16%, var(--surface));
-}
-.hero .hero-access-grid > .hero-cta-courses .hero-cta-icon-image img { border-radius: 9px; object-fit: contain; }
-.hero .hero-access-grid > .hero-cta-fit .hero-cta-icon-fit { color: var(--brand); }
-.hero .hero-access-grid > .hero-cta-whatsapp .hero-cta-icon-whatsapp { color: var(--whatsapp); }
-.hero .hero-access-grid > .hero-cta .hero-cta-icon svg { width: 29px; height: 29px; }
-
-:root[data-theme="light"] .hero .hero-access-grid > .hero-cta-telegram .hero-cta-icon-telegram {
-  color: #1768b1;
-}
-
-:root[data-theme="light"] .hero .hero-access-grid > .hero-cta:focus-visible {
-  outline-color: #087a70;
-}
-
-.hero .hero-access-grid .hero-cta-copy {
-  min-width: 0;
-  align-self: center;
-  padding: 0;
-}
-.hero .hero-access-grid .hero-cta-copy strong { color: var(--ink); font-size: 1rem; line-height: 1.25; }
-.hero .hero-access-grid .hero-cta-copy small { color: var(--muted); font-size: .78rem; }
-.hero .hero-access-grid .hero-cta-arrow { align-self: center; color: var(--cta-accent, var(--brand)); }
-
-@media (max-width: 680px) {
-  .hero .hero-access-grid > .hero-cta {
-    min-height: 96px;
-    grid-template-columns: 46px minmax(0, 1fr) 22px;
+    grid-template-columns: 44px minmax(0, 1fr) auto;
     gap: 12px;
-    padding: 14px 12px;
+    min-height: 72px;
+    padding: 11px 14px;
+    border-radius: 14px;
   }
-  .hero .hero-access-grid > .hero-cta .hero-cta-icon { width: 46px; height: 46px; border-radius: 13px; font-size: 1.25rem; }
-  .hero .hero-access-grid > .hero-cta .hero-cta-icon svg { width: 23px; height: 23px; }
-  .hero .hero-access-grid > .hero-cta-courses .hero-cta-icon-image { padding: 6px; }
-  .hero .hero-access-grid .hero-cta-copy strong { font-size: .88rem; }
-  .hero .hero-access-grid .hero-cta-copy small { font-size: .7rem; line-height: 1.3; }
-  .hero .hero-access-grid .hero-cta-arrow { font-size: 1.1rem; }
+
+  .hero .hero-access-grid > .hero-cta .hero-cta-icon {
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+    border-radius: 11px;
+  }
+
+  .hero .hero-access-grid > .hero-cta-courses .hero-cta-icon-image img {
+    width: 32px;
+    height: 32px;
+    border-radius: 7px;
+  }
+
+  .hero .hero-access-grid > .hero-cta .hero-cta-svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .hero .hero-access-grid .hero-cta-copy strong {
+    font-size: 0.92rem;
+  }
+
+  .hero .hero-access-grid .hero-cta-copy small {
+    font-size: 0.74rem;
+  }
+
+  .hero .hero-access-grid .hero-cta-arrow {
+    width: 24px;
+    height: 24px;
+    font-size: 1rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .hero .hero-access-grid > .hero-cta,
-  .hero .hero-access-grid > .hero-cta:hover { transform: none; transition: none; }
+  .hero .hero-access-grid > .hero-cta:hover,
+  .hero .hero-access-grid > .hero-cta .hero-cta-icon,
+  .hero .hero-access-grid > .hero-cta:hover .hero-cta-icon,
+  .hero .hero-access-grid .hero-cta-arrow,
+  .hero .hero-access-grid > .hero-cta:hover .hero-cta-arrow {
+    transform: none;
+    transition: none;
+  }
 }
