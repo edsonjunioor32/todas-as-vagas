@@ -14,6 +14,7 @@
   --brand-strong: #0ec8a7;
   --accent-blue: #379dff;
   --accent-gold: #ffc933;
+  --whatsapp: #25d366;
   --danger: #ffb6a5;
   --danger-soft: rgba(133, 71, 57, 0.24);
   --tag-bg: rgba(15, 36, 47, 0.86);
@@ -49,6 +50,7 @@
   --brand-strong: #089781;
   --accent-blue: #258af3;
   --accent-gold: #e7a900;
+  --whatsapp: #087447;
   --danger: #a84c34;
   --danger-soft: rgba(255, 242, 236, 0.95);
   --tag-bg: #f4f8f9;
@@ -2024,7 +2026,7 @@ select {
 
 .hero-cta-courses { --cta-accent: var(--accent-gold); }
 .hero-cta-telegram { --cta-accent: var(--accent-blue); }
-.hero-cta-whatsapp { --cta-accent: #25d366; }
+.hero-cta-whatsapp { --cta-accent: var(--whatsapp); }
 .hero-cta-fit { --cta-accent: var(--brand); }
 .hero .hero-access-grid > .hero-cta-courses::before { display: none; }
 
@@ -2047,8 +2049,16 @@ select {
 }
 .hero .hero-access-grid > .hero-cta-courses .hero-cta-icon-image img { border-radius: 9px; object-fit: contain; }
 .hero .hero-access-grid > .hero-cta-fit .hero-cta-icon-fit { color: var(--brand); }
-.hero .hero-access-grid > .hero-cta-whatsapp .hero-cta-icon-whatsapp { color: #25d366; }
+.hero .hero-access-grid > .hero-cta-whatsapp .hero-cta-icon-whatsapp { color: var(--whatsapp); }
 .hero .hero-access-grid > .hero-cta .hero-cta-icon svg { width: 29px; height: 29px; }
+
+:root[data-theme="light"] .hero .hero-access-grid > .hero-cta-telegram .hero-cta-icon-telegram {
+  color: #1768b1;
+}
+
+:root[data-theme="light"] .hero .hero-access-grid > .hero-cta:focus-visible {
+  outline-color: #087a70;
+}
 
 .hero .hero-access-grid .hero-cta-copy {
   min-width: 0;
