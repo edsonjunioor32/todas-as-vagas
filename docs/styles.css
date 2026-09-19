@@ -1886,15 +1886,6 @@ select {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.hero .hero-fit-lead {
-  width: min(100%, 1080px);
-  max-width: 1080px;
-  margin-inline: auto;
-  justify-self: center;
-  font-size: clamp(0.95rem, 1.05vw, 1.08rem);
-  line-height: 1.45;
-}
-
 .hero .hero-access-grid {
   width: min(100%, 1080px);
   max-width: 1080px;
