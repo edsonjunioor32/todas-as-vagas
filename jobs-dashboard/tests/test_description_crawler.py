@@ -10,7 +10,7 @@ from description_crawler import RobotsCache
 
 
 class RobotsCacheTests(unittest.TestCase):
-    def test_robots_fetch_uses_finite_timeout_and_caches_policy(self):
+    def test_robots_fetch_uses_finite_timeout_and_caches_policy_per_origin(self):
         robots = b"User-agent: crawler-test\nDisallow: /private\nAllow: /private/open\n"
         with patch("urllib.request.urlopen", return_value=io.BytesIO(robots)) as open_url:
             cache = RobotsCache("crawler-test", timeout=2.5)
@@ -18,6 +18,7 @@ class RobotsCacheTests(unittest.TestCase):
             self.assertFalse(cache.allowed("https://jobs.example/private/role"))
             self.assertTrue(cache.allowed("https://jobs.example/public/role"))
             self.assertTrue(cache.allowed("https://jobs.example/private/open/role"))
+            self.assertFalse(cache.allowed("https://jobs.example/private/another-role"))
 
         open_url.assert_called_once()
         request = open_url.call_args.args[0]
@@ -29,9 +30,11 @@ class RobotsCacheTests(unittest.TestCase):
         with patch("urllib.request.urlopen", side_effect=TimeoutError("timed out")) as open_url:
             cache = RobotsCache("crawler-test", timeout=1.5)
 
-            self.assertTrue(cache.allowed("https://jobs.example/role"))
+            self.assertTrue(cache.allowed("https://jobs.example/private/role"))
+            self.assertTrue(cache.allowed("https://jobs.example/public/role"))
 
         self.assertEqual(open_url.call_args.kwargs["timeout"], 1.5)
+        open_url.assert_called_once()
 
 
 if __name__ == "__main__":
