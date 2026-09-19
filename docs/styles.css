@@ -1809,3 +1809,51 @@ select {
 .privacy-note a {
   color: var(--brand);
 }
+
+
+/* WhatsApp channel CTA and animated novelty labels. */
+.hero-cta-whatsapp {
+  border-color: rgba(37, 211, 102, 0.82);
+  background: linear-gradient(118deg, #08281f 0%, #075b3c 52%, #128354 100%);
+}
+.hero-cta-whatsapp .hero-cta-icon-whatsapp {
+  color: #b7f7ce;
+}
+
+.hero-cta-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.45rem;
+  padding: 0.24rem 0.42rem;
+  border: 1px solid #86efac;
+  border-radius: 999px;
+  color: #123b2a;
+  background: #d1fae5;
+  font-size: 0.68em;
+  font-weight: 800;
+  line-height: 1;
+  vertical-align: middle;
+  white-space: nowrap;
+  transform-origin: center;
+  animation: hero-cta-novelty-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes hero-cta-novelty-pulse {
+  0%, 100% {
+    transform: scale(1);
+    background-color: #d1fae5;
+    box-shadow: 0 0 0 0 rgba(134, 239, 172, 0.35);
+  }
+  50% {
+    transform: scale(1.04);
+    background-color: #a7f3d0;
+    box-shadow: 0 0 0 3px rgba(134, 239, 172, 0.12);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-cta-badge {
+    animation: none !important;
+    transform: none;
+  }
+}
