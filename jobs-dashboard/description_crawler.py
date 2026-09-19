@@ -279,7 +279,7 @@ class RobotsCache:
     def __init__(self, user_agent: str, *, timeout: float = 10.0) -> None:
         self.user_agent = user_agent
         self.timeout = max(0.1, float(timeout))
-        self._cache: dict[str, bool] = {}
+        self._cache: dict[str, urllib.robotparser.RobotFileParser] = {}
 
     def allowed(self, url: str) -> bool:
         parsed = urllib.parse.urlsplit(url)
@@ -295,13 +295,15 @@ class RobotsCache:
                 with urllib.request.urlopen(request, timeout=self.timeout) as response:
                     body = response.read(MAX_ROBOTS_BYTES)
                 parser.parse(body.decode("utf-8", errors="replace").splitlines())
-                allowed = parser.can_fetch(self.user_agent, url)
             except (OSError, ValueError, urllib.error.URLError):
                 # Preserve the previous fail-open behavior for unavailable robots.txt,
                 # but bound the wait so one portal cannot stall the whole backfill.
-                allowed = True
-            self._cache[origin] = bool(allowed)
-        return self._cache[origin]
+                parser.parse(["User-agent: *", "Disallow:"])
+            self._cache[origin] = parser
+        try:
+            return self._cache[origin].can_fetch(self.user_agent, url)
+        except (OSError, ValueError, urllib.error.URLError):
+            return True
 
 
 def _catalog_value(dictionaries: dict, name: str, code: object) -> str:
