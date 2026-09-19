@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-19T11:33:11.153449+00:00",
+  "generated_at": "2026-09-19T14:47:41.926435+00:00",
   "candidate_count": 8331,
-  "company_count": 156,
+  "company_count": 152,
   "companies": [
     {
       "board": "abinbev",
@@ -748,26 +748,6 @@
       "board": "schonfeld",
       "company": "Schonfeld",
       "brazil_jobs": 12
-    },
-    {
-      "board": "securityscorecard",
-      "company": "SecurityScorecard",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "sertradingsa",
-      "company": "Sertrading",
-      "brazil_jobs": 5
-    },
-    {
-      "board": "sezzle",
-      "company": "Sezzle",
-      "brazil_jobs": 22
-    },
-    {
-      "board": "shifttechnology",
-      "company": "Shift Technology",
-      "brazil_jobs": 1
     },
     {
       "board": "gympass",
