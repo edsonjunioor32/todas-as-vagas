@@ -528,6 +528,10 @@
     "tenantName": "Cora"
   },
   {
+    "slug": "cravil",
+    "tenantName": "cravil"
+  },
+  {
     "slug": "credaluga",
     "tenantName": "CredAluga"
   },
@@ -992,6 +996,10 @@
     "tenantName": "Heads"
   },
   {
+    "slug": "helyo",
+    "tenantName": "helyo"
+  },
+  {
     "slug": "hh-escolaconquer",
     "tenantName": "Escola Conquer"
   },
@@ -1082,6 +1090,10 @@
   {
     "slug": "intera",
     "tenantName": "Intera"
+  },
+  {
+    "slug": "interop",
+    "tenantName": "interop"
   },
   {
     "slug": "intertechne",
