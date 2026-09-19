@@ -18,7 +18,7 @@ def verify_public_entry_point():
     text = INDEX.read_text(encoding="utf-8")
     required = (
         "fit-entry.css",
-        "hero-fit-actions",
+        "hero-access-grid",
         "data-fit-entry",
         "./aderencia/",
     )
