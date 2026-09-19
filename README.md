@@ -179,7 +179,7 @@ O catálogo público continua sem descrições integrais. Para viabilizar a futu
 - O arquivo fica fora do checkout por padrão, em `~/todas-as-vagas-private/descriptions.sqlite3`, e possui índice FTS5 quando disponível.
 - Cada vaga é processada com checkpoint, hash, data da última tentativa, status, código HTTP e próxima tentativa. Uma falha não interrompe a fila nem apaga uma descrição já armazenada.
 - O coletor respeita `robots.txt`, processa uma requisição por vez com intervalo mínimo configurado de 1 segundo e grava checkpoints. Falhas ou páginas sem descrição não interrompem a fila.
-- A carga inicial na VPS é contínua, sem limite artificial de itens ou duração, e segue até esgotar as vagas elegíveis pendentes. O timer diário em UTC funciona como recuperação após reinicializações ou interrupções; o lock impede duas coletas simultâneas. O tempo real depende da latência e dos controles de acesso dos portais.
+- A carga inicial na VPS é contínua, sem limite artificial de itens ou duração, e segue até esgotar as vagas elegíveis pendentes. O timer horário em UTC retoma itens cujo prazo de nova tentativa venceu e recupera a coleta após reinicializações ou interrupções; o lock impede duas coletas simultâneas. O tempo real depende da latência e dos controles de acesso dos portais.
 - O conteúdo bruto não é enviado para GitHub Pages, `public-data`, `history-data`, logs, Telegram ou WhatsApp.
 
 Instalação no VPS (após atualizar o checkout):
