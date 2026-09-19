@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-19T18:34:38.097598+00:00",
+  "generated_at": "2026-09-19T23:33:12.262409+00:00",
   "candidate_count": 8331,
   "company_count": 199,
   "companies": [
@@ -937,7 +937,7 @@
     {
       "board": "vmlenterprisesolutions",
       "company": "VML/WPP Enterprise Solutions",
-      "brazil_jobs": 19
+      "brazil_jobs": 21
     },
     {
       "board": "vtex",
@@ -997,7 +997,7 @@
     {
       "board": "ilia",
       "company": "ília",
-      "brazil_jobs": 10
+      "brazil_jobs": 9
     }
   ]
 }
