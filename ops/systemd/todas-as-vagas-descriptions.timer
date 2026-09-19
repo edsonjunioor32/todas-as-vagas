@@ -1,11 +1,8 @@
 [Unit]
-Description=Executa a coleta privada de descricoes durante a madrugada
+Description=Retoma diariamente a coleta privada de descricoes pendentes
 
 [Timer]
 OnCalendar=*-*-* 02:00:00 UTC
-OnCalendar=*-*-* 02:15:00 UTC
-OnCalendar=*-*-* 03:00:00 UTC
-OnCalendar=*-*-* 03:45:00 UTC
 Persistent=true
 RandomizedDelaySec=0
 Unit=todas-as-vagas-descriptions.service
