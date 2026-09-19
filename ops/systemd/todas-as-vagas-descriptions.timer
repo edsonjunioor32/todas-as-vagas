@@ -1,8 +1,8 @@
 [Unit]
-Description=Retoma diariamente a coleta privada de descricoes pendentes
+Description=Retoma por hora a coleta privada de descricoes pendentes
 
 [Timer]
-OnCalendar=*-*-* 02:00:00 UTC
+OnCalendar=hourly
 Persistent=true
 RandomizedDelaySec=0
 Unit=todas-as-vagas-descriptions.service
