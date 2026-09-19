@@ -1940,3 +1940,54 @@ select {
     min-height: 76px;
   }
 }
+
+
+/* Center the hero metrics and balance the four access buttons in two columns. */
+.hero .hero-top {
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+
+.hero .hero-top .stats {
+  width: min(100%, 960px);
+  max-width: 960px;
+  margin-inline: auto;
+  justify-self: center;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.hero .hero-fit-lead {
+  width: 100%;
+  max-width: 1440px;
+  justify-self: center;
+}
+
+.hero .hero-access-grid {
+  width: 100%;
+  max-width: 1440px;
+  margin-inline: auto;
+  justify-self: center;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.hero .hero-access-grid > .hero-cta {
+  min-height: 112px;
+}
+
+@media (max-width: 680px) {
+  .hero .hero-top .stats {
+    width: min(100%, 420px);
+    max-width: 420px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hero .hero-access-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .hero .hero-access-grid > .hero-cta {
+    min-height: 76px;
+  }
+}
