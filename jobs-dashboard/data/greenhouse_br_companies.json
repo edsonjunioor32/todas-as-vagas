@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-20T12:39:09.102219+00:00",
+  "generated_at": "2026-09-20T18:34:09.503781+00:00",
   "candidate_count": 8331,
-  "company_count": 198,
+  "company_count": 199,
   "companies": [
     {
       "board": "abinbev",
@@ -160,6 +160,11 @@
       "brazil_jobs": 14
     },
     {
+      "board": "boldmetrics",
+      "company": "Bold Metrics",
+      "brazil_jobs": 2
+    },
+    {
       "board": "brandwatch",
       "company": "Brandwatch",
       "brazil_jobs": 2
@@ -197,7 +202,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 154
+      "brazil_jobs": 153
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -932,7 +937,7 @@
     {
       "board": "vmlenterprisesolutions",
       "company": "VML/WPP Enterprise Solutions",
-      "brazil_jobs": 22
+      "brazil_jobs": 23
     },
     {
       "board": "vtex",
