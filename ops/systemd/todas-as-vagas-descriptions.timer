@@ -1,11 +1,12 @@
 [Unit]
-Description=Retoma por hora a coleta privada de descricoes pendentes
+Description=Verifica periodicamente a coleta privada de descricoes pendentes
 
 [Timer]
 OnCalendar=hourly
+OnBootSec=2min
 Persistent=true
 RandomizedDelaySec=0
-Unit=todas-as-vagas-descriptions.service
+Unit=todas-as-vagas-descriptions-watchdog.service
 
 [Install]
 WantedBy=timers.target
