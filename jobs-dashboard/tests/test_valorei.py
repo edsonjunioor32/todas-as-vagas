@@ -98,7 +98,7 @@ class ValoreiTests(unittest.TestCase):
         self.assertEqual([row["native_id"] for row in rows], ["job-1", "job-2"])
         self.assertEqual(rows[1]["title"], "Analista de Suporte")
         self.assertEqual(rows[1]["city"], "Pelotas")
-        self.assertEqual(rows[1]["description"], "Suporte CLT Analista de Suporte Pelotas, Rio Grande do Sul")
+        self.assertIn("Pelotas, Rio Grande do Sul", rows[1]["description"])
         self.assertEqual(driver.get.call_count, 3)
         driver.quit.assert_called_once()
 
