@@ -3,6 +3,7 @@ from datetime import date
 from unittest.mock import MagicMock, patch
 
 from sources import REGISTRY, valorei
+from storage import ACTIVE_PUBLIC_FEED_SOURCES
 
 
 class ValoreiTests(unittest.TestCase):
@@ -117,6 +118,7 @@ class ValoreiTests(unittest.TestCase):
         registry = dict(REGISTRY)
         self.assertIs(registry["valorei"], valorei.fetch)
         self.assertEqual(sum(name == "valorei" for name, _ in REGISTRY), 1)
+        self.assertIn("valorei", ACTIVE_PUBLIC_FEED_SOURCES)
 
 
 if __name__ == "__main__":
