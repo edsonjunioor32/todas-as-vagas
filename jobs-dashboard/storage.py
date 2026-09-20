@@ -183,6 +183,8 @@ ACTIVE_PUBLIC_FEED_SOURCES = {
     "toptalent",
     "trivenhraasconsultoriagestaoestrategica",
     "uniflexgroup",
+    # Valorei still lists older postings as open on its current public board.
+    "valorei",
     "vagasautomotivas",
     "vagasconsultoria",
     "verity",
