@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-20T11:32:39.609690+00:00",
+  "generated_at": "2026-09-20T12:39:09.102219+00:00",
   "candidate_count": 8331,
-  "company_count": 166,
+  "company_count": 198,
   "companies": [
     {
       "board": "abinbev",
@@ -158,11 +158,6 @@
       "board": "blip-global",
       "company": "Blip Global",
       "brazil_jobs": 14
-    },
-    {
-      "board": "boldmetrics",
-      "company": "Bold Metrics",
-      "brazil_jobs": 2
     },
     {
       "board": "brandwatch",
@@ -615,6 +610,11 @@
       "brazil_jobs": 4
     },
     {
+      "board": "tripactions",
+      "company": "Navan",
+      "brazil_jobs": 1
+    },
+    {
       "board": "neo4j",
       "company": "Neo4j",
       "brazil_jobs": 1
@@ -820,14 +820,174 @@
       "brazil_jobs": 2
     },
     {
+      "board": "sumup",
+      "company": "SumUp",
+      "brazil_jobs": 31
+    },
+    {
+      "board": "syndigo",
+      "company": "Syndigo",
+      "brazil_jobs": 2
+    },
+    {
+      "board": "systemiq",
+      "company": "Systemiq",
+      "brazil_jobs": 4
+    },
+    {
+      "board": "taboola",
+      "company": "Taboola",
+      "brazil_jobs": 5
+    },
+    {
+      "board": "takealotcom",
+      "company": "takealot.com",
+      "brazil_jobs": 2
+    },
+    {
+      "board": "teachablecareers",
+      "company": "Teachable",
+      "brazil_jobs": 4
+    },
+    {
+      "board": "telnyx54",
+      "company": "Telnyx",
+      "brazil_jobs": 6
+    },
+    {
+      "board": "thanx",
+      "company": "Thanx",
+      "brazil_jobs": 2
+    },
+    {
+      "board": "thrivedigital",
+      "company": "Thrive Digital",
+      "brazil_jobs": 3
+    },
+    {
+      "board": "thunes",
+      "company": "Thunes",
+      "brazil_jobs": 2
+    },
+    {
+      "board": "toradex",
+      "company": "Toradex",
+      "brazil_jobs": 9
+    },
+    {
+      "board": "trinks",
+      "company": "Trinks",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "turing",
+      "company": "Turing",
+      "brazil_jobs": 2
+    },
+    {
+      "board": "twilio",
+      "company": "Twilio",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "twitch",
+      "company": "Twitch",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "usergems",
+      "company": "UserGems",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "valtech",
+      "company": "Valtech",
+      "brazil_jobs": 10
+    },
+    {
+      "board": "vectranetworks",
+      "company": "Vectra",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "veeamsoftware",
+      "company": "Veeam Software",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "verve",
+      "company": "Verve",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "vitta",
+      "company": "Vitta",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "wundermanthompson",
+      "company": "VML",
+      "brazil_jobs": 29
+    },
+    {
+      "board": "vmlenterprisesolutions",
+      "company": "VML/WPP Enterprise Solutions",
+      "brazil_jobs": 22
+    },
+    {
+      "board": "vtex",
+      "company": "VTEX",
+      "brazil_jobs": 18
+    },
+    {
       "board": "gympass",
       "company": "Wellhub",
       "brazil_jobs": 43
     },
     {
+      "board": "wildlifestudios",
+      "company": "Wildlife Studios",
+      "brazil_jobs": 14
+    },
+    {
       "board": "agencywithin",
       "company": "WITHIN",
       "brazil_jobs": 2
+    },
+    {
+      "board": "wizinc",
+      "company": "Wiz, Inc.",
+      "brazil_jobs": 6
+    },
+    {
+      "board": "worldsurfleague",
+      "company": "World Surf League",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "wpp",
+      "company": "WPP",
+      "brazil_jobs": 6
+    },
+    {
+      "board": "wppmedia",
+      "company": "WPP Media",
+      "brazil_jobs": 36
+    },
+    {
+      "board": "xpinc",
+      "company": "XP Inc.",
+      "brazil_jobs": 174
+    },
+    {
+      "board": "xpengmotors",
+      "company": "XPENG",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "zscaler",
+      "company": "Zscaler",
+      "brazil_jobs": 1
     },
     {
       "board": "ilia",
