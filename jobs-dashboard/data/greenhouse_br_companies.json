@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-20T18:34:09.503781+00:00",
+  "generated_at": "2026-09-20T23:38:02.424496+00:00",
   "candidate_count": 8331,
-  "company_count": 199,
+  "company_count": 197,
   "companies": [
     {
       "board": "abinbev",
@@ -235,11 +235,6 @@
       "brazil_jobs": 16
     },
     {
-      "board": "chainguard",
-      "company": "Chainguard",
-      "brazil_jobs": 1
-    },
-    {
       "board": "charterup",
       "company": "CharterUP",
       "brazil_jobs": 3
@@ -378,11 +373,6 @@
       "board": "feedzai",
       "company": "Feedzai",
       "brazil_jobs": 1
-    },
-    {
-      "board": "feverup",
-      "company": "FeverUp",
-      "brazil_jobs": 14
     },
     {
       "board": "figma",
