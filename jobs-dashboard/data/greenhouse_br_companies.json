@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-21T04:03:15.651409+00:00",
+  "generated_at": "2026-09-21T08:20:36.063768+00:00",
   "candidate_count": 8331,
   "company_count": 199,
   "companies": [
@@ -847,7 +847,7 @@
     {
       "board": "takealotcom",
       "company": "takealot.com",
-      "brazil_jobs": 2
+      "brazil_jobs": 1
     },
     {
       "board": "teachablecareers",
