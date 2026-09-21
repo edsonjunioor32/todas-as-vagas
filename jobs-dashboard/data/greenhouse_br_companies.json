@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-21T11:38:25.956958+00:00",
+  "generated_at": "2026-09-21T14:36:54.097159+00:00",
   "candidate_count": 8331,
-  "company_count": 199,
+  "company_count": 198,
   "companies": [
     {
       "board": "abinbev",
       "company": "AB InBev  | Growth Group",
-      "brazil_jobs": 50
+      "brazil_jobs": 49
     },
     {
       "board": "adyen",
@@ -22,7 +22,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 134
+      "brazil_jobs": 136
     },
     {
       "board": "agilize",
@@ -147,7 +147,7 @@
     {
       "board": "bees",
       "company": "BEES",
-      "brazil_jobs": 46
+      "brazil_jobs": 45
     },
     {
       "board": "betsson",
@@ -162,11 +162,6 @@
     {
       "board": "boldmetrics",
       "company": "Bold Metrics",
-      "brazil_jobs": 2
-    },
-    {
-      "board": "brandwatch",
-      "company": "Brandwatch",
       "brazil_jobs": 2
     },
     {
@@ -187,7 +182,7 @@
     {
       "board": "bugcrowd",
       "company": "Bugcrowd",
-      "brazil_jobs": 2
+      "brazil_jobs": 1
     },
     {
       "board": "engineeringatgigs",
@@ -212,7 +207,7 @@
     {
       "board": "capco",
       "company": "Capco",
-      "brazil_jobs": 147
+      "brazil_jobs": 145
     },
     {
       "board": "careaccess",
@@ -290,6 +285,11 @@
       "brazil_jobs": 7
     },
     {
+      "board": "datacamp",
+      "company": "DataCamp",
+      "brazil_jobs": 1
+    },
+    {
       "board": "datadog",
       "company": "Datadog",
       "brazil_jobs": 17
@@ -322,7 +322,7 @@
     {
       "board": "ebury",
       "company": "Ebury",
-      "brazil_jobs": 2
+      "brazil_jobs": 3
     },
     {
       "board": "elastic",
@@ -337,7 +337,7 @@
     {
       "board": "enforce",
       "company": "Enforce",
-      "brazil_jobs": 10
+      "brazil_jobs": 9
     },
     {
       "board": "enova",
@@ -447,7 +447,7 @@
     {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 72
+      "brazil_jobs": 71
     },
     {
       "board": "hotmartcareersbr",
@@ -497,7 +497,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 148
+      "brazil_jobs": 149
     },
     {
       "board": "interbrand",
@@ -812,7 +812,7 @@
     {
       "board": "stonepatrocina",
       "company": "Stone - Indeed",
-      "brazil_jobs": 250
+      "brazil_jobs": 248
     },
     {
       "board": "stripe",
@@ -822,7 +822,7 @@
     {
       "board": "sumup",
       "company": "SumUp",
-      "brazil_jobs": 31
+      "brazil_jobs": 29
     },
     {
       "board": "syndigo",
@@ -925,19 +925,14 @@
       "brazil_jobs": 1
     },
     {
-      "board": "vitta",
-      "company": "Vitta",
-      "brazil_jobs": 1
-    },
-    {
       "board": "wundermanthompson",
       "company": "VML",
-      "brazil_jobs": 29
+      "brazil_jobs": 28
     },
     {
       "board": "vmlenterprisesolutions",
       "company": "VML/WPP Enterprise Solutions",
-      "brazil_jobs": 23
+      "brazil_jobs": 22
     },
     {
       "board": "vtex",
@@ -977,12 +972,12 @@
     {
       "board": "wppmedia",
       "company": "WPP Media",
-      "brazil_jobs": 36
+      "brazil_jobs": 35
     },
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 173
+      "brazil_jobs": 172
     },
     {
       "board": "xpengmotors",
@@ -997,7 +992,7 @@
     {
       "board": "ilia",
       "company": "ília",
-      "brazil_jobs": 9
+      "brazil_jobs": 8
     }
   ]
 }
