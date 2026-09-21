@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-21T08:51:40.202659+00:00",
+  "generated_at": "2026-09-21T11:38:25.956958+00:00",
   "candidate_count": 8331,
   "company_count": 199,
   "companies": [
@@ -355,11 +355,6 @@
       "brazil_jobs": 11
     },
     {
-      "board": "programaestferias",
-      "company": "Estágio de Férias Stone Co.",
-      "brazil_jobs": 2
-    },
-    {
       "board": "externaljobboards",
       "company": "Exadel",
       "brazil_jobs": 19
@@ -382,7 +377,7 @@
     {
       "board": "feverup",
       "company": "FeverUp",
-      "brazil_jobs": 14
+      "brazil_jobs": 13
     },
     {
       "board": "figma",
@@ -547,7 +542,7 @@
     {
       "board": "artefactlinkedin",
       "company": "LinkedIn Job Wrapping",
-      "brazil_jobs": 26
+      "brazil_jobs": 30
     },
     {
       "board": "lumimeds",
@@ -900,6 +895,11 @@
       "brazil_jobs": 1
     },
     {
+      "board": "ultragenyxpharmaceutical",
+      "company": "Ultragenyx Pharmaceutical",
+      "brazil_jobs": 1
+    },
+    {
       "board": "usergems",
       "company": "UserGems",
       "brazil_jobs": 1
@@ -982,7 +982,7 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 174
+      "brazil_jobs": 173
     },
     {
       "board": "xpengmotors",
