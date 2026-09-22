@@ -1,13 +1,18 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-21T18:35:14.012986+00:00",
+  "generated_at": "2026-09-21T23:35:17.704296+00:00",
   "candidate_count": 8331,
-  "company_count": 202,
+  "company_count": 198,
   "companies": [
     {
       "board": "abinbev",
       "company": "AB InBev  | Growth Group",
       "brazil_jobs": 49
+    },
+    {
+      "board": "advancedtechnologyservices",
+      "company": "Advanced Technology Services",
+      "brazil_jobs": 1
     },
     {
       "board": "adyen",
@@ -72,17 +77,12 @@
     {
       "board": "arcoeducacao",
       "company": "Arco Educação",
-      "brazil_jobs": 74
+      "brazil_jobs": 76
     },
     {
       "board": "arctouch",
       "company": "ArcTouch",
       "brazil_jobs": 1
-    },
-    {
-      "board": "arenaim",
-      "company": "Arena.im",
-      "brazil_jobs": 6
     },
     {
       "board": "arionkoder",
@@ -117,7 +117,7 @@
     {
       "board": "axicom",
       "company": "Axicom",
-      "brazil_jobs": 3
+      "brazil_jobs": 1
     },
     {
       "board": "axon",
@@ -142,12 +142,12 @@
     {
       "board": "bancopan",
       "company": "Banco PAN",
-      "brazil_jobs": 19
+      "brazil_jobs": 17
     },
     {
       "board": "bees",
       "company": "BEES",
-      "brazil_jobs": 45
+      "brazil_jobs": 46
     },
     {
       "board": "betsson",
@@ -202,12 +202,12 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 152
+      "brazil_jobs": 154
     },
     {
       "board": "candidaturasdirecionadasxpinc",
       "company": "Candidaturas Direcionadas",
-      "brazil_jobs": 20
+      "brazil_jobs": 19
     },
     {
       "board": "capco",
@@ -232,7 +232,7 @@
     {
       "board": "caylent",
       "company": "Caylent",
-      "brazil_jobs": 16
+      "brazil_jobs": 17
     },
     {
       "board": "chainguard",
@@ -452,12 +452,12 @@
     {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 71
+      "brazil_jobs": 74
     },
     {
       "board": "hotmartcareersbr",
       "company": "Hotmart",
-      "brazil_jobs": 25
+      "brazil_jobs": 24
     },
     {
       "board": "housebuyersofamerica",
@@ -547,7 +547,7 @@
     {
       "board": "artefactlinkedin",
       "company": "LinkedIn Job Wrapping",
-      "brazil_jobs": 30
+      "brazil_jobs": 31
     },
     {
       "board": "lumimeds",
@@ -717,7 +717,7 @@
     {
       "board": "rdstation",
       "company": "RD Station",
-      "brazil_jobs": 4
+      "brazil_jobs": 5
     },
     {
       "board": "rdsourcing",
@@ -765,11 +765,6 @@
       "brazil_jobs": 12
     },
     {
-      "board": "securityscorecard",
-      "company": "SecurityScorecard",
-      "brazil_jobs": 1
-    },
-    {
       "board": "sertradingsa",
       "company": "Sertrading",
       "brazil_jobs": 5
@@ -793,16 +788,6 @@
       "board": "sohohouseco",
       "company": "Soho House & Co.",
       "brazil_jobs": 9
-    },
-    {
-      "board": "sonicwall",
-      "company": "SonicWall",
-      "brazil_jobs": 2
-    },
-    {
-      "board": "sonymusicentertainment",
-      "company": "Sony Music Global Job Board",
-      "brazil_jobs": 1
     },
     {
       "board": "spacexglobal",
@@ -832,7 +817,7 @@
     {
       "board": "sumup",
       "company": "SumUp",
-      "brazil_jobs": 29
+      "brazil_jobs": 25
     },
     {
       "board": "syndigo",
@@ -853,11 +838,6 @@
       "board": "takealotcom",
       "company": "takealot.com",
       "brazil_jobs": 1
-    },
-    {
-      "board": "teachablecareers",
-      "company": "Teachable",
-      "brazil_jobs": 4
     },
     {
       "board": "telnyx54",
@@ -992,12 +972,12 @@
     {
       "board": "wppmedia",
       "company": "WPP Media",
-      "brazil_jobs": 36
+      "brazil_jobs": 38
     },
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 172
+      "brazil_jobs": 170
     },
     {
       "board": "xpengmotors",
