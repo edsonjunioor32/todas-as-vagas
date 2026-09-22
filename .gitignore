@@ -17,6 +17,7 @@ docs/data/fit.json
 jobs-dashboard/data/jobs.db
 jobs-dashboard/data/solides_cache/
 jobs-dashboard/data/collection_checkpoints/
+# The checkpoint cache is scoped to the collection run and is never published.
 
 # Private description data must stay outside public Git artifacts.
 jobs-dashboard/data/private_descriptions.sqlite3*
