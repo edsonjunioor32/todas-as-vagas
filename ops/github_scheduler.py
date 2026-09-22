@@ -102,6 +102,21 @@ def _recent_dispatch(run, current, cooldown_minutes):
     return created >= current - timedelta(minutes=max(0, int(cooldown_minutes)))
 
 
+def resume_key_for_slot(runs: list[dict], slot: datetime) -> str:
+    """Keep retries of a failed slot attached to its original checkpoints."""
+    candidates = [
+        run for run in runs
+        if (created := _run_time(run)) is not None
+        and created >= slot
+        and is_collection_run(run)
+        and str(run.get("id") or "").strip()
+    ]
+    if candidates:
+        latest = max(candidates, key=lambda run: _run_time(run) or slot)
+        return f"run-{latest['id']}"
+    return f"slot-{slot.isoformat()}"
+
+
 def decide(
     now: datetime,
     runs: list[dict],
@@ -274,11 +289,14 @@ def fetch_runs(repository: str, token: str) -> list[dict]:
     return list(payload.get("workflow_runs") or [])
 
 
-def dispatch_collection(repository: str, token: str) -> None:
+def dispatch_collection(repository: str, token: str, resume_key: str | None = None) -> None:
     """Request one dispatch; do not blindly retry an ambiguous POST."""
     if not repository.strip() or not token.strip():
         raise ValueError("repository e token são obrigatórios")
-    payload = json.dumps({"ref": "main"}).encode("utf-8")
+    payload_data = {"ref": "main"}
+    if resume_key:
+        payload_data["inputs"] = {"resume_key": str(resume_key)}
+    payload = json.dumps(payload_data).encode("utf-8")
     request = urllib.request.Request(
         f"{API_BASE}/repos/{repository}/actions/workflows/pages.yml/dispatches",
         data=payload,
@@ -351,7 +369,7 @@ def main() -> int:
         if result["action"] != "dispatch":
             return 0
 
-        dispatch_collection(repository, token)
+        dispatch_collection(repository, token, resume_key_for_slot(runs, slot))
         save_state(_state_path(), _record_dispatch(state, slot, now))
         print(
             f"SCHEDULER_DISPATCHED=true slot_utc={slot.isoformat()}",
@@ -364,3 +382,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
