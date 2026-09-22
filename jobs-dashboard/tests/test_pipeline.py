@@ -71,6 +71,37 @@ class CollectionTests(unittest.TestCase):
         self.assertEqual(failed, ["greenhouse"])
         self.assertEqual(metrics[0]["status"], "falha")
 
+    def test_collection_resumes_completed_sources_and_retries_only_failed_source(self):
+        calls = {"first": 0, "broken": 0}
+
+        def first():
+            calls["first"] += 1
+            return [sample_job("first", "1")]
+
+        def broken_then_ok():
+            calls["broken"] += 1
+            if calls["broken"] == 1:
+                raise RuntimeError("portal indisponível")
+            return [sample_job("broken", "1")]
+
+        registry = [("first", first), ("broken", broken_then_ok)]
+        with tempfile.TemporaryDirectory() as directory, patch.dict(
+            os.environ, {"JOBS_SOURCE_WORKERS": "2"}
+        ):
+            rows, failed, _ = pipeline.collect(registry, checkpoint_dir=directory)
+            self.assertEqual([row["source"] for row in rows], ["first"])
+            self.assertEqual(failed, ["broken"])
+
+            rows, failed, metrics = pipeline.collect(registry, checkpoint_dir=directory)
+
+        self.assertEqual([row["source"] for row in rows], ["first", "broken"])
+        self.assertEqual(failed, [])
+        self.assertEqual(calls, {"first": 1, "broken": 2})
+        self.assertEqual(
+            {item["name"]: item["resumed"] for item in metrics},
+            {"first": True, "broken": False},
+        )
+
 
 class GreenhouseLocationTests(unittest.TestCase):
     def test_discovery_does_not_mistake_foreign_state_codes_for_brazil(self):
@@ -374,3 +405,4 @@ class SolidesTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
