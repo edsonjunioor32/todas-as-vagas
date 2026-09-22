@@ -181,8 +181,12 @@ def merge_fit_index(rows, existing_path=FIT_PATH, output_path=None):
         "jobs": jobs,
     }
     text = json.dumps(merged, ensure_ascii=False, separators=(",", ":"))
-    if len(text.encode("utf-8")) > 8 * 1_048_576:
-        raise RuntimeError("índice de aderência excedeu o limite de 8 MB")
+    max_bytes = fit_requirements.DEFAULT_MAX_RAW_MB * 1_048_576
+    if len(text.encode("utf-8")) > max_bytes:
+        raise RuntimeError(
+            "índice de aderência excedeu o limite de "
+            f"{fit_requirements.DEFAULT_MAX_RAW_MB:.1f} MB"
+        )
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(text, encoding="utf-8")
     return changed, len(jobs)
@@ -266,3 +270,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
