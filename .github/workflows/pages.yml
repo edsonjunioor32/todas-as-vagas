@@ -11,6 +11,11 @@ on:
       - "package.json"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
+    inputs:
+      resume_key:
+        description: "Identificador da coleta anterior a ser retomada"
+        required: false
+        type: string
   schedule:
     # GitHub Actions usa UTC; Brasília/Fortaleza permanece em UTC-3.
     # Equivale a 08h00, 11h00, 15h00 e 20h00 em Brasília/Fortaleza.
@@ -107,6 +112,30 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+
+      - name: Definir contexto de retomada
+        id: collection-context
+        shell: bash
+        env:
+          REQUESTED_RESUME_KEY: ${{ inputs.resume_key || '' }}
+        run: |
+          set -euo pipefail
+          resume_key="${REQUESTED_RESUME_KEY:-}"
+          if [ -z "$resume_key" ]; then
+            resume_key="run-${GITHUB_RUN_ID}"
+          fi
+          mkdir -p jobs-dashboard/data/collection_checkpoints
+          echo "resume_key=$resume_key" >> "$GITHUB_OUTPUT"
+          echo "JOBS_COLLECTION_RESUME_KEY=$resume_key" >> "$GITHUB_ENV"
+          echo "Coleta retomável: $resume_key"
+
+      - name: Restaurar checkpoints da coleta
+        uses: actions/cache/restore@v4
+        with:
+          path: jobs-dashboard/data/collection_checkpoints
+          key: catalog-collection-v1-${{ steps.collection-context.outputs.resume_key }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            catalog-collection-v1-${{ steps.collection-context.outputs.resume_key }}-
 
       - name: Restaurar banco histórico
         id: jobs-cache
@@ -232,7 +261,15 @@ jobs:
           GREENHOUSE_WORKERS: "4"
           INFOJOBS_MAX_JOBS: "2000"
           INFOJOBS_MAX_SCROLLS: "0"
+          JOBS_COLLECTION_CHECKPOINT_DIR: "jobs-dashboard/data/collection_checkpoints"
         run: python jobs-dashboard/pipeline_fit.py --max-age-months 2
+
+      - name: Salvar checkpoints da coleta
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: jobs-dashboard/data/collection_checkpoints
+          key: catalog-collection-v1-${{ steps.collection-context.outputs.resume_key }}-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: Validar privacidade e integridade
         env:
@@ -334,3 +371,4 @@ jobs:
         uses: actions/deploy-pages@v4
         with:
           artifact_name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
+
