@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-22T14:36:07.751734+00:00",
+  "generated_at": "2026-09-22T15:10:49.456279+00:00",
   "candidate_count": 8331,
-  "company_count": 199,
+  "company_count": 201,
   "companies": [
     {
       "board": "abinbev",
@@ -55,6 +55,11 @@
       "brazil_jobs": 4
     },
     {
+      "board": "appdirect",
+      "company": "AppDirect",
+      "brazil_jobs": 5
+    },
+    {
       "board": "appnovation",
       "company": "Appnovation Technologies",
       "brazil_jobs": 8
@@ -72,7 +77,7 @@
     {
       "board": "arcoeducacao",
       "company": "Arco Educação",
-      "brazil_jobs": 76
+      "brazil_jobs": 75
     },
     {
       "board": "arctouch",
@@ -142,7 +147,7 @@
     {
       "board": "bancopan",
       "company": "Banco PAN",
-      "brazil_jobs": 18
+      "brazil_jobs": 19
     },
     {
       "board": "bees",
@@ -157,7 +162,7 @@
     {
       "board": "blip-global",
       "company": "Blip Global",
-      "brazil_jobs": 14
+      "brazil_jobs": 15
     },
     {
       "board": "boldmetrics",
@@ -202,7 +207,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 152
+      "brazil_jobs": 151
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -592,7 +597,7 @@
     {
       "board": "monks",
       "company": "Monks",
-      "brazil_jobs": 45
+      "brazil_jobs": 44
     },
     {
       "board": "monumentsoftwareinc",
@@ -623,6 +628,11 @@
       "board": "neo4j",
       "company": "Neo4j",
       "brazil_jobs": 1
+    },
+    {
+      "board": "netcracker",
+      "company": "Netcracker",
+      "brazil_jobs": 3
     },
     {
       "board": "netskope",
@@ -767,7 +777,7 @@
     {
       "board": "sezzle",
       "company": "Sezzle",
-      "brazil_jobs": 22
+      "brazil_jobs": 23
     },
     {
       "board": "shifttechnology",
@@ -937,12 +947,12 @@
     {
       "board": "vmlenterprisesolutions",
       "company": "VML/WPP Enterprise Solutions",
-      "brazil_jobs": 27
+      "brazil_jobs": 28
     },
     {
       "board": "vtex",
       "company": "VTEX",
-      "brazil_jobs": 18
+      "brazil_jobs": 19
     },
     {
       "board": "gympass",
@@ -982,7 +992,7 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 166
+      "brazil_jobs": 167
     },
     {
       "board": "xpengmotors",
