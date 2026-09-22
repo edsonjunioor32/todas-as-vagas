@@ -32,8 +32,12 @@ def _attach_public_metadata(jobs):
             entries[url].update(_public_metadata(job))
     text = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
     size_mb = len(text.encode("utf-8")) / 1_048_576
-    if size_mb > 8.0:
-        raise RuntimeError(f"fit index com metadados excedeu limite de segurança: {size_mb:.1f} MB")
+    max_raw_mb = fit_requirements.DEFAULT_MAX_RAW_MB
+    if size_mb > max_raw_mb:
+        raise RuntimeError(
+            f"fit index com metadados excedeu limite de segurança: {size_mb:.1f} MB "
+            f"(máximo {max_raw_mb:.1f} MB)"
+        )
     FIT_JSON.write_text(text, encoding="utf-8")
     return size_mb
 
@@ -72,7 +76,9 @@ def _record_quarantine(rejected):
     )
     try:
         with open(summary_path, "a", encoding="utf-8") as summary:
-            summary.write("\n".join(lines) + "\n")
+            summary.write("
+".join(lines) + "
+")
     except OSError as error:
         print(f"  aviso: não foi possível registrar a quarentena no resumo: {error}")
 
@@ -130,3 +136,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
