@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-22T15:10:49.456279+00:00",
+  "generated_at": "2026-09-22T18:37:17.225453+00:00",
   "candidate_count": 8331,
-  "company_count": 201,
+  "company_count": 198,
   "companies": [
     {
       "board": "abinbev",
@@ -27,7 +27,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 136
+      "brazil_jobs": 137
     },
     {
       "board": "agilize",
@@ -52,7 +52,7 @@
     {
       "board": "amyrisinc",
       "company": "Amyris, Inc.",
-      "brazil_jobs": 4
+      "brazil_jobs": 5
     },
     {
       "board": "appdirect",
@@ -147,7 +147,7 @@
     {
       "board": "bancopan",
       "company": "Banco PAN",
-      "brazil_jobs": 19
+      "brazil_jobs": 18
     },
     {
       "board": "bees",
@@ -188,11 +188,6 @@
       "board": "broadsign",
       "company": "Broadsign Careers",
       "brazil_jobs": 1
-    },
-    {
-      "board": "bugcrowd",
-      "company": "Bugcrowd",
-      "brazil_jobs": 2
     },
     {
       "board": "engineeringatgigs",
@@ -307,7 +302,7 @@
     {
       "board": "deliveryassociates",
       "company": "Delivery Associates",
-      "brazil_jobs": 2
+      "brazil_jobs": 1
     },
     {
       "board": "doordashinternational",
@@ -327,7 +322,7 @@
     {
       "board": "ebanx",
       "company": "EBANX",
-      "brazil_jobs": 24
+      "brazil_jobs": 23
     },
     {
       "board": "ebury",
@@ -507,7 +502,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 147
+      "brazil_jobs": 144
     },
     {
       "board": "interbrand",
@@ -517,7 +512,7 @@
     {
       "board": "intersystems",
       "company": "InterSystems",
-      "brazil_jobs": 2
+      "brazil_jobs": 3
     },
     {
       "board": "interviewengineering",
@@ -545,11 +540,6 @@
       "brazil_jobs": 16
     },
     {
-      "board": "lighthouse",
-      "company": "Lighthouse",
-      "brazil_jobs": 1
-    },
-    {
       "board": "artefactlinkedin",
       "company": "LinkedIn Job Wrapping",
       "brazil_jobs": 31
@@ -563,11 +553,6 @@
       "board": "lynxtech",
       "company": "Lynx",
       "brazil_jobs": 2
-    },
-    {
-      "board": "majorleaguebaseball",
-      "company": "Major League Baseball",
-      "brazil_jobs": 1
     },
     {
       "board": "agency",
@@ -587,6 +572,11 @@
     {
       "board": "realtimeboardglobal",
       "company": "Miro",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "mitsogoinc",
+      "company": "Mitsogo Inc",
       "brazil_jobs": 1
     },
     {
@@ -653,11 +643,6 @@
       "board": "okx",
       "company": "OKX",
       "brazil_jobs": 5
-    },
-    {
-      "board": "oliverbrazil",
-      "company": "OLIVER Agency - Brasil",
-      "brazil_jobs": 1
     },
     {
       "board": "onrunning",
@@ -942,22 +927,22 @@
     {
       "board": "wundermanthompson",
       "company": "VML",
-      "brazil_jobs": 29
+      "brazil_jobs": 26
     },
     {
       "board": "vmlenterprisesolutions",
       "company": "VML/WPP Enterprise Solutions",
-      "brazil_jobs": 28
+      "brazil_jobs": 26
     },
     {
       "board": "vtex",
       "company": "VTEX",
-      "brazil_jobs": 19
+      "brazil_jobs": 20
     },
     {
       "board": "gympass",
       "company": "Wellhub",
-      "brazil_jobs": 43
+      "brazil_jobs": 44
     },
     {
       "board": "wildlifestudios",
@@ -987,7 +972,7 @@
     {
       "board": "wppmedia",
       "company": "WPP Media",
-      "brazil_jobs": 38
+      "brazil_jobs": 37
     },
     {
       "board": "xpinc",
@@ -1007,7 +992,7 @@
     {
       "board": "ilia",
       "company": "ília",
-      "brazil_jobs": 6
+      "brazil_jobs": 4
     }
   ]
 }
