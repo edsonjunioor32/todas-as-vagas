@@ -17,6 +17,11 @@ class FitRequirementsTests(unittest.TestCase):
     def setUpClass(cls):
         cls.taxonomy = json.loads((ROOT / "docs" / "data" / "fit-taxonomy.json").read_text(encoding="utf-8"))
 
+    def test_fit_writers_share_the_expanded_raw_size_cap(self):
+        """The metadata-enrichment step must accept the current catalogue size."""
+        self.assertEqual(pf.fit_requirements.DEFAULT_MAX_RAW_MB, fr.DEFAULT_MAX_RAW_MB)
+        self.assertGreater(fr.DEFAULT_MAX_RAW_MB, 8.0)
+
     def test_dotnet_requirements_split_mandatory_and_preferred(self):
         job = {"description": (
             "Requisitos: Experiência com C#, .NET Framework e ASP.NET MVC (Razor); "
@@ -126,3 +131,4 @@ class FitRequirementsTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
