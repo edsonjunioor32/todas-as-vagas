@@ -5,8 +5,11 @@
 # Telegram alerts run only after the public snapshot passes validation.
 import argparse
 import concurrent.futures
+import gzip
+import json
 import os
 import sys
+import tempfile
 import time
 from collections import Counter
 from pathlib import Path
@@ -54,6 +57,9 @@ NONEMPTY_SOURCES = {
 # These adapters are paused after repeated upstream failures. Their stored
 # rows remain eligible through the normal publication/expiration rules.
 PAUSED_SOURCES = frozenset({"azify", "assefaz", "cprocco"})
+
+CHECKPOINT_SCHEMA_VERSION = 1
+CHECKPOINT_ENV = "JOBS_COLLECTION_CHECKPOINT_DIR"
 
 def sources_to_preserve(failed_sources):
     """Return unavailable sources whose last valid rows must remain eligible."""
@@ -127,21 +133,135 @@ def _collect_source(index, name, fetch):
         }
 
 
-def collect(registry):
-    """Collect independent sources concurrently while preserving registry order."""
+def _checkpoint_path(checkpoint_dir, name):
+    """Return a safe per-source checkpoint path."""
+    safe_name = "".join(
+        character if character.isalnum() or character in "-_." else "_"
+        for character in str(name)
+    )
+    return Path(checkpoint_dir) / f"{safe_name}.json.gz"
+
+
+def _read_checkpoint(checkpoint_dir, name):
+    """Load one successful source result, ignoring corrupt or stale files."""
+    if not checkpoint_dir:
+        return None
+    path = _checkpoint_path(checkpoint_dir, name)
+    try:
+        with gzip.open(path, "rt", encoding="utf-8") as source:
+            payload = json.load(source)
+    except (OSError, EOFError, json.JSONDecodeError, TypeError, ValueError):
+        return None
+    if (
+        not isinstance(payload, dict)
+        or payload.get("schema_version") != CHECKPOINT_SCHEMA_VERSION
+        or payload.get("source") != name
+        or payload.get("status") != "ok"
+        or not isinstance(payload.get("rows"), list)
+    ):
+        return None
+    rows = [
+        row for row in payload["rows"]
+        if isinstance(row, dict) and row.get("title") and row.get("url")
+    ]
+    if name in NONEMPTY_SOURCES and not rows:
+        return None
+    return {
+        "rows": rows,
+        "dropped": int(payload.get("dropped") or 0),
+        "seconds": float(payload.get("seconds") or 0.0),
+    }
+
+
+def _write_checkpoint(checkpoint_dir, name, result):
+    """Atomically persist a successful source result for a later retry."""
+    if not checkpoint_dir or result.get("error"):
+        return
+    path = _checkpoint_path(checkpoint_dir, name)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "schema_version": CHECKPOINT_SCHEMA_VERSION,
+        "status": "ok",
+        "source": name,
+        "rows": result.get("rows") or [],
+        "dropped": result.get("dropped") or 0,
+        "seconds": result.get("seconds") or 0.0,
+    }
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="wb",
+            dir=path.parent,
+            prefix=f".{path.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as target:
+            temporary = Path(target.name)
+            with gzip.GzipFile(fileobj=target, mode="wb", mtime=0) as compressed:
+                compressed.write(json.dumps(payload, ensure_ascii=False).encode("utf-8"))
+            target.flush()
+            os.fsync(target.fileno())
+        os.replace(temporary, path)
+    except (OSError, TypeError, ValueError) as error:
+        # A checkpoint is an optimization. Never turn a successful collection
+        # into a failed one because a cache volume is unavailable.
+        print(f"  aviso: checkpoint de {name} não foi salvo: {error}")
+        if temporary:
+            temporary.unlink(missing_ok=True)
+
+
+def collect(registry, checkpoint_dir=None):
+    """Collect sources concurrently and resume completed sources from checkpoints."""
     if not registry:
         return [], [], []
-    workers = min(len(registry), _env_int("JOBS_SOURCE_WORKERS", 5, maximum=8))
-    print(f"  concorrência entre fontes: {workers}")
+    checkpoint_dir = checkpoint_dir or os.environ.get(CHECKPOINT_ENV, "").strip()
+    checkpoint_dir = Path(checkpoint_dir) if checkpoint_dir else None
     results = [None] * len(registry)
+    pending = []
+    for index, (name, fetch) in enumerate(registry):
+        cached = _read_checkpoint(checkpoint_dir, name)
+        if cached is None:
+            pending.append((index, name, fetch))
+            continue
+        results[index] = {
+            "index": index,
+            "name": name,
+            "rows": cached["rows"],
+            "dropped": cached["dropped"],
+            "seconds": cached["seconds"],
+            "error": "",
+            "resumed": True,
+        }
+        print(
+            f"  [{name:14}] retomada do checkpoint: {len(cached['rows']):>6} vagas"
+        )
+
+    if not pending:
+        rows = [row for result in results for row in result["rows"]]
+        failed = []
+        metrics = [
+            {
+                "name": result["name"],
+                "status": "ok",
+                "jobs": len(result["rows"]),
+                "seconds": result["seconds"],
+                "resumed": True,
+            }
+            for result in results
+        ]
+        return rows, failed, metrics
+
+    workers = min(len(pending), _env_int("JOBS_SOURCE_WORKERS", 5, maximum=8))
+    print(f"  concorrência entre fontes: {workers}")
     with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
         futures = {
             executor.submit(_collect_source, index, name, fetch): index
-            for index, (name, fetch) in enumerate(registry)
+            for index, name, fetch in pending
         }
         for future in concurrent.futures.as_completed(futures):
             result = future.result()
             results[result["index"]] = result
+            _write_checkpoint(checkpoint_dir, result["name"], result)
             if result["error"]:
                 print(f"  [{result['name']:14}] FALHA {result['error']} ({result['seconds']:.1f}s)")
                 continue
@@ -160,6 +280,7 @@ def collect(registry):
             "status": "falha" if result["error"] else ("ok" if result["rows"] else "vazio"),
             "jobs": len(result["rows"]),
             "seconds": result["seconds"],
+            "resumed": bool(result.get("resumed")),
         }
         for result in results
     ]
@@ -309,7 +430,10 @@ def main(before_persist=None):
     print(f"  Radar de Vagas — coleta de {len(registry)} fontes públicas")
     print("=" * 72)
     stage_started = time.perf_counter()
-    rows, failed, source_metrics = collect(registry)
+    rows, failed, source_metrics = collect(
+        registry,
+        checkpoint_dir=os.environ.get(CHECKPOINT_ENV, "").strip(),
+    )
     preserved_sources = sources_to_preserve(failed)
     phases["Coleta das fontes"] = time.perf_counter() - stage_started
     stage_started = time.perf_counter()
@@ -476,3 +600,4 @@ def main(before_persist=None):
 
 if __name__ == "__main__":
     main()
+
