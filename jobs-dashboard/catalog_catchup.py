@@ -66,6 +66,21 @@ def _recent_dispatch(run, current, cooldown_minutes):
     return created >= current - timedelta(minutes=max(0, int(cooldown_minutes)))
 
 
+def resume_key_for_slot(runs: list[dict], slot: datetime) -> str:
+    """Keep retries of a failed slot attached to its original checkpoints."""
+    candidates = [
+        run for run in runs
+        if (created := _run_time(run)) is not None
+        and created >= slot
+        and is_collection_run(run)
+        and str(run.get("id") or "").strip()
+    ]
+    if candidates:
+        latest = max(candidates, key=lambda run: _run_time(run) or slot)
+        return f"run-{latest['id']}"
+    return f"slot-{slot.isoformat()}"
+
+
 def decide(
     now: datetime,
     runs: list[dict],
@@ -131,8 +146,11 @@ def fetch_collection_runs(repository: str, token: str) -> list[dict]:
     return list(payload.get("workflow_runs") or [])
 
 
-def dispatch_collection(repository: str, token: str) -> None:
-    payload = json.dumps({"ref": "main"}).encode("utf-8")
+def dispatch_collection(repository: str, token: str, resume_key: str | None = None) -> None:
+    payload_data = {"ref": "main"}
+    if resume_key:
+        payload_data["inputs"] = {"resume_key": str(resume_key)}
+    payload = json.dumps(payload_data).encode("utf-8")
     request = urllib.request.Request(
         f"{API_BASE}/repos/{repository}/actions/workflows/pages.yml/dispatches",
         data=payload,
@@ -176,9 +194,14 @@ def main() -> None:
     if result["action"] != "dispatch":
         return
 
-    dispatch_collection(repository, token)
-    print(f"CATCHUP_DISPATCHED=true slot_utc={slot}", flush=True)
+    resume_key = resume_key_for_slot(runs, result["slot"])
+    dispatch_collection(repository, token, resume_key)
+    print(
+        f"CATCHUP_DISPATCHED=true slot_utc={slot} resume_key={resume_key}",
+        flush=True,
+    )
 
 
 if __name__ == "__main__":
     main()
+
