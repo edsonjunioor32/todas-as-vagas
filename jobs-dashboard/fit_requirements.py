@@ -9,6 +9,14 @@ import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 
+
+# Keep the raw fit index cap in one place.  The public catalogue has grown
+# beyond the original 8 MB assumption, while the index remains metadata-only
+# and contains no vacancy descriptions.  Other writers (the full pipeline
+# and partial portal merge) reuse this same cap so they cannot disagree about
+# whether a valid index is publishable.
+DEFAULT_MAX_RAW_MB = 16.0
+
 DEFAULT_TAXONOMY_PATH = Path(__file__).resolve().parents[1] / "docs" / "data" / "fit-taxonomy.json"
 MIN_DESCRIPTION_CHARS = 120
 
@@ -214,7 +222,7 @@ def extract_requirements(job: dict, taxonomy: dict | None = None) -> dict:
     return {**groups, "confidence": confidence}
 
 
-def export_fit_index(rows, out_path, taxonomy_path=None, max_raw_mb=16.0):
+def export_fit_index(rows, out_path, taxonomy_path=None, max_raw_mb=DEFAULT_MAX_RAW_MB):
     taxonomy = load_taxonomy(taxonomy_path)
     terms, term_index, jobs = [], {}, {}
     def code(label):
@@ -251,3 +259,4 @@ def export_fit_index(rows, out_path, taxonomy_path=None, max_raw_mb=16.0):
     temp.write_text(text, encoding="utf-8")
     os.replace(temp, out)
     return len(jobs), size_mb
+
