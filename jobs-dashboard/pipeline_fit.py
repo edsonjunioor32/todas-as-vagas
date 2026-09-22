@@ -30,12 +30,27 @@ def _attach_public_metadata(jobs):
         url = str(job.get("url") or "").strip().replace("http://", "https://", 1)
         if url in entries:
             entries[url].update(_public_metadata(job))
+    max_raw_mb = fit_requirements.DEFAULT_MAX_RAW_MB
     text = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
     size_mb = len(text.encode("utf-8")) / 1_048_576
-    max_raw_mb = fit_requirements.DEFAULT_MAX_RAW_MB
+    if size_mb > max_raw_mb:
+        # These fields duplicate information already present in vagas.json and
+        # are not needed to decode requirements. Drop only this optional
+        # enrichment so catalogue growth cannot block the whole publication.
+        optional_fields = ("t", "e", "l", "w", "d")
+        for entry in entries.values():
+            if isinstance(entry, dict):
+                for field in optional_fields:
+                    entry.pop(field, None)
+        text = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
+        size_mb = len(text.encode("utf-8")) / 1_048_576
+        print(
+            f"  aviso: metadados auxiliares removidos do fit.json para manter o índice "
+            f"dentro do limite ({size_mb:.1f} MB)"
+        )
     if size_mb > max_raw_mb:
         raise RuntimeError(
-            f"fit index com metadados excedeu limite de segurança: {size_mb:.1f} MB "
+            f"fit index sem metadados excedeu limite de segurança: {size_mb:.1f} MB "
             f"(máximo {max_raw_mb:.1f} MB)"
         )
     FIT_JSON.write_text(text, encoding="utf-8")
