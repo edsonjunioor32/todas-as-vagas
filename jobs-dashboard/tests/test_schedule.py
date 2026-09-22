@@ -14,13 +14,19 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "jobs-dashboard"))
 sys.path.insert(0, str(ROOT / "ops"))
 
-from catalog_catchup import decide as catalog_decide, dispatch_collection, latest_slot as catalog_latest_slot
+from catalog_catchup import (
+    decide as catalog_decide,
+    dispatch_collection,
+    latest_slot as catalog_latest_slot,
+    resume_key_for_slot as catalog_resume_key_for_slot,
+)
 from github_scheduler import (
     BRASILIA,
     decide,
     dispatch_collection as scheduler_dispatch_collection,
     fetch_runs,
     latest_slot,
+    resume_key_for_slot as scheduler_resume_key_for_slot,
     SchedulerLock,
     load_state,
     save_state,
@@ -49,6 +55,11 @@ class ScheduleTests(unittest.TestCase):
         self.assertIn("vagas-main-writer", workflow)
         self.assertIn("CATCHUP_GRACE_MINUTES", workflow)
         self.assertIn("catalog_catchup.py", workflow)
+        pages = (ROOT / ".github/workflows/pages.yml").read_text(encoding="utf-8")
+        self.assertIn("resume_key:", pages)
+        self.assertIn("Restaurar checkpoints da coleta", pages)
+        self.assertIn("Salvar checkpoints da coleta", pages)
+        self.assertIn("JOBS_COLLECTION_CHECKPOINT_DIR", pages)
 
     def test_dispatch_collection_calls_pages_dispatch_api(self):
         with patch("catalog_catchup.urllib.request.urlopen") as urlopen:
@@ -62,6 +73,28 @@ class ScheduleTests(unittest.TestCase):
         self.assertEqual(request.get_method(), "POST")
         self.assertEqual(json.loads(request.data.decode("utf-8")), {"ref": "main"})
         self.assertEqual(request.get_header("Authorization"), "Bearer token")
+
+    def test_dispatch_collection_can_pass_resume_key(self):
+        with patch("catalog_catchup.urllib.request.urlopen") as urlopen:
+            dispatch_collection("edsonjunioor32/todas-as-vagas", "token", "run-123")
+
+        request = urlopen.call_args.args[0]
+        self.assertEqual(
+            json.loads(request.data.decode("utf-8")),
+            {"ref": "main", "inputs": {"resume_key": "run-123"}},
+        )
+
+    def test_failed_slot_reuses_original_run_checkpoint_key(self):
+        slot = datetime(2026, 9, 11, 11, 0, tzinfo=timezone.utc)
+        failed = {
+            "id": 123,
+            "event": "schedule",
+            "status": "completed",
+            "conclusion": "failure",
+            "created_at": "2026-09-11T11:05:00Z",
+        }
+        self.assertEqual(catalog_resume_key_for_slot([failed], slot), "run-123")
+        self.assertEqual(scheduler_resume_key_for_slot([failed], slot), "run-123")
 
     def test_collection_does_not_cancel_an_in_progress_run(self):
         workflow = (ROOT / ".github/workflows/pages.yml").read_text(
@@ -221,3 +254,4 @@ class ScheduleTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
