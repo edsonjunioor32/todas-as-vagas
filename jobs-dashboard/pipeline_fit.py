@@ -76,9 +76,7 @@ def _record_quarantine(rejected):
     )
     try:
         with open(summary_path, "a", encoding="utf-8") as summary:
-            summary.write("
-".join(lines) + "
-")
+            summary.write("\n".join(lines) + "\n")
     except OSError as error:
         print(f"  aviso: não foi possível registrar a quarentena no resumo: {error}")
 
@@ -136,4 +134,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
+
