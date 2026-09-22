@@ -16,7 +16,9 @@ docs/data/fit.json
 # Historical SQLite state is restored through the Actions cache.
 jobs-dashboard/data/jobs.db
 jobs-dashboard/data/solides_cache/
+jobs-dashboard/data/collection_checkpoints/
 
 # Private description data must stay outside public Git artifacts.
 jobs-dashboard/data/private_descriptions.sqlite3*
 todas-as-vagas-private/
+
