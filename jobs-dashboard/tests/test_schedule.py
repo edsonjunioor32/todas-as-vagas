@@ -5,6 +5,7 @@ import stat
 import sys
 import tempfile
 import unittest
+# The workflow path is exercised by the refresh-fit validation run.
 from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import patch
