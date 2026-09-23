@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-23T15:11:19.797048+00:00",
+  "generated_at": "2026-09-23T15:41:24.581980+00:00",
   "candidate_count": 8331,
-  "company_count": 201,
+  "company_count": 200,
   "companies": [
     {
       "board": "abinbev",
@@ -27,7 +27,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 132
+      "brazil_jobs": 133
     },
     {
       "board": "agilize",
@@ -177,7 +177,7 @@
     {
       "board": "braze",
       "company": "Braze",
-      "brazil_jobs": 16
+      "brazil_jobs": 17
     },
     {
       "board": "brex",
@@ -217,7 +217,7 @@
     {
       "board": "capco",
       "company": "Capco",
-      "brazil_jobs": 144
+      "brazil_jobs": 146
     },
     {
       "board": "careaccess",
@@ -730,11 +730,6 @@
       "brazil_jobs": 5
     },
     {
-      "board": "rdsourcing",
-      "company": "RD Station - Sourcing",
-      "brazil_jobs": 2
-    },
-    {
       "board": "relex",
       "company": "RELEX Solutions",
       "brazil_jobs": 1
@@ -952,7 +947,7 @@
     {
       "board": "vtex",
       "company": "VTEX",
-      "brazil_jobs": 18
+      "brazil_jobs": 17
     },
     {
       "board": "gympass",
@@ -987,7 +982,7 @@
     {
       "board": "wppmedia",
       "company": "WPP Media",
-      "brazil_jobs": 38
+      "brazil_jobs": 39
     },
     {
       "board": "xpinc",
