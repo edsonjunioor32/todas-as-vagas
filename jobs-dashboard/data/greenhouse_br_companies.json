@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-23T00:07:55.966754+00:00",
+  "generated_at": "2026-09-23T08:49:27.978906+00:00",
   "candidate_count": 8331,
   "company_count": 202,
   "companies": [
@@ -342,7 +342,7 @@
     {
       "board": "encora10",
       "company": "Encora",
-      "brazil_jobs": 17
+      "brazil_jobs": 16
     },
     {
       "board": "enforce",
@@ -512,7 +512,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 145
+      "brazil_jobs": 144
     },
     {
       "board": "interbrand",
@@ -957,7 +957,7 @@
     {
       "board": "vtex",
       "company": "VTEX",
-      "brazil_jobs": 20
+      "brazil_jobs": 19
     },
     {
       "board": "gympass",
