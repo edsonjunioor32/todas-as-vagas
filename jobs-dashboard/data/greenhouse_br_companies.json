@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-23T16:16:26.219585+00:00",
+  "generated_at": "2026-09-23T18:37:17.598049+00:00",
   "candidate_count": 8331,
-  "company_count": 198,
+  "company_count": 201,
   "companies": [
     {
       "board": "abinbev",
@@ -212,12 +212,12 @@
     {
       "board": "candidaturasdirecionadasxpinc",
       "company": "Candidaturas Direcionadas",
-      "brazil_jobs": 19
+      "brazil_jobs": 18
     },
     {
       "board": "capco",
       "company": "Capco",
-      "brazil_jobs": 145
+      "brazil_jobs": 143
     },
     {
       "board": "careaccess",
@@ -237,7 +237,7 @@
     {
       "board": "caylent",
       "company": "Caylent",
-      "brazil_jobs": 17
+      "brazil_jobs": 18
     },
     {
       "board": "chainguard",
@@ -292,7 +292,7 @@
     {
       "board": "databricks",
       "company": "Databricks",
-      "brazil_jobs": 7
+      "brazil_jobs": 6
     },
     {
       "board": "datacamp",
@@ -347,7 +347,7 @@
     {
       "board": "enforce",
       "company": "Enforce",
-      "brazil_jobs": 9
+      "brazil_jobs": 10
     },
     {
       "board": "enova",
@@ -377,7 +377,7 @@
     {
       "board": "exadelinc",
       "company": "Exadel Inc (Website)",
-      "brazil_jobs": 18
+      "brazil_jobs": 17
     },
     {
       "board": "fanaticscollectibles",
@@ -455,14 +455,19 @@
       "brazil_jobs": 1
     },
     {
+      "board": "growetalents",
+      "company": "Growe Talents",
+      "brazil_jobs": 1
+    },
+    {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 73
+      "brazil_jobs": 74
     },
     {
       "board": "hotmartcareersbr",
       "company": "Hotmart",
-      "brazil_jobs": 23
+      "brazil_jobs": 22
     },
     {
       "board": "housebuyersofamerica",
@@ -507,7 +512,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 145
+      "brazil_jobs": 146
     },
     {
       "board": "interbrand",
@@ -582,6 +587,11 @@
     {
       "board": "realtimeboardglobal",
       "company": "Miro",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "mitsogoinc",
+      "company": "Mitsogo Inc",
       "brazil_jobs": 1
     },
     {
@@ -717,7 +727,12 @@
     {
       "board": "rdstation",
       "company": "RD Station",
-      "brazil_jobs": 5
+      "brazil_jobs": 6
+    },
+    {
+      "board": "rdsourcing",
+      "company": "RD Station - Sourcing",
+      "brazil_jobs": 2
     },
     {
       "board": "relex",
@@ -732,7 +747,7 @@
     {
       "board": "ripple",
       "company": "Ripple",
-      "brazil_jobs": 2
+      "brazil_jobs": 3
     },
     {
       "board": "riskified",
@@ -882,7 +897,7 @@
     {
       "board": "turing",
       "company": "Turing",
-      "brazil_jobs": 2
+      "brazil_jobs": 3
     },
     {
       "board": "twilio",
@@ -927,12 +942,12 @@
     {
       "board": "wundermanthompson",
       "company": "VML",
-      "brazil_jobs": 24
+      "brazil_jobs": 25
     },
     {
       "board": "vmlenterprisesolutions",
       "company": "VML/WPP Enterprise Solutions",
-      "brazil_jobs": 31
+      "brazil_jobs": 30
     },
     {
       "board": "vtex",
@@ -977,7 +992,7 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 168
+      "brazil_jobs": 166
     },
     {
       "board": "xpengmotors",
