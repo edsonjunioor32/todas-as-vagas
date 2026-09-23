@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-23T12:05:19.098853+00:00",
+  "generated_at": "2026-09-23T14:37:06.021415+00:00",
   "candidate_count": 8331,
-  "company_count": 201,
+  "company_count": 200,
   "companies": [
     {
       "board": "abinbev",
@@ -27,12 +27,12 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 138
+      "brazil_jobs": 133
     },
     {
       "board": "agilize",
       "company": "Agilize",
-      "brazil_jobs": 7
+      "brazil_jobs": 6
     },
     {
       "board": "airbnb",
@@ -63,6 +63,11 @@
       "board": "appnovation",
       "company": "Appnovation Technologies",
       "brazil_jobs": 8
+    },
+    {
+      "board": "appsflyer",
+      "company": "AppsFlyer",
+      "brazil_jobs": 1
     },
     {
       "board": "archer56",
@@ -202,7 +207,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 150
+      "brazil_jobs": 153
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -212,7 +217,7 @@
     {
       "board": "capco",
       "company": "Capco",
-      "brazil_jobs": 148
+      "brazil_jobs": 144
     },
     {
       "board": "careaccess",
@@ -223,11 +228,6 @@
       "board": "caronsale",
       "company": "CarOnSale",
       "brazil_jobs": 3
-    },
-    {
-      "board": "carta",
-      "company": "Carta",
-      "brazil_jobs": 2
     },
     {
       "board": "caylent",
@@ -507,7 +507,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 145
+      "brazil_jobs": 146
     },
     {
       "board": "interbrand",
@@ -707,7 +707,7 @@
     {
       "board": "powerdigitalmarketing",
       "company": "Power Digital",
-      "brazil_jobs": 55
+      "brazil_jobs": 57
     },
     {
       "board": "pfm",
@@ -817,7 +817,7 @@
     {
       "board": "stonepatrocina",
       "company": "Stone - Indeed",
-      "brazil_jobs": 244
+      "brazil_jobs": 243
     },
     {
       "board": "stripe",
@@ -857,7 +857,7 @@
     {
       "board": "telnyx54",
       "company": "Telnyx",
-      "brazil_jobs": 6
+      "brazil_jobs": 5
     },
     {
       "board": "testlio",
@@ -930,11 +930,6 @@
       "brazil_jobs": 1
     },
     {
-      "board": "verve",
-      "company": "Verve",
-      "brazil_jobs": 1
-    },
-    {
       "board": "vitta",
       "company": "Vitta",
       "brazil_jobs": 1
@@ -942,22 +937,22 @@
     {
       "board": "wundermanthompson",
       "company": "VML",
-      "brazil_jobs": 25
+      "brazil_jobs": 24
     },
     {
       "board": "vmlenterprisesolutions",
       "company": "VML/WPP Enterprise Solutions",
-      "brazil_jobs": 29
+      "brazil_jobs": 31
     },
     {
       "board": "vtex",
       "company": "VTEX",
-      "brazil_jobs": 19
+      "brazil_jobs": 18
     },
     {
       "board": "gympass",
       "company": "Wellhub",
-      "brazil_jobs": 44
+      "brazil_jobs": 43
     },
     {
       "board": "wildlifestudios",
@@ -982,7 +977,7 @@
     {
       "board": "wpp",
       "company": "WPP",
-      "brazil_jobs": 7
+      "brazil_jobs": 6
     },
     {
       "board": "wppmedia",
@@ -1007,7 +1002,7 @@
     {
       "board": "ilia",
       "company": "ília",
-      "brazil_jobs": 4
+      "brazil_jobs": 5
     }
   ]
 }
