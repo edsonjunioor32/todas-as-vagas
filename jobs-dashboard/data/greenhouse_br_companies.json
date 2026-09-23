@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-23T14:37:06.021415+00:00",
+  "generated_at": "2026-09-23T15:11:19.797048+00:00",
   "candidate_count": 8331,
-  "company_count": 200,
+  "company_count": 201,
   "companies": [
     {
       "board": "abinbev",
@@ -27,7 +27,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 133
+      "brazil_jobs": 132
     },
     {
       "board": "agilize",
@@ -117,7 +117,7 @@
     {
       "board": "awin",
       "company": "Awin",
-      "brazil_jobs": 6
+      "brazil_jobs": 5
     },
     {
       "board": "axicom",
@@ -202,7 +202,7 @@
     {
       "board": "bursonglobalcareers",
       "company": "Burson",
-      "brazil_jobs": 9
+      "brazil_jobs": 8
     },
     {
       "board": "c6bank",
@@ -228,6 +228,11 @@
       "board": "caronsale",
       "company": "CarOnSale",
       "brazil_jobs": 3
+    },
+    {
+      "board": "carta",
+      "company": "Carta",
+      "brazil_jobs": 2
     },
     {
       "board": "caylent",
@@ -327,7 +332,7 @@
     {
       "board": "ebury",
       "company": "Ebury",
-      "brazil_jobs": 3
+      "brazil_jobs": 4
     },
     {
       "board": "elastic",
@@ -372,7 +377,7 @@
     {
       "board": "exadelinc",
       "company": "Exadel Inc (Website)",
-      "brazil_jobs": 17
+      "brazil_jobs": 18
     },
     {
       "board": "fanaticscollectibles",
@@ -462,7 +467,7 @@
     {
       "board": "hotmartcareersbr",
       "company": "Hotmart",
-      "brazil_jobs": 24
+      "brazil_jobs": 23
     },
     {
       "board": "housebuyersofamerica",
@@ -507,7 +512,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 146
+      "brazil_jobs": 145
     },
     {
       "board": "interbrand",
@@ -592,7 +597,7 @@
     {
       "board": "mongodb",
       "company": "MongoDB",
-      "brazil_jobs": 6
+      "brazil_jobs": 5
     },
     {
       "board": "monks",
@@ -827,7 +832,7 @@
     {
       "board": "sumup",
       "company": "SumUp",
-      "brazil_jobs": 24
+      "brazil_jobs": 23
     },
     {
       "board": "syndigo",
