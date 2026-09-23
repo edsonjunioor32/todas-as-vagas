@@ -496,6 +496,10 @@
     "tenantName": "compagas"
   },
   {
+    "slug": "confidential",
+    "tenantName": "confidential"
+  },
+  {
     "slug": "construtoraelevacao",
     "tenantName": "Construtora Elevação"
   },
@@ -526,6 +530,10 @@
   {
     "slug": "cora",
     "tenantName": "Cora"
+  },
+  {
+    "slug": "costabrasil",
+    "tenantName": "costabrasil"
   },
   {
     "slug": "cravil",
@@ -752,6 +760,10 @@
     "tenantName": "FacilitaPay"
   },
   {
+    "slug": "facitsolucoes",
+    "tenantName": "facitsolucoes"
+  },
+  {
     "slug": "falconi",
     "tenantName": "Falconi"
   },
@@ -770,6 +782,10 @@
   {
     "slug": "fcamara",
     "tenantName": "FCamara"
+  },
+  {
+    "slug": "fgempreendimentos",
+    "tenantName": "fgempreendimentos"
   },
   {
     "slug": "fiberhome",
@@ -824,6 +840,10 @@
     "tenantName": "Foxbit"
   },
   {
+    "slug": "fpf",
+    "tenantName": "fpf"
+  },
+  {
     "slug": "frameworkdigital",
     "tenantName": "Framework"
   },
@@ -842,6 +862,14 @@
   {
     "slug": "fsbholding",
     "tenantName": "FSB Holding"
+  },
+  {
+    "slug": "furia",
+    "tenantName": "furia"
+  },
+  {
+    "slug": "gabriel",
+    "tenantName": "gabriel"
   },
   {
     "slug": "gauge",
@@ -1090,6 +1118,10 @@
   {
     "slug": "instacarro",
     "tenantName": "InstaCarro"
+  },
+  {
+    "slug": "inteli",
+    "tenantName": "inteli"
   },
   {
     "slug": "intera",
@@ -1456,6 +1488,10 @@
     "tenantName": "Nomad"
   },
   {
+    "slug": "npu",
+    "tenantName": "npu"
+  },
+  {
     "slug": "nstech",
     "tenantName": "nstech"
   },
@@ -1486,6 +1522,10 @@
   {
     "slug": "oceandrop",
     "tenantName": "Ocean Drop"
+  },
+  {
+    "slug": "oceanpact",
+    "tenantName": "oceanpact"
   },
   {
     "slug": "octafy",
@@ -1820,8 +1860,16 @@
     "tenantName": "Solutis"
   },
   {
+    "slug": "somosed",
+    "tenantName": "somosed"
+  },
+  {
     "slug": "sotran",
     "tenantName": "Sotran"
+  },
+  {
+    "slug": "spun",
+    "tenantName": "spun"
   },
   {
     "slug": "stone",
@@ -2046,6 +2094,10 @@
   {
     "slug": "vertigo",
     "tenantName": "Vertigo Tecnologia"
+  },
+  {
+    "slug": "vetter",
+    "tenantName": "vetter"
   },
   {
     "slug": "vhsys",
