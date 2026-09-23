@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-23T11:35:11.977966+00:00",
+  "generated_at": "2026-09-23T12:05:19.098853+00:00",
   "candidate_count": 8331,
-  "company_count": 202,
+  "company_count": 201,
   "companies": [
     {
       "board": "abinbev",
@@ -63,11 +63,6 @@
       "board": "appnovation",
       "company": "Appnovation Technologies",
       "brazil_jobs": 8
-    },
-    {
-      "board": "appsflyer",
-      "company": "AppsFlyer",
-      "brazil_jobs": 1
     },
     {
       "board": "archer56",
@@ -952,7 +947,7 @@
     {
       "board": "vmlenterprisesolutions",
       "company": "VML/WPP Enterprise Solutions",
-      "brazil_jobs": 28
+      "brazil_jobs": 29
     },
     {
       "board": "vtex",
