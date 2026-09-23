@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-23T15:41:24.581980+00:00",
+  "generated_at": "2026-09-23T16:16:26.219585+00:00",
   "candidate_count": 8331,
-  "company_count": 200,
+  "company_count": 198,
   "companies": [
     {
       "board": "abinbev",
@@ -217,7 +217,7 @@
     {
       "board": "capco",
       "company": "Capco",
-      "brazil_jobs": 146
+      "brazil_jobs": 145
     },
     {
       "board": "careaccess",
@@ -455,11 +455,6 @@
       "brazil_jobs": 1
     },
     {
-      "board": "growetalents",
-      "company": "Growe Talents",
-      "brazil_jobs": 1
-    },
-    {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
       "brazil_jobs": 73
@@ -587,11 +582,6 @@
     {
       "board": "realtimeboardglobal",
       "company": "Miro",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "mitsogoinc",
-      "company": "Mitsogo Inc",
       "brazil_jobs": 1
     },
     {
@@ -802,7 +792,7 @@
     {
       "board": "spacexglobal",
       "company": "SpaceX_Global",
-      "brazil_jobs": 3
+      "brazil_jobs": 4
     },
     {
       "board": "speechify",
@@ -987,7 +977,7 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 167
+      "brazil_jobs": 168
     },
     {
       "board": "xpengmotors",
