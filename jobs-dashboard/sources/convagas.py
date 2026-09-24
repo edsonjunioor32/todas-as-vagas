@@ -10,7 +10,7 @@ import html
 import json
 import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from urllib.parse import urljoin, urlsplit, urlunsplit
+from urllib.parse import urlsplit, urlunsplit
 
 from ._common import iso_date, job, strip_html, work_model_label
 from ._http import get_text
