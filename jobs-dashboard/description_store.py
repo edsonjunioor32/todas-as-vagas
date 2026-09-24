@@ -151,6 +151,80 @@ def sync_manifest(
     return seen_at, len(rows)
 
 
+
+def prune_missing(
+    connection: sqlite3.Connection,
+    jobs: list[dict],
+    *,
+    min_manifest_ratio: float = 0.5,
+) -> int:
+    """Remove descriptions no longer present in the validated public manifest.
+
+    The public snapshot is already filtered for active vacancies and the
+    publication-age policy. A missing row therefore represents a vacancy that
+    is no longer eligible for the public catalog. Refuse to prune when the
+    manifest suddenly shrinks below the safety ratio, so a partial source
+    failure cannot erase the private store.
+    """
+    current_uids = {
+        _job_uid(job)
+        for job in jobs
+        if str(job.get("url") or "").strip()
+    }
+    if not current_uids:
+        raise ValueError("manifesto atual vazio; limpeza privada recusada")
+
+    existing_count = int(
+        connection.execute("SELECT COUNT(1) FROM job_descriptions").fetchone()[0]
+    )
+    ratio = max(0.0, min(1.0, float(min_manifest_ratio)))
+    if existing_count and len(current_uids) < existing_count * ratio:
+        return 0
+
+    connection.execute(
+        "CREATE TEMP TABLE IF NOT EXISTS current_description_manifest "
+        "(job_uid TEXT PRIMARY KEY)"
+    )
+    connection.execute("DELETE FROM current_description_manifest")
+    connection.executemany(
+        "INSERT INTO current_description_manifest(job_uid) VALUES (?)",
+        [(job_uid,) for job_uid in current_uids],
+    )
+
+    removed = int(
+        connection.execute(
+            """
+            SELECT COUNT(1)
+            FROM job_descriptions
+            WHERE job_uid NOT IN (
+                SELECT job_uid FROM current_description_manifest
+            )
+            """
+        ).fetchone()[0]
+    )
+    try:
+        connection.execute(
+            """
+            DELETE FROM job_descriptions_fts
+            WHERE job_uid NOT IN (
+                SELECT job_uid FROM current_description_manifest
+            )
+            """
+        )
+    except sqlite3.OperationalError:
+        pass
+    connection.execute(
+        """
+        DELETE FROM job_descriptions
+        WHERE job_uid NOT IN (
+            SELECT job_uid FROM current_description_manifest
+        )
+        """
+    )
+    connection.execute("DROP TABLE current_description_manifest")
+    connection.commit()
+    return removed
+
 def pending_jobs(
     connection: sqlite3.Connection,
     *,
