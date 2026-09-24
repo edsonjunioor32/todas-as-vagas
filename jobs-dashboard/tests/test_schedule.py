@@ -50,7 +50,7 @@ class ScheduleTests(unittest.TestCase):
         workflow = (ROOT / ".github/workflows/catalog-catchup.yml").read_text(
             encoding="utf-8"
         )
-        self.assertIn('    - cron: "*/15 * * * *"', workflow)
+        self.assertIn('    - cron: "15 6 * * *"', workflow)
         self.assertIn("  workflow_dispatch:", workflow)
         self.assertIn("  actions: write", workflow)
         self.assertIn("vagas-main-writer", workflow)
