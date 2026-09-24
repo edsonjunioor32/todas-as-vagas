@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import sys
 import unittest
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from pipeline import NONEMPTY_SOURCES
 from sources import REGISTRY, ngcash
