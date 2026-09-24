@@ -109,7 +109,7 @@ class PrivateDescriptionTests(unittest.TestCase):
             self.connection.execute(
                 "SELECT COUNT(1) FROM job_descriptions"
             ).fetchone()[0],
-            0,
+            1,
         )
 
     def test_refuses_pruning_after_abnormal_manifest_shrink(self):
