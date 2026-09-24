@@ -427,6 +427,17 @@ def main() -> None:
     )
     connection = description_store.connect(args.db)
     seen_at, manifest_count = description_store.sync_manifest(connection, jobs=jobs)
+    try:
+        min_manifest_ratio = float(
+            os.environ.get("DESCRIPTION_MIN_MANIFEST_RATIO", "0.5")
+        )
+    except ValueError:
+        min_manifest_ratio = 0.5
+    removed = description_store.prune_missing(
+        connection,
+        jobs,
+        min_manifest_ratio=min_manifest_ratio,
+    )
     pending = description_store.pending_jobs(
         connection,
         seen_at=seen_at,
@@ -516,11 +527,12 @@ def main() -> None:
     connection.close()
     elapsed = time.monotonic() - started
     print(
-        "Manifesto: %d vagas · candidatas: %d · processadas: %d · "
-        "descrições: %d · falhas/sem descrição: %d · robots negados: %d · "
-        "armazenado: %.1f MB · tempo: %.1fs"
+        "Manifesto: %d vagas · removidas do índice: %d · candidatas: %d · "
+        "processadas: %d · descrições: %d · falhas/sem descrição: %d · "
+        "robots negados: %d · armazenado: %.1f MB · tempo: %.1fs"
         % (
             manifest_count,
+            removed,
             len(pending),
             processed,
             fetched,
