@@ -84,6 +84,57 @@ class PrivateDescriptionTests(unittest.TestCase):
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0]["title"], "Analista de Suporte")
 
+    def test_prunes_jobs_missing_from_current_manifest(self):
+        old_jobs = [{
+            "source": "portal",
+            "native_id": "old",
+            "title": "Vaga encerrada",
+            "company": "Empresa",
+            "url": "https://example.com/jobs/old",
+        }]
+        current_jobs = [{
+            "source": "portal",
+            "native_id": "current",
+            "title": "Vaga ativa",
+            "company": "Empresa",
+            "url": "https://example.com/jobs/current",
+        }]
+        description_store.sync_manifest(self.connection, old_jobs)
+        description_store.sync_manifest(self.connection, current_jobs)
+        removed = description_store.prune_missing(
+            self.connection, current_jobs
+        )
+        self.assertEqual(removed, 1)
+        self.assertEqual(
+            self.connection.execute(
+                "SELECT COUNT(1) FROM job_descriptions"
+            ).fetchone()[0],
+            0,
+        )
+
+    def test_refuses_pruning_after_abnormal_manifest_shrink(self):
+        jobs = [
+            {
+                "source": "portal",
+                "native_id": str(index),
+                "title": f"Vaga {index}",
+                "company": "Empresa",
+                "url": f"https://example.com/jobs/{index}",
+            }
+            for index in range(4)
+        ]
+        description_store.sync_manifest(self.connection, jobs)
+        removed = description_store.prune_missing(
+            self.connection, jobs[:1], min_manifest_ratio=0.5
+        )
+        self.assertEqual(removed, 0)
+        self.assertEqual(
+            self.connection.execute(
+                "SELECT COUNT(1) FROM job_descriptions"
+            ).fetchone()[0],
+            4,
+        )
+
     def test_failed_refresh_keeps_previous_description(self):
         jobs = [{
             "source": "portal",
