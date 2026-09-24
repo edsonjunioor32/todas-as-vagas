@@ -25,7 +25,7 @@ LEVEL_RE = re.compile(
 )
 PCD_RE = re.compile(r"\bpcd\b|pessoa(?:s)?\s+com\s+defici", re.I)
 NUXT_DATA_RE = re.compile(
-    r'<script[^>]+id=["\']__NUXT_DATA__["\'][^>]*>([\\s\\S]*?)</script>',
+    r'<script[^>]+id=["\']__NUXT_DATA__["\'][^>]*>([\s\S]*?)</script>',
     re.I,
 )
 
@@ -135,7 +135,7 @@ def _payload_positions(markup):
 
 def _fallback_records(markup):
     """Use JSON-LD when an upstream board changes its Nuxt payload shape."""
-    posting = job_posting(markup or {})
+    posting = job_posting(markup or "")
     if not posting:
         return "", {}
     identifier = posting.get("identifier") or {}
