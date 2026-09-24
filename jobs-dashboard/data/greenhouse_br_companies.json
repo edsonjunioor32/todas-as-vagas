@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-23T21:53:59.121142+00:00",
+  "generated_at": "2026-09-23T23:34:25.497689+00:00",
   "candidate_count": 8331,
-  "company_count": 200,
+  "company_count": 202,
   "companies": [
     {
       "board": "abinbev",
@@ -43,6 +43,11 @@
       "board": "alphasights",
       "company": "AlphaSights",
       "brazil_jobs": 2
+    },
+    {
+      "board": "alvys",
+      "company": "Alvys",
+      "brazil_jobs": 1
     },
     {
       "board": "amplitude",
@@ -102,7 +107,7 @@
     {
       "board": "assessoriadeinvestimentosxp",
       "company": "Assessoria de Investimentos - XP Inc.",
-      "brazil_jobs": 29
+      "brazil_jobs": 28
     },
     {
       "board": "atolls",
@@ -302,7 +307,7 @@
     {
       "board": "datadog",
       "company": "Datadog",
-      "brazil_jobs": 17
+      "brazil_jobs": 16
     },
     {
       "board": "deliveryassociates",
@@ -347,7 +352,7 @@
     {
       "board": "enforce",
       "company": "Enforce",
-      "brazil_jobs": 10
+      "brazil_jobs": 11
     },
     {
       "board": "enova",
@@ -625,6 +630,11 @@
       "brazil_jobs": 4
     },
     {
+      "board": "tripactions",
+      "company": "Navan",
+      "brazil_jobs": 1
+    },
+    {
       "board": "neo4j",
       "company": "Neo4j",
       "brazil_jobs": 1
@@ -707,7 +717,7 @@
     {
       "board": "powerdigitalmarketing",
       "company": "Power Digital",
-      "brazil_jobs": 56
+      "brazil_jobs": 55
     },
     {
       "board": "pfm",
@@ -942,7 +952,7 @@
     {
       "board": "vmlenterprisesolutions",
       "company": "VML/WPP Enterprise Solutions",
-      "brazil_jobs": 29
+      "brazil_jobs": 30
     },
     {
       "board": "vtex",
@@ -1002,7 +1012,7 @@
     {
       "board": "ilia",
       "company": "ília",
-      "brazil_jobs": 10
+      "brazil_jobs": 12
     }
   ]
 }
