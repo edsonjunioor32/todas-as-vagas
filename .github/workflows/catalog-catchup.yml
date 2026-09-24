@@ -2,8 +2,8 @@ name: Catálogo — recuperar agenda perdida
 
 on:
   schedule:
-    # GitHub Actions usa UTC; o guard verifica os slots 08h, 11h, 15h e 20h BRT.
-    - cron: "*/15 * * * *"
+    # GitHub Actions usa UTC; 06h15 UTC corresponde a 03h15 em Brasília.
+    - cron: "15 6 * * *"
   workflow_dispatch:
 
 permissions:
@@ -34,3 +34,4 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           CATCHUP_GRACE_MINUTES: ${{ env.CATCHUP_GRACE_MINUTES }}
         run: python jobs-dashboard/catalog_catchup.py
+
