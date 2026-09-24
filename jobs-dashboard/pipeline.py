@@ -50,7 +50,7 @@ NONEMPTY_SOURCES = {
     "grupokothe", "jb3investimentos", "osklen", "finayatech", "yellowipe",
     "somosglobal", "revemar", "insper", "guaranamineiro", "tivit",
     "overlabs", "sicoobcocred", "liquidz", "btcreditos", "glcapital",
-    "grupoamigao", "true", "sensedia", "wellfound", "recargapay", "workable_brazil", "ey",
+    "grupoamigao", "true", "sensedia", "wellfound", "recargapay", "workable_brazil", "ngcash", "ey",
     "avanade", "huntit", "talentodovalesc", "beq", "ntconsult", "forza", "saleco", "elis",
     "flash", "neon", "zippi", "bv", "santander", "iberdrola", "iqvia", "mdlz",
 } | {name for name, _fetch in requested_portals_03092026.TARGETS} | {name for name, _url in convagas.TARGETS}
