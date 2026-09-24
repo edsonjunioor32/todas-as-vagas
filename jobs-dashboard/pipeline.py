@@ -21,6 +21,7 @@ from sources import (
     recrutei as recrutei_source,
     solides as solides_source,
     requested_portals_03092026,
+    convagas,
 )
 
 try:
@@ -52,7 +53,7 @@ NONEMPTY_SOURCES = {
     "grupoamigao", "true", "sensedia", "wellfound", "recargapay", "workable_brazil", "ey",
     "avanade", "huntit", "talentodovalesc", "beq", "ntconsult", "forza", "saleco", "elis",
     "flash", "neon", "zippi", "bv", "santander", "iberdrola", "iqvia", "mdlz",
-} | {name for name, _fetch in requested_portals_03092026.TARGETS}
+} | {name for name, _fetch in requested_portals_03092026.TARGETS} | {name for name, _url in convagas.TARGETS}
 
 # These adapters are paused after repeated upstream failures. Their stored
 # rows remain eligible through the normal publication/expiration rules.
