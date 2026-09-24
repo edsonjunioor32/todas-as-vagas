@@ -32,6 +32,7 @@ on:
       - "jobs-dashboard/sources/wellfound.py"
       - "jobs-dashboard/sources/workable.py"
       - "jobs-dashboard/sources/workable_brazil.py"
+      - "jobs-dashboard/sources/ngcash.py"
       - ".github/workflows/validate-dynamic-portals.yml"
   workflow_dispatch:
 
@@ -66,6 +67,9 @@ jobs:
           python -m unittest discover -s jobs-dashboard/tests -p 'test_*dynamic_portals.py' -v
           python -m unittest discover -s jobs-dashboard/tests -p 'test_new_sources.py' -v
           python -m unittest discover -s jobs-dashboard/tests -p 'test_quickin_pagination.py' -v
+
+      - name: Testar adaptador NG.CASH
+        run: python -m unittest discover -s jobs-dashboard/tests -p 'test_ngcash.py' -v
 
       - name: Consultar portais isoladamente
         env:
