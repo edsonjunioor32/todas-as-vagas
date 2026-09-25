@@ -287,4 +287,4 @@ def rendered_paginated_links(url, href_pattern, timeout=120, max_pages=100):
             raise RuntimeError("rendered pagination returned no public vacancy links")
         return list(collected.items())
     finally:
-        driver.quit()
+        _close_driver(driver)
