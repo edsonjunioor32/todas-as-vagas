@@ -563,7 +563,6 @@ class CompanyBatchTests(unittest.TestCase):
         for tenant in ("evoluetreinamento", "levelcinco", "lotusict", "postogalo", "xlevel"):
             self.assertIn(tenant, names)
         self.assertNotIn("infovagas", names)
-
     def test_assefaz_quickin_board_is_enabled(self):
         self.assertIn("assefaz", requested_portals_03092026.QUICKIN_TENANTS)
         self.assertEqual(requested_portals_03092026.COMPANY_LABELS["assefaz"], "Assefaz")
@@ -915,9 +914,8 @@ class RemovedPortalTests(unittest.TestCase):
                 pipeline.selected_registry(source)
 
     def test_removed_portal_rows_are_hidden_but_retained_in_sqlite(self):
-        rows = []
-        for source in ("cprocco", "atitude"):
-            rows.append({
+        rows = [
+            {
                 "source": source,
                 "native_id": f"{source}-old",
                 "title": "Vaga histórica",
@@ -929,8 +927,9 @@ class RemovedPortalTests(unittest.TestCase):
                 "country": "BR",
                 "market": "BR",
                 "published_date": "2026-09-25",
-            })
-
+            }
+            for source in ("cprocco", "atitude")
+        ]
         with tempfile.TemporaryDirectory() as temporary:
             conn = storage.connect(str(Path(temporary) / "jobs.db"))
             storage.upsert(conn, rows, today="2026-09-25")
@@ -946,7 +945,6 @@ class RemovedPortalTests(unittest.TestCase):
             self.assertEqual(payload["source_counts"], {})
             self.assertEqual(conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0], 2)
             conn.close()
-
 
 class NewSourceRegistryTests(unittest.TestCase):
     def test_wellfound_and_recargapay_are_registered_and_guarded(self):
