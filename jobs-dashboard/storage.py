@@ -683,6 +683,15 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
         columns["blind"].append(1 if blind else 0)
         columns["ct"].append(contracts or "")
 
+    try:
+        collected_count = sum(max(0, int(value or 0)) for value in source_counts.values())
+    except (TypeError, ValueError):
+        collected_count = 0
+    failed_source_job_count = sum(
+        count for source, count in snapshot_source_counts.items() if source in failed
+    )
+    preserved_count = max(0, len(rows) - collected_count)
+
     payload = {
         "schema_version": 3,
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -692,6 +701,10 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
         "max_age_days": effective_max_age_days,
         "publication_cutoff": age_cutoff,
         "count": len(rows),
+        "collected_count": collected_count,
+        "preserved_count": preserved_count,
+        "failed_source_count": len(failed),
+        "failed_source_job_count": failed_source_job_count,
         "total_base": conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0],
         "source_counts": dict(sorted(snapshot_source_counts.items())),
         "collected_source_counts": source_counts,
