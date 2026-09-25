@@ -53,8 +53,26 @@ validate_pair() {
   [ -n "${browser_binary:-}" ] && [ -n "${driver_binary:-}" ] || return 1
   echo "Navegador: $browser_binary"
   echo "Driver: $driver_binary"
-  "$browser_binary" --version
-  "$driver_binary" --version
+
+  # Ubuntu ARM64 may expose Chromium through a Snap wrapper. Calling
+  # `chromium --version` without headless flags tries to open an X display
+  # and can block indefinitely on the headless GitHub runner.
+  if ! timeout 30s "$browser_binary" \
+    --headless=new \
+    --no-sandbox \
+    --disable-dev-shm-usage \
+    --disable-gpu \
+    --no-first-run \
+    --user-data-dir="${RUNNER_TEMP:-/tmp}/chromium-smoke-$$" \
+    --version; then
+    echo "ERRO: Chromium não iniciou em modo headless dentro de 30 segundos." >&2
+    return 1
+  fi
+
+  if ! timeout 30s "$driver_binary" --version; then
+    echo "ERRO: ChromeDriver não respondeu dentro de 30 segundos." >&2
+    return 1
+  fi
 
   # Status 127 here is the exact failure previously observed in collection
   # (the downloaded ARM64 chromedriver could not execute on the VPS).
@@ -95,8 +113,8 @@ else
     exit 1
   fi
 
-  sudo -n apt-get update
-  sudo -n apt-get install -y --no-install-recommends "$browser_package" "$driver_package"
+  sudo -n timeout 180s apt-get update
+  sudo -n timeout 600s apt-get install -y --no-install-recommends "$browser_package" "$driver_package"
 
   browser_binary=""
   driver_binary=""
