@@ -131,8 +131,8 @@ if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
   {
     echo "### Navegador nativo ARM64"
     echo
-    echo "- Chromium: `$browser_binary`"
-    echo "- ChromeDriver: `$driver_binary`"
+    echo "- Chromium: \`$browser_binary\`"
+    echo "- ChromeDriver: \`$driver_binary\`"
   } >> "$GITHUB_STEP_SUMMARY"
 fi
 
