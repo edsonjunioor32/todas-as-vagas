@@ -1,0 +1,56 @@
+name: CI — catálogo e publicação
+
+on:
+  pull_request:
+    paths:
+      - "jobs-dashboard/**"
+      - ".github/workflows/**"
+      - "docs/data/**"
+      - "package.json"
+      - "package-lock.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: catalog-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validar coleta, snapshot e agendamento
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Baixar o código da alteração
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: jobs-dashboard/requirements.txt
+
+      - name: Instalar dependências
+        run: pip install -r jobs-dashboard/requirements.txt
+
+      - name: Executar testes do catálogo
+        run: python -m unittest discover -s jobs-dashboard/tests -v
+
+      - name: Compilar scripts operacionais
+        run: |
+          python -m py_compile \
+            jobs-dashboard/catalog_catchup.py \
+            jobs-dashboard/validate_snapshot.py \
+            jobs-dashboard/storage.py \
+            jobs-dashboard/pipeline.py \
+            jobs-dashboard/pipeline_fit.py
+
+      - name: Validar sintaxe YAML dos workflows
+        run: |
+          ruby -e 'require "yaml"; Dir[".github/workflows/*.yml"].each { |path| YAML.load_file(path); puts "YAML OK: #{path}" }'
