@@ -85,14 +85,14 @@ class PortalSourceResilienceTests(unittest.TestCase):
         selected = {name for name, _fetch in pipeline.selected_registry("")}
         self.assertTrue(paused.issubset(pipeline.PAUSED_SOURCES))
         self.assertTrue(paused.isdisjoint(selected))
-        self.assertTrue(paused.issubset(set(pipeline.sources_to_preserve([])))
+        self.assertTrue(paused.issubset(set(pipeline.sources_to_preserve([]))))
         removed = {"cprocco", "atitude"}
         self.assertEqual(removed, pipeline.REMOVED_SOURCES)
-        self.assertTrue(removed.isdisjoint(set(pipeline.sources_to_preserve([])))
+        self.assertTrue(removed.isdisjoint(set(pipeline.sources_to_preserve([]))))
         self.assertTrue(removed.isdisjoint(selected))
         for name in removed:
             with self.assertRaises(SystemExit):
-                pipeline.selected_registry(name))
+                pipeline.selected_registry(name)
         for name in paused:
             with self.assertRaises(SystemExit):
                 pipeline.selected_registry(name)
