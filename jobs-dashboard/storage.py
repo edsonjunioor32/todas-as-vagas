@@ -50,7 +50,6 @@ ACTIVE_PUBLIC_FEED_SOURCES = {
     "conexgp",
     "connectforpeople",
     "conscer",
-    "cprocco",
     "crhconsultoria",
     "crp",
     "dbccompany",
@@ -560,7 +559,7 @@ def prune(conn, keep_days=120, today=None, max_age_months=2,
 def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
                     max_age_months=2,
                     max_raw_mb=64, source_counts=None, failed_sources=None,
-                    max_age_days=None):
+                    max_age_days=None, excluded_sources=None):
     """Export jobs seen in a recent successful collection window.
 
     A three-day tolerance prevents a temporary portal outage from instantly
@@ -579,6 +578,13 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
     age_cutoff = publication_cutoff(
         today, max_age_months, max_age_days=effective_max_age_days
     )
+    excluded = sorted({str(source).strip() for source in (excluded_sources or []) if str(source).strip()})
+    excluded_clause = ""
+    excluded_params = []
+    if excluded:
+        placeholders = ", ".join("?" for _ in excluded)
+        excluded_clause = f"source NOT IN ({placeholders}) AND "
+        excluded_params = excluded
     failed = sorted({str(source).strip() for source in (failed_sources or []) if str(source).strip()})
     failed_clause = ""
     failed_params = []
@@ -605,7 +611,7 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
     # The general refresh leaves max_jobs unset so every eligible row is exported.
     limit_clause = ""
     query_params = (
-        cutoff, *failed_params, today, age_cutoff, today, *active_feed_params
+        *excluded_params, cutoff, *failed_params, today, age_cutoff, today, *active_feed_params
     )
     if max_jobs is not None:
         limit_clause = "LIMIT ?"
@@ -616,7 +622,7 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
                published_date, first_seen_date, last_seen_date, expires_date,
                url, skills, dedupe_key, pcd, blind_selection, contract_types
         FROM jobs
-        WHERE (last_seen_date >= ?{failed_clause})
+        WHERE {excluded_clause}(last_seen_date >= ?{failed_clause})
           AND (expires_date IS NULL OR expires_date = '' OR expires_date >= ?)
           AND COALESCE(NULLIF(market, ''), 'Não informado') <> 'Não informado'
           AND (source <> 'greenhouse' OR market = 'BR')
