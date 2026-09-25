@@ -129,15 +129,44 @@ PY
 fi
 
 if command -v ldd >/dev/null 2>&1; then
+  missing_runtime_dependencies=0
   for binary in "$chrome_binary" "$driver_binary"; do
-    if ldd "$binary" 2>&1 | grep -q "not found"; then
-      echo "ERRO: faltam bibliotecas nativas para $binary:" >&2
-      ldd "$binary" >&2 || true
+    dependency_report="$(ldd "$binary" 2>&1 || true)"
+    if grep -q "not found" <<< "$dependency_report"; then
+      echo "Bibliotecas nativas ausentes para $binary:" >&2
+      printf '%s\n' "$dependency_report" >&2
+      missing_runtime_dependencies=1
+    fi
+  done
+
+  if [ "$missing_runtime_dependencies" -eq 1 ]; then
+    if ! command -v apt-get >/dev/null 2>&1; then
+      echo "ERRO: apt-get é necessário para instalar as bibliotecas nativas do Chromium." >&2
+      exit 1
+    fi
+    if ! command -v sudo >/dev/null 2>&1 || ! sudo -n true; then
+      echo "ERRO: o runner precisa de sudo sem interação para provisionar as bibliotecas nativas do Chromium." >&2
+      exit 1
+    fi
+
+    echo "Instalando dependências nativas ausentes do Chrome for Testing no runner Ubuntu."
+    sudo -n apt-get update
+    sudo -n apt-get install --yes --no-install-recommends \
+      libatk1.0-0t64 libatk-bridge2.0-0t64 libcups2t64 libxcb1 \
+      libxkbcommon0 libasound2t64 libgbm1 libx11-6 libxext6 libcairo2 \
+      libpango-1.0-0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
+      libatspi2.0-0t64
+  fi
+
+  for binary in "$chrome_binary" "$driver_binary"; do
+    dependency_report="$(ldd "$binary" 2>&1 || true)"
+    if grep -q "not found" <<< "$dependency_report"; then
+      echo "ERRO: ainda faltam bibliotecas nativas para $binary após o provisionamento:" >&2
+      printf '%s\n' "$dependency_report" >&2
       exit 1
     fi
   done
 fi
-
 browser_version="$(timeout 30s "$chrome_binary" --version)"
 driver_version="$(timeout 30s "$driver_binary" --version)"
 echo "Navegador: $chrome_binary ($browser_version)"
