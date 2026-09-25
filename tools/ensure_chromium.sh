@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+trap 'status=$?; echo "ERRO: provisionamento do navegador falhou na linha ${LINENO} (exit ${status})." >&2' ERR
 
 # Rendered public portals run on the self-hosted ARM64 runner. The Ubuntu
 # Chromium Snap driver exits with status 1 in the headless systemd runner, so
@@ -90,13 +91,20 @@ if [ ! -x "$chrome_binary" ] || [ ! -x "$driver_binary" ] || \
   curl --fail --location --silent --show-error --retry 3 --connect-timeout 20 --max-time 180 \
     "$driver_url" --output "$temp_dir/chromedriver.zip"
 
+  echo "Extraindo Chrome for Testing $version e restaurando permissões executáveis."
   python3 - "$temp_dir/chrome.zip" "$temp_dir/chromedriver.zip" "$stage" <<'PY'
+import os
 import sys
 import zipfile
 
-for archive, destination in zip(sys.argv[1:3], [sys.argv[3], sys.argv[3]]):
+destination = sys.argv[3]
+for archive in sys.argv[1:3]:
     with zipfile.ZipFile(archive) as bundle:
-        bundle.extractall(destination)
+        for member in bundle.infolist():
+            extracted = bundle.extract(member, destination)
+            mode = (member.external_attr >> 16) & 0o777
+            if mode:
+                os.chmod(extracted, mode)
 PY
 
   test -x "$stage/chrome-linux-arm64/chrome"
