@@ -31,6 +31,7 @@ from sources import (  # noqa: E402
     wellfound,
     workable,
     workable_brazil,
+    convagas,
 )
 import pipeline  # noqa: E402
 import storage  # noqa: E402
@@ -555,13 +556,21 @@ class CompanyBatchTests(unittest.TestCase):
     def test_requested_company_boards_are_unique_and_not_global_infovagas(self):
         names = [name for name, _fetch in requested_portals_03092026.TARGETS]
         self.assertEqual(len(names), len(set(names)))
-        self.assertEqual(len(names), 157)
+        self.assertEqual(len(names), 158)
         self.assertIn("meutudo", names)
         self.assertIn("minsait", names)
         self.assertIn("emphasys", names)
         for tenant in ("evoluetreinamento", "levelcinco", "lotusict", "postogalo", "xlevel"):
             self.assertIn(tenant, names)
         self.assertNotIn("infovagas", names)
+
+    def test_assefaz_quickin_board_is_enabled(self):
+        self.assertIn("assefaz", requested_portals_03092026.QUICKIN_TENANTS)
+        self.assertEqual(requested_portals_03092026.COMPANY_LABELS["assefaz"], "Assefaz")
+        self.assertEqual(
+            [name for name, _fetch in pipeline.selected_registry("assefaz")],
+            ["assefaz"],
+        )
 
     def test_banco_bari_quickin_tenant_is_registered_once_with_label(self):
         self.assertEqual(
@@ -619,7 +628,7 @@ class WellfoundTests(unittest.TestCase):
         self.assertEqual(wellfound._page_count(markup), 2)
         self.assertEqual(len(links), 1)
         self.assertEqual(
-            links[0][0], "https://wellfound.com/jobs/12345"
+            links[0][0], "https://wellfound.com/jobs/12345-analista-de-dados"
         )
 
     def test_jobposting_preserves_company_location_salary_and_description(self):
@@ -891,6 +900,52 @@ class PausedSourceTests(unittest.TestCase):
             self.assertEqual(count, 1)
             conn.close()
 
+
+class RemovedPortalTests(unittest.TestCase):
+    def test_cprocco_and_atitude_are_removed_not_paused(self):
+        removed = {"cprocco", "atitude"}
+        selected = {name for name, _fetch in pipeline.selected_registry("")}
+        self.assertEqual(pipeline.REMOVED_SOURCES, removed)
+        self.assertTrue(removed.isdisjoint(selected))
+        self.assertTrue(removed.isdisjoint(pipeline.sources_to_preserve(["cprocco", "atitude"])))
+        self.assertNotIn("atitude", {name for name, _url in convagas.TARGETS})
+        self.assertNotIn("cprocco", requested_portals_03092026.COMPANY_LABELS)
+        for source in removed:
+            with self.assertRaises(SystemExit):
+                pipeline.selected_registry(source)
+
+    def test_removed_portal_rows_are_hidden_but_retained_in_sqlite(self):
+        rows = [
+            {
+                "source": source,
+                "native_id": f"{source}-old",
+                "title": "Vaga histórica",
+                "company": source,
+                "url": f"https://example.test/{source}",
+                "work_model": "on-site",
+                "city": "São Paulo",
+                "state": "SP",
+                "country": "BR",
+                "market": "BR",
+                "published_date": "2026-09-25",
+            }
+            for source in ("cprocco", "atitude")
+        ]
+        with tempfile.TemporaryDirectory() as temporary:
+            conn = storage.connect(str(Path(temporary) / "jobs.db"))
+            storage.upsert(conn, rows, today="2026-09-25")
+            out = Path(temporary) / "vagas.json"
+            count, _ = storage.export_snapshot(
+                conn,
+                str(out),
+                today="2026-09-25",
+                excluded_sources=pipeline.REMOVED_SOURCES,
+            )
+            payload = json.loads(out.read_text(encoding="utf-8"))
+            self.assertEqual(count, 0)
+            self.assertEqual(payload["source_counts"], {})
+            self.assertEqual(conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0], 2)
+            conn.close()
 
 class NewSourceRegistryTests(unittest.TestCase):
     def test_wellfound_and_recargapay_are_registered_and_guarded(self):

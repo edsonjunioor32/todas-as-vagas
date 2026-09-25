@@ -36,7 +36,6 @@ TARGETS = (
     ("sisloc", "https://sisloc.convagas.com.br/"),
     ("dreamexperience", "https://dreamexperience.convagas.com.br/"),
     ("itwheel", "https://itwheel.convagas.com.br/"),
-    ("atitude", "https://atitude.convagas.com.br/"),
     ("entera", "https://carreirasentera.convagas.com.br/"),
     ("4redes", "https://4redes.convagas.com.br/"),
 )
@@ -299,8 +298,6 @@ def fetch_itwheel():
     return _collect_board("itwheel", dict(TARGETS)["itwheel"])
 
 
-def fetch_atitude():
-    return _collect_board("atitude", dict(TARGETS)["atitude"])
 
 
 def fetch_entera():

@@ -37,16 +37,13 @@ DEFAULT_DETAIL_WORKERS = 8
 def _canonical_url(href, base_url):
     absolute = urljoin(base_url, str(href or "").strip())
     parsed = urlsplit(absolute)
-    match = JOB_RE.search(parsed.path or "")
-    if not match:
+    hostname = (parsed.hostname or "").casefold().rstrip(".")
+    if hostname not in {"wellfound.com", "www.wellfound.com"}:
         return ""
-    return urlunsplit((
-        parsed.scheme or "https",
-        parsed.netloc or "wellfound.com",
-        f"/jobs/{match.group(1)}",
-        "",
-        "",
-    ))
+    path = (parsed.path or "").rstrip("/")
+    if not JOB_RE.fullmatch(path):
+        return ""
+    return urlunsplit(("https", "wellfound.com", path, "", ""))
 
 
 def _listing_links(markup, base_url):
