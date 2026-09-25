@@ -258,6 +258,10 @@ jobs:
       - name: Coletar, normalizar e consolidar todos os portais
         env:
           JOBS_SOURCE_WORKERS: "5"
+          # Limit only rendered Chromium sessions; HTTP source concurrency is unchanged.
+          COLLECTOR_BROWSER_WORKERS: "2"
+          COLLECTOR_BROWSER_START_RETRIES: "3"
+          COLLECTOR_BROWSER_SLOT_TIMEOUT: "90"
           SOLIDES_MAX_PAGES: "600"
           SOLIDES_WORKERS: "8"
           SOLIDES_PAGE_TIMEOUT: "30"
