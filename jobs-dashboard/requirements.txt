@@ -1,3 +1,3 @@
-# Selenium drives the Chrome installation already available on GitHub-hosted
-# runners for public pages that require JavaScript rendering (InfoJobs).
+# Selenium uses the native Chromium/ChromeDriver pair provisioned by
+# tools/ensure_chromium.sh on the self-hosted ARM64 runner.
 selenium>=4.25,<5

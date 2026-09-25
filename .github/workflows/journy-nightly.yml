@@ -32,6 +32,11 @@ jobs:
           ref: main
           fetch-depth: 0
 
+      - name: Preparar navegador Chromium ARM64
+        shell: bash
+        run: bash tools/ensure_chromium.sh
+
+
       - name: Restaurar banco histórico
         id: jobs-cache
         uses: actions/cache@v4

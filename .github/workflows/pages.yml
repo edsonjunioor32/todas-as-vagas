@@ -116,6 +116,11 @@ jobs:
           ref: main
           fetch-depth: 0
 
+      - name: Preparar navegador Chromium ARM64
+        shell: bash
+        run: bash tools/ensure_chromium.sh
+
+
       - name: Definir contexto de retomada
         id: collection-context
         shell: bash
