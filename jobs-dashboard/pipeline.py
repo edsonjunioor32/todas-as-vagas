@@ -57,7 +57,8 @@ NONEMPTY_SOURCES = {
 
 # These adapters are paused after repeated upstream failures. Their stored
 # rows remain eligible through the normal publication/expiration rules.
-PAUSED_SOURCES = frozenset({"azify", "assefaz", "cprocco", "ngcash", "atitude"})
+REMOVED_SOURCES = frozenset({"cprocco", "atitude"})
+PAUSED_SOURCES = frozenset({"azify", "ngcash"})
 
 CHECKPOINT_SCHEMA_VERSION = 1
 CHECKPOINT_ENV = "JOBS_COLLECTION_CHECKPOINT_DIR"
@@ -69,7 +70,7 @@ def sources_to_preserve(failed_sources):
         for source in (failed_sources or [])
         if str(source).strip()
     }
-    return sorted(failed | PAUSED_SOURCES)
+    return sorted((failed | PAUSED_SOURCES) - REMOVED_SOURCES)
 
 
 def selected_registry(names):
@@ -78,15 +79,20 @@ def selected_registry(names):
             (name, fetch)
             for name, fetch in REGISTRY
             if name not in NIGHTLY_ONLY_SOURCES and name not in PAUSED_SOURCES
+            and name not in REMOVED_SOURCES
         ]
     wanted = {part.strip().lower() for part in names.split(",") if part.strip()}
     selected = [
         (name, fetch)
         for name, fetch in REGISTRY
         if name in wanted and name not in PAUSED_SOURCES
+        and name not in REMOVED_SOURCES
     ]
     missing = wanted - {name for name, _ in selected}
     if missing:
+        removed = missing & REMOVED_SOURCES
+        if removed:
+            raise SystemExit(f"Removed source(s): {', '.join(sorted(removed))}")
         paused = missing & PAUSED_SOURCES
         if paused:
             raise SystemExit(f"Paused source(s): {', '.join(sorted(paused))}")
@@ -631,6 +637,7 @@ def main(before_persist=None):
         max_age_days=max_age_days,
         source_counts=dict(sorted(counts.items())),
         failed_sources=preserved_sources,
+        excluded_sources=REMOVED_SOURCES,
     )
     conn.close()
     phases["Banco e fotografia pública"] = time.perf_counter() - stage_started
