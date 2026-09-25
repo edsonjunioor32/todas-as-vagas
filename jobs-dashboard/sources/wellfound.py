@@ -194,6 +194,16 @@ def _normalize_detail(url, markup, fallback_title=""):
     )
 
 
+def _fetch_and_normalize_detail(url, label):
+    markup = get_text(
+        url,
+        headers={"Accept-Language": "en-US,en;q=0.9,pt-BR;q=0.8"},
+        timeout=45,
+        retries=2,
+    )
+    return _normalize_detail(url, markup, label)
+
+
 def fetch():
     links = {}
     errors = []
@@ -237,12 +247,7 @@ def fetch():
     rows = []
     with ThreadPoolExecutor(max_workers=workers) as pool:
         futures = {
-            pool.submit(_normalize_detail, url, get_text(
-                url,
-                headers={"Accept-Language": "en-US,en;q=0.9,pt-BR;q=0.8"},
-                timeout=45,
-                retries=2,
-            ), label): url
+            pool.submit(_fetch_and_normalize_detail, url, label): url
             for url, label in links.items()
         }
         for future in as_completed(futures):
