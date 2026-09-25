@@ -25,8 +25,20 @@ cache_root="$HOME/.cache/todas-as-vagas/chrome-for-testing"
 install_root="$cache_root/stable"
 mkdir -p "$cache_root"
 temp_dir="$(mktemp -d "${TMPDIR:-/tmp}/todas-vagas-cft.XXXXXX")"
+next_install=""
+backup_install=""
 cleanup() {
   rm -rf -- "$temp_dir"
+  if [ -n "$next_install" ] && [ -d "$next_install" ]; then
+    rm -rf -- "$next_install"
+  fi
+  if [ -n "$backup_install" ] && [ -d "$backup_install" ]; then
+    if [ ! -e "$install_root" ]; then
+      mv "$backup_install" "$install_root" || true
+    else
+      rm -rf -- "$backup_install"
+    fi
+  fi
 }
 trap cleanup EXIT
 
@@ -68,9 +80,10 @@ driver_binary="$install_root/chromedriver-linux-arm64/chromedriver"
 if [ ! -x "$chrome_binary" ] || [ ! -x "$driver_binary" ] || \
    [ ! -f "$install_root/version" ] || [ "$(<"$install_root/version")" != "$version" ]; then
   stage="$temp_dir/stage"
-  next_install="$cache_root/.stable-next-$$"
-  backup_install="$cache_root/.stable-backup-$$"
-  mkdir -p "$stage" "$next_install"
+  next_install="$(mktemp -d "$cache_root/.stable-next.XXXXXX")"
+  backup_install="$(mktemp -d "$cache_root/.stable-backup.XXXXXX")"
+  rmdir "$backup_install"
+  mkdir -p "$stage"
 
   curl --fail --location --silent --show-error --retry 3 --connect-timeout 20 --max-time 300 \
     "$chrome_url" --output "$temp_dir/chrome.zip"
