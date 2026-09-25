@@ -51,6 +51,9 @@ jobs:
             jobs-dashboard/pipeline.py \
             jobs-dashboard/pipeline_fit.py
 
+      - name: Validar script do navegador nativo
+        run: bash -n tools/ensure_chromium.sh
+
       - name: Validar sintaxe YAML dos workflows
         run: |
           ruby -e 'require "yaml"; Dir[".github/workflows/*.yml"].each { |path| YAML.load_file(path); puts "YAML OK: #{path}" }'
