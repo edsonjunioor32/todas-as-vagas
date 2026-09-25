@@ -1,30 +1,7 @@
 name: Inserir lote dos portais dinâmicos (isolado)
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "jobs-dashboard/merge_dynamic_portals.py"
-      - "jobs-dashboard/pipeline.py"
-      - "jobs-dashboard/storage.py"
-      - "jobs-dashboard/validate_snapshot.py"
-      - "jobs-dashboard/sources/_http.py"
-      - "jobs-dashboard/sources/_html.py"
-      - "jobs-dashboard/sources/digisystem.py"
-      - "jobs-dashboard/sources/experian.py"
-      - "jobs-dashboard/sources/bradesco.py"
-      - "jobs-dashboard/sources/geekhunter.py"
-      - "jobs-dashboard/sources/quickin.py"
-      - "jobs-dashboard/sources/spassu.py"
-      - "jobs-dashboard/sources/requested_careers.py"
-      - "jobs-dashboard/sources/sankhya_senior.py"
-      - "jobs-dashboard/sources/requested_portals_27082026.py"
-      - "jobs-dashboard/sources/requested_portals_28082026.py"
-      - "jobs-dashboard/sources/requested_portals_29082026.py"
-      - "jobs-dashboard/sources/requested_portals_03092026.py"
-      - "jobs-dashboard/sources/__init__.py"
-      - "jobs-dashboard/sources/ntconsult.py"
-      - ".github/workflows/merge-dynamic-portals.yml"
+  # A coleta principal já cobre os pushes de código; este fluxo é recuperação manual.
   workflow_dispatch:
 
 permissions:
