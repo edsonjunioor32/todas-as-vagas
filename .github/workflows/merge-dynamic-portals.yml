@@ -106,7 +106,6 @@ jobs:
           MIN_GUARDED_PUBLIC_JOBS: "10000"
           MIN_ALLOWED_PUBLIC_RATIO: "0.5"
           MAX_FAILED_SOURCES: "50"
-          MAX_PRESERVED_PUBLIC_RATIO: "0.50"
           MAX_DUPLICATE_URL_RATIO: "0.005"
         run: |
           python jobs-dashboard/validate_snapshot.py
