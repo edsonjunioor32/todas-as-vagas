@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-25T10:49:55.928739+00:00",
+  "generated_at": "2026-09-25T13:39:22.445036+00:00",
   "candidate_count": 8331,
   "company_count": 200,
   "companies": [
@@ -27,7 +27,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 135
+      "brazil_jobs": 143
     },
     {
       "board": "agilize",
@@ -77,12 +77,12 @@
     {
       "board": "arcoeducacao",
       "company": "Arco Educação",
-      "brazil_jobs": 77
+      "brazil_jobs": 76
     },
     {
       "board": "arctouch",
       "company": "ArcTouch",
-      "brazil_jobs": 3
+      "brazil_jobs": 4
     },
     {
       "board": "arenaim",
@@ -207,7 +207,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 153
+      "brazil_jobs": 154
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -387,7 +387,7 @@
     {
       "board": "feverup",
       "company": "FeverUp",
-      "brazil_jobs": 13
+      "brazil_jobs": 16
     },
     {
       "board": "figma",
@@ -462,7 +462,7 @@
     {
       "board": "hotmartcareersbr",
       "company": "Hotmart",
-      "brazil_jobs": 22
+      "brazil_jobs": 21
     },
     {
       "board": "housebuyersofamerica",
@@ -507,7 +507,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 142
+      "brazil_jobs": 141
     },
     {
       "board": "interbrand",
@@ -597,7 +597,7 @@
     {
       "board": "monks",
       "company": "Monks",
-      "brazil_jobs": 44
+      "brazil_jobs": 45
     },
     {
       "board": "monumentsoftwareinc",
@@ -662,7 +662,7 @@
     {
       "board": "oliverbrazil",
       "company": "OLIVER Agency - Brasil",
-      "brazil_jobs": 2
+      "brazil_jobs": 3
     },
     {
       "board": "onrunning",
@@ -807,7 +807,7 @@
     {
       "board": "sohohouseco",
       "company": "Soho House & Co.",
-      "brazil_jobs": 9
+      "brazil_jobs": 10
     },
     {
       "board": "sonicwall",
@@ -852,7 +852,7 @@
     {
       "board": "systemiq",
       "company": "Systemiq",
-      "brazil_jobs": 3
+      "brazil_jobs": 2
     },
     {
       "board": "taboola",
@@ -927,7 +927,7 @@
     {
       "board": "valtech",
       "company": "Valtech",
-      "brazil_jobs": 11
+      "brazil_jobs": 10
     },
     {
       "board": "vectranetworks",
@@ -957,7 +957,7 @@
     {
       "board": "gympass",
       "company": "Wellhub",
-      "brazil_jobs": 39
+      "brazil_jobs": 35
     },
     {
       "board": "wildlifestudios",
