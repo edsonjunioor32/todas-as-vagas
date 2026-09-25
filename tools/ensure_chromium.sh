@@ -43,7 +43,10 @@ find_pair() {
     "${CHROME_BINARY:-}" \
     "${CHROMIUM_BINARY:-}" \
     chromium chromium-browser google-chrome google-chrome-stable || true)"
-  # Ubuntu ARM64 ships Chromium through Snap. Its matching driver must be\n  # selected before the APT driver; the latter starts but cannot launch the\n  # confined browser and Selenium reports "Chrome instance exited".\n  driver_binary="$(resolve_executable \
+  # Ubuntu ARM64 ships Chromium through Snap. Its matching driver must be
+  # selected before the APT driver; the latter starts but cannot launch the
+  # confined browser and Selenium reports "Chrome instance exited".
+  driver_binary="$(resolve_executable \
     "${CHROMEDRIVER_PATH:-}" \
     /snap/bin/chromium.chromedriver \
     chromedriver || true)"
