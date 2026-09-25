@@ -93,27 +93,10 @@ def fetch_jobgether():
 
 
 def _new_asa_driver():
-    """Create a headless Chrome session, using Selenium already in requirements."""
-    try:
-        from selenium import webdriver
-    except ImportError as error:
-        raise RuntimeError("Selenium is required to collect ASA vacancies") from error
+    """Create ASA browser sessions through the shared bounded launcher."""
+    from ._rendered import _webdriver
 
-    options = webdriver.ChromeOptions()
-    for argument in (
-        "--headless=new",
-        "--no-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-gpu",
-        "--disable-extensions",
-        "--disable-notifications",
-        "--window-size=1440,3000",
-        "--lang=pt-BR",
-    ):
-        options.add_argument(argument)
-    options.page_load_strategy = "eager"
-    return webdriver.Chrome(options=options)
-
+    return _webdriver()
 
 def _wait_for_asa_element(driver, selector, timeout=ASA_TIMEOUT_SECONDS):
     """Wait for a rendered public listing/detail element, never an API response."""
