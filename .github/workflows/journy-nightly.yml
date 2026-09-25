@@ -12,12 +12,14 @@ permissions:
   id-token: write
 
 concurrency:
-  group: vagas-main-writer
+  # O Journy também publica o snapshot; compartilhar o escritor evita
+  # sobrescrita do catálogo principal.
+  group: catalog-publication
   cancel-in-progress: false
 
 jobs:
   atualizar-journy:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, ARM64, vagas]
     timeout-minutes: 60
     environment:
       name: github-pages
