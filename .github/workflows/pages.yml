@@ -29,7 +29,10 @@ permissions:
   id-token: write
 
 concurrency:
-  group: ${{ github.event_name == 'push' && !contains(github.event.head_commit.message, '[refresh-fit]') && 'vagas-interface' || 'vagas-main-writer' }}
+  # Toda publicação do catálogo ou da interface passa pelo mesmo escritor.
+  # Isso impede que um push publique a interface enquanto uma coleta grava
+  # public-data/history-data e o Pages.
+  group: catalog-publication
   cancel-in-progress: false
 
 jobs:
@@ -277,6 +280,9 @@ jobs:
           PREVIOUS_SNAPSHOT_PATH: ".previous-vagas.json"
           MIN_GUARDED_PUBLIC_JOBS: "10000"
           MIN_ALLOWED_PUBLIC_RATIO: "0.5"
+          MAX_FAILED_SOURCES: "50"
+          MAX_PRESERVED_PUBLIC_RATIO: "0.50"
+          MAX_DUPLICATE_URL_RATIO: "0.005"
         run: |
           python jobs-dashboard/validate_snapshot.py
           python jobs-dashboard/validate_fit.py
