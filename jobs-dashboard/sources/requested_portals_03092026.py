@@ -32,20 +32,10 @@ PANDAPE_DATE_RE = re.compile(
 
 
 def _new_pandape_driver():
-    try:
-        from selenium import webdriver
-    except ImportError as error:
-        raise RuntimeError("Selenium is required for the Minsait Pandapé feed") from error
-    options = webdriver.ChromeOptions()
-    for argument in (
-        "--headless=new", "--no-sandbox", "--disable-dev-shm-usage",
-        "--disable-gpu", "--disable-extensions", "--window-size=1440,3000",
-        "--lang=pt-BR",
-    ):
-        options.add_argument(argument)
-    options.page_load_strategy = "eager"
-    return webdriver.Chrome(options=options)
+    """Use the shared bounded Chromium launcher for this rendered source."""
+    from ._rendered import _webdriver
 
+    return _webdriver()
 
 def _pandape_card_rows(driver):
     return driver.execute_script(
@@ -138,7 +128,8 @@ def _pandape_rendered_cards():
             )
         return cards
     finally:
-        driver.quit()
+        from ._rendered import _close_driver
+        _close_driver(driver)
 
 
 def _pandape_date(text):
