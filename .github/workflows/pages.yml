@@ -200,6 +200,34 @@ jobs:
           pip install -r jobs-dashboard/requirements.txt
           npm install --no-audit --no-fund --package-lock=false
 
+      - name: Validar inicialização do Selenium e Chromium
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os
+          from selenium import webdriver
+          from selenium.webdriver.chrome.service import Service
+
+          options = webdriver.ChromeOptions()
+          for argument in (
+              "--headless=new", "--no-sandbox", "--disable-dev-shm-usage",
+              "--disable-gpu", "--disable-extensions",
+              "--disable-background-networking", "--disable-notifications",
+          ):
+              options.add_argument(argument)
+          options.binary_location = os.environ["CHROME_BINARY"]
+          driver = webdriver.Chrome(
+              service=Service(executable_path=os.environ["CHROMEDRIVER_PATH"]),
+              options=options,
+          )
+          try:
+              driver.get("data:text/html,<title>selenium-smoke-ok</title>")
+              if driver.title != "selenium-smoke-ok":
+                  raise RuntimeError(f"título inesperado no smoke test: {driver.title!r}")
+              print("Selenium iniciou o Chrome for Testing e abriu uma página headless.")
+          finally:
+              driver.quit()
+
       - name: Testar analisador de aderência
         run: |
           python -m unittest discover -s jobs-dashboard/tests -v
@@ -274,14 +302,7 @@ jobs:
           INFOJOBS_MAX_JOBS: "2000"
           INFOJOBS_MAX_SCROLLS: "0"
           JOBS_COLLECTION_CHECKPOINT_DIR: "jobs-dashboard/data/collection_checkpoints"
-        run: |
-          # Chromium distribuído via Snap precisa de uma sessão D-Bus quando o
-          # runner executa como serviço, sem login gráfico interativo.
-          if command -v dbus-run-session >/dev/null 2>&1; then
-            dbus-run-session -- python jobs-dashboard/pipeline_fit.py --max-age-months 2
-          else
-            python jobs-dashboard/pipeline_fit.py --max-age-months 2
-          fi
+        run: python jobs-dashboard/pipeline_fit.py --max-age-months 2
 
       - name: Salvar checkpoints da coleta
         if: always()
