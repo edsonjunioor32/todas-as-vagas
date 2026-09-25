@@ -23,6 +23,20 @@ def fail(message):
     raise SystemExit(1)
 
 
+def env_int(name, default):
+    try:
+        return int(os.environ.get(name, str(default)))
+    except (TypeError, ValueError):
+        return default
+
+
+def env_float(name, default):
+    try:
+        return float(os.environ.get(name, str(default)))
+    except (TypeError, ValueError):
+        return default
+
+
 def main():
     if not SNAPSHOT.exists():
         fail(f"arquivo ausente: {SNAPSHOT}")
@@ -52,6 +66,34 @@ def main():
                 "redução insegura do snapshot geral: "
                 f"{previous_count} para {count} vagas; publicação bloqueada"
             )
+    failed_sources = sorted({
+        str(source).strip() for source in (data.get("failed_sources") or [])
+        if str(source).strip()
+    })
+    max_failed_sources = env_int("MAX_FAILED_SOURCES", 50)
+    if max_failed_sources >= 0 and len(failed_sources) > max_failed_sources:
+        fail(
+            "fontes indisponíveis acima do limite seguro: "
+            f"{len(failed_sources)} (máximo {max_failed_sources})"
+        )
+
+    collected_source_counts = data.get("collected_source_counts") or {}
+    try:
+        collected_count = int(data.get("collected_count") or sum(
+            max(0, int(value or 0)) for value in collected_source_counts.values()
+        ))
+    except (TypeError, ValueError):
+        fail("métrica collected_count inválida")
+    preserved_count = max(0, int(data.get("preserved_count") or count - collected_count))
+    if count:
+        preserved_ratio = preserved_count / count
+        max_preserved_ratio = env_float("MAX_PRESERVED_PUBLIC_RATIO", 0.50)
+        if max_preserved_ratio >= 0 and preserved_ratio > max_preserved_ratio:
+            fail(
+                "proporção de vagas preservadas acima do limite seguro: "
+                f"{preserved_ratio:.2%} (máximo {max_preserved_ratio:.2%})"
+            )
+
     if FORBIDDEN_KEYS & set(data):
         fail("a raiz contém campos privados ou descrições")
 
@@ -67,9 +109,26 @@ def main():
     for name in ("source", "company", "area", "seniority", "work_model", "market", "country", "currency"):
         if name not in dictionaries:
             fail(f"dicionário ausente: {name}")
+    urls = [str(url or "").strip() for url in columns["url"]]
+    duplicate_count = len(urls) - len(set(urls))
+    duplicate_ratio = duplicate_count / count if count else 0.0
+    max_duplicate_ratio = env_float("MAX_DUPLICATE_URL_RATIO", 0.005)
+    if max_duplicate_ratio >= 0 and duplicate_ratio > max_duplicate_ratio:
+        fail(
+            "proporção de URLs duplicadas acima do limite seguro: "
+            f"{duplicate_ratio:.2%} ({duplicate_count} duplicadas)"
+        )
+
+    generated_date = str(data.get("generated_date") or date.today().isoformat())
     for index, url in enumerate(columns["url"]):
         if not str(url).startswith("https://"):
             fail(f"URL inválida na linha {index}: {url}")
+    for index, published in enumerate(columns["pub"]):
+        if published and str(published)[:10] > generated_date:
+            fail(
+                f"data de publicação futura na linha {index}: "
+                f"{published} > {generated_date}"
+            )
     max_age_months = int(data.get("max_age_months") or 0)
     expected_cutoff = storage.publication_cutoff(
         data.get("generated_date") or date.today().isoformat(), max_age_months
