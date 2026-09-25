@@ -429,26 +429,10 @@ def _btg_detail_fetch(url):
 
 
 def _new_btg_driver():
-    try:
-        from selenium import webdriver
-    except ImportError as error:
-        raise RuntimeError("Selenium is required for the rendered BTG careers page") from error
+    """Use the shared bounded Chromium launcher for this rendered source."""
+    from ._rendered import _webdriver
 
-    options = webdriver.ChromeOptions()
-    for argument in (
-        "--headless=new",
-        "--no-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-gpu",
-        "--disable-extensions",
-        "--disable-notifications",
-        "--window-size=1440,3000",
-        "--lang=pt-BR",
-    ):
-        options.add_argument(argument)
-    options.page_load_strategy = "eager"
-    return webdriver.Chrome(options=options)
-
+    return _webdriver()
 
 def _btg_rendered_items(driver):
     return driver.execute_script(
@@ -638,7 +622,8 @@ def _btg_rendered_rows():
         unique = {row["native_id"] or row["url"]: row for row in rows}
         return list(unique.values())
     finally:
-        driver.quit()
+        from ._rendered import _close_driver
+        _close_driver(driver)
 
 
 def fetch_btg():
