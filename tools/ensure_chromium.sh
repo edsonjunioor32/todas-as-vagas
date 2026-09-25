@@ -54,19 +54,14 @@ validate_pair() {
   echo "Navegador: $browser_binary"
   echo "Driver: $driver_binary"
 
-  # Ubuntu ARM64 may expose Chromium through a Snap wrapper. Calling
-  # `chromium --version` without headless flags tries to open an X display
-  # and can block indefinitely on the headless GitHub runner.
-  if ! timeout 30s "$browser_binary" \
-    --headless=new \
-    --no-sandbox \
-    --disable-dev-shm-usage \
-    --disable-gpu \
-    --no-first-run \
-    --user-data-dir="${RUNNER_TEMP:-/tmp}/chromium-smoke-$$" \
-    --version; then
-    echo "ERRO: Chromium não iniciou em modo headless dentro de 30 segundos." >&2
-    return 1
+  # Ubuntu ARM64 exposes Chromium through a Snap wrapper in this runner.
+  # Do not execute that wrapper here: `chromium --version` can create an
+  # orphaned graphical child even when headless flags are present, which keeps
+  # the GitHub Actions shell alive without proving anything about Selenium.
+  # The real rendered collector starts Chromium through Selenium with its
+  # headless arguments in jobs-dashboard/sources/_rendered.py.
+  if command -v file >/dev/null 2>&1; then
+    echo "Metadados do navegador: $(file -L "$browser_binary" 2>/dev/null || true)"
   fi
 
   if ! timeout 30s "$driver_binary" --version; then
