@@ -57,7 +57,7 @@ NONEMPTY_SOURCES = {
 
 # These adapters are paused after repeated upstream failures. Their stored
 # rows remain eligible through the normal publication/expiration rules.
-PAUSED_SOURCES = frozenset({"azify", "assefaz", "cprocco"})
+PAUSED_SOURCES = frozenset({"azify", "assefaz", "cprocco", "ngcash", "atitude"})
 
 CHECKPOINT_SCHEMA_VERSION = 1
 CHECKPOINT_ENV = "JOBS_COLLECTION_CHECKPOINT_DIR"
@@ -74,11 +74,22 @@ def sources_to_preserve(failed_sources):
 
 def selected_registry(names):
     if not names:
-        return [(name, fetch) for name, fetch in REGISTRY if name not in NIGHTLY_ONLY_SOURCES]
+        return [
+            (name, fetch)
+            for name, fetch in REGISTRY
+            if name not in NIGHTLY_ONLY_SOURCES and name not in PAUSED_SOURCES
+        ]
     wanted = {part.strip().lower() for part in names.split(",") if part.strip()}
-    selected = [(name, fetch) for name, fetch in REGISTRY if name in wanted]
+    selected = [
+        (name, fetch)
+        for name, fetch in REGISTRY
+        if name in wanted and name not in PAUSED_SOURCES
+    ]
     missing = wanted - {name for name, _ in selected}
     if missing:
+        paused = missing & PAUSED_SOURCES
+        if paused:
+            raise SystemExit(f"Paused source(s): {', '.join(sorted(paused))}")
         raise SystemExit(f"Unknown source(s): {', '.join(sorted(missing))}")
     return selected
 
