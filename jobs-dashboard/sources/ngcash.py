@@ -1,196 +1,212 @@
 # -*- coding: utf-8 -*-
-"""Public NG.CASH careers page (Revolut People)."""
+"""Public NG.CASH vacancies through the unauthenticated Revolut People API."""
 
 from __future__ import annotations
 
 import re
-import time
-from urllib.parse import urlsplit
+import unicodedata
+from urllib.parse import urlencode
 
-from ._common import job
-from ._rendered import _webdriver
-
-
-CAREERS_URL = "https://people-jobs.com/ngcash/"
-FRAME_SELECTOR = "iframe#careerWebsite"
-POSITION_RE = re.compile(
-    r"/ngcash/public/careers/position/([^/?#]+)",
-    re.IGNORECASE,
-)
-DEFAULT_TIMEOUT = 90
-MAX_POSITIONS = 200
+from ._common import iso_date, job, strip_html
+from ._http import get_json
 
 
-def _switch_to_careers(driver, timeout=DEFAULT_TIMEOUT):
-    """Enter the cross-origin career iframe after each outer-page navigation."""
-    from selenium.webdriver.common.by import By
-    from selenium.webdriver.support.ui import WebDriverWait
+CAREERS_URL = "https://revolutpeople.com/ngcash/public/careers/"
+POSTINGS_API = "https://revolutpeople.com/api/ngcash/external/v3/postings"
+DETAILS_API = "https://revolutpeople.com/api/ngcash/external/v2/postings"
+MAX_PAGES = 20
+MAX_POSITIONS = 2000
 
-    driver.switch_to.default_content()
-    frame = WebDriverWait(driver, timeout).until(
-        lambda current: current.find_element(By.CSS_SELECTOR, FRAME_SELECTOR)
+
+def _text(value):
+    return str(value or "").strip()
+
+
+def _request_headers():
+    return {
+        "Accept": "application/json",
+        "Referer": CAREERS_URL,
+    }
+
+
+def _list_page(page):
+    payload = get_json(
+        f"{POSTINGS_API}?{urlencode({'page': page})}",
+        headers=_request_headers(),
+        timeout=20,
+        retries=2,
+        backoff=1,
     )
-    driver.switch_to.frame(frame)
-    WebDriverWait(driver, timeout).until(
-        lambda current: current.find_element(By.TAG_NAME, "body")
+    if not isinstance(payload, dict):
+        raise RuntimeError("NG.CASH retornou uma listagem inválida")
+
+    results = payload.get("results")
+    pages = payload.get("pages")
+    if not isinstance(results, list) or not isinstance(pages, dict):
+        raise RuntimeError("NG.CASH retornou paginação inválida")
+
+    try:
+        total_pages = int(pages.get("total") or 0)
+    except (TypeError, ValueError) as error:
+        raise RuntimeError("NG.CASH retornou total de páginas inválido") from error
+
+    if total_pages < 1 and results:
+        total_pages = 1
+    if total_pages > MAX_PAGES:
+        raise RuntimeError(
+            f"NG.CASH excedeu o limite de segurança de {MAX_PAGES} páginas"
+        )
+    return results, total_pages
+
+
+def _brazil_locations(posting):
+    locations = posting.get("locations") or []
+    if isinstance(locations, dict):
+        locations = [locations]
+    if not isinstance(locations, list):
+        return []
+
+    brazil_locations = []
+    for location in locations:
+        if not isinstance(location, dict):
+            continue
+        country = location.get("country") or {}
+        country_name = _text(country.get("name")) if isinstance(country, dict) else ""
+        name = _text(location.get("name"))
+        is_brazil = country_name.casefold() in {"brasil", "brazil"} or name.casefold() in {
+            "brasil",
+            "brazil",
+        }
+        if is_brazil:
+            brazil_locations.append(location)
+    return brazil_locations
+
+
+def _location_fields(posting):
+    locations = _brazil_locations(posting)
+    if not locations:
+        return None
+
+    names = [_text(location.get("name")) for location in locations]
+    city = next(
+        (name for name in names if name and name.casefold() not in {"brasil", "brazil"}),
+        "Brasil",
     )
+    state = "SP" if city.casefold() in {"são paulo", "sao paulo"} else ""
+
+    models = {_text(location.get("type")).casefold() for location in locations}
+    if "remote" in models:
+        work_model = "remote"
+    elif "hybrid" in models:
+        work_model = "hybrid"
+    elif models.intersection({"office", "on-site", "onsite"}):
+        work_model = "on-site"
+    else:
+        work_model = ""
+
+    return {
+        "city": city,
+        "state": state,
+        "country": "BR",
+        "market": "BR",
+        "work_model": work_model,
+    }
 
 
-def _page(driver):
-    """Read the visible iframe content without depending on React internals."""
-    return driver.execute_script(
-        """
-        const root = document.querySelector("main,[role='main']") || document.body;
-        const links = Array.from(
-          root.querySelectorAll('a[href*="/ngcash/public/careers/position/"]')
-        ).map((anchor) => ({
-          href: anchor.href,
-          text: (anchor.innerText || anchor.textContent || "").trim(),
-        }));
-        const buttons = Array.from(root.querySelectorAll("button"));
-        const loadMore = buttons.find((button) =>
-          /load more|carregar mais|ver mais/i.test(
-            (button.innerText || button.textContent || "").trim()
-          )
-        );
-        const heading = root.querySelector("h1,h2");
-        return {
-          heading: heading ? (heading.innerText || heading.textContent || "").trim() : "",
-          text: (root.innerText || root.textContent || "").trim(),
-          links,
-          loadMore: loadMore || null,
-        };
-        """
+def _slug(title):
+    ascii_title = (
+        unicodedata.normalize("NFKD", title)
+        .encode("ascii", "ignore")
+        .decode("ascii")
     )
+    return re.sub(r"[^a-z0-9]+", "-", ascii_title.casefold()).strip("-")
 
 
-def _collect_listing(driver):
-    """Collect all currently exposed positions, including future load-more batches."""
-    from selenium.webdriver.support.ui import WebDriverWait
-
-    positions = {}
-    previous_count = -1
-    stagnant_rounds = 0
-
-    for _ in range(MAX_POSITIONS):
-        page = _page(driver)
-        for item in page.get("links") or []:
-            href = str(item.get("href") or "").strip()
-            match = POSITION_RE.search(urlsplit(href).path)
-            if not match:
-                continue
-            positions[href] = {
-                "slug": match.group(1),
-                "title": str(item.get("text") or "").strip(),
-                "listing_text": page.get("text") or "",
-            }
-
-        button = page.get("loadMore")
-        if not button:
-            break
-        count_before = len(positions)
-        if count_before == previous_count:
-            stagnant_rounds += 1
-        else:
-            stagnant_rounds = 0
-        if stagnant_rounds >= 2:
-            break
-        previous_count = count_before
-
-        try:
-            driver.execute_script("arguments[0].click();", button)
-            WebDriverWait(driver, 15).until(
-                lambda current: len(_page(current).get("links") or []) > count_before
-            )
-        except Exception:
-            break
-
-    if not positions:
-        raise RuntimeError("NG.CASH não exibiu nenhuma vaga no quadro público")
-    if len(positions) > MAX_POSITIONS:
-        raise RuntimeError("NG.CASH excedeu o limite de segurança de vagas coletadas")
-    return list(positions.values())
+def _canonical_url(title, posting_id):
+    slug = _slug(title) or "vaga"
+    return f"{CAREERS_URL}position/{slug}-{posting_id}"
 
 
-def _canonical_url(slug):
-    return f"{CAREERS_URL.rstrip('/')}/public/careers/position/{slug}"
+def _normalize_position(posting, detail=None):
+    """Normalize public list/detail API payloads into the catalog contract."""
+    if not isinstance(posting, dict):
+        return None
 
+    posting_id = _text(posting.get("id"))
+    title = _text(posting.get("title"))
+    if not posting_id or not title:
+        return None
 
-def _work_model(raw):
-    if re.search(r"\b(remote|remoto|home\s*office)\b", raw, re.IGNORECASE):
-        return "remote"
-    if re.search(r"\b(office|on[-\s]?site|presencial)\b", raw, re.IGNORECASE):
-        return "on-site"
-    return ""
+    location = _location_fields(posting)
+    if location is None:
+        return None
 
+    detail = detail if isinstance(detail, dict) else {}
+    if _text(detail.get("id")) not in {"", posting_id}:
+        detail = {}
 
-def _location(raw):
-    if re.search(r"\b(são\s+paulo|sao\s+paulo)\b", raw, re.IGNORECASE):
-        return "São Paulo", "SP"
-    if re.search(r"\b(brasil|brazil)\b", raw, re.IGNORECASE):
-        return "Brasil", ""
-    return "", ""
+    detail_title = _text(detail.get("title"))
+    function = detail.get("function") or posting.get("function") or {}
+    function_name = _text(function.get("name")) if isinstance(function, dict) else ""
+    description = strip_html(_text(detail.get("description")), limit=60000)
 
-
-def _normalize_position(slug, title, listing_text, detail_text):
-    """Normalize a position into the catalog contract."""
-    detail = str(detail_text or "").strip()
-    listing = str(listing_text or "").strip()
-    raw = detail or listing
-    city, state = _location(raw)
     return job(
         "ngcash",
-        slug,
-        title=title.strip() or slug.replace("-", " ").title(),
+        posting_id,
+        title=detail_title or title,
         company="NG.CASH",
-        url=_canonical_url(slug),
-        work_model=_work_model(raw),
-        city=city,
-        state=state,
-        country="BR" if re.search(r"\b(brasil|brazil)\b", raw, re.IGNORECASE) else "",
-        market="BR" if re.search(r"\b(brasil|brazil)\b", raw, re.IGNORECASE) else "",
-        description=detail[:60000],
+        url=_canonical_url(title, posting_id),
+        work_model=location["work_model"],
+        city=location["city"],
+        state=location["state"],
+        country=location["country"],
+        market=location["market"],
+        published_date=iso_date(detail.get("creation_date_time")),
+        description=description,
+        categories=[function_name] if function_name else [],
     )
 
 
 def fetch():
-    """Collect NG.CASH positions from the public rendered page."""
-    driver = _webdriver()
-    rows = []
-    try:
-        driver.set_page_load_timeout(DEFAULT_TIMEOUT)
-        driver.get(CAREERS_URL)
-        _switch_to_careers(driver)
-        from selenium.webdriver.support.ui import WebDriverWait
+    """Collect currently published NG.CASH Brazil vacancies via public JSON."""
+    first_page, total_pages = _list_page(1)
+    postings = list(first_page)
 
-        WebDriverWait(driver, DEFAULT_TIMEOUT).until(
-            lambda current: bool(_page(current).get("links"))
-        )
-        listings = _collect_listing(driver)
+    for page in range(2, total_pages + 1):
+        page_results, _ = _list_page(page)
+        postings.extend(page_results)
+        if len(postings) > MAX_POSITIONS:
+            raise RuntimeError("NG.CASH excedeu o limite de segurança de vagas coletadas")
 
-        for listing in listings:
-            url = _canonical_url(listing["slug"])
-            detail_text = ""
-            try:
-                driver.get(url)
-                _switch_to_careers(driver)
-                detail = WebDriverWait(driver, DEFAULT_TIMEOUT).until(
-                    lambda current: _page(current)
-                )
-                detail_text = str(detail.get("text") or "").strip()
-                detail_title = str(detail.get("heading") or "").strip()
-                title = detail_title or listing["title"]
-            except Exception:
-                title = listing["title"]
-            rows.append(
-                _normalize_position(
-                    listing["slug"],
-                    title,
-                    listing["listing_text"],
-                    detail_text,
-                )
+    if len(postings) > MAX_POSITIONS:
+        raise RuntimeError("NG.CASH excedeu o limite de segurança de vagas coletadas")
+
+    rows = {}
+    for posting in postings:
+        if not isinstance(posting, dict):
+            continue
+        posting_id = _text(posting.get("id"))
+        if not posting_id:
+            continue
+
+        detail = {}
+        try:
+            detail = get_json(
+                f"{DETAILS_API}/{posting_id}",
+                headers=_request_headers(),
+                timeout=12,
+                retries=1,
+                backoff=0,
             )
-        return rows
-    finally:
-        from ._rendered import _close_driver
-        _close_driver(driver)
+        except Exception as error:
+            # The public list is authoritative for active postings. Preserve a
+            # valid listing if an individual detail endpoint is temporarily down.
+            print(f"[ngcash] detalhe {posting_id} indisponível: {error}")
+
+        row = _normalize_position(posting, detail)
+        if row:
+            rows.setdefault(row["native_id"], row)
+
+    if not rows:
+        raise RuntimeError("NG.CASH não retornou vagas brasileiras publicadas")
+    return list(rows.values())
