@@ -73,10 +73,10 @@ def _brazil_locations(posting):
         country = location.get("country") or {}
         country_name = _text(country.get("name")) if isinstance(country, dict) else ""
         name = _text(location.get("name"))
-        is_brazil = country_name.casefold() in {"brasil", "brazil"} or name.casefold() in {
-            "brasil",
-            "brazil",
-        }
+        if country_name:
+            is_brazil = country_name.casefold() in {"brasil", "brazil"}
+        else:
+            is_brazil = name.casefold() in {"brasil", "brazil"}
         if is_brazil:
             brazil_locations.append(location)
     return brazil_locations
