@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: vagas-main-writer
+  group: catalog-publication
   cancel-in-progress: false
 
 env:
@@ -19,7 +19,7 @@ env:
 
 jobs:
   catchup:
-    runs-on: [self-hosted, Linux, ARM64, vagas]
+    runs-on: [self-hosted, Linux, ARM64]
     timeout-minutes: 5
 
     steps:
