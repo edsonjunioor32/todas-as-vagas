@@ -67,9 +67,9 @@ class PortalSourceResilienceTests(unittest.TestCase):
         def fake_get_text(url, **_kwargs):
             if url == location_url:
                 return listing
-            if url.endswith("/jobs/101"):
+            if url.endswith("/jobs/101-expired-role"):
                 raise RuntimeError("HTTP Error 404: Not Found")
-            if url.endswith("/jobs/202"):
+            if url.endswith("/jobs/202-active-role"):
                 return detail
             raise AssertionError(f"Unexpected URL: {url}")
 
@@ -81,11 +81,18 @@ class PortalSourceResilienceTests(unittest.TestCase):
         self.assertEqual(rows[0]["title"], "Active role")
 
     def test_blocked_upstream_sources_are_paused_and_preserved(self):
-        paused = {"ngcash", "atitude"}
+        paused = {"ngcash"}
         selected = {name for name, _fetch in pipeline.selected_registry("")}
         self.assertTrue(paused.issubset(pipeline.PAUSED_SOURCES))
         self.assertTrue(paused.isdisjoint(selected))
-        self.assertTrue(paused.issubset(set(pipeline.sources_to_preserve([]))))
+        self.assertTrue(paused.issubset(set(pipeline.sources_to_preserve([])))
+        removed = {"cprocco", "atitude"}
+        self.assertEqual(removed, pipeline.REMOVED_SOURCES)
+        self.assertTrue(removed.isdisjoint(set(pipeline.sources_to_preserve([])))
+        self.assertTrue(removed.isdisjoint(selected))
+        for name in removed:
+            with self.assertRaises(SystemExit):
+                pipeline.selected_registry(name))
         for name in paused:
             with self.assertRaises(SystemExit):
                 pipeline.selected_registry(name)
