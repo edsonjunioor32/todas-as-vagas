@@ -33,14 +33,16 @@ permissions:
   id-token: write
 
 concurrency:
-  group: merge-dynamic-portals
-  cancel-in-progress: true
+  # O merge parcial também grava public-data/history-data; ele deve usar
+  # o mesmo escritor da coleta principal.
+  group: catalog-publication
+  cancel-in-progress: false
 
 jobs:
   merge:
     if: github.event_name == 'workflow_dispatch' || !contains(github.event.head_commit.message, '[refresh-fit]')
     name: Mesclar somente os portais validados
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, ARM64, vagas]
     timeout-minutes: 30
     environment:
       name: github-pages
