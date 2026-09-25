@@ -3,6 +3,7 @@
 import os
 import re
 import shutil
+import threading
 import time
 
 
@@ -20,50 +21,107 @@ def _existing_executable(candidates):
     return None
 
 
+def _positive_int_env(name, default, minimum=1, maximum=8):
+    try:
+        value = int(os.environ.get(name) or default)
+    except (TypeError, ValueError):
+        value = default
+    return min(maximum, max(minimum, value))
+
+
+# A single ARM64 runner can exhaust the Chromium process/file-descriptor budget when
+# several rendered portals start browsers at the same time. Keep source-level
+# HTTP concurrency unchanged, but serialize browser sessions to a small pool.
+_BROWSER_SLOTS = _positive_int_env("COLLECTOR_BROWSER_WORKERS", 2, maximum=4)
+_BROWSER_START_RETRIES = _positive_int_env(
+    "COLLECTOR_BROWSER_START_RETRIES", 3, maximum=5
+)
+_BROWSER_SLOT_TIMEOUT = max(
+    15.0,
+    float(os.environ.get("COLLECTOR_BROWSER_SLOT_TIMEOUT") or 90.0),
+)
+_BROWSER_SEMAPHORE = threading.BoundedSemaphore(_BROWSER_SLOTS)
+
+
 def _webdriver():
-    """Create a headless driver using the VPS-native ARM64 binaries when present.
+    """Create a bounded, retrying headless driver for rendered career pages.
 
     Selenium Manager may download or select a driver for the wrong architecture
     on self-hosted ARM64 runners. Prefer explicitly configured/system binaries,
     while retaining Selenium Manager as a fallback for hosted CI environments.
+    Browser sessions are limited independently from source HTTP workers so one
+    unstable portal cannot exhaust the runner and make other rendered portals
+    fail with the same Chrome startup error.
     """
     try:
         from selenium import webdriver
     except ImportError as error:
         raise RuntimeError("Selenium is required for this rendered careers page") from error
 
-    options = webdriver.ChromeOptions()
-    for argument in (
-        "--headless=new", "--no-sandbox", "--disable-dev-shm-usage",
-        "--disable-gpu", "--disable-extensions", "--window-size=1440,3000",
-        "--lang=pt-BR",
-    ):
-        options.add_argument(argument)
-    options.page_load_strategy = "eager"
+    last_error = None
+    for attempt in range(1, _BROWSER_START_RETRIES + 1):
+        acquired = _BROWSER_SEMAPHORE.acquire(timeout=_BROWSER_SLOT_TIMEOUT)
+        if not acquired:
+            raise RuntimeError(
+                "timed out waiting for an available rendered-browser slot"
+            )
+        try:
+            options = webdriver.ChromeOptions()
+            for argument in (
+                "--headless=new", "--no-sandbox", "--disable-dev-shm-usage",
+                "--disable-gpu", "--disable-extensions",
+                "--disable-background-networking", "--disable-notifications",
+                "--window-size=1440,3000", "--lang=pt-BR",
+            ):
+                options.add_argument(argument)
+            options.page_load_strategy = "eager"
 
-    browser_binary = _existing_executable((
-        os.environ.get("CHROME_BINARY"),
-        os.environ.get("CHROMIUM_BINARY"),
-        "chromium",
-        "chromium-browser",
-        "google-chrome",
-        "google-chrome-stable",
-    ))
-    if browser_binary:
-        options.binary_location = browser_binary
+            browser_binary = _existing_executable((
+                os.environ.get("CHROME_BINARY"),
+                os.environ.get("CHROMIUM_BINARY"),
+                "chromium",
+                "chromium-browser",
+                "google-chrome",
+                "google-chrome-stable",
+            ))
+            if browser_binary:
+                options.binary_location = browser_binary
 
-    driver_binary = _existing_executable((
-        os.environ.get("CHROMEDRIVER_PATH"),
-        "chromedriver",
-    ))
-    if driver_binary:
-        from selenium.webdriver.chrome.service import Service
-        return webdriver.Chrome(
-            service=Service(executable_path=driver_binary),
-            options=options,
-        )
-    return webdriver.Chrome(options=options)
+            driver_binary = _existing_executable((
+                os.environ.get("CHROMEDRIVER_PATH"),
+                "chromedriver",
+            ))
+            if driver_binary:
+                from selenium.webdriver.chrome.service import Service
+                driver = webdriver.Chrome(
+                    service=Service(executable_path=driver_binary),
+                    options=options,
+                )
+            else:
+                driver = webdriver.Chrome(options=options)
+            setattr(driver, "_collector_browser_slot", True)
+            return driver
+        except Exception as error:
+            _BROWSER_SEMAPHORE.release()
+            last_error = error
+            if attempt < _BROWSER_START_RETRIES:
+                time.sleep(min(8.0, 2.0 * attempt))
+    raise RuntimeError(
+        "Chrome session could not start after "
+        f"{_BROWSER_START_RETRIES} attempts: {last_error}"
+    ) from last_error
 
+
+def _close_driver(driver):
+    """Quit a driver and always return its bounded browser slot."""
+    if driver is None:
+        return
+    try:
+        _close_driver(driver)
+    finally:
+        if getattr(driver, "_collector_browser_slot", False):
+            setattr(driver, "_collector_browser_slot", False)
+            _BROWSER_SEMAPHORE.release()
 
 def _visible_links(driver, href_pattern):
     rows = driver.execute_script(
