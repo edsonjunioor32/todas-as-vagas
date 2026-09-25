@@ -19,7 +19,7 @@ env:
 
 jobs:
   catchup:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, ARM64, vagas]
     timeout-minutes: 5
 
     steps:
