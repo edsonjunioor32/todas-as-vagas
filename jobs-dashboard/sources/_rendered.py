@@ -117,7 +117,7 @@ def _close_driver(driver):
     if driver is None:
         return
     try:
-        _close_driver(driver)
+        driver.quit()
     finally:
         if getattr(driver, "_collector_browser_slot", False):
             setattr(driver, "_collector_browser_slot", False)
@@ -159,7 +159,7 @@ def rendered_links(url, href_pattern, timeout=45):
             time.sleep(1)
         raise RuntimeError("no public vacancy links after JavaScript rendering")
     finally:
-        driver.quit()
+        _close_driver(driver)
 
 
 def _next_pagination_control(driver):
