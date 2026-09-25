@@ -119,7 +119,7 @@ def _close_driver(driver):
     try:
         driver.quit()
     finally:
-        if getattr(driver, "_collector_browser_slot", False):
+        if getattr(driver, "_collector_browser_slot", False) is True:
             setattr(driver, "_collector_browser_slot", False)
             _BROWSER_SEMAPHORE.release()
 
