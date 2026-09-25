@@ -126,6 +126,22 @@ class GreenhouseLocationTests(unittest.TestCase):
         self.assertEqual(rows[2]["work_model"], "hybrid")
         self.assertEqual(rows[3]["work_model"], "")
 
+    def test_future_publication_dates_are_cleared_without_dropping_rows(self):
+        rows = [
+            sample_job("portal", "future"),
+            sample_job("portal", "current"),
+        ]
+        rows[0]["published_date"] = "2026-10-07T00:00:00+00:00"
+        rows[1]["published_date"] = "2026-09-24"
+
+        corrected = pipeline.sanitize_future_publication_dates(
+            rows, today="2026-09-24"
+        )
+
+        self.assertEqual(corrected, {"portal": 1})
+        self.assertEqual(rows[0]["published_date"], "")
+        self.assertEqual(rows[1]["published_date"], "2026-09-24")
+
     def test_senior_global_market_is_normalized_to_brazil(self):
         rows = [
             sample_job("senior", "1", city="São Paulo"),

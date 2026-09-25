@@ -337,6 +337,30 @@ def dedupe_native(rows):
         unique[key] = row
     return list(unique.values())
 
+def sanitize_future_publication_dates(rows, today=None):
+    """Clear impossible portal dates without discarding the vacancy.
+
+    A portal can expose a clock-skewed or malformed publication date in the
+    future. Keeping that value would make the integrity validator reject the
+    entire snapshot. Clearing only the invalid field preserves the row and
+    lets storage use its first-seen date as the safe fallback.
+    """
+    today = today or storage.local_today().isoformat()
+    corrected = Counter()
+    for row in rows:
+        published = str(row.get("published_date") or "").strip()
+        date_prefix = published[:10]
+        if (
+            len(date_prefix) == 10
+            and date_prefix[4] == "-"
+            and date_prefix[7] == "-"
+            and date_prefix > today
+        ):
+            source = str(row.get("source") or "desconhecida").strip() or "desconhecida"
+            corrected[source] += 1
+            row["published_date"] = ""
+    return dict(sorted(corrected.items()))
+
 
 
 def discard_unknown_market(rows):
@@ -440,6 +464,17 @@ def main(before_persist=None):
     stage_started = time.perf_counter()
     rows = normalize_market(rows)
     rows = dedupe_native(rows)
+    future_publications = sanitize_future_publication_dates(
+        rows, today=storage.local_today().isoformat()
+    )
+    if future_publications:
+        print(
+            "  datas de publicação futuras corrigidas: "
+            + ", ".join(
+                f"{source} ({count})"
+                for source, count in future_publications.items()
+            )
+        )
     collection_today = storage.local_today().isoformat()
     max_age_days = storage.publication_max_age_days(collection_today)
     publication_cutoff = storage.publication_cutoff(
