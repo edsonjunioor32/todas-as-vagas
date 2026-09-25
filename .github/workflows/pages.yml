@@ -274,7 +274,7 @@ jobs:
           INFOJOBS_MAX_JOBS: "2000"
           INFOJOBS_MAX_SCROLLS: "0"
           JOBS_COLLECTION_CHECKPOINT_DIR: "jobs-dashboard/data/collection_checkpoints"
-        run: python jobs-dashboard/pipeline_fit.py --max-age-months 2
+        run: |\n          # Chromium distribuído via Snap precisa de uma sessão D-Bus quando o\n          # runner executa como serviço, sem login gráfico interativo.\n          if command -v dbus-run-session >/dev/null 2>&1; then\n            dbus-run-session -- python jobs-dashboard/pipeline_fit.py --max-age-months 2\n          else\n            python jobs-dashboard/pipeline_fit.py --max-age-months 2\n          fi
 
       - name: Salvar checkpoints da coleta
         if: always()
