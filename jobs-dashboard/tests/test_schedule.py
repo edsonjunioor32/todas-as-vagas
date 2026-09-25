@@ -53,7 +53,7 @@ class ScheduleTests(unittest.TestCase):
         self.assertIn('    - cron: "15 6 * * *"', workflow)
         self.assertIn("  workflow_dispatch:", workflow)
         self.assertIn("  actions: write", workflow)
-        self.assertIn("vagas-main-writer", workflow)
+        self.assertIn("group: catalog-publication", workflow)
         self.assertIn("CATCHUP_GRACE_MINUTES", workflow)
         self.assertIn("catalog_catchup.py", workflow)
         pages = (ROOT / ".github/workflows/pages.yml").read_text(encoding="utf-8")
