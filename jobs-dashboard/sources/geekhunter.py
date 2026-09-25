@@ -19,6 +19,11 @@ NTT_DATA_BASE = "https://www.geekhunter.com/pt/ntt-data/jobs"
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; todas-as-vagas/1.0)"}
 
 
+def _as_mapping(value):
+    """Return nested public payload values only when they are JSON objects."""
+    return value if isinstance(value, dict) else {}
+
+
 def _flight_stream(html):
     marker = "self.__next_f.push("
     chunks = []
@@ -88,8 +93,12 @@ def _company_name(slug):
 def _location(detail, work_model):
     locations = []
     countries = []
-    for entry in detail.get("atsJobCities") or []:
-        city_data = entry.get("city") or {}
+    entries = detail.get("atsJobCities") or []
+    if not isinstance(entries, list):
+        entries = []
+    for entry in entries:
+        entry = _as_mapping(entry)
+        city_data = _as_mapping(entry.get("city"))
         name = str(entry.get("name") or city_data.get("name") or "").strip()
         if name:
             locations.append(name)
@@ -112,7 +121,10 @@ def _salary_and_contracts(detail):
     salaries = detail.get("atsJobSalaries") or []
     minimums, maximums, contracts = [], [], []
     currency = None
+    if not isinstance(salaries, list):
+        salaries = []
     for salary in salaries:
+        salary = _as_mapping(salary)
         if salary.get("minSalary") not in (None, ""):
             minimums.append(float(salary["minSalary"]))
         if salary.get("maxSalary") not in (None, ""):
@@ -130,8 +142,12 @@ def _salary_and_contracts(detail):
 
 def _skills(detail):
     output = []
-    for entry in detail.get("atsJobSkills") or []:
-        skill = entry.get("atsSkill") or entry.get("poolSkill") or {}
+    entries = detail.get("atsJobSkills") or []
+    if not isinstance(entries, list):
+        entries = []
+    for entry in entries:
+        entry = _as_mapping(entry)
+        skill = _as_mapping(entry.get("atsSkill") or entry.get("poolSkill"))
         name = str(skill.get("name") or "").strip()
         if name:
             output.append(name)
@@ -139,20 +155,27 @@ def _skills(detail):
 
 
 def _normalize(item, source="geekhunter", company_override=None):
-    ats = item.get("atsJob") or {}
-    detail = ats.get("atsJobDetail") or {}
-    company_slug = str((ats.get("company") or {}).get("slug") or "").strip()
+    if not isinstance(item, dict):
+        return None
+    ats = _as_mapping(item.get("atsJob"))
+    detail = _as_mapping(ats.get("atsJobDetail"))
+    company = _as_mapping(ats.get("company"))
+    company_slug = str(company.get("slug") or "").strip()
     job_slug = str(ats.get("jobSlug") or "").strip()
     work_model = work_model_label(raw=detail.get("workModality"))
     location, state, country = _location(detail, work_model)
     salary_min, salary_max, currency, contracts = _salary_and_contracts(detail)
+    title = str(detail.get("title") or "").strip()
+    native_id = item.get("id") or ats.get("id")
+    if not title or not native_id or not job_slug:
+        return None
     description = strip_html(detail.get("description", ""))
-    pcd_text = f"{detail.get('title', '')} {description}".lower()
+    pcd_text = f"{title} {description}".lower()
 
     return job(
         source,
-        item.get("id") or ats.get("id"),
-        title=detail.get("title", ""),
+        native_id,
+        title=title,
         company=company_override or _company_name(company_slug),
         url=f"https://www.geekhunter.com/pt/{company_slug}/jobs/{job_slug}",
         work_model=work_model,
@@ -214,8 +237,9 @@ def _catalog(base, source, company_filter=None, company_override=None):
             # the public payload; ignore those fragments before normalization.
             if not isinstance(item, dict):
                 continue
-            ats = item.get("atsJob") or {}
-            company_slug = str((ats.get("company") or {}).get("slug") or "").strip()
+            ats = _as_mapping(item.get("atsJob"))
+            company = _as_mapping(ats.get("company"))
+            company_slug = str(company.get("slug") or "").strip()
             if company_filter and not _company_matches(company_slug, company_filter):
                 continue
             row = _normalize(
@@ -223,7 +247,8 @@ def _catalog(base, source, company_filter=None, company_override=None):
                 source=source,
                 company_override=company_override,
             )
-            unique[row["native_id"] or row["url"]] = row
+            if row:
+                unique[row["native_id"] or row["url"]] = row
     if not unique:
         raise RuntimeError(f"{source} returned no public vacancies")
     return list(unique.values())
