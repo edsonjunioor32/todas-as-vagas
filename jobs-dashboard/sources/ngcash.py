@@ -192,4 +192,5 @@ def fetch():
             )
         return rows
     finally:
-        driver.quit()
+        from ._rendered import _close_driver
+        _close_driver(driver)

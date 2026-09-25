@@ -167,7 +167,8 @@ def _rendered_links():
                     break
         return list(collected.items())
     finally:
-        driver.quit()
+        from ._rendered import _close_driver
+        _close_driver(driver)
 
 
 def _relative_date(label):

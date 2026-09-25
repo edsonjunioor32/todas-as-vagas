@@ -320,26 +320,10 @@ def _work_model_from_lines(lines):
 
 
 def _new_driver():
-    try:
-        from selenium import webdriver
-    except ImportError as error:
-        raise RuntimeError("Selenium is required to collect InfoJobs") from error
+    """Use the shared bounded Chromium launcher for this rendered source."""
+    from ._rendered import _webdriver
 
-    options = webdriver.ChromeOptions()
-    for argument in (
-        "--headless=new",
-        "--no-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-gpu",
-        "--disable-extensions",
-        "--disable-notifications",
-        "--window-size=1440,3000",
-        "--lang=pt-BR",
-    ):
-        options.add_argument(argument)
-    options.page_load_strategy = "eager"
-    return webdriver.Chrome(options=options)
-
+    return _webdriver()
 
 def _job_count(driver):
     return int(driver.execute_script(
@@ -459,7 +443,8 @@ def fetch():
                 break
         raw_rows = raw_rows[:max_jobs]
     finally:
-        driver.quit()
+        from ._rendered import _close_driver
+        _close_driver(driver)
 
     today = datetime.now(LOCAL_TIMEZONE).date()
     rows, seen = [], set()
