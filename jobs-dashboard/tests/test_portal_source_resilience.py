@@ -80,15 +80,20 @@ class PortalSourceResilienceTests(unittest.TestCase):
         self.assertEqual([row["native_id"] for row in rows], ["202"])
         self.assertEqual(rows[0]["title"], "Active role")
 
-    def test_blocked_upstream_sources_are_paused_and_preserved(self):
-        paused = {"ngcash", "atitude"}
+    def test_ngcash_is_active_while_other_blocked_source_remains_paused(self):
         selected = {name for name, _fetch in pipeline.selected_registry("")}
-        self.assertTrue(paused.issubset(pipeline.PAUSED_SOURCES))
-        self.assertTrue(paused.isdisjoint(selected))
-        self.assertTrue(paused.issubset(set(pipeline.sources_to_preserve([]))))
-        for name in paused:
-            with self.assertRaises(SystemExit):
-                pipeline.selected_registry(name)
+        explicit = {name for name, _fetch in pipeline.selected_registry("ngcash")}
+
+        self.assertNotIn("ngcash", pipeline.PAUSED_SOURCES)
+        self.assertIn("ngcash", pipeline.NONEMPTY_SOURCES)
+        self.assertIn("ngcash", selected)
+        self.assertEqual(explicit, {"ngcash"})
+
+        self.assertIn("atitude", pipeline.PAUSED_SOURCES)
+        self.assertNotIn("atitude", selected)
+        self.assertIn("atitude", set(pipeline.sources_to_preserve([])))
+        with self.assertRaises(SystemExit):
+            pipeline.selected_registry("atitude")
 
 
 if __name__ == "__main__":

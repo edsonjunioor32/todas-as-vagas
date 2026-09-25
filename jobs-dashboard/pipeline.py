@@ -57,7 +57,7 @@ NONEMPTY_SOURCES = {
 
 # These adapters are paused after repeated upstream failures. Their stored
 # rows remain eligible through the normal publication/expiration rules.
-PAUSED_SOURCES = frozenset({"azify", "assefaz", "cprocco", "ngcash", "atitude"})
+PAUSED_SOURCES = frozenset({"azify", "assefaz", "cprocco", "atitude"})
 
 CHECKPOINT_SCHEMA_VERSION = 1
 CHECKPOINT_ENV = "JOBS_COLLECTION_CHECKPOINT_DIR"
