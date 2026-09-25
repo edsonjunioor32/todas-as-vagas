@@ -1,10 +1,32 @@
 # -*- coding: utf-8 -*-
 """Small Selenium helpers for public career pages rendered by JavaScript."""
+import os
 import re
+import shutil
 import time
 
 
+def _existing_executable(candidates):
+    for candidate in candidates:
+        if not candidate:
+            continue
+        if os.path.isabs(candidate):
+            if os.path.isfile(candidate) and os.access(candidate, os.X_OK):
+                return candidate
+            continue
+        resolved = shutil.which(candidate)
+        if resolved:
+            return resolved
+    return None
+
+
 def _webdriver():
+    """Create a headless driver using the VPS-native ARM64 binaries when present.
+
+    Selenium Manager may download or select a driver for the wrong architecture
+    on self-hosted ARM64 runners. Prefer explicitly configured/system binaries,
+    while retaining Selenium Manager as a fallback for hosted CI environments.
+    """
     try:
         from selenium import webdriver
     except ImportError as error:
@@ -18,6 +40,28 @@ def _webdriver():
     ):
         options.add_argument(argument)
     options.page_load_strategy = "eager"
+
+    browser_binary = _existing_executable((
+        os.environ.get("CHROME_BINARY"),
+        os.environ.get("CHROMIUM_BINARY"),
+        "chromium",
+        "chromium-browser",
+        "google-chrome",
+        "google-chrome-stable",
+    ))
+    if browser_binary:
+        options.binary_location = browser_binary
+
+    driver_binary = _existing_executable((
+        os.environ.get("CHROMEDRIVER_PATH"),
+        "chromedriver",
+    ))
+    if driver_binary:
+        from selenium.webdriver.chrome.service import Service
+        return webdriver.Chrome(
+            service=Service(executable_path=driver_binary),
+            options=options,
+        )
     return webdriver.Chrome(options=options)
 
 
