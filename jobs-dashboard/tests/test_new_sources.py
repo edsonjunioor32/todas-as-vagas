@@ -563,6 +563,7 @@ class CompanyBatchTests(unittest.TestCase):
         for tenant in ("evoluetreinamento", "levelcinco", "lotusict", "postogalo", "xlevel"):
             self.assertIn(tenant, names)
         self.assertNotIn("infovagas", names)
+
     def test_assefaz_quickin_board_is_enabled(self):
         self.assertIn("assefaz", requested_portals_03092026.QUICKIN_TENANTS)
         self.assertEqual(requested_portals_03092026.COMPANY_LABELS["assefaz"], "Assefaz")
