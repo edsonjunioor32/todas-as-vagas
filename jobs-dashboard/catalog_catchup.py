@@ -133,17 +133,46 @@ def _headers(token: str) -> dict[str, str]:
 
 
 def fetch_collection_runs(repository: str, token: str) -> list[dict]:
-    query = urllib.parse.urlencode({"branch": "main", "per_page": 100})
-    request = urllib.request.Request(
-        f"{API_BASE}/repos/{repository}/actions/workflows/pages.yml/runs?{query}",
-        headers=_headers(token),
-    )
+    """Fetch enough recent pages to make slot detection deterministic.
+
+    The catalog can have many push, validation and recovery runs. Looking only
+    at GitHub's first 100 records can hide the successful run for the slot that
+    is being checked and cause a duplicate dispatch.
+    """
     try:
-        with urllib.request.urlopen(request, timeout=20) as response:
-            payload = json.loads(response.read().decode("utf-8"))
-    except (urllib.error.HTTPError, urllib.error.URLError, json.JSONDecodeError) as error:
-        raise RuntimeError(f"não foi possível consultar os runs do catálogo: {error}") from error
-    return list(payload.get("workflow_runs") or [])
+        max_pages = max(1, min(10, int(os.environ.get("CATCHUP_MAX_RUN_PAGES", "5"))))
+    except (TypeError, ValueError):
+        max_pages = 5
+
+    runs: list[dict] = []
+    now = datetime.now(UTC)
+    for page in range(1, max_pages + 1):
+        query = urllib.parse.urlencode({
+            "branch": "main",
+            "per_page": 100,
+            "page": page,
+        })
+        request = urllib.request.Request(
+            f"{API_BASE}/repos/{repository}/actions/workflows/pages.yml/runs?{query}",
+            headers=_headers(token),
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=20) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+        except (urllib.error.HTTPError, urllib.error.URLError, json.JSONDecodeError) as error:
+            raise RuntimeError(f"não foi possível consultar os runs do catálogo: {error}") from error
+
+        batch = list(payload.get("workflow_runs") or [])
+        runs.extend(batch)
+        if len(batch) < 100:
+            break
+
+        timestamps = [_run_time(run) for run in batch]
+        oldest = min((value for value in timestamps if value is not None), default=None)
+        if oldest is not None and oldest <= now - timedelta(hours=36):
+            break
+
+    return runs
 
 
 def dispatch_collection(repository: str, token: str, resume_key: str | None = None) -> None:
