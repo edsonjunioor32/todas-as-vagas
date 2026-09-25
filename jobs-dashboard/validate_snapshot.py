@@ -72,9 +72,12 @@ def main():
     })
     max_failed_sources = env_int("MAX_FAILED_SOURCES", 50)
     if max_failed_sources >= 0 and len(failed_sources) > max_failed_sources:
-        fail(
-            "fontes indisponíveis acima do limite seguro: "
-            f"{len(failed_sources)} (máximo {max_failed_sources})"
+        print(
+            "AVISO: fontes indisponíveis acima do limite de alerta: "
+            f"{len(failed_sources)} (limite {max_failed_sources}); "
+            "os dados anteriores dessas fontes serão preservados e a "
+            "publicação das demais fontes continuará.",
+            file=sys.stderr,
         )
 
     collected_source_counts = data.get("collected_source_counts") or {}
