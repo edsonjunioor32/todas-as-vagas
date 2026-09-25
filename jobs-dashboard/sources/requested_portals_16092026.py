@@ -312,7 +312,8 @@ def fetch_asa(today=None):
             if row:
                 rows.append(row)
     finally:
-        driver.quit()
+        from ._rendered import _close_driver
+        _close_driver(driver)
 
     if not rows:
         raise RuntimeError("ASA public page returned no public vacancies")
