@@ -1652,6 +1652,10 @@
     "tenantName": "Programmers - AI, Data & Software"
   },
   {
+    "slug": "projectivaholding",
+    "tenantName": "projectivaholding"
+  },
+  {
     "slug": "prospertechtalents",
     "tenantName": "Prosper Tech Talents"
   },
@@ -1734,6 +1738,10 @@
   {
     "slug": "rhitmotech",
     "tenantName": "Rhitmo Tech"
+  },
+  {
+    "slug": "riachuelo",
+    "tenantName": "riachuelo"
   },
   {
     "slug": "riogaleao",
