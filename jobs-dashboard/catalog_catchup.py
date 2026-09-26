@@ -125,10 +125,11 @@ def resume_key_for_slot(runs: list[dict], slot: datetime) -> str:
     return f"slot-{slot.isoformat()}"
 
 
-def _oldest_by_status(runs: list[dict], status: str) -> dict | None:
+def _oldest_by_status(runs: list[dict], statuses: str | set[str]) -> dict | None:
+    expected = {statuses} if isinstance(statuses, str) else statuses
     matches = [
         run for run in runs
-        if str(run.get("status") or "") == status and _run_time(run) is not None
+        if str(run.get("status") or "") in expected and _run_time(run) is not None
     ]
     return min(matches, key=lambda run: _run_time(run)) if matches else None
 
@@ -149,7 +150,7 @@ def decide(
         return {"action": "grace", "reason": "within_grace", "slot": slot}
 
     collection_runs = [run for run in runs if is_collection_run(run)]
-    queued = _oldest_by_status(collection_runs, "queued")
+    queued = _oldest_by_status(collection_runs, {"queued", "waiting", "pending", "requested"})
     if queued:
         created = _run_time(queued)
         assert created is not None
