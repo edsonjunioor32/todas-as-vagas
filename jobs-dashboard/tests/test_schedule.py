@@ -42,7 +42,7 @@ def cron_entries(path: str) -> list[str]:
 class ScheduleTests(unittest.TestCase):
     def test_daily_collection_runs_at_brasilia_hours(self):
         self.assertIn(
-            "0 11,14,18,23 * * *",
+            "7 11,14,18,23 * * *",
             cron_entries(".github/workflows/pages.yml"),
         )
 
@@ -50,10 +50,15 @@ class ScheduleTests(unittest.TestCase):
         workflow = (ROOT / ".github/workflows/catalog-catchup.yml").read_text(
             encoding="utf-8"
         )
-        self.assertIn('    - cron: "15 6 * * *"', workflow)
+        self.assertIn('    - cron: "47 11,14,18,23 * * *"', workflow)
+        self.assertIn('    - cron: "27 8 * * 0"', workflow)
         self.assertIn("  workflow_dispatch:", workflow)
         self.assertIn("  actions: write", workflow)
-        self.assertIn("group: catalog-publication", workflow)
+        self.assertIn("group: catalog-catchup-monitor", workflow)
+        self.assertIn("runs-on: ubuntu-latest", workflow)
+        self.assertIn("issues: write", workflow)
+        self.assertIn("workflow_run:", workflow)
+        self.assertIn('python-version: "3.12"', workflow)
         self.assertIn("CATCHUP_GRACE_MINUTES", workflow)
         self.assertIn("catalog_catchup.py", workflow)
         pages = (ROOT / ".github/workflows/pages.yml").read_text(encoding="utf-8")
@@ -86,13 +91,13 @@ class ScheduleTests(unittest.TestCase):
         )
 
     def test_failed_slot_reuses_original_run_checkpoint_key(self):
-        slot = datetime(2026, 9, 11, 11, 0, tzinfo=timezone.utc)
+        slot = datetime(2026, 9, 11, 11, 7, tzinfo=timezone.utc)
         failed = {
             "id": 123,
             "event": "schedule",
             "status": "completed",
             "conclusion": "failure",
-            "created_at": "2026-09-11T11:05:00Z",
+            "created_at": "2026-09-11T11:08:00Z",
         }
         self.assertEqual(catalog_resume_key_for_slot([failed], slot), "run-123")
         self.assertEqual(scheduler_resume_key_for_slot([failed], slot), "run-123")
@@ -162,7 +167,7 @@ class ScheduleTests(unittest.TestCase):
             "event": "schedule",
             "status": "completed",
             "conclusion": "success",
-            "created_at": "2026-09-11T11:01:00Z",
+            "created_at": "2026-09-11T11:08:00Z",
         }
         self.assertEqual(
             catalog_decide(datetime(2026, 9, 11, 11, 45, tzinfo=utc), [successful])["action"],
