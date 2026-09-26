@@ -42,7 +42,7 @@ def cron_entries(path: str) -> list[str]:
 class ScheduleTests(unittest.TestCase):
     def test_daily_collection_runs_at_brasilia_hours(self):
         self.assertIn(
-            "0 11,14,18,23 * * *",
+            "7 11,14,18,23 * * *",
             cron_entries(".github/workflows/pages.yml"),
         )
 
@@ -50,10 +50,13 @@ class ScheduleTests(unittest.TestCase):
         workflow = (ROOT / ".github/workflows/catalog-catchup.yml").read_text(
             encoding="utf-8"
         )
-        self.assertIn('    - cron: "15 6 * * *"', workflow)
+        self.assertIn('    - cron: "45 11,14,18,23 * * *"', workflow)
         self.assertIn("  workflow_dispatch:", workflow)
         self.assertIn("  actions: write", workflow)
-        self.assertIn("group: catalog-publication", workflow)
+        self.assertIn("runs-on: ubuntu-latest", workflow)
+        self.assertIn("setup-python@v5", workflow)
+        self.assertIn("workflow_run:", workflow)
+        self.assertIn("issues: write", workflow)
         self.assertIn("CATCHUP_GRACE_MINUTES", workflow)
         self.assertIn("catalog_catchup.py", workflow)
         pages = (ROOT / ".github/workflows/pages.yml").read_text(encoding="utf-8")
@@ -101,6 +104,7 @@ class ScheduleTests(unittest.TestCase):
         workflow = (ROOT / ".github/workflows/pages.yml").read_text(
             encoding="utf-8"
         )
+        self.assertIn("  queue: max", workflow)
         self.assertIn("  cancel-in-progress: false", workflow)
 
     def test_guard_waits_for_grace_and_never_duplicates_active_or_recent_dispatched_runs(self):
