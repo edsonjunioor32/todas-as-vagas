@@ -34,8 +34,8 @@ class CatalogCatchupTests(unittest.TestCase):
         self.assertEqual(result["action"], "grace")
         self.assertEqual(result["reason"], "within_grace")
 
-    def test_skips_when_slot_succeeded(self):
-        now = datetime(2026, 9, 24, 12, 0, tzinfo=UTC)
+    def test_skips_when_slot_succeeded_during_grace(self):
+        now = datetime(2026, 9, 24, 11, 20, tzinfo=UTC)
         runs = [{
             "id": 123,
             "event": "schedule",
@@ -59,6 +59,19 @@ class CatalogCatchupTests(unittest.TestCase):
         result = catalog_catchup.decide(now, runs)
         self.assertEqual(result["action"], "dispatch")
         self.assertEqual(result["reason"], "slot_missing")
+
+    def test_confirmed_failure_is_recovered_during_grace(self):
+        now = datetime(2026, 9, 24, 11, 20, tzinfo=UTC)
+        failed = {
+            "id": 124,
+            "event": "schedule",
+            "status": "completed",
+            "conclusion": "failure",
+            "created_at": "2026-09-24T11:08:00Z",
+        }
+        result = catalog_catchup.decide(now, [failed])
+        self.assertEqual(result["action"], "dispatch")
+        self.assertEqual(result["reason"], "slot_failed")
 
     def test_active_collection_is_not_duplicated(self):
         now = datetime(2026, 9, 24, 12, 0, tzinfo=UTC)
