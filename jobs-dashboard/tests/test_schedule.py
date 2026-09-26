@@ -122,7 +122,7 @@ class ScheduleTests(unittest.TestCase):
         active = {
             "event": "schedule",
             "status": "in_progress",
-            "created_at": "2026-09-11T11:05:00Z",
+            "created_at": "2026-09-11T11:08:00Z",
         }
         self.assertEqual(
             catalog_decide(datetime(2026, 9, 11, 11, 45, tzinfo=utc), [active])["action"],
