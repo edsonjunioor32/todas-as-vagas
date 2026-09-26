@@ -7,6 +7,7 @@ response contains usable vacancy records, and exits non-zero on an empty or
 malformed source.  The isolated workflow can therefore be run while the main
 catalogue remains untouched.
 """
+import argparse
 import sys
 import time
 from pathlib import Path
@@ -67,6 +68,30 @@ SOURCES = (("levva", levva.fetch),) + requested_portals_29082026.TARGETS + (
 OPTIONAL_EMPTY_SOURCES = {"fiotec", "saleco"}
 
 
+def select_sources(sources, requested_names=None, include_all=False):
+    """Select a finite set for live smoke tests; full scans must be explicit."""
+    if include_all:
+        if requested_names:
+            raise ValueError("use --all ou --sources, não ambos")
+        return tuple(sources)
+
+    requested = []
+    for value in requested_names or ():
+        requested.extend(
+            part.strip()
+            for part in str(value).split(",")
+            if part.strip()
+        )
+    if not requested:
+        raise ValueError("informe --sources ou --all; seleção vazia não faz varredura")
+    available = {name for name, _fetch in sources}
+    unknown = sorted(set(requested) - available)
+    if unknown:
+        raise ValueError("fontes desconhecidas: " + ", ".join(unknown))
+    selected = set(requested)
+    return tuple((name, fetch) for name, fetch in sources if name in selected)
+
+
 def _validate_rows(name, rows):
     if not rows:
         raise RuntimeError("a fonte retornou zero vagas")
@@ -87,9 +112,29 @@ def _validate_rows(name, rows):
     return len(seen)
 
 
-def main():
+def main(argv=None):
+    parser = argparse.ArgumentParser(
+        description="Smoke test isolado de fontes dinâmicas; nenhuma publicação é realizada."
+    )
+    parser.add_argument(
+        "--sources",
+        nargs="+",
+        metavar="SOURCE",
+        help="uma ou mais fontes, também aceitas separadas por vírgula",
+    )
+    parser.add_argument(
+        "--all",
+        action="store_true",
+        help="executar a varredura ampla (somente em agenda semanal ou acionamento manual)",
+    )
+    args = parser.parse_args(argv)
+    try:
+        selected_sources = select_sources(SOURCES, args.sources, args.all)
+    except ValueError as error:
+        parser.error(str(error))
+
     failures = []
-    for name, fetch in SOURCES:
+    for name, fetch in selected_sources:
         if name in OPTIONAL_EMPTY_SOURCES:
             print(f"[{name}] sem vagas ativas; histórico preservado", flush=True)
             continue
