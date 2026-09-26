@@ -64,7 +64,7 @@ jobs:
         run: python -m unittest discover -s jobs-dashboard/tests -v
 
   targeted-smoke:
-    if: github.event_name == 'workflow_dispatch' && inputs.sources != ''
+    if: github.event_name == 'workflow_dispatch' && inputs.sources != '' && !inputs.full_scan
     name: Smoke test apenas das fontes selecionadas
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -86,7 +86,7 @@ jobs:
         run: python jobs-dashboard/validate_dynamic_portals.py --sources "$PORTAL_SOURCES"
 
   weekly-or-manual-full-scan:
-    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.full_scan)
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.full_scan && inputs.sources == '')
     name: Varredura ampla controlada (somente semanal ou manual)
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -108,10 +108,10 @@ jobs:
         run: python jobs-dashboard/validate_dynamic_portals.py --all
 
   invalid-manual-input:
-    if: github.event_name == 'workflow_dispatch' && inputs.sources == '' && !inputs.full_scan
+    if: github.event_name == 'workflow_dispatch' && ((inputs.sources == '' && !inputs.full_scan) || (inputs.sources != '' && inputs.full_scan))
     runs-on: ubuntu-latest
     steps:
       - name: Orientar seleção sem varredura ampla
         run: |
-          echo "Informe sources para um smoke test direcionado ou marque full_scan para a varredura ampla."
+          echo "Informe sources para o smoke direcionado OU marque full_scan sem preencher sources. A execução vazia nunca faz varredura."
           exit 1
