@@ -179,7 +179,7 @@ O catálogo público continua sem descrições integrais. Para viabilizar a futu
 - O arquivo fica fora do checkout por padrão, em `~/todas-as-vagas-private/descriptions.sqlite3`, e possui índice FTS5 quando disponível.
 - Cada vaga é processada com checkpoint, hash, data da última tentativa, status, código HTTP e próxima tentativa. Uma falha não interrompe a fila nem apaga uma descrição já armazenada.
 - O coletor respeita `robots.txt`, processa uma requisição por vez com intervalo mínimo configurado de 1 segundo e grava checkpoints. Falhas ou páginas sem descrição não interrompem a fila.
-- A carga inicial na VPS é contínua, sem limite artificial de itens ou duração, e segue até esgotar as vagas elegíveis pendentes. O timer horário em UTC retoma itens cujo prazo de nova tentativa venceu e recupera a coleta após reinicializações ou interrupções; o lock impede duas coletas simultâneas. O tempo real depende da latência e dos controles de acesso dos portais.
+- A carga inicial na VPS é contínua, sem limite artificial de itens ou duração, e segue até esgotar as vagas elegíveis pendentes. Um watchdog curto verifica a coleta a cada hora e após a inicialização da VPS; se o coletor estiver parado, ele o inicia sem reiniciar uma execução ativa. O coletor mantém o lock para impedir execuções simultâneas. O tempo real depende da latência e dos controles de acesso dos portais.
 - O conteúdo bruto não é enviado para GitHub Pages, `public-data`, `history-data`, logs, Telegram ou WhatsApp.
 
 Instalação no VPS (após atualizar o checkout):
@@ -188,6 +188,7 @@ Instalação no VPS (após atualizar o checkout):
 sudo install -d -o ubuntu -g ubuntu -m 700 /home/ubuntu/todas-as-vagas-private
 sudo install -m 644 ops/systemd/todas-as-vagas-descriptions.service /etc/systemd/system/
 sudo install -m 644 ops/systemd/todas-as-vagas-descriptions.timer /etc/systemd/system/
+sudo install -m 644 ops/systemd/todas-as-vagas-descriptions-watchdog.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now todas-as-vagas-descriptions.timer
 systemctl status todas-as-vagas-descriptions.timer --no-pager
