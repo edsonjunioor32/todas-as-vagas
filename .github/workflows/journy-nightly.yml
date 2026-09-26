@@ -15,6 +15,7 @@ concurrency:
   # O Journy também publica o snapshot; compartilhar o escritor evita
   # sobrescrita do catálogo principal.
   group: catalog-publication
+  queue: max
   cancel-in-progress: false
 
 jobs:
