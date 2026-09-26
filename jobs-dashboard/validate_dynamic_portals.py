@@ -7,6 +7,7 @@ response contains usable vacancy records, and exits non-zero on an empty or
 malformed source.  The isolated workflow can therefore be run while the main
 catalogue remains untouched.
 """
+import argparse
 import sys
 import time
 from pathlib import Path
@@ -87,9 +88,41 @@ def _validate_rows(name, rows):
     return len(seen)
 
 
-def main():
+def select_sources(source_names=None):
+    """Return only selected sources; None means the explicit full-scan mode."""
+    if source_names is None:
+        return SOURCES
+
+    requested = {str(name).strip() for name in source_names if str(name).strip()}
+    if not requested:
+        raise ValueError("informe pelo menos um identificador em --sources")
+
+    available = {name for name, _fetch in SOURCES}
+    unknown = requested - available
+    if unknown:
+        raise ValueError(f"fonte(s) desconhecida(s): {', '.join(sorted(unknown))}")
+
+    return tuple((name, fetch) for name, fetch in SOURCES if name in requested)
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description="Valida portais dinâmicos sem publicar dados.")
+    parser.add_argument(
+        "--sources",
+        help="lista separada por vírgulas de identificadores de portais; sem esta opção, executa a varredura completa",
+    )
+    args = parser.parse_args(argv)
+
+    source_names = None
+    if args.sources is not None:
+        source_names = [part.strip() for part in args.sources.split(",") if part.strip()]
+    try:
+        sources = select_sources(source_names)
+    except ValueError as error:
+        parser.error(str(error))
+
     failures = []
-    for name, fetch in SOURCES:
+    for name, fetch in sources:
         if name in OPTIONAL_EMPTY_SOURCES:
             print(f"[{name}] sem vagas ativas; histórico preservado", flush=True)
             continue
@@ -106,8 +139,13 @@ def main():
     if failures:
         print(f"{len(failures)} fonte(s) falharam; nenhuma coleta geral foi executada.", flush=True)
         return 1
-    print("Todos os portais dinâmicos foram validados isoladamente.", flush=True)
+    print(
+        f"{len(sources)} portal(is) dinâmico(s) validado(s) isoladamente.",
+        flush=True,
+    )
     return 0
+
+
 
 
 if __name__ == "__main__":
