@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 """Merge only the validated requested career feeds into the existing catalog.
 
-This is deliberately different from the general ETL. It collects the repaired
-feeds, refuses to write anything if one of them fails, updates only their rows
-in a copied SQLite database, and atomically replaces the public snapshot. All
-other portals and their history remain untouched.
+This is deliberately different from the general ETL. It updates only the
+dynamic feeds in a copied SQLite database. A failed feed keeps its previous
+history, while healthy feeds can still be refreshed and the public snapshot is
+replaced only after the catalog integrity guard passes. All other portals and
+their history remain untouched.
 """
 import argparse
 import json
@@ -89,17 +90,12 @@ def ensure_snapshot_not_shrunk(previous_count, new_count):
 
 
 def collect_rows():
-    """Collect and normalize every target before opening the database."""
+    """Collect all targets and isolate failed/empty feeds from healthy ones."""
     active_targets = [
         target for target in TARGETS
         if target[0] not in OPTIONAL_EMPTY_SOURCES
     ]
-    rows, failed, metrics = pipeline.collect(active_targets)
-    if failed:
-        details = ", ".join(
-            f"{item['name']}: {item['status']}" for item in metrics if item["name"] in failed
-        )
-        raise RuntimeError(f"coleta parcial abortada; fontes com falha: {details}")
+    rows, failed, _metrics = pipeline.collect(active_targets)
 
     rows = pipeline.normalize_market(rows)
     rows = pipeline.dedupe_native(rows)
@@ -116,18 +112,19 @@ def collect_rows():
         classify.classify(row)
     rows, dropped_unknown = pipeline.discard_unknown_market(rows)
     counts = Counter(row["source"] for row in rows)
+    failed = set(failed)
     missing = sorted((TARGET_NAMES - OPTIONAL_EMPTY_SOURCES) - set(counts))
     if missing:
-        raise RuntimeError(
-            "coleta parcial abortada; fontes ficaram sem vagas após os filtros: "
-            + ", ".join(missing)
-        )
+        failed.update(missing)
+    failed = sorted(failed)
     print(
         f"  lote isolado: {len(rows)} vagas · {dropped_old} antigas descartadas · "
         f"{dropped_unknown} sem mercado descartadas"
     )
     print(f"  por portal: {dict(sorted(counts.items()))}")
-    return rows, dict(counts)
+    if failed:
+        print(f"  fontes preservadas por falha ou retorno vazio: {', '.join(failed)}")
+    return rows, dict(counts), failed
 
 
 def _source_uids(rows, source):
@@ -193,7 +190,7 @@ def merge_fit_index(rows, existing_path=FIT_PATH, output_path=None):
 
 
 def merge_catalog(rows, collected_counts, db_path=DB_PATH, json_path=JSON_PATH,
-                  fit_path=FIT_PATH, dry_run=False):
+                  fit_path=FIT_PATH, dry_run=False, failed_sources=None):
     """Replace only target rows, preserving all other database and snapshot data."""
     db_path = Path(db_path)
     json_path = Path(json_path)
@@ -204,7 +201,40 @@ def merge_catalog(rows, collected_counts, db_path=DB_PATH, json_path=JSON_PATH,
     previous_failed = {
         str(source).strip() for source in current.get("failed_sources") or [] if str(source).strip()
     }
-    failed_after = sorted(previous_failed - TARGET_NAMES)
+    failed_this_run = {
+        str(source).strip() for source in (failed_sources or []) if str(source).strip()
+    }
+    row_counts = Counter(
+        str(row.get("source") or "").strip()
+        for row in rows
+        if isinstance(row, dict) and str(row.get("source") or "").strip()
+    )
+    touched_sources = {
+        str(source).strip()
+        for source in (set(collected_counts or {}) | set(row_counts))
+        if str(source).strip() in TARGET_NAMES - OPTIONAL_EMPTY_SOURCES
+    }
+    reported_counts = {}
+    for source in touched_sources:
+        try:
+            reported_count = int((collected_counts or {}).get(source) or 0)
+        except (TypeError, ValueError):
+            reported_count = -1
+        reported_counts[source] = reported_count
+        actual_count = row_counts.get(source, 0)
+        if actual_count == 0 or reported_count != actual_count:
+            failed_this_run.add(source)
+    healthy_sources = {
+        source for source, count in reported_counts.items()
+        if count > 0
+        and count == row_counts.get(source, 0)
+        and source not in failed_this_run
+    }
+    if not healthy_sources:
+        raise RuntimeError(
+            "nenhuma fonte dinâmica saudável; catálogo atual mantido sem substituição"
+        )
+    failed_after = sorted((previous_failed - healthy_sources) | failed_this_run)
     previous_collected = dict(current.get("collected_source_counts") or {})
     previous_collected.update(collected_counts)
 
@@ -217,7 +247,7 @@ def merge_catalog(rows, collected_counts, db_path=DB_PATH, json_path=JSON_PATH,
         conn = storage.connect(str(temp_db))
         storage.upsert(conn, rows)
         removed = {}
-        for source in sorted(TARGET_NAMES):
+        for source in sorted(healthy_sources):
             removed[source] = storage.purge_source_rows_not_in_uids(
                 conn, source, _source_uids(rows, source)
             )
@@ -239,10 +269,12 @@ def merge_catalog(rows, collected_counts, db_path=DB_PATH, json_path=JSON_PATH,
         if dry_run:
             print(f"  dry-run: {public_count} vagas públicas · {size_mb:.2f} MB")
             print(f"  removidas apenas dos portais do lote: {removed}")
+            print(f"  fontes preservadas por falha: {failed_after}")
             print(f"  índice de aderência: {fit_changed} entradas atualizadas · {fit_count} total")
             return {
                 "public_count": public_count, "removed": removed,
                 "fit_changed": fit_changed, "fit_count": fit_count,
+                "failed_sources": failed_after,
             }
 
         os.replace(temp_db, db_path)
@@ -250,10 +282,12 @@ def merge_catalog(rows, collected_counts, db_path=DB_PATH, json_path=JSON_PATH,
         os.replace(temp_fit, fit_path)
         print(f"  snapshot parcial publicado: {public_count} vagas · {size_mb:.2f} MB")
         print(f"  removidas apenas dos portais do lote: {removed}")
+        print(f"  fontes preservadas por falha: {failed_after}")
         print(f"  índice de aderência: {fit_changed} entradas atualizadas · {fit_count} total")
         return {
             "public_count": public_count, "removed": removed,
             "fit_changed": fit_changed, "fit_count": fit_count,
+            "failed_sources": failed_after,
         }
 
 
@@ -262,12 +296,14 @@ def main():
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
     started = time.monotonic()
-    rows, counts = collect_rows()
-    result = merge_catalog(rows, counts, dry_run=args.dry_run)
+    rows, counts, failed = collect_rows()
+    result = merge_catalog(
+        rows, counts, dry_run=args.dry_run, failed_sources=failed
+    )
     print(f"  duração total: {time.monotonic() - started:.1f}s")
     return result
 
 
 if __name__ == "__main__":
     main()
-
+
