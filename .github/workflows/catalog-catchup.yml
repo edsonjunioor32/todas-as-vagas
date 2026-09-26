@@ -2,24 +2,34 @@ name: Catálogo — recuperar agenda perdida
 
 on:
   schedule:
-    # GitHub Actions usa UTC; 06h15 UTC corresponde a 03h15 em Brasília.
-    - cron: "15 6 * * *"
+    # Verifica 38 minutos após cada horário principal, fora do minuto zero.
+    - cron: "45 11,14,18,23 * * *"
+  workflow_run:
+    workflows:
+      - "Atualizar vagas multiportal e publicar GitHub Pages"
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   actions: write
   contents: read
+  issues: write
 
+# Este controlador não publica dados: consulta runs, registra o alerta e aciona
+# a publicação self-hosted. A fila é independente do runner da VPS.
 concurrency:
-  group: catalog-publication
-  cancel-in-progress: false
+  group: catalog-catchup-control
+  queue: max
 
 env:
   CATCHUP_GRACE_MINUTES: "30"
+  CATCHUP_QUEUE_ALERT_MINUTES: "20"
+  CATCHUP_ACTIVE_ALERT_MINUTES: "120"
 
 jobs:
   catchup:
-    runs-on: [self-hosted, Linux, ARM64]
+    runs-on: ubuntu-latest
     timeout-minutes: 5
 
     steps:
@@ -28,10 +38,18 @@ jobs:
         with:
           ref: main
 
-      - name: Verificar e recuperar execução do catálogo
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Verificar, alertar e recuperar o catálogo
         env:
           GH_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
           CATCHUP_GRACE_MINUTES: ${{ env.CATCHUP_GRACE_MINUTES }}
+          CATCHUP_QUEUE_ALERT_MINUTES: ${{ env.CATCHUP_QUEUE_ALERT_MINUTES }}
+          CATCHUP_ACTIVE_ALERT_MINUTES: ${{ env.CATCHUP_ACTIVE_ALERT_MINUTES }}
         run: python jobs-dashboard/catalog_catchup.py
-
