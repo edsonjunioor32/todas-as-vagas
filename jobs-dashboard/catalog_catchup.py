@@ -284,12 +284,17 @@ def dispatch_collection(repository: str, token: str, resume_key: str | None = No
     payload = {"ref": "main"}
     if resume_key:
         payload["inputs"] = {"resume_key": str(resume_key)}
-    _api_json(
-        "POST",
-        f"/repos/{repository}/actions/workflows/pages.yml/dispatches",
-        token,
-        payload,
+    request = urllib.request.Request(
+        f"{API_BASE}/repos/{repository}/actions/workflows/pages.yml/dispatches",
+        data=json.dumps(payload).encode("utf-8"),
+        method="POST",
+        headers={**_headers(token), "Content-Type": "application/json"},
     )
+    try:
+        with urllib.request.urlopen(request, timeout=20):
+            return
+    except (urllib.error.HTTPError, urllib.error.URLError) as error:
+        raise RuntimeError(f"não foi possível despachar a atualização do catálogo: {error}") from error
 
 
 def _ensure_incident_label(repository: str, token: str) -> None:
