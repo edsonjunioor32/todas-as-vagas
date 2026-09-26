@@ -13,6 +13,7 @@ concurrency:
   # O merge parcial também grava public-data/history-data; ele deve usar
   # o mesmo escritor da coleta principal.
   group: catalog-publication
+  queue: max
   cancel-in-progress: false
 
 jobs:

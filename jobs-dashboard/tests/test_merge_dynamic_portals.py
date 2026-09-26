@@ -4,6 +4,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 DASHBOARD = Path(__file__).resolve().parents[1]
@@ -37,6 +38,147 @@ def sample(source, native_id, *, published="2026-08-25", description=""):
 
 
 class PartialCatalogTests(unittest.TestCase):
+    def test_collect_rows_returns_healthy_rows_and_marks_empty_or_failed_sources(self):
+        rows = [
+            sample("experian", "fresh"),
+            sample("digisystem", "partial"),
+        ]
+        with patch.object(
+            merge, "TARGETS", (("experian", lambda: []), ("digisystem", lambda: []))
+        ), patch.object(merge, "TARGET_NAMES", {"experian", "digisystem"}), patch.object(
+            merge, "OPTIONAL_EMPTY_SOURCES", set()
+        ), patch.object(
+            pipeline, "collect", return_value=(rows, ["digisystem"], [])
+        ):
+            collected, counts, failed = merge.collect_rows()
+
+        self.assertEqual({row["native_id"] for row in collected}, {"fresh", "partial"})
+        self.assertEqual(counts, {"experian": 1, "digisystem": 1})
+        self.assertEqual(failed, ["digisystem"])
+
+    def test_collect_rows_does_not_treat_an_unexpected_empty_feed_as_healthy(self):
+        rows = [sample("experian", "fresh")]
+        with patch.object(
+            merge, "TARGETS", (("experian", lambda: []), ("digisystem", lambda: []))
+        ), patch.object(merge, "TARGET_NAMES", {"experian", "digisystem"}), patch.object(
+            merge, "OPTIONAL_EMPTY_SOURCES", set()
+        ), patch.object(
+            pipeline, "collect", return_value=(rows, [], [])
+        ):
+            collected, counts, failed = merge.collect_rows()
+
+        self.assertEqual([row["native_id"] for row in collected], ["fresh"])
+        self.assertEqual(failed, ["digisystem"])
+
+    def test_partial_merge_replaces_only_healthy_sources_and_keeps_failed_history(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            db_path = root / "jobs.db"
+            json_path = root / "vagas.json"
+            fit_path = root / "fit.json"
+            conn = storage.connect(str(db_path))
+            storage.upsert(conn, [
+                sample("experian", "stale"),
+                sample("digisystem", "previous"),
+            ], today="2026-09-20")
+            conn.close()
+            json_path.write_text(json.dumps({
+                "count": 2,
+                "failed_sources": ["experian", "digisystem", "legacy-source"],
+                "collected_source_counts": {"experian": 1, "digisystem": 1},
+            }), encoding="utf-8")
+
+            result = merge.merge_catalog(
+                [sample("experian", "fresh"), sample("digisystem", "partial")],
+                {"experian": 1, "digisystem": 1},
+                failed_sources=["digisystem"],
+                db_path=db_path,
+                json_path=json_path,
+                fit_path=fit_path,
+            )
+
+            conn = storage.connect(str(db_path))
+            records = conn.execute(
+                "SELECT source, job_uid FROM jobs ORDER BY source, job_uid"
+            ).fetchall()
+            conn.close()
+            payload = json.loads(json_path.read_text(encoding="utf-8"))
+
+        self.assertEqual(records, [
+            ("digisystem", "digisystem:partial"),
+            ("digisystem", "digisystem:previous"),
+            ("experian", "experian:fresh"),
+        ])
+        self.assertEqual(payload["failed_sources"], ["digisystem", "legacy-source"])
+        self.assertEqual(result["removed"], {"experian": 1})
+
+    def test_partial_merge_keeps_catalog_untouched_when_no_feed_is_healthy(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            db_path = root / "jobs.db"
+            json_path = root / "vagas.json"
+            fit_path = root / "fit.json"
+            conn = storage.connect(str(db_path))
+            storage.upsert(conn, [sample("digisystem", "previous")])
+            conn.close()
+            original_json = json.dumps({
+                "count": 1,
+                "failed_sources": [],
+            })
+            json_path.write_text(original_json, encoding="utf-8")
+
+            with self.assertRaisesRegex(RuntimeError, "nenhuma fonte dinâmica saudável"):
+                merge.merge_catalog(
+                    [],
+                    {"digisystem": 1},
+                    failed_sources=["digisystem"],
+                    db_path=db_path,
+                    json_path=json_path,
+                    fit_path=fit_path,
+                )
+
+            conn = storage.connect(str(db_path))
+            self.assertEqual(conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0], 1)
+            conn.close()
+            self.assertEqual(json_path.read_text(encoding="utf-8"), original_json)
+
+    def test_count_mismatch_marks_only_that_feed_failed_and_preserves_its_history(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            db_path = root / "jobs.db"
+            json_path = root / "vagas.json"
+            fit_path = root / "fit.json"
+            conn = storage.connect(str(db_path))
+            storage.upsert(conn, [
+                sample("experian", "stale"),
+                sample("digisystem", "previous"),
+            ], today="2026-09-20")
+            conn.close()
+            json_path.write_text(json.dumps({
+                "count": 2,
+                "failed_sources": [],
+                "collected_source_counts": {},
+            }), encoding="utf-8")
+
+            result = merge.merge_catalog(
+                [sample("experian", "fresh"), sample("digisystem", "partial")],
+                {"experian": 1, "digisystem": 2},
+                db_path=db_path,
+                json_path=json_path,
+                fit_path=fit_path,
+            )
+
+            conn = storage.connect(str(db_path))
+            digisystem_uids = [row[0] for row in conn.execute(
+                "SELECT job_uid FROM jobs WHERE source = 'digisystem' ORDER BY job_uid"
+            ).fetchall()]
+            conn.close()
+            payload = json.loads(json_path.read_text(encoding="utf-8"))
+
+        self.assertEqual(digisystem_uids, ["digisystem:partial", "digisystem:previous"])
+        self.assertEqual(payload["failed_sources"], ["digisystem"])
+        self.assertEqual(result["removed"], {"experian": 1})
+
     def test_dbc_active_feed_is_not_discarded_for_old_release_date(self):
         rows, dropped = pipeline.discard_old_publications(
             [sample("dbccompany", "old", published="2021-01-07")],

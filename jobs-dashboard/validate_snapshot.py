@@ -92,9 +92,12 @@ def main():
         preserved_ratio = preserved_count / count
         max_preserved_ratio = env_float("MAX_PRESERVED_PUBLIC_RATIO", 0.50)
         if max_preserved_ratio >= 0 and preserved_ratio > max_preserved_ratio:
-            fail(
-                "proporção de vagas preservadas acima do limite seguro: "
-                f"{preserved_ratio:.2%} (máximo {max_preserved_ratio:.2%})"
+            print(
+                "AVISO: proporção de vagas preservadas acima do nível de atenção: "
+                f"{preserved_ratio:.2%} (referência {max_preserved_ratio:.2%}); "
+                "as validações estruturais continuam obrigatórias, mas a publicação "
+                "não será bloqueada apenas por indisponibilidade parcial de fontes.",
+                file=sys.stderr,
             )
 
     if FORBIDDEN_KEYS & set(data):

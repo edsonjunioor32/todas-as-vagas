@@ -57,6 +57,36 @@ class CatalogCatchupTests(unittest.TestCase):
         self.assertEqual(result["action"], "dispatch")
         self.assertEqual(result["reason"], "slot_missing")
 
+    def test_failed_automatic_recovery_is_alerted_without_a_dispatch_loop(self):
+        now = datetime(2026, 9, 24, 11, 45, tzinfo=timezone.utc)
+        runs = [
+            {
+                "id": 789,
+                "event": "schedule",
+                "status": "completed",
+                "conclusion": "failure",
+                "created_at": "2026-09-24T11:07:00Z",
+            },
+            {
+                "id": 790,
+                "event": "repository_dispatch",
+                "status": "completed",
+                "conclusion": "failure",
+                "created_at": "2026-09-24T11:35:00Z",
+            },
+        ]
+
+        result = catalog_catchup.decide(now, runs)
+
+        self.assertEqual(result["action"], "alert")
+        self.assertEqual(result["reason"], "recovery_attempt_failed")
+
+    def test_automatic_recovery_event_counts_as_a_catalog_run(self):
+        self.assertTrue(catalog_catchup.is_collection_run({
+            "event": "repository_dispatch",
+            "action": "catalog_recovery",
+        }))
+
 
     def test_alerts_when_a_collection_is_queued_too_long_without_duplicating_it(self):
         now = datetime(2026, 9, 24, 12, 0, tzinfo=timezone.utc)

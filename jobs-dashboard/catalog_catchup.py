@@ -60,7 +60,7 @@ def _run_activity_time(run: dict) -> datetime | None:
 
 def is_collection_run(run: dict) -> bool:
     event = str(run.get("event") or "")
-    if event in {"schedule", "workflow_dispatch"}:
+    if event in {"schedule", "workflow_dispatch", "repository_dispatch"}:
         return True
     if event == "push":
         message = str((run.get("head_commit") or {}).get("message") or "")
@@ -136,6 +136,29 @@ def decide(
     ):
         return {"action": "skip", "reason": "slot_succeeded", "slot": slot}
 
+    # A recovery is limited to one attempt per scheduled slot. A failed
+    # recovery raises an alert instead of recursively starting another
+    # 30-minute workflow every time workflow_run fires.
+    recoveries = [
+        run for run in slot_runs
+        if str(run.get("event") or "") == "repository_dispatch"
+    ]
+    if recoveries:
+        latest_recovery = max(
+            recoveries,
+            key=lambda run: _run_activity_time(run) or slot,
+        )
+        if (
+            str(latest_recovery.get("status") or "") == "completed"
+            and str(latest_recovery.get("conclusion") or "") != "success"
+        ):
+            return {
+                "action": "alert",
+                "reason": "recovery_attempt_failed",
+                "slot": slot,
+            }
+        return {"action": "skip", "reason": "recovery_attempt_used", "slot": slot}
+
     if any(
         _recent_dispatch(run, current, dispatch_cooldown_minutes)
         for run in slot_runs
@@ -198,12 +221,12 @@ def fetch_collection_runs(repository: str, token: str) -> list[dict]:
 
 
 def dispatch_collection(repository: str, token: str, resume_key: str | None = None) -> None:
-    payload_data = {"ref": "main"}
+    payload_data = {"event_type": "catalog_recovery"}
     if resume_key:
-        payload_data["inputs"] = {"resume_key": str(resume_key)}
+        payload_data["client_payload"] = {"resume_key": str(resume_key)}
     payload = json.dumps(payload_data).encode("utf-8")
     request = urllib.request.Request(
-        f"{API_BASE}/repos/{repository}/actions/workflows/pages.yml/dispatches",
+        f"{API_BASE}/repos/{repository}/dispatches",
         data=payload,
         method="POST",
         headers={**_headers(token), "Content-Type": "application/json"},
@@ -254,7 +277,7 @@ def _incident_body(slot: datetime, reason: str, runs: list[dict], detail: str = 
         f"- Motivo: {reason}"
         f"{run_line}{detail_line}\n\n"
         "O monitor não coleta vagas diretamente. Se não houver escritor ativo, ele despacha "
-        "a recuperação para o workflow principal; a publicação continua no runner self-hosted."
+        "uma recuperação identificada por repository_dispatch; a publicação continua no runner self-hosted."
     )
 
 

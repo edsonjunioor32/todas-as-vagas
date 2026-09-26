@@ -7,6 +7,7 @@ import argparse
 import concurrent.futures
 import gzip
 import json
+import math
 import os
 import sys
 import tempfile
@@ -20,8 +21,6 @@ from sources import (
     REGISTRY,
     recrutei as recrutei_source,
     solides as solides_source,
-    requested_portals_03092026,
-    convagas,
 )
 
 try:
@@ -34,30 +33,20 @@ ROOT = HERE.parent
 DB_PATH = HERE / "data" / "jobs.db"
 JSON_PATH = ROOT / "docs" / "data" / "vagas.json"
 
-# These portals are expected to expose public vacancies. An empty response is
-# an integration regression, never a successful refresh.
+# Every registered source is expected to expose public vacancies unless it is
+# explicitly documented as a feed that can legitimately be empty. Keep this
+# allowlist small: empty required feeds are integration failures and must not
+# replace the last valid snapshot.
 # Journy is refreshed by its dedicated 02:17 Brasília workflow, not by the
 # four daytime refreshes that serve the other portals.
 NIGHTLY_ONLY_SOURCES = {"journy"}
-
-NONEMPTY_SOURCES = {
-    "digisystem", "recrutei", "docusign", "smartrecruiters_brazil", "dbccompany", "boschgroup", "sankhya", "senior", "mercadolivre",
-    "greenhouse", "spassu", "infovagas", "journy",
-    # Requested career pages are part of the protected public feed: a
-    # transient empty response must never erase their last valid rows.
-    "bradesco", "nttdata", "btg", "luza", "levva", "edenred",
-    "esig", "azify", "pontotel", "grupolev", "fiotec", "pessoaepessoa",
-    "grupokothe", "jb3investimentos", "osklen", "finayatech", "yellowipe",
-    "somosglobal", "revemar", "insper", "guaranamineiro", "tivit",
-    "overlabs", "sicoobcocred", "liquidz", "btcreditos", "glcapital",
-    "grupoamigao", "true", "sensedia", "wellfound", "recargapay", "workable_brazil", "ngcash", "ey",
-    "avanade", "huntit", "talentodovalesc", "beq", "ntconsult", "forza", "saleco", "elis",
-    "flash", "neon", "zippi", "bv", "santander", "iberdrola", "iqvia", "mdlz",
-} | {name for name, _fetch in requested_portals_03092026.TARGETS} | {name for name, _url in convagas.TARGETS}
-
-# These adapters are paused after repeated upstream failures. Their stored
-# rows remain eligible through the normal publication/expiration rules.
 PAUSED_SOURCES = frozenset({"azify", "assefaz", "cprocco", "atitude"})
+
+ALLOW_EMPTY_SOURCES = frozenset({"fiotec", "saleco"})
+NONEMPTY_SOURCES = frozenset(
+    {name for name, _fetch in REGISTRY if name not in ALLOW_EMPTY_SOURCES}
+    | PAUSED_SOURCES
+)
 
 CHECKPOINT_SCHEMA_VERSION = 1
 CHECKPOINT_ENV = "JOBS_COLLECTION_CHECKPOINT_DIR"
@@ -102,6 +91,94 @@ def _env_int(name, default, minimum=1, maximum=16):
     return min(maximum, max(minimum, value))
 
 
+_ROW_TEXT_FIELDS = (
+    "company", "area", "seniority", "work_model", "city", "state", "country",
+    "market", "salary_currency", "published_date", "expires_date", "description",
+)
+_ROW_LIST_FIELDS = ("skills", "contract_types", "levels", "categories")
+
+
+def _validate_source_rows(name, rows):
+    """Keep valid rows while quarantining malformed records individually."""
+    valid = []
+    dropped = 0
+    try:
+        iterator = iter(rows)
+    except TypeError:
+        return [], 1
+
+    for row in iterator:
+        if not isinstance(row, dict):
+            dropped += 1
+            continue
+        item = dict(row)
+        title, url = item.get("title"), item.get("url")
+        if not isinstance(title, str) or not title.strip():
+            dropped += 1
+            continue
+        if not isinstance(url, str) or not url.strip():
+            dropped += 1
+            continue
+
+        source = item.get("source")
+        if source is None or (isinstance(source, str) and not source.strip()):
+            source = name
+        elif not isinstance(source, str) or source.strip().casefold() != name.casefold():
+            dropped += 1
+            continue
+        item["source"] = name
+        item["title"] = title.strip()
+        item["url"] = url.strip()
+        item["native_id"] = item.get("native_id") or ""
+        item["company"] = item.get("company") or ""
+
+        malformed = False
+        for field in _ROW_TEXT_FIELDS:
+            value = item.get(field)
+            if value is not None and not isinstance(value, str):
+                malformed = True
+                break
+        native_id = item.get("native_id")
+        if native_id is not None and (
+            isinstance(native_id, bool) or not isinstance(native_id, (str, int))
+        ):
+            malformed = True
+        for field in ("salary_min", "salary_max"):
+            value = item.get(field)
+            if value is not None and (
+                isinstance(value, bool)
+                or not isinstance(value, (int, float))
+                or not math.isfinite(value)
+            ):
+                malformed = True
+        for field in _ROW_LIST_FIELDS:
+            value = item.get(field)
+            if value is None:
+                item[field] = []
+            elif isinstance(value, str):
+                item[field] = [value] if value.strip() else []
+            elif isinstance(value, (list, tuple, set)) and all(
+                isinstance(part, str) for part in value
+            ):
+                item[field] = sorted(value) if isinstance(value, set) else list(value)
+            else:
+                malformed = True
+        for field in ("pcd", "blind_selection"):
+            value = item.get(field)
+            if value is not None and not isinstance(value, (bool, int)):
+                malformed = True
+        if malformed:
+            dropped += 1
+            continue
+        try:
+            json.dumps(item, ensure_ascii=False, allow_nan=False)
+        except (TypeError, ValueError):
+            dropped += 1
+            continue
+        valid.append(item)
+    return valid, dropped
+
+
 def _collect_source(index, name, fetch):
     started = time.perf_counter()
     try:
@@ -111,19 +188,21 @@ def _collect_source(index, name, fetch):
         if isinstance(fetched, dict):
             raise TypeError("the adapter returned an object instead of a job list")
         fetched = list(fetched)
-        valid = [
-            row for row in fetched
-            if isinstance(row, dict) and row.get("title") and row.get("url")
-        ]
+        valid, dropped = _validate_source_rows(name, fetched)
+        error = (
+            f"discarded {dropped} malformed vacancy row(s)"
+            if dropped else ""
+        )
         if name in NONEMPTY_SOURCES and not valid:
-            raise RuntimeError("returned zero vacancies; preserving the last valid snapshot")
+            empty_error = "returned zero vacancies; preserving the last valid snapshot"
+            error = f"{error}; {empty_error}" if error else empty_error
         return {
             "index": index,
             "name": name,
             "rows": valid,
-            "dropped": len(fetched) - len(valid),
+            "dropped": dropped,
             "seconds": time.perf_counter() - started,
-            "error": "",
+            "error": error,
         }
     except Exception as error:
         # Some adapters can return a useful partial result while reporting
@@ -131,17 +210,17 @@ def _collect_source(index, name, fetch):
         # mark the source unhealthy so storage keeps the last valid snapshot
         # for boards that were temporarily blocked.
         partial = getattr(error, "rows", None) or []
-        valid_partial = [
-            row for row in partial
-            if isinstance(row, dict) and row.get("title") and row.get("url")
-        ]
+        valid_partial, dropped = _validate_source_rows(name, partial)
+        detail = str(error)[:180]
+        if dropped:
+            detail = f"{detail}; discarded {dropped} malformed partial row(s)"[:180]
         return {
             "index": index,
             "name": name,
             "rows": valid_partial,
-            "dropped": 0,
+            "dropped": dropped,
             "seconds": time.perf_counter() - started,
-            "error": str(error)[:180],
+            "error": detail,
         }
 
 
@@ -172,10 +251,9 @@ def _read_checkpoint(checkpoint_dir, name):
         or not isinstance(payload.get("rows"), list)
     ):
         return None
-    rows = [
-        row for row in payload["rows"]
-        if isinstance(row, dict) and row.get("title") and row.get("url")
-    ]
+    rows, dropped = _validate_source_rows(name, payload["rows"])
+    if dropped:
+        return None
     if name in NONEMPTY_SOURCES and not rows:
         return None
     return {
@@ -256,6 +334,7 @@ def collect(registry, checkpoint_dir=None):
                 "name": result["name"],
                 "status": "ok",
                 "jobs": len(result["rows"]),
+                "dropped": result["dropped"],
                 "seconds": result["seconds"],
                 "resumed": True,
             }
@@ -291,6 +370,7 @@ def collect(registry, checkpoint_dir=None):
             "name": result["name"],
             "status": "falha" if result["error"] else ("ok" if result["rows"] else "vazio"),
             "jobs": len(result["rows"]),
+            "dropped": result["dropped"],
             "seconds": result["seconds"],
             "resumed": bool(result.get("resumed")),
         }

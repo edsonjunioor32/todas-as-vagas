@@ -37,6 +37,32 @@ def sample_job(source, native_id, *, work_model="", city="São Paulo", country="
 
 
 class CollectionTests(unittest.TestCase):
+    def test_empty_response_policy_covers_registry_except_explicit_empty_feeds(self):
+        registry_sources = {name for name, _fetch in pipeline.REGISTRY}
+        allow_empty = {"fiotec", "saleco"}
+
+        self.assertEqual(
+            pipeline.NONEMPTY_SOURCES,
+            (registry_sources - allow_empty) | pipeline.PAUSED_SOURCES,
+        )
+        self.assertTrue(allow_empty <= registry_sources)
+        self.assertEqual(
+            pipeline.PAUSED_SOURCES,
+            frozenset({"azify", "assefaz", "cprocco", "atitude"}),
+        )
+        self.assertEqual(
+            pipeline.ALLOW_EMPTY_SOURCES,
+            frozenset(allow_empty),
+        )
+
+        for name in sorted(registry_sources):
+            with self.subTest(source=name):
+                result = pipeline._collect_source(0, name, lambda: [])
+                if name in allow_empty:
+                    self.assertEqual(result["error"], "")
+                else:
+                    self.assertIn("returned zero vacancies", result["error"])
+
     def test_parallel_collection_preserves_registry_order_and_isolates_failure(self):
         def fetch(source, delay=0.02):
             time.sleep(delay)
@@ -70,6 +96,35 @@ class CollectionTests(unittest.TestCase):
         self.assertEqual([row["native_id"] for row in rows], ["1"])
         self.assertEqual(failed, ["greenhouse"])
         self.assertEqual(metrics[0]["status"], "falha")
+
+    def test_malformed_rows_are_isolated_and_degrade_only_their_source(self):
+        missing_source = sample_job("ignored", "2")
+        missing_source.pop("source")
+        missing_source.pop("native_id")
+        missing_source.pop("company")
+        wrong_source = sample_job("another-source", "3")
+        malformed_salary = sample_job("ignored", "4")
+        malformed_salary["salary_min"] = {"amount": 1000}
+
+        rows, failed, metrics = pipeline.collect([("expected-source", lambda: [
+            sample_job("expected-source", "1"),
+            missing_source,
+            wrong_source,
+            malformed_salary,
+        ])])
+
+        self.assertEqual([row["native_id"] for row in rows], ["1", ""])
+        self.assertEqual({row["source"] for row in rows}, {"expected-source"})
+        self.assertEqual(rows[1]["native_id"], "")
+        self.assertEqual(rows[1]["company"], "")
+        self.assertEqual(failed, ["expected-source"])
+        self.assertEqual(metrics[0]["status"], "falha")
+        self.assertEqual(metrics[0]["dropped"], 2)
+        with tempfile.TemporaryDirectory() as directory:
+            conn = storage.connect(str(Path(directory) / "jobs.db"))
+            storage.upsert(conn, rows, today="2026-09-26")
+            self.assertEqual(conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0], 2)
+            conn.close()
 
     def test_collection_resumes_completed_sources_and_retries_only_failed_source(self):
         calls = {"first": 0, "broken": 0}
