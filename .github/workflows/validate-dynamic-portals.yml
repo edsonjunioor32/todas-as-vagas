@@ -1,8 +1,7 @@
 name: Validar portais dinâmicos (isolado)
 
 on:
-  push:
-    branches: [main]
+  pull_request:
     paths:
       - "jobs-dashboard/sources/_http.py"
       - "jobs-dashboard/sources/_html.py"
@@ -24,6 +23,7 @@ on:
       - "jobs-dashboard/tests/test_merge_dynamic_portals.py"
       - "jobs-dashboard/tests/test_new_sources.py"
       - "jobs-dashboard/tests/test_quickin_pagination.py"
+      - "jobs-dashboard/tests/test_ngcash.py"
       - "jobs-dashboard/sources/requested_portals_27082026.py"
       - "jobs-dashboard/sources/requested_portals_28082026.py"
       - "jobs-dashboard/sources/requested_portals_29082026.py"
@@ -32,20 +32,34 @@ on:
       - "jobs-dashboard/sources/wellfound.py"
       - "jobs-dashboard/sources/workable.py"
       - "jobs-dashboard/sources/workable_brazil.py"
+      - "jobs-dashboard/tests/test_validate_dynamic_portals.py"
+  schedule:
+    # Varredura completa semanal, isolada da publicação do catálogo.
+    - cron: "23 8 * * 0"
   workflow_dispatch:
+    inputs:
+      sources:
+        description: "Portais para smoke test, separados por vírgula"
+        required: false
+        type: string
+      full_scan:
+        description: "Executar a varredura completa controlada"
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 concurrency:
-  group: validate-dynamic-portals
-  cancel-in-progress: true
+  group: validate-dynamic-portals-${{ github.event.pull_request.number || 'live' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  validate:
-    name: Testar fontes dinâmicas sem atualizar o catálogo
+  offline-tests:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 15
     steps:
       - name: Baixar o repositório
         uses: actions/checkout@v4
@@ -60,16 +74,52 @@ jobs:
       - name: Instalar dependências
         run: pip install -r jobs-dashboard/requirements.txt
 
-      - name: Executar testes dos adaptadores
+      - name: Executar testes offline dos adaptadores
         run: |
           python -m unittest discover -s jobs-dashboard/tests -p 'test_*dynamic_portals.py' -v
           python -m unittest discover -s jobs-dashboard/tests -p 'test_new_sources.py' -v
           python -m unittest discover -s jobs-dashboard/tests -p 'test_quickin_pagination.py' -v
+          python -m unittest discover -s jobs-dashboard/tests -p 'test_ngcash.py' -v
+          python -m unittest discover -s jobs-dashboard/tests -p 'test_validate_dynamic_portals.py' -v
 
-      - name: Testar adaptador NG.CASH
-        run: python -m unittest discover -s jobs-dashboard/tests -p 'test_ngcash.py' -v
+  live-validation:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      TARGET_SOURCES: ${{ inputs.sources || '' }}
+      FULL_SCAN: ${{ inputs.full_scan || 'false' }}
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
 
-      - name: Consultar portais isoladamente
-        env:
-          PYTHONUNBUFFERED: "1"
-        run: python jobs-dashboard/validate_dynamic_portals.py
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: jobs-dashboard/requirements.txt
+
+      - name: Instalar dependências
+        run: pip install -r jobs-dashboard/requirements.txt
+
+      - name: Executar testes offline antes do smoke test
+        run: |
+          python -m unittest discover -s jobs-dashboard/tests -p 'test_*dynamic_portals.py' -v
+          python -m unittest discover -s jobs-dashboard/tests -p 'test_new_sources.py' -v
+          python -m unittest discover -s jobs-dashboard/tests -p 'test_quickin_pagination.py' -v
+          python -m unittest discover -s jobs-dashboard/tests -p 'test_ngcash.py' -v
+          python -m unittest discover -s jobs-dashboard/tests -p 'test_validate_dynamic_portals.py' -v
+
+      - name: Validar portais selecionados ou varredura completa
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$GITHUB_EVENT_NAME" == "schedule" || "$FULL_SCAN" == "true" ]]; then
+            python jobs-dashboard/validate_dynamic_portals.py
+          elif [[ -n "$TARGET_SOURCES" ]]; then
+            python jobs-dashboard/validate_dynamic_portals.py --sources "$TARGET_SOURCES"
+          else
+            echo "::error::Informe 'sources' para smoke test direcionado ou marque 'full_scan'."
+            exit 2
+          fi
