@@ -127,7 +127,7 @@ def decide(
     slot_runs = [
         run
         for run in collection_runs
-        if (created := _run_time(run)) is not None and created >= slot
+        if (created := _run_activity_time(run)) is not None and created >= slot
     ]
     if any(
         str(run.get("status") or "") == "completed"
