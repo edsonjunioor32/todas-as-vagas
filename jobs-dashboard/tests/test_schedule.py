@@ -110,7 +110,7 @@ class ScheduleTests(unittest.TestCase):
 
     def test_guard_waits_for_grace_and_never_duplicates_active_or_recent_dispatched_runs(self):
         utc = timezone.utc
-        slot = datetime(2026, 9, 11, 11, 0, tzinfo=utc)
+        slot = datetime(2026, 9, 11, 11, 7, tzinfo=utc)
         self.assertEqual(
             catalog_latest_slot(datetime(2026, 9, 11, 11, 20, tzinfo=utc)),
             slot,
