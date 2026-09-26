@@ -17,7 +17,7 @@ on:
         required: false
         type: string
   schedule:
-    # GitHub Actions usa UTC; os horários foram deslocados para evitar o início da hora.
+    # GitHub Actions usa UTC; horários deslocados para reduzir o congestionamento do início da hora.
     # Equivale a 08h07, 11h07, 15h07 e 20h07 em Brasília/Fortaleza.
     - cron: "7 11,14,18,23 * * *"
     # Atualização semanal do catálogo Greenhouse: domingo às 04h47 (UTC-3).
