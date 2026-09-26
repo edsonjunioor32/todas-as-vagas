@@ -11,6 +11,7 @@ The crawler is intentionally conservative:
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import html
 import json
 import os
@@ -36,6 +37,7 @@ DEFAULT_USER_AGENT = "TodasAsVagasDescriptionIndexer/1.0 (+public-job-index)"
 MAX_RESPONSE_BYTES = 4 * 1024 * 1024
 MAX_ROBOTS_BYTES = 512 * 1024
 DEFAULT_MIN_DESCRIPTION_CHARS = 120
+ROBOTS_RETRY_BASE_SECONDS = 24 * 60 * 60
 SKIP_TAGS = {"script", "style", "noscript", "svg", "nav", "footer", "header", "form"}
 VOID_TAGS = {
     "area", "base", "br", "col", "embed", "hr", "img", "input", "link",
@@ -452,6 +454,7 @@ def main() -> None:
     fetched = 0
     failed = 0
     denied = 0
+    failures_by_status: Counter[str] = Counter()
 
     for job in pending:
         if args.limit and processed >= args.limit:
@@ -467,9 +470,10 @@ def main() -> None:
                 job,
                 status="robots_denied",
                 error="robots.txt não autoriza a coleta",
-                permanent=True,
+                retry_after_seconds=ROBOTS_RETRY_BASE_SECONDS,
             )
             denied += 1
+            failures_by_status["robots_denied"] += 1
             processed += 1
             continue
         try:
@@ -490,6 +494,7 @@ def main() -> None:
                     retry_after_seconds=7 * 86400,
                 )
                 failed += 1
+                failures_by_status["no_description"] += 1
             else:
                 description_store.record_success(
                     connection,
@@ -512,6 +517,7 @@ def main() -> None:
                 permanent=not error.retryable,
             )
             failed += 1
+            failures_by_status[error.status] += 1
         except (ValueError, TypeError, UnicodeError) as error:
             description_store.record_failure(
                 connection,
@@ -521,28 +527,50 @@ def main() -> None:
                 retry_after_seconds=7 * 86400,
             )
             failed += 1
+            failures_by_status["parse_error"] += 1
         processed += 1
 
-    summary = description_store.stats(connection)
+    summary = description_store.stats(
+        connection,
+        seen_at=seen_at,
+        refresh_after_days=max(0, args.refresh_after_days),
+    )
     connection.close()
     elapsed = time.monotonic() - started
-    print(
-        "Manifesto: %d vagas · removidas do índice: %d · candidatas: %d · "
-        "processadas: %d · descrições: %d · falhas/sem descrição: %d · "
-        "robots negados: %d · armazenado: %.1f MB · tempo: %.1fs"
-        % (
-            manifest_count,
-            removed,
-            len(pending),
-            processed,
-            fetched,
-            failed,
-            denied,
-            summary["bytes"] / (1024 * 1024),
-            elapsed,
-        )
+    http_failures = sum(
+        amount
+        for status, amount in failures_by_status.items()
+        if status.startswith("http_")
     )
+    other_failures = sum(
+        amount
+        for status, amount in failures_by_status.items()
+        if not status.startswith("http_")
+        and status not in {"no_description", "robots_denied"}
+    )
+    metrics = {
+        "manifest_jobs": manifest_count,
+        "removed_from_index": removed,
+        "candidates_due": len(pending),
+        "candidates_due_by_status": dict(
+            sorted(Counter(job["status"] for job in pending).items())
+        ),
+        "processed": processed,
+        "failed_attempts": failed + denied,
+        "descriptions_fetched_this_run": fetched,
+        "descriptions_stored_total": summary["with_description"],
+        "http_failures": http_failures,
+        "no_description_failures": failures_by_status["no_description"],
+        "robots_denied": denied,
+        "other_failures": other_failures,
+        "failures_by_status": dict(sorted(failures_by_status.items())),
+        "backlog_due_by_status": summary["backlog_due_by_status"],
+        "stored_description_bytes": summary["bytes"],
+        "elapsed_seconds": round(elapsed, 1),
+    }
+    print("DESCRIPTION_CRAWLER_METRICS " + json.dumps(metrics, sort_keys=True))
 
 
 if __name__ == "__main__":
     main()
+
