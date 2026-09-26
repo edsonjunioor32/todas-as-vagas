@@ -18,10 +18,11 @@ on:
         type: string
   schedule:
     # GitHub Actions usa UTC; Brasília/Fortaleza permanece em UTC-3.
-    # Equivale a 08h00, 11h00, 15h00 e 20h00 em Brasília/Fortaleza.
-    - cron: "0 11,14,18,23 * * *"
-    # Atualização semanal do catálogo Greenhouse: domingo às 04h37 (UTC-3).
-    - cron: "37 7 * * 0"
+    # Deslocado para evitar o início da hora; Brasília/Fortaleza permanece UTC-3.
+    # Equivale a 08h07, 11h07, 15h07 e 20h07 em Brasília/Fortaleza.
+    - cron: "7 11,14,18,23 * * *"
+    # Atualização semanal do catálogo Greenhouse: domingo às 04h47 (UTC-3).
+    - cron: "47 7 * * 0"
 
 permissions:
   contents: write
@@ -238,7 +239,7 @@ jobs:
           node --input-type=module --check < docs/aderencia/app.js
 
       - name: Atualizar catálogo brasileiro da Greenhouse
-        if: github.event_name == 'workflow_dispatch' || github.event.schedule == '37 7 * * 0'
+        if: github.event_name == 'workflow_dispatch' || github.event.schedule == '47 7 * * 0'
         continue-on-error: true
         run: python jobs-dashboard/discover_greenhouse_br.py --workers 6 --timeout 12
 
