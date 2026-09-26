@@ -146,10 +146,19 @@ def decide(
     current = _as_utc(now)
     slot = latest_slot(current)
     grace_end = slot + timedelta(minutes=max(0, int(grace_minutes)))
-    if current < grace_end:
-        return {"action": "grace", "reason": "within_grace", "slot": slot}
-
     collection_runs = [run for run in runs if is_collection_run(run)]
+    slot_runs = [
+        run for run in collection_runs
+        if _in_slot(run, slot)
+    ]
+
+    if any(
+        str(run.get("status") or "") == "completed"
+        and str(run.get("conclusion") or "") == "success"
+        for run in slot_runs
+    ):
+        return {"action": "skip", "reason": "slot_succeeded", "slot": slot}
+
     queued = _oldest_by_status(collection_runs, {"queued", "waiting", "pending", "requested"})
     if queued:
         created = _run_time(queued)
@@ -186,17 +195,6 @@ def decide(
             "run": running,
         }
 
-    slot_runs = [
-        run for run in runs
-        if is_collection_run(run) and _in_slot(run, slot)
-    ]
-    if any(
-        str(run.get("status") or "") == "completed"
-        and str(run.get("conclusion") or "") == "success"
-        for run in slot_runs
-    ):
-        return {"action": "skip", "reason": "slot_succeeded", "slot": slot}
-
     if any(
         _recent_dispatch(run, current, dispatch_cooldown_minutes)
         for run in slot_runs
@@ -206,15 +204,21 @@ def decide(
     failed = [
         run for run in slot_runs
         if str(run.get("status") or "") == "completed"
-        and str(run.get("conclusion") or "") not in {"success", "cancelled"}
+        and str(run.get("conclusion") or "") != "success"
     ]
     latest_failed = max(failed, key=lambda run: _run_time(run) or slot) if failed else None
-    return {
-        "action": "dispatch",
-        "reason": "slot_failed" if latest_failed else "slot_missing",
-        "slot": slot,
-        "run": latest_failed,
-    }
+    if latest_failed:
+        return {
+            "action": "dispatch",
+            "reason": "slot_failed",
+            "slot": slot,
+            "run": latest_failed,
+        }
+
+    if current < grace_end:
+        return {"action": "grace", "reason": "within_grace", "slot": slot}
+
+    return {"action": "dispatch", "reason": "slot_missing", "slot": slot}
 
 
 def _headers(token: str) -> dict[str, str]:
