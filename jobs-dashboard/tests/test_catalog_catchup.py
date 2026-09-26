@@ -102,6 +102,35 @@ class CatalogCatchupTests(unittest.TestCase):
         self.assertEqual(calls[3][0], "issues/17")
 
 
+    def test_delayed_success_counts_for_the_slot_it_actually_started_in(self):
+        now = datetime(2026, 9, 24, 15, 0, tzinfo=timezone.utc)
+        slot = datetime(2026, 9, 24, 14, 0, tzinfo=timezone.utc)
+        runs = [{
+            "id": 123,
+            "event": "schedule",
+            "status": "completed",
+            "conclusion": "success",
+            "created_at": "2026-09-24T11:07:00Z",
+            "run_started_at": "2026-09-24T14:40:00Z",
+        }]
+        result = catalog_catchup.decide(now, runs)
+        self.assertEqual(result["action"], "skip")
+        self.assertEqual(result["reason"], "slot_succeeded")
+        self.assertEqual(catalog_catchup.resume_key_for_slot(runs, slot), "run-123")
+
+    def test_overdue_queue_alert_links_the_queued_run_even_if_older_than_slot(self):
+        slot = datetime(2026, 9, 24, 14, 0, tzinfo=timezone.utc)
+        url = "https://github.com/example/repo/actions/runs/456"
+        body = catalog_catchup._incident_body(slot, "run_queued_too_long", [{
+            "id": 456,
+            "event": "schedule",
+            "status": "queued",
+            "created_at": "2026-09-24T11:07:00Z",
+            "html_url": url,
+        }])
+        self.assertIn(url, body)
+
+
 
 if __name__ == "__main__":
     unittest.main()
