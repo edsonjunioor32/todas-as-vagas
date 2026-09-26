@@ -22,7 +22,10 @@ permissions:
   contents: write
 
 concurrency:
-  group: telegram-notification
+  # A persistência do estado do Telegram também grava em main; compartilha a
+  # fila para não competir com a publicação do catálogo.
+  group: catalog-publication
+  queue: max
   cancel-in-progress: false
 
 jobs:

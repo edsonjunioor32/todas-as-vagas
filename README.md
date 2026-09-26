@@ -88,7 +88,7 @@ O catálogo inicial inclui RD Station, AB InBev, Capco, ClassPass, Coinbase, Del
 
 Somente anúncios cuja localidade mencione Brasil, Brazil, uma cidade brasileira reconhecida ou uma UF válida entram no painel. Vagas descritas apenas como “Global”, “Worldwide” ou “LATAM” não são importadas. O corte geral de dois meses continua sendo aplicado depois dessa seleção.
 
-A descoberta semanal faz parte do workflow `.github/workflows/pages.yml` e também é executada quando a atualização é iniciada manualmente em **Actions**. A lista resultante fica em `jobs-dashboard/data/greenhouse_br_companies.json`; as atualizações normais não refazem as milhares de consultas de descoberta.
+A descoberta semanal faz parte do workflow `.github/workflows/pages.yml` e também pode ser executada em uma operação manual pelo **Actions**. A lista resultante fica em `jobs-dashboard/data/greenhouse_br_companies.json`; recuperações automáticas de uma coleta não repetem essa descoberta ampla.
 
 ## Empresas no Oracle Recruiting Cloud
 
@@ -148,7 +148,7 @@ Copie para ele todo o conteúdo do arquivo visível `WORKFLOW_PARA_COPIAR.yml` e
 
 ## Atualização automática
 
-O workflow é executado diariamente às **08h17**, **11h17**, **15h17** e **20h17**, no horário de Brasília/Fortaleza, além de permitir execução manual. A rotina:
+O workflow é executado diariamente às **08h07**, **11h07**, **15h07** e **20h07**, no horário de Brasília/Fortaleza, além de permitir execução manual. A rotina:
 
 1. usa os catálogos já validados da InHire e do Greenhouse, atualizando as descobertas pesadas semanalmente ou sob acionamento manual;
 2. coleta portais independentes com concorrência limitada e isolamento de falhas;
@@ -161,6 +161,10 @@ O workflow é executado diariamente às **08h17**, **11h17**, **15h17** e **20h1
 
 Se um portal falhar, os demais continuam. Resultados vistos recentemente podem permanecer no painel por até três dias, evitando que uma indisponibilidade momentânea esvazie uma fonte inteira.
 
+O monitor `.github/workflows/catalog-catchup.yml` roda em GitHub-hosted Ubuntu cerca de 38 minutos depois de cada horário principal e também verifica a conclusão da coleta. Se não houver execução ativa ou sucesso no horário, ele solicita uma única recuperação automática para aquele horário, reaproveitando checkpoints. Essa recuperação aparece como `repository_dispatch` com o nome **Recuperação automática do catálogo**; se ela também falhar, o monitor abre ou atualiza um alerta em vez de iniciar um ciclo de novas execuções. A tentativa seguinte fica para o próximo horário normal.
+
+As publicações do catálogo principal, dos portais dinâmicos, do Journy e do estado do Telegram compartilham o grupo `catalog-publication`: somente um escritor publica por vez e uma nova execução não cancela a que já está em andamento. Recuperações automáticas não repetem a descoberta semanal de empresas Greenhouse nem a descoberta de novas empresas InHire.
+
 O workflow `.github/workflows/telegram.yml` deste repositório é acionado manualmente (`workflow_dispatch`) para testes, reenvios e operação controlada. Ele compara snapshots e registra o estado das notificações. O envio automático regular do canal é mantido no repositório dedicado do Telegram. O bot do WhatsApp consulta o snapshot público da branch `public-data` por meio do repositório `botwhats`.
 
 ### Otimizações do pipeline
@@ -169,7 +173,8 @@ O workflow `.github/workflows/telegram.yml` deste repositório é acionado manua
 - a Sólides mantém a cobertura de até 12.000 vagas mais recentes (600 páginas de 20 registros) e usa até oito requisições simultâneas;
 - detalhes da InHire são reutilizados por até 24 horas por meio do cache do GitHub Actions; vagas novas ou com título, local ou modalidade alterados são consultadas imediatamente;
 - o Nerdin participa da coleta geral e, por isso, usa a mesma transação SQLite e a mesma exportação JSON das demais fontes;
-- uma atualização nova cancela outra ainda em andamento antes do commit, evitando a fila de execuções equivalentes;
+- todos os publicadores compartilham uma trava de concorrência: uma execução ativa por vez, sem cancelar uma coleta em andamento;
+- a política de reinício do runner self-hosted na VPS é mantida em `ops/systemd/actions-runner-restart.conf` e reinicia o serviço após falha inesperada;
 - cada execução mostra no resumo do GitHub Actions o tempo por etapa, a duração de cada fonte, suas contagens e eventuais falhas.
 
 ## Índice privado de descrições (VPS)

@@ -12,8 +12,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  actions: write
-  contents: read
+  actions: read
+  contents: write
   issues: write
 
 # Este controlador não publica dados: consulta runs, registra o alerta e aciona

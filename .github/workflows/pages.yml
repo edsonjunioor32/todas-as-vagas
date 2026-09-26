@@ -1,4 +1,6 @@
 name: Atualizar vagas multiportal e publicar GitHub Pages
+run-name: >-
+  ${{ github.event_name == 'repository_dispatch' && github.event.action == 'catalog_recovery' && 'Recuperação automática do catálogo' || github.event_name == 'workflow_dispatch' && 'Execução manual do catálogo' || 'Atualização programada do catálogo' }}
 
 on:
   push:
@@ -16,6 +18,8 @@ on:
         description: "Identificador da coleta anterior a ser retomada"
         required: false
         type: string
+  repository_dispatch:
+    types: [catalog_recovery]
   schedule:
     # GitHub Actions usa UTC; Brasília/Fortaleza permanece em UTC-3.
     # Equivale a 08h07, 11h07, 15h07 e 20h07 em Brasília/Fortaleza.
@@ -126,7 +130,7 @@ jobs:
         id: collection-context
         shell: bash
         env:
-          REQUESTED_RESUME_KEY: ${{ inputs.resume_key || '' }}
+          REQUESTED_RESUME_KEY: ${{ inputs.resume_key || github.event.client_payload.resume_key || '' }}
         run: |
           set -euo pipefail
           resume_key="${REQUESTED_RESUME_KEY:-}"
@@ -239,12 +243,12 @@ jobs:
           node --input-type=module --check < docs/aderencia/app.js
 
       - name: Atualizar catálogo brasileiro da Greenhouse
-        if: github.event_name == 'workflow_dispatch' || github.event.schedule == '37 7 * * 0'
+        if: github.event_name == 'workflow_dispatch' || github.event.schedule == '43 7 * * 0'
         continue-on-error: true
         run: python jobs-dashboard/discover_greenhouse_br.py --workers 6 --timeout 12
 
       - name: Descobrir novas empresas InHire
-        if: github.event_name != 'push' || contains(github.event.head_commit.message, '[refresh-fit]')
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[refresh-fit]'))
         continue-on-error: true
         env:
           INHIRE_URLSCAN_PAGES: "20"

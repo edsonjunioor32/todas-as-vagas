@@ -46,13 +46,20 @@ class ScheduleTests(unittest.TestCase):
             cron_entries(".github/workflows/pages.yml"),
         )
 
+    def test_greenhouse_discovery_condition_matches_its_sunday_schedule(self):
+        pages = (ROOT / ".github/workflows/pages.yml").read_text(encoding="utf-8")
+        weekly_cron = "43 7 * * 0"
+        self.assertIn(weekly_cron, cron_entries(".github/workflows/pages.yml"))
+        self.assertIn(f"github.event.schedule == '{weekly_cron}'", pages)
+
     def test_catalog_catchup_guard_is_scheduled_and_can_dispatch(self):
         workflow = (ROOT / ".github/workflows/catalog-catchup.yml").read_text(
             encoding="utf-8"
         )
         self.assertIn('    - cron: "45 11,14,18,23 * * *"', workflow)
         self.assertIn("  workflow_dispatch:", workflow)
-        self.assertIn("  actions: write", workflow)
+        self.assertIn("  contents: write", workflow)
+        self.assertIn("  actions: read", workflow)
         self.assertIn("runs-on: ubuntu-latest", workflow)
         self.assertIn("setup-python@v5", workflow)
         self.assertIn("workflow_run:", workflow)
@@ -60,22 +67,31 @@ class ScheduleTests(unittest.TestCase):
         self.assertIn("CATCHUP_GRACE_MINUTES", workflow)
         self.assertIn("catalog_catchup.py", workflow)
         pages = (ROOT / ".github/workflows/pages.yml").read_text(encoding="utf-8")
+        self.assertIn("  repository_dispatch:", pages)
+        self.assertIn("types: [catalog_recovery]", pages)
         self.assertIn("resume_key:", pages)
         self.assertIn("Restaurar checkpoints da coleta", pages)
         self.assertIn("Salvar checkpoints da coleta", pages)
         self.assertIn("JOBS_COLLECTION_CHECKPOINT_DIR", pages)
+        self.assertIn(
+            "github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' ||",
+            pages,
+        )
 
-    def test_dispatch_collection_calls_pages_dispatch_api(self):
+    def test_dispatch_collection_calls_repository_dispatch_api(self):
         with patch("catalog_catchup.urllib.request.urlopen") as urlopen:
             dispatch_collection("edsonjunioor32/todas-as-vagas", "token")
 
         request = urlopen.call_args.args[0]
         self.assertEqual(
             request.full_url,
-            "https://api.github.com/repos/edsonjunioor32/todas-as-vagas/actions/workflows/pages.yml/dispatches",
+            "https://api.github.com/repos/edsonjunioor32/todas-as-vagas/dispatches",
         )
         self.assertEqual(request.get_method(), "POST")
-        self.assertEqual(json.loads(request.data.decode("utf-8")), {"ref": "main"})
+        self.assertEqual(
+            json.loads(request.data.decode("utf-8")),
+            {"event_type": "catalog_recovery"},
+        )
         self.assertEqual(request.get_header("Authorization"), "Bearer token")
 
     def test_dispatch_collection_can_pass_resume_key(self):
@@ -85,7 +101,10 @@ class ScheduleTests(unittest.TestCase):
         request = urlopen.call_args.args[0]
         self.assertEqual(
             json.loads(request.data.decode("utf-8")),
-            {"ref": "main", "inputs": {"resume_key": "run-123"}},
+            {
+                "event_type": "catalog_recovery",
+                "client_payload": {"resume_key": "run-123"},
+            },
         )
 
     def test_failed_slot_reuses_original_run_checkpoint_key(self):
