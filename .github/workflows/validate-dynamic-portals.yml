@@ -23,6 +23,7 @@ on:
       - "jobs-dashboard/tests/test_merge_dynamic_portals.py"
       - "jobs-dashboard/tests/test_new_sources.py"
       - "jobs-dashboard/tests/test_quickin_pagination.py"
+      - "jobs-dashboard/tests/test_ngcash.py"
       - "jobs-dashboard/sources/requested_portals_27082026.py"
       - "jobs-dashboard/sources/requested_portals_28082026.py"
       - "jobs-dashboard/sources/requested_portals_29082026.py"
