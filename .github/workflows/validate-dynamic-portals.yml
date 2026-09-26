@@ -1,51 +1,51 @@
 name: Validar portais dinâmicos (isolado)
 
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "jobs-dashboard/sources/**"
+      - "jobs-dashboard/tests/**"
+      - "jobs-dashboard/validate_dynamic_portals.py"
+      - "jobs-dashboard/requirements.txt"
+      - ".github/workflows/validate-dynamic-portals.yml"
   push:
     branches: [main]
     paths:
-      - "jobs-dashboard/sources/_http.py"
-      - "jobs-dashboard/sources/_html.py"
-      - "jobs-dashboard/sources/_rendered.py"
-      - "jobs-dashboard/sources/experian.py"
-      - "jobs-dashboard/sources/ey.py"
-      - "jobs-dashboard/sources/bradesco.py"
-      - "jobs-dashboard/sources/geekhunter.py"
-      - "jobs-dashboard/sources/quickin.py"
-      - "jobs-dashboard/sources/spassu.py"
-      - "jobs-dashboard/sources/levva.py"
-      - "jobs-dashboard/sources/digisystem.py"
-      - "jobs-dashboard/sources/requested_careers.py"
-      - "jobs-dashboard/sources/sankhya_senior.py"
-      - "jobs-dashboard/pipeline.py"
-      - "jobs-dashboard/storage.py"
+      - "jobs-dashboard/sources/**"
+      - "jobs-dashboard/tests/**"
       - "jobs-dashboard/validate_dynamic_portals.py"
-      - "jobs-dashboard/tests/test_dynamic_portals.py"
-      - "jobs-dashboard/tests/test_merge_dynamic_portals.py"
-      - "jobs-dashboard/tests/test_new_sources.py"
-      - "jobs-dashboard/tests/test_quickin_pagination.py"
-      - "jobs-dashboard/sources/requested_portals_27082026.py"
-      - "jobs-dashboard/sources/requested_portals_28082026.py"
-      - "jobs-dashboard/sources/requested_portals_29082026.py"
-      - "jobs-dashboard/sources/requested_portals_03092026.py"
-      - "jobs-dashboard/sources/__init__.py"
-      - "jobs-dashboard/sources/wellfound.py"
-      - "jobs-dashboard/sources/workable.py"
-      - "jobs-dashboard/sources/workable_brazil.py"
+      - "jobs-dashboard/requirements.txt"
+      - ".github/workflows/validate-dynamic-portals.yml"
   workflow_dispatch:
+    inputs:
+      sources:
+        description: "Fontes específicas separadas por vírgula para smoke test"
+        required: false
+        type: string
+      full_scan:
+        description: "Executar a varredura ampla controlada"
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    # Varredura ampla semanal fora do início da hora; PRs nunca executam este job.
+    - cron: "23 5 * * 1"
 
 permissions:
   contents: read
 
 concurrency:
-  group: validate-dynamic-portals
-  cancel-in-progress: true
+  group: validate-dynamic-portals-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+  queue: max
 
 jobs:
-  validate:
-    name: Testar fontes dinâmicas sem atualizar o catálogo
+  offline-tests:
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
+    name: Testes offline dos portais dinâmicos
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 20
     steps:
       - name: Baixar o repositório
         uses: actions/checkout@v4
@@ -60,16 +60,58 @@ jobs:
       - name: Instalar dependências
         run: pip install -r jobs-dashboard/requirements.txt
 
-      - name: Executar testes dos adaptadores
-        run: |
-          python -m unittest discover -s jobs-dashboard/tests -p 'test_*dynamic_portals.py' -v
-          python -m unittest discover -s jobs-dashboard/tests -p 'test_new_sources.py' -v
-          python -m unittest discover -s jobs-dashboard/tests -p 'test_quickin_pagination.py' -v
+      - name: Executar suíte unitária offline
+        run: python -m unittest discover -s jobs-dashboard/tests -v
 
-      - name: Testar adaptador NG.CASH
-        run: python -m unittest discover -s jobs-dashboard/tests -p 'test_ngcash.py' -v
+  targeted-smoke:
+    if: github.event_name == 'workflow_dispatch' && inputs.sources != ''
+    name: Smoke test apenas das fontes selecionadas
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
 
-      - name: Consultar portais isoladamente
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependências
+        run: pip install -r jobs-dashboard/requirements.txt
+
+      - name: Consultar somente as fontes solicitadas
+        env:
+          PORTAL_SOURCES: ${{ inputs.sources }}
+        run: python jobs-dashboard/validate_dynamic_portals.py --sources "$PORTAL_SOURCES"
+
+  weekly-or-manual-full-scan:
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.full_scan)
+    name: Varredura ampla controlada (somente semanal ou manual)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependências
+        run: pip install -r jobs-dashboard/requirements.txt
+
+      - name: Consultar todas as fontes dinâmicas
         env:
           PYTHONUNBUFFERED: "1"
-        run: python jobs-dashboard/validate_dynamic_portals.py
+        run: python jobs-dashboard/validate_dynamic_portals.py --all
+
+  invalid-manual-input:
+    if: github.event_name == 'workflow_dispatch' && inputs.sources == '' && !inputs.full_scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Orientar seleção sem varredura ampla
+        run: |
+          echo "Informe sources para um smoke test direcionado ou marque full_scan para a varredura ampla."
+          exit 1
