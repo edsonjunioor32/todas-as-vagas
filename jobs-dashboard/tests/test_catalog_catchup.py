@@ -54,7 +54,7 @@ class CatalogCatchupTests(unittest.TestCase):
             "event": "schedule",
             "status": "completed",
             "conclusion": "success",
-            "created_at": "2026-09-24T14:50:00Z",
+            "created_at": "2026-09-24T14:05:00Z",
         }]
         result = catalog_catchup.decide(now, runs)
         self.assertEqual(result["action"], "dispatch")
@@ -97,6 +97,18 @@ class CatalogCatchupTests(unittest.TestCase):
         self.assertEqual(result["action"], "alert")
         self.assertEqual(result["reason"], "queued_too_long")
         self.assertIs(result["run"], queued)
+
+    def test_waiting_run_is_treated_as_queued_and_never_redispatched(self):
+        now = datetime(2026, 9, 24, 12, 0, tzinfo=UTC)
+        waiting = {
+            "id": 463,
+            "event": "schedule",
+            "status": "waiting",
+            "created_at": "2026-09-24T11:35:00Z",
+        }
+        result = catalog_catchup.decide(now, [waiting], queue_grace_minutes=15)
+        self.assertEqual(result["action"], "alert")
+        self.assertEqual(result["reason"], "queued_too_long")
 
     def test_stuck_active_collection_alerts_without_dispatch(self):
         now = datetime(2026, 9, 24, 14, 0, tzinfo=UTC)
