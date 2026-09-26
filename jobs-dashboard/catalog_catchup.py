@@ -53,6 +53,10 @@ def _timestamp(value: object) -> datetime | None:
 def _run_time(run: dict) -> datetime | None:
     return _timestamp(run.get("created_at"))
 
+def _run_activity_time(run: dict) -> datetime | None:
+    """Use actual start time so a long-queued run can satisfy a later slot."""
+    return _timestamp(run.get("run_started_at")) or _run_time(run)
+
 
 def is_collection_run(run: dict) -> bool:
     event = str(run.get("event") or "")
@@ -77,13 +81,13 @@ def resume_key_for_slot(runs: list[dict], slot: datetime) -> str:
     """Keep retries of a failed slot attached to its original checkpoints."""
     candidates = [
         run for run in runs
-        if (created := _run_time(run)) is not None
+        if (created := _run_activity_time(run)) is not None
         and created >= slot
         and is_collection_run(run)
         and str(run.get("id") or "").strip()
     ]
     if candidates:
-        latest = max(candidates, key=lambda run: _run_time(run) or slot)
+        latest = max(candidates, key=lambda run: _run_activity_time(run) or slot)
         return f"run-{latest['id']}"
     return f"slot-{slot.isoformat()}"
 
@@ -231,10 +235,12 @@ def _latest_relevant_run(runs: list[dict], slot: datetime) -> dict | None:
     candidates = [
         run for run in runs
         if is_collection_run(run)
-        and (created := _run_time(run)) is not None
-        and created >= slot
+        and (
+            ((started := _run_activity_time(run)) is not None and started >= slot)
+            or str(run.get("status") or "") in {"queued", "in_progress"}
+        )
     ]
-    return max(candidates, key=lambda run: _run_time(run) or slot) if candidates else None
+    return max(candidates, key=lambda run: _run_activity_time(run) or slot) if candidates else None
 
 
 def _incident_body(slot: datetime, reason: str, runs: list[dict], detail: str = "") -> str:
