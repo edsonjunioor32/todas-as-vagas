@@ -8,12 +8,13 @@ docs/data or on the public-data branch.
 from __future__ import annotations
 
 import hashlib
+import json
 import sqlite3
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 PARSER_VERSION = "description-crawler-v1"
 
 
@@ -72,6 +73,11 @@ def connect(path: str | Path) -> sqlite3.Connection:
 
         CREATE INDEX IF NOT EXISTS idx_job_descriptions_hash
             ON job_descriptions(description_sha256);
+
+        CREATE TABLE IF NOT EXISTS crawler_state (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL
+        );
         """
     )
     # FTS5 is part of the standard Python SQLite build on the VPS. Keep a
@@ -104,14 +110,7 @@ def _job_uid(job: dict) -> str:
     return f"{source}:{native_id or url}"
 
 
-def sync_manifest(
-    connection: sqlite3.Connection,
-    jobs: list[dict],
-    *,
-    seen_at: str | None = None,
-) -> tuple[str, int]:
-    """Insert/update the current public manifest without fetching descriptions."""
-    seen_at = seen_at or utc_now()
+def _manifest_rows(jobs: list[dict]) -> list[tuple[str, str, str, str, str, str]]:
     rows = []
     for job in jobs:
         url = str(job.get("url") or "").strip()
@@ -125,9 +124,54 @@ def sync_manifest(
                 str(job.get("title") or "").strip()[:500],
                 str(job.get("company") or "").strip()[:500],
                 url,
-                seen_at,
             )
         )
+    return sorted(rows)
+
+
+def _manifest_digest(
+    rows: list[tuple[str, str, str, str, str, str]],
+) -> str:
+    canonical = json.dumps(
+        sorted(rows), ensure_ascii=False, separators=(",", ":")
+    ).encode("utf-8")
+    return hashlib.sha256(canonical).hexdigest()
+
+
+def _state_value(connection: sqlite3.Connection, key: str) -> str:
+    row = connection.execute(
+        "SELECT value FROM crawler_state WHERE key = ?", (key,)
+    ).fetchone()
+    return str(row["value"]) if row else ""
+
+
+def _set_state_value(connection: sqlite3.Connection, key: str, value: object) -> None:
+    connection.execute(
+        """
+        INSERT INTO crawler_state(key, value) VALUES (?, ?)
+        ON CONFLICT(key) DO UPDATE SET value = excluded.value
+        """,
+        (key, str(value)),
+    )
+
+
+def sync_manifest(
+    connection: sqlite3.Connection,
+    jobs: list[dict],
+    *,
+    seen_at: str | None = None,
+) -> tuple[str, int]:
+    """Insert/update a changed manifest; return its stable checkpoint on no-op."""
+    rows = _manifest_rows(jobs)
+    manifest_hash = _manifest_digest(rows)
+    stored_hash = _state_value(connection, "manifest_sha256")
+    if stored_hash == manifest_hash:
+        stored_seen_at = _state_value(connection, "manifest_seen_at")
+        stored_count = _state_value(connection, "manifest_count")
+        if stored_seen_at and stored_count.isdigit():
+            return stored_seen_at, int(stored_count)
+
+    seen_at = seen_at or utc_now()
     connection.executemany(
         """
         INSERT INTO job_descriptions (
@@ -142,11 +186,11 @@ def sync_manifest(
             url=excluded.url,
             last_seen_at=excluded.last_seen_at
         """,
-        [
-            (*row[:6], row[6], row[6])
-            for row in rows
-        ],
+        [(*row, seen_at, seen_at) for row in rows],
     )
+    _set_state_value(connection, "manifest_sha256", manifest_hash)
+    _set_state_value(connection, "manifest_seen_at", seen_at)
+    _set_state_value(connection, "manifest_count", len(rows))
     connection.commit()
     return seen_at, len(rows)
 
@@ -166,11 +210,15 @@ def prune_missing(
     manifest suddenly shrinks below the safety ratio, so a partial source
     failure cannot erase the private store.
     """
-    current_uids = {
-        _job_uid(job)
-        for job in jobs
-        if str(job.get("url") or "").strip()
-    }
+    rows = _manifest_rows(jobs)
+    manifest_hash = _manifest_digest(rows)
+    if (
+        _state_value(connection, "manifest_sha256") == manifest_hash
+        and _state_value(connection, "pruned_manifest_sha256") == manifest_hash
+    ):
+        return 0
+
+    current_uids = {row[0] for row in rows}
     if not current_uids:
         raise ValueError("manifesto atual vazio; limpeza privada recusada")
 
@@ -222,6 +270,8 @@ def prune_missing(
         """
     )
     connection.execute("DROP TABLE current_description_manifest")
+    if _state_value(connection, "manifest_sha256") == manifest_hash:
+        _set_state_value(connection, "pruned_manifest_sha256", manifest_hash)
     connection.commit()
     return removed
 
@@ -250,7 +300,10 @@ def pending_jobs(
             (
                 (
                     description = ''
-                    AND status <> 'robots_denied'
+                    AND (next_attempt_at = '' OR next_attempt_at <= ?)
+                )
+                OR (
+                    status = 'robots_denied'
                     AND (next_attempt_at = '' OR next_attempt_at <= ?)
                 )
                 OR (
@@ -260,7 +313,7 @@ def pending_jobs(
                 )
             )
         """
-        parameters.extend([now, refresh_cutoff])
+        parameters.extend([now, now, refresh_cutoff])
     return connection.execute(
         f"""
         SELECT job_uid, source, native_id, title, company, url, description,
@@ -375,7 +428,12 @@ def record_failure(
             max(60, int(retry_after_seconds)) * (2 ** min(attempts - 1, 5)),
             7 * 86400,
         )
-    stored_status = "stale" if current_description else str(status or "error")[:40]
+    failure_status = str(status or "error")[:40]
+    stored_status = (
+        failure_status
+        if failure_status == "robots_denied"
+        else "stale" if current_description else failure_status
+    )
     now = utc_now()
     connection.execute(
         """
@@ -403,7 +461,12 @@ def record_failure(
     connection.commit()
 
 
-def stats(connection: sqlite3.Connection) -> dict:
+def stats(
+    connection: sqlite3.Connection,
+    *,
+    seen_at: str = "",
+    refresh_after_days: int = 30,
+) -> dict:
     total, with_description, bytes_total = connection.execute(
         """
         SELECT COUNT(*),
@@ -420,11 +483,39 @@ def stats(connection: sqlite3.Connection) -> dict:
         ORDER BY status
         """
     ).fetchall()
+    now = utc_now()
+    refresh_cutoff = (
+        datetime.now(timezone.utc)
+        - timedelta(days=max(0, refresh_after_days))
+    ).replace(microsecond=0).isoformat()
+    manifest_filter = ""
+    backlog_parameters: list[object] = [now, now, refresh_cutoff]
+    if seen_at:
+        manifest_filter = " AND last_seen_at = ?"
+        backlog_parameters.append(seen_at)
+    due_rows = connection.execute(
+        f"""
+        SELECT status, COUNT(*) AS amount
+        FROM job_descriptions
+        WHERE (
+            (description = '' AND (next_attempt_at = '' OR next_attempt_at <= ?))
+            OR (status = 'robots_denied' AND
+                (next_attempt_at = '' OR next_attempt_at <= ?))
+            OR (description <> '' AND checked_at <> '' AND checked_at <= ?)
+        ) {manifest_filter}
+        GROUP BY status
+        ORDER BY status
+        """,
+        backlog_parameters,
+    ).fetchall()
     return {
         "total": int(total or 0),
         "with_description": int(with_description or 0),
         "bytes": int(bytes_total or 0),
         "statuses": {row["status"]: int(row["amount"]) for row in status_rows},
+        "backlog_due_by_status": {
+            row["status"]: int(row["amount"]) for row in due_rows
+        },
     }
 
 
@@ -465,3 +556,4 @@ def search(
             """,
             (pattern, pattern, pattern, max(1, min(int(limit), 100))),
         ).fetchall()
+
