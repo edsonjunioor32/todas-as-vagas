@@ -176,6 +176,24 @@ class CatalogCatchupTests(unittest.TestCase):
         self.assertEqual(result["number"], 18)
         self.assertEqual(api.call_args.args[0:2], ("POST", "/repos/owner/repo/issues"))
 
+    def test_alert_path_records_incident_without_dispatch(self):
+        slot = datetime(2026, 9, 24, 11, 7, tzinfo=UTC)
+        result = {
+            "action": "alert",
+            "reason": "queued_too_long",
+            "slot": slot,
+            "run": {"id": 463},
+        }
+        with (
+            patch.dict("os.environ", {"GITHUB_REPOSITORY": "owner/repo", "GH_TOKEN": "token"}),
+            patch.object(catalog_catchup, "fetch_collection_runs", return_value=[]),
+            patch.object(catalog_catchup, "decide", return_value=result),
+            patch.object(catalog_catchup, "upsert_delay_issue", return_value={"html_url": "issue-url"}),
+            patch.object(catalog_catchup, "dispatch_collection") as dispatch,
+        ):
+            catalog_catchup.main()
+        dispatch.assert_not_called()
+
     def test_success_closes_each_open_incident(self):
         with (
             patch.object(catalog_catchup, "_open_incidents", return_value=[{"number": 17}, {"number": 18}]),
