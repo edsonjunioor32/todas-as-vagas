@@ -79,6 +79,29 @@ class PreservedSnapshotTests(unittest.TestCase):
         self.assertIn("AVISO", stderr.getvalue())
         self.assertIn("100.00%", stderr.getvalue())
 
+    def test_repeated_application_urls_warn_but_do_not_block_publication(self):
+        snapshot = snapshot_with_preserved_jobs()
+        snapshot["jobs"]["url"][1] = snapshot["jobs"]["url"][0]
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "vagas.json"
+            path.write_text(json.dumps(snapshot), encoding="utf-8")
+            stdout, stderr = io.StringIO(), io.StringIO()
+            with patch.object(validate_snapshot, "SNAPSHOT", path), patch.dict(
+                os.environ,
+                {
+                    "MIN_PUBLIC_JOBS": "1",
+                    "MAX_DUPLICATE_URL_RATIO": "0.005",
+                    "PREVIOUS_SNAPSHOT_PATH": "",
+                },
+                clear=False,
+            ), contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                validate_snapshot.main()
+
+        self.assertIn("OK: 2 vagas", stdout.getvalue())
+        self.assertIn("AVISO", stderr.getvalue())
+        self.assertIn("50.00%", stderr.getvalue())
+        self.assertIn("a publicação continuará", stderr.getvalue())
+
 
 if __name__ == "__main__":
     unittest.main()
