@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-28T17:11:37.054602+00:00",
+  "generated_at": "2026-09-28T18:38:18.712810+00:00",
   "candidate_count": 8331,
-  "company_count": 193,
+  "company_count": 198,
   "companies": [
     {
       "board": "abinbev",
@@ -27,12 +27,17 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 129
+      "brazil_jobs": 128
     },
     {
       "board": "agilize",
       "company": "Agilize",
       "brazil_jobs": 6
+    },
+    {
+      "board": "airbnb",
+      "company": "Airbnb",
+      "brazil_jobs": 7
     },
     {
       "board": "alvys",
@@ -130,6 +135,11 @@
       "brazil_jobs": 2
     },
     {
+      "board": "b12",
+      "company": "B12",
+      "brazil_jobs": 1
+    },
+    {
       "board": "b2c2",
       "company": "B2C2",
       "brazil_jobs": 1
@@ -163,11 +173,6 @@
       "board": "brandwatch",
       "company": "Brandwatch",
       "brazil_jobs": 2
-    },
-    {
-      "board": "braze",
-      "company": "Braze",
-      "brazil_jobs": 18
     },
     {
       "board": "brex",
@@ -207,7 +212,7 @@
     {
       "board": "capco",
       "company": "Capco",
-      "brazil_jobs": 122
+      "brazil_jobs": 121
     },
     {
       "board": "careaccess",
@@ -253,6 +258,11 @@
       "board": "classpass",
       "company": "ClassPass",
       "brazil_jobs": 3
+    },
+    {
+      "board": "clinchoice",
+      "company": "ClinChoice",
+      "brazil_jobs": 4
     },
     {
       "board": "css",
@@ -400,6 +410,11 @@
       "brazil_jobs": 2
     },
     {
+      "board": "flipp",
+      "company": "Flipp",
+      "brazil_jobs": 1
+    },
+    {
       "board": "freshprints",
       "company": "Fresh Prints",
       "brazil_jobs": 2
@@ -497,7 +512,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 134
+      "brazil_jobs": 135
     },
     {
       "board": "interbrand",
@@ -795,6 +810,11 @@
       "brazil_jobs": 4
     },
     {
+      "board": "speechify",
+      "company": "Speechify",
+      "brazil_jobs": 4
+    },
+    {
       "board": "sterlingtonpllc",
       "company": "Sterlington, PLLC",
       "brazil_jobs": 5
@@ -802,7 +822,7 @@
     {
       "board": "stonepatrocina",
       "company": "Stone - Indeed",
-      "brazil_jobs": 243
+      "brazil_jobs": 241
     },
     {
       "board": "stripe",
@@ -867,7 +887,7 @@
     {
       "board": "turing",
       "company": "Turing",
-      "brazil_jobs": 5
+      "brazil_jobs": 4
     },
     {
       "board": "twilio",
@@ -925,6 +945,11 @@
       "brazil_jobs": 17
     },
     {
+      "board": "gympass",
+      "company": "Wellhub",
+      "brazil_jobs": 37
+    },
+    {
       "board": "wildlifestudios",
       "company": "Wildlife Studios",
       "brazil_jobs": 13
@@ -952,7 +977,7 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 166
+      "brazil_jobs": 167
     },
     {
       "board": "xpengmotors",
@@ -967,7 +992,7 @@
     {
       "board": "ilia",
       "company": "ília",
-      "brazil_jobs": 12
+      "brazil_jobs": 13
     }
   ]
 }
