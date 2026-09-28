@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-28T16:37:48.952895+00:00",
+  "generated_at": "2026-09-28T17:11:37.054602+00:00",
   "candidate_count": 8331,
-  "company_count": 197,
+  "company_count": 193,
   "companies": [
     {
       "board": "abinbev",
@@ -33,11 +33,6 @@
       "board": "agilize",
       "company": "Agilize",
       "brazil_jobs": 6
-    },
-    {
-      "board": "airbnb",
-      "company": "Airbnb",
-      "brazil_jobs": 7
     },
     {
       "board": "alvys",
@@ -133,11 +128,6 @@
       "board": "axonius",
       "company": "Axonius",
       "brazil_jobs": 2
-    },
-    {
-      "board": "b12",
-      "company": "B12",
-      "brazil_jobs": 1
     },
     {
       "board": "b2c2",
@@ -263,11 +253,6 @@
       "board": "classpass",
       "company": "ClassPass",
       "brazil_jobs": 3
-    },
-    {
-      "board": "clinchoice",
-      "company": "ClinChoice",
-      "brazil_jobs": 4
     },
     {
       "board": "css",
@@ -732,7 +717,7 @@
     {
       "board": "rdstation",
       "company": "RD Station",
-      "brazil_jobs": 5
+      "brazil_jobs": 6
     },
     {
       "board": "rdsourcing",
@@ -743,6 +728,11 @@
       "board": "remotecom",
       "company": "Remote",
       "brazil_jobs": 1
+    },
+    {
+      "board": "ripple",
+      "company": "Ripple",
+      "brazil_jobs": 3
     },
     {
       "board": "riskified",
@@ -802,11 +792,6 @@
     {
       "board": "spacexglobal",
       "company": "SpaceX_Global",
-      "brazil_jobs": 4
-    },
-    {
-      "board": "speechify",
-      "company": "Speechify",
       "brazil_jobs": 4
     },
     {
@@ -882,7 +867,7 @@
     {
       "board": "turing",
       "company": "Turing",
-      "brazil_jobs": 4
+      "brazil_jobs": 5
     },
     {
       "board": "twilio",
@@ -938,11 +923,6 @@
       "board": "vtex",
       "company": "VTEX",
       "brazil_jobs": 17
-    },
-    {
-      "board": "gympass",
-      "company": "Wellhub",
-      "brazil_jobs": 38
     },
     {
       "board": "wildlifestudios",
