@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-28T13:23:46.497274+00:00",
+  "generated_at": "2026-09-28T14:34:50.245227+00:00",
   "candidate_count": 8331,
   "company_count": 199,
   "companies": [
     {
       "board": "abinbev",
       "company": "AB InBev  | Growth Group",
-      "brazil_jobs": 49
+      "brazil_jobs": 48
     },
     {
       "board": "advancedtechnologyservices",
@@ -27,7 +27,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 125
+      "brazil_jobs": 129
     },
     {
       "board": "agilize",
@@ -82,7 +82,7 @@
     {
       "board": "arctouch",
       "company": "ArcTouch",
-      "brazil_jobs": 4
+      "brazil_jobs": 3
     },
     {
       "board": "arenaim",
@@ -152,7 +152,7 @@
     {
       "board": "bees",
       "company": "BEES",
-      "brazil_jobs": 48
+      "brazil_jobs": 47
     },
     {
       "board": "betsson",
@@ -162,7 +162,7 @@
     {
       "board": "blip-global",
       "company": "Blip Global",
-      "brazil_jobs": 12
+      "brazil_jobs": 13
     },
     {
       "board": "boldmetrics",
@@ -257,7 +257,7 @@
     {
       "board": "clara",
       "company": "Clara",
-      "brazil_jobs": 61
+      "brazil_jobs": 60
     },
     {
       "board": "classpass",
@@ -512,7 +512,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 139
+      "brazil_jobs": 136
     },
     {
       "board": "interbrand",
@@ -717,7 +717,7 @@
     {
       "board": "powerdigitalmarketing",
       "company": "Power Digital",
-      "brazil_jobs": 56
+      "brazil_jobs": 55
     },
     {
       "board": "pfm",
@@ -982,7 +982,7 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 165
+      "brazil_jobs": 166
     },
     {
       "board": "xpengmotors",
