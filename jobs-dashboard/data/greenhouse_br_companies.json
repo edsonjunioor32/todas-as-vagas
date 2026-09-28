@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-26T13:50:36.232580+00:00",
+  "generated_at": "2026-09-28T12:39:52.253115+00:00",
   "candidate_count": 8331,
   "company_count": 200,
   "companies": [
     {
       "board": "abinbev",
       "company": "AB InBev  | Growth Group",
-      "brazil_jobs": 50
+      "brazil_jobs": 49
     },
     {
       "board": "advancedtechnologyservices",
@@ -27,7 +27,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 123
+      "brazil_jobs": 124
     },
     {
       "board": "agilize",
@@ -152,7 +152,7 @@
     {
       "board": "bees",
       "company": "BEES",
-      "brazil_jobs": 49
+      "brazil_jobs": 48
     },
     {
       "board": "betsson",
@@ -207,7 +207,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 154
+      "brazil_jobs": 155
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -217,7 +217,7 @@
     {
       "board": "capco",
       "company": "Capco",
-      "brazil_jobs": 121
+      "brazil_jobs": 122
     },
     {
       "board": "careaccess",
@@ -447,7 +447,7 @@
     {
       "board": "globalli",
       "company": "Globalli",
-      "brazil_jobs": 5
+      "brazil_jobs": 4
     },
     {
       "board": "growe",
@@ -462,7 +462,7 @@
     {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 72
+      "brazil_jobs": 71
     },
     {
       "board": "hotmartcareersbr",
@@ -512,7 +512,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 144
+      "brazil_jobs": 138
     },
     {
       "board": "interbrand",
@@ -730,11 +730,6 @@
       "brazil_jobs": 10
     },
     {
-      "board": "quince",
-      "company": "Quince",
-      "brazil_jobs": 1
-    },
-    {
       "board": "rdstation",
       "company": "RD Station",
       "brazil_jobs": 4
@@ -852,7 +847,7 @@
     {
       "board": "systemiq",
       "company": "Systemiq",
-      "brazil_jobs": 2
+      "brazil_jobs": 1
     },
     {
       "board": "taboola",
@@ -940,6 +935,11 @@
       "brazil_jobs": 1
     },
     {
+      "board": "veriff",
+      "company": "Veriff",
+      "brazil_jobs": 1
+    },
+    {
       "board": "wundermanthompson",
       "company": "VML",
       "brazil_jobs": 21
@@ -957,7 +957,7 @@
     {
       "board": "gympass",
       "company": "Wellhub",
-      "brazil_jobs": 37
+      "brazil_jobs": 38
     },
     {
       "board": "wildlifestudios",
@@ -987,7 +987,7 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 166
+      "brazil_jobs": 165
     },
     {
       "board": "xpengmotors",
