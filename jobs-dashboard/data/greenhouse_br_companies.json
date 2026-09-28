@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-28T15:13:12.716596+00:00",
+  "generated_at": "2026-09-28T15:48:56.268932+00:00",
   "candidate_count": 8331,
-  "company_count": 197,
+  "company_count": 198,
   "companies": [
     {
       "board": "abinbev",
       "company": "AB InBev  | Growth Group",
-      "brazil_jobs": 47
+      "brazil_jobs": 48
     },
     {
       "board": "advancedtechnologyservices",
@@ -152,7 +152,7 @@
     {
       "board": "bees",
       "company": "BEES",
-      "brazil_jobs": 46
+      "brazil_jobs": 47
     },
     {
       "board": "betsson",
@@ -207,7 +207,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 156
+      "brazil_jobs": 157
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -455,9 +455,14 @@
       "brazil_jobs": 1
     },
     {
+      "board": "growetalents",
+      "company": "Growe Talents",
+      "brazil_jobs": 1
+    },
+    {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 71
+      "brazil_jobs": 70
     },
     {
       "board": "hotmartcareersbr",
@@ -927,12 +932,12 @@
     {
       "board": "wundermanthompson",
       "company": "VML",
-      "brazil_jobs": 21
+      "brazil_jobs": 23
     },
     {
       "board": "vmlenterprisesolutions",
       "company": "VML/WPP Enterprise Solutions",
-      "brazil_jobs": 28
+      "brazil_jobs": 30
     },
     {
       "board": "vtex",
@@ -947,7 +952,7 @@
     {
       "board": "wildlifestudios",
       "company": "Wildlife Studios",
-      "brazil_jobs": 14
+      "brazil_jobs": 13
     },
     {
       "board": "agencywithin",
