@@ -1,0 +1,20 @@
+[Unit]
+Description=Recover missed Todas as Vagas catalog runs
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/todas-as-vagas
+EnvironmentFile=/home/ubuntu/.config/todas-as-vagas/github-scheduler.env
+Environment=CATCHUP_GRACE_MINUTES=30
+Environment=CATCHUP_DISPATCH_COOLDOWN_MINUTES=10
+Environment=CATCHUP_DISPATCH_PENDING_GRACE_MINUTES=30
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/usr/bin/python3 /home/ubuntu/todas-as-vagas/ops/github_scheduler.py
+UMask=0077
+TimeoutStartSec=90
+NoNewPrivileges=true
+PrivateTmp=true
