@@ -557,6 +557,58 @@ def prune(conn, keep_days=120, today=None, max_age_months=2,
     return cursor.rowcount
 
 
+def _canonicalize_snapshot_rows(rows):
+    """Collapse the legacy ``Nerdin`` source spelling into its canonical key."""
+    result = []
+    nerdin_positions = {}
+    for row in rows:
+        source = str(row[0] or "").strip()
+        if source.casefold() == "nerdin":
+            source = "nerdin"
+            row = (source, *row[1:])
+        if source != "nerdin":
+            result.append(row)
+            continue
+
+        url = str(row[17] or "").strip().split("#", 1)[0].split("?", 1)[0]
+        url_key = url.rstrip("/").casefold()
+        if not url_key:
+            result.append(row)
+            continue
+        position = nerdin_positions.get(url_key)
+        if position is None:
+            nerdin_positions[url_key] = len(result)
+            result.append(row)
+            continue
+
+        existing = result[position]
+        if str(row[15] or "") > str(existing[15] or ""):
+            preferred, fallback = row, existing
+        else:
+            preferred, fallback = existing, row
+        merged = list(preferred)
+        for index, value in enumerate(merged):
+            if index == 0:
+                merged[index] = "nerdin"
+            elif index == 14:
+                seen = [
+                    str(candidate)
+                    for candidate in (preferred[index], fallback[index])
+                    if candidate
+                ]
+                merged[index] = min(seen) if seen else ""
+            elif index == 15:
+                seen = [
+                    str(candidate)
+                    for candidate in (preferred[index], fallback[index])
+                    if candidate
+                ]
+                merged[index] = max(seen) if seen else ""
+            elif value in (None, "") and fallback[index] not in (None, ""):
+                merged[index] = fallback[index]
+        result[position] = tuple(merged)
+    return result
+
 def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
                     max_age_months=2,
                     max_raw_mb=64, source_counts=None, failed_sources=None,
@@ -632,6 +684,7 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
                  last_seen_date DESC
         {limit_clause}
     """, query_params).fetchall()
+    rows = _canonicalize_snapshot_rows(rows)
 
     portal_sets = {}
     snapshot_source_counts = {}
