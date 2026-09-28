@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-28T15:48:56.268932+00:00",
+  "generated_at": "2026-09-28T16:37:48.952895+00:00",
   "candidate_count": 8331,
-  "company_count": 198,
+  "company_count": 197,
   "companies": [
     {
       "board": "abinbev",
       "company": "AB InBev  | Growth Group",
-      "brazil_jobs": 48
+      "brazil_jobs": 49
     },
     {
       "board": "advancedtechnologyservices",
@@ -57,7 +57,7 @@
     {
       "board": "appdirect",
       "company": "AppDirect",
-      "brazil_jobs": 4
+      "brazil_jobs": 5
     },
     {
       "board": "appnovation",
@@ -152,7 +152,7 @@
     {
       "board": "bees",
       "company": "BEES",
-      "brazil_jobs": 47
+      "brazil_jobs": 48
     },
     {
       "board": "betsson",
@@ -477,7 +477,7 @@
     {
       "board": "housecall",
       "company": "Housecall Pro",
-      "brazil_jobs": 17
+      "brazil_jobs": 16
     },
     {
       "board": "indicacoesifoodinterno",
@@ -502,7 +502,7 @@
     {
       "board": "innovecs",
       "company": "Innovecs",
-      "brazil_jobs": 2
+      "brazil_jobs": 1
     },
     {
       "board": "insightassurance",
@@ -512,7 +512,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 136
+      "brazil_jobs": 134
     },
     {
       "board": "interbrand",
@@ -702,7 +702,7 @@
     {
       "board": "platformscience",
       "company": "Platform Science",
-      "brazil_jobs": 15
+      "brazil_jobs": 16
     },
     {
       "board": "sonyinteractiveentertainmentglobal",
@@ -732,7 +732,7 @@
     {
       "board": "rdstation",
       "company": "RD Station",
-      "brazil_jobs": 4
+      "brazil_jobs": 5
     },
     {
       "board": "rdsourcing",
@@ -743,11 +743,6 @@
       "board": "remotecom",
       "company": "Remote",
       "brazil_jobs": 1
-    },
-    {
-      "board": "ripple",
-      "company": "Ripple",
-      "brazil_jobs": 3
     },
     {
       "board": "riskified",
@@ -932,7 +927,7 @@
     {
       "board": "wundermanthompson",
       "company": "VML",
-      "brazil_jobs": 23
+      "brazil_jobs": 25
     },
     {
       "board": "vmlenterprisesolutions",
