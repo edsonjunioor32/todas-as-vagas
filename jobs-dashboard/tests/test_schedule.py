@@ -221,6 +221,50 @@ class ScheduleTests(unittest.TestCase):
         self.assertEqual(decide(now, [active], {})["reason"], "collection_active")
         self.assertEqual(decide(now, [successful], {})["reason"], "slot_succeeded")
 
+    def test_vps_scheduler_treats_pending_github_states_as_active(self):
+        now = datetime(2026, 9, 11, 14, 45, tzinfo=timezone.utc)
+        for status in ("pending", "waiting", "requested"):
+            with self.subTest(status=status):
+                run = {
+                    "event": "workflow_dispatch",
+                    "status": status,
+                    "created_at": "2026-09-11T14:31:00Z",
+                }
+                result = decide(now, [run], {})
+                self.assertEqual(result["action"], "skip")
+                self.assertEqual(result["reason"], "collection_active")
+
+    def test_vps_scheduler_holds_duplicate_while_accepted_dispatch_is_not_visible(self):
+        now = datetime(2026, 9, 11, 14, 50, tzinfo=timezone.utc)
+        state = {
+            "dispatched_slots": {
+                "2026-09-11T14:00:00+00:00": {
+                    "posted_at_utc": "2026-09-11T14:31:00+00:00"
+                }
+            }
+        }
+        result = decide(now, [], state)
+        self.assertEqual(result["action"], "skip")
+        self.assertEqual(result["reason"], "dispatch_visibility_grace")
+
+    def test_vps_scheduler_still_retries_a_visible_failed_dispatch_after_short_cooldown(self):
+        now = datetime(2026, 9, 11, 14, 45, tzinfo=timezone.utc)
+        failed = {
+            "event": "workflow_dispatch",
+            "status": "completed",
+            "conclusion": "failure",
+            "created_at": "2026-09-11T14:31:00Z",
+        }
+        state = {
+            "dispatched_slots": {
+                "2026-09-11T14:00:00+00:00": {
+                    "posted_at_utc": "2026-09-11T14:31:00+00:00"
+                }
+            }
+        }
+        result = decide(now, [failed], state)
+        self.assertEqual(result["action"], "dispatch")
+
     def test_vps_scheduler_retries_a_failed_dispatch_when_not_locally_confirmed(self):
         now = datetime(2026, 9, 11, 14, 45, tzinfo=timezone.utc)
         failed = {

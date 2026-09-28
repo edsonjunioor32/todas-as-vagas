@@ -25,6 +25,7 @@ BRASILIA = ZoneInfo("America/Sao_Paulo")
 COLLECTION_HOURS_UTC = (11, 14, 18, 23)
 DEFAULT_GRACE_MINUTES = 30
 DEFAULT_DISPATCH_COOLDOWN_MINUTES = 10
+DEFAULT_PENDING_DISPATCH_GRACE_MINUTES = 30
 DEFAULT_REPOSITORY = "edsonjunioor32/todas-as-vagas"
 DEFAULT_STATE_PATH = "~/.local/state/todas-as-vagas/github-scheduler.json"
 DEFAULT_LOCK_PATH = "~/.local/state/todas-as-vagas/github-scheduler.lock"
@@ -123,12 +124,13 @@ def decide(
     state: dict,
     grace_minutes: int = DEFAULT_GRACE_MINUTES,
     dispatch_cooldown_minutes: int = DEFAULT_DISPATCH_COOLDOWN_MINUTES,
+    pending_dispatch_grace_minutes: int = DEFAULT_PENDING_DISPATCH_GRACE_MINUTES,
 ) -> dict[str, str | datetime]:
     """Decide whether a dispatch is needed for the current slot.
 
-    A local dispatch is used only as a short cooldown for eventual consistency.
-    A failed workflow_dispatch run is not considered successful, so a later
-    invocation can retry it after the cooldown.
+    A local dispatch gets a visibility grace in case GitHub has accepted the
+    request but its run is not yet visible to the API. Visible failed runs can
+    still be retried after the shorter dispatch cooldown.
     """
     current = _as_utc(now)
     slot = latest_slot(current)
@@ -138,10 +140,8 @@ def decide(
     if current < grace_end:
         return {"action": "wait", "reason": "within_grace", "slot": slot}
     collection_runs = [run for run in runs if is_collection_run(run)]
-    if any(
-        str(run.get("status") or "") in {"queued", "in_progress"}
-        for run in collection_runs
-    ):
+    active_statuses = {"queued", "in_progress", "pending", "waiting", "requested"}
+    if any(str(run.get("status") or "") in active_statuses for run in collection_runs):
         return {"action": "skip", "reason": "collection_active", "slot": slot}
 
     slot_runs = [
@@ -161,8 +161,18 @@ def decide(
     ):
         return {"action": "skip", "reason": "dispatch_cooldown", "slot": slot}
     posted_at = _state_posted_at(state, key)
-    if posted_at is not None and posted_at >= current - timedelta(minutes=max(0, int(dispatch_cooldown_minutes))):
-        return {"action": "skip", "reason": "dispatch_cooldown", "slot": slot}
+    if posted_at is not None:
+        matching_dispatch = any(
+            str(run.get("event") or "") == "workflow_dispatch"
+            and (created := _run_time(run)) is not None
+            and created >= posted_at - timedelta(minutes=2)
+            for run in slot_runs
+        )
+        visibility_deadline = posted_at + timedelta(
+            minutes=max(0, int(pending_dispatch_grace_minutes))
+        )
+        if not matching_dispatch and current < visibility_deadline:
+            return {"action": "skip", "reason": "dispatch_visibility_grace", "slot": slot}
 
     return {"action": "dispatch", "reason": "slot_missing", "slot": slot}
 
@@ -350,12 +360,22 @@ def main() -> int:
             )
         except ValueError:
             cooldown_minutes = DEFAULT_DISPATCH_COOLDOWN_MINUTES
+        try:
+            pending_grace_minutes = int(
+                os.environ.get(
+                    "CATCHUP_DISPATCH_PENDING_GRACE_MINUTES",
+                    str(DEFAULT_PENDING_DISPATCH_GRACE_MINUTES),
+                )
+            )
+        except ValueError:
+            pending_grace_minutes = DEFAULT_PENDING_DISPATCH_GRACE_MINUTES
         result = decide(
             now,
             runs,
             state,
             int(os.environ.get("CATCHUP_GRACE_MINUTES", DEFAULT_GRACE_MINUTES)),
             cooldown_minutes,
+            pending_grace_minutes,
         )
         slot = result["slot"]
         assert isinstance(slot, datetime)
@@ -382,4 +402,5 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
 
