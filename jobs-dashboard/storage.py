@@ -591,10 +591,18 @@ def _canonicalize_snapshot_rows(rows):
             if index == 0:
                 merged[index] = "nerdin"
             elif index == 14:
-                seen = [str(candidate) for candidate in (preferred[index], fallback[index]) if candidate]
+                seen = [
+                    str(candidate)
+                    for candidate in (preferred[index], fallback[index])
+                    if candidate
+                ]
                 merged[index] = min(seen) if seen else ""
             elif index == 15:
-                seen = [str(candidate) for candidate in (preferred[index], fallback[index]) if candidate]
+                seen = [
+                    str(candidate)
+                    for candidate in (preferred[index], fallback[index])
+                    if candidate
+                ]
                 merged[index] = max(seen) if seen else ""
             elif value in (None, "") and fallback[index] not in (None, ""):
                 merged[index] = fallback[index]
