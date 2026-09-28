@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import inspect
+import json
 import os
 import sys
 import tempfile
@@ -341,6 +342,49 @@ class StorageTests(unittest.TestCase):
             conn.close()
 
 
+    def test_snapshot_merges_legacy_nerdin_case_variant_without_losing_unique_rows(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            conn = storage.connect(str(Path(temporary) / "jobs.db"))
+            legacy_duplicate = sample_job("Nerdin", "shared")
+            legacy_duplicate["title"] = "Título legado"
+            current_duplicate = sample_job("nerdin", "shared")
+            current_duplicate["title"] = "Título atualizado"
+            legacy_only = sample_job("Nerdin", "legacy-only")
+            storage.upsert(
+                conn,
+                [legacy_duplicate, current_duplicate, legacy_only],
+                today="2026-09-28",
+            )
+            conn.execute(
+                "UPDATE jobs SET last_seen_date = '2026-09-26' "
+                "WHERE job_uid IN ('Nerdin:shared', 'Nerdin:legacy-only')"
+            )
+            conn.commit()
+
+            out = Path(temporary) / "vagas.json"
+            count, _ = storage.export_snapshot(
+                conn,
+                str(out),
+                fresh_days=3,
+                today="2026-09-28",
+                source_counts={"nerdin": 1},
+            )
+            payload = json.loads(out.read_text(encoding="utf-8"))
+            source_names = payload["dict"]["source"]
+            sources = [source_names[index] for index in payload["jobs"]["src"]]
+            rows = [
+                {key: values[index] for key, values in payload["jobs"].items()}
+                for index in range(count)
+            ]
+            conn.close()
+
+            self.assertEqual(count, 2)
+            self.assertEqual(payload["source_counts"], {"nerdin": 2})
+            self.assertEqual(set(sources), {"nerdin"})
+            duplicate = next(row for row in rows if row["url"].endswith("/shared"))
+            self.assertEqual(duplicate["title"], "Título atualizado")
+            self.assertEqual(duplicate["seen"], "2026-09-28")
+            self.assertTrue(any(row["url"].endswith("/legacy-only") for row in rows))
 class NerdinTests(unittest.TestCase):
     def test_public_card_is_normalized_by_shared_adapter(self):
         markup = """
