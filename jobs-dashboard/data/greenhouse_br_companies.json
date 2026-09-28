@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-28T12:39:52.253115+00:00",
+  "generated_at": "2026-09-28T13:23:46.497274+00:00",
   "candidate_count": 8331,
-  "company_count": 200,
+  "company_count": 199,
   "companies": [
     {
       "board": "abinbev",
@@ -27,7 +27,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 124
+      "brazil_jobs": 125
     },
     {
       "board": "agilize",
@@ -207,7 +207,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 155
+      "brazil_jobs": 156
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -462,7 +462,7 @@
     {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 71
+      "brazil_jobs": 70
     },
     {
       "board": "hotmartcareersbr",
@@ -512,7 +512,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 138
+      "brazil_jobs": 139
     },
     {
       "board": "interbrand",
@@ -873,11 +873,6 @@
       "board": "thanx",
       "company": "Thanx",
       "brazil_jobs": 2
-    },
-    {
-      "board": "thrivedigital",
-      "company": "Thrive Digital",
-      "brazil_jobs": 3
     },
     {
       "board": "thunes",
