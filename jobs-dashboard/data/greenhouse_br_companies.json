@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-28T20:28:24.242151+00:00",
+  "generated_at": "2026-09-28T21:35:32.809193+00:00",
   "candidate_count": 8331,
   "company_count": 198,
   "companies": [
@@ -37,7 +37,7 @@
     {
       "board": "airbnb",
       "company": "Airbnb",
-      "brazil_jobs": 5
+      "brazil_jobs": 9
     },
     {
       "board": "alvys",
@@ -717,7 +717,7 @@
     {
       "board": "powerdigitalmarketing",
       "company": "Power Digital",
-      "brazil_jobs": 54
+      "brazil_jobs": 53
     },
     {
       "board": "pfm",
@@ -972,7 +972,7 @@
     {
       "board": "wppmedia",
       "company": "WPP Media",
-      "brazil_jobs": 37
+      "brazil_jobs": 36
     },
     {
       "board": "xpinc",
