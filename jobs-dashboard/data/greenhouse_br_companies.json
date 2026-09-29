@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-29T06:44:05.655500+00:00",
+  "generated_at": "2026-09-29T07:28:44.500944+00:00",
   "candidate_count": 8331,
-  "company_count": 197,
+  "company_count": 198,
   "companies": [
     {
       "board": "abinbev",
@@ -288,6 +288,11 @@
       "board": "databricks",
       "company": "Databricks",
       "brazil_jobs": 6
+    },
+    {
+      "board": "datacamp",
+      "company": "DataCamp",
+      "brazil_jobs": 1
     },
     {
       "board": "datadog",
