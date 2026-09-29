@@ -10,7 +10,7 @@ const html = fs.readFileSync(path.join(root, 'docs', 'index.html'), 'utf8');
 const app = fs.readFileSync(path.join(root, 'docs', 'app.js'), 'utf8');
 
 assert.match(html, /<label for="excludeTerms">Não exibir vagas com:<\/label>/i);
-assert.match(html, /<input id="excludeTerms" name="excluir" type="text"/);
+assert.match(html, /<input id="excludeTerms" name="excluir" type="text" placeholder="Cargo, empresa ou palavra-chave"/);
 assert.match(html, /Separe os termos por vírgula[\s\S]*qualquer termo/i);
 assert.match(html, /filter-terms\.js[^\n]*defer[\s\S]*app\.js/);
 
