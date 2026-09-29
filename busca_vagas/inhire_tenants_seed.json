@@ -568,6 +568,10 @@
     "tenantName": "CSU"
   },
   {
+    "slug": "csudigital",
+    "tenantName": "csudigital"
+  },
+  {
     "slug": "ctctech",
     "tenantName": "CTC"
   },

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-29T21:41:34.721588+00:00",
+  "generated_at": "2026-09-29T22:51:32.949455+00:00",
   "candidate_count": 8331,
   "company_count": 198,
   "companies": [
@@ -123,6 +123,11 @@
       "board": "axon",
       "company": "Axon",
       "brazil_jobs": 4
+    },
+    {
+      "board": "axonius",
+      "company": "Axonius",
+      "brazil_jobs": 2
     },
     {
       "board": "b12",
@@ -332,7 +337,7 @@
     {
       "board": "encora10",
       "company": "Encora",
-      "brazil_jobs": 19
+      "brazil_jobs": 20
     },
     {
       "board": "enforce",
@@ -453,11 +458,6 @@
       "board": "growetalents",
       "company": "Growe Talents",
       "brazil_jobs": 1
-    },
-    {
-      "board": "quintoandar",
-      "company": "Grupo QuintoAndar",
-      "brazil_jobs": 77
     },
     {
       "board": "hotmartcareersbr",
@@ -937,7 +937,7 @@
     {
       "board": "vmlenterprisesolutions",
       "company": "VML/WPP Enterprise Solutions",
-      "brazil_jobs": 29
+      "brazil_jobs": 30
     },
     {
       "board": "vtex",
@@ -947,7 +947,7 @@
     {
       "board": "gympass",
       "company": "Wellhub",
-      "brazil_jobs": 35
+      "brazil_jobs": 37
     },
     {
       "board": "wildlifestudios",
