@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-29T15:19:19.195563+00:00",
+  "generated_at": "2026-09-29T16:15:25.061647+00:00",
   "candidate_count": 8331,
-  "company_count": 195,
+  "company_count": 192,
   "companies": [
     {
       "board": "abinbev",
@@ -27,7 +27,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 129
+      "brazil_jobs": 130
     },
     {
       "board": "agilize",
@@ -65,19 +65,9 @@
       "brazil_jobs": 1
     },
     {
-      "board": "archer56",
-      "company": "Archer",
-      "brazil_jobs": 1
-    },
-    {
       "board": "arcoeducacao",
       "company": "Arco Educação",
       "brazil_jobs": 78
-    },
-    {
-      "board": "arctouch",
-      "company": "ArcTouch",
-      "brazil_jobs": 3
     },
     {
       "board": "arenaim",
@@ -215,11 +205,6 @@
       "brazil_jobs": 120
     },
     {
-      "board": "careaccess",
-      "company": "Care Access",
-      "brazil_jobs": 1
-    },
-    {
       "board": "caronsale",
       "company": "CarOnSale",
       "brazil_jobs": 3
@@ -327,11 +312,6 @@
     {
       "board": "ebury",
       "company": "Ebury",
-      "brazil_jobs": 4
-    },
-    {
-      "board": "elastic",
-      "company": "Elastic",
       "brazil_jobs": 4
     },
     {
@@ -512,7 +492,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 138
+      "brazil_jobs": 139
     },
     {
       "board": "interbrand",
@@ -655,11 +635,6 @@
       "brazil_jobs": 1
     },
     {
-      "board": "okx",
-      "company": "OKX",
-      "brazil_jobs": 5
-    },
-    {
       "board": "oliverbrazil",
       "company": "OLIVER Agency - Brasil",
       "brazil_jobs": 2
@@ -685,6 +660,11 @@
       "brazil_jobs": 1
     },
     {
+      "board": "otter",
+      "company": "Otter",
+      "brazil_jobs": 1
+    },
+    {
       "board": "try-picnic",
       "company": "Picnic Delivery",
       "brazil_jobs": 1
@@ -698,6 +678,11 @@
       "board": "platformscience",
       "company": "Platform Science",
       "brazil_jobs": 16
+    },
+    {
+      "board": "sonyinteractiveentertainmentglobal",
+      "company": "PlayStation Global",
+      "brazil_jobs": 2
     },
     {
       "board": "podium81",
@@ -922,7 +907,7 @@
     {
       "board": "vmlenterprisesolutions",
       "company": "VML/WPP Enterprise Solutions",
-      "brazil_jobs": 27
+      "brazil_jobs": 29
     },
     {
       "board": "vtex",
