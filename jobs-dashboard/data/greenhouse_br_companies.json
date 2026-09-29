@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-29T18:21:38.214859+00:00",
+  "generated_at": "2026-09-29T18:58:07.667964+00:00",
   "candidate_count": 8331,
-  "company_count": 197,
+  "company_count": 196,
   "companies": [
     {
       "board": "abinbev",
@@ -27,7 +27,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 129
+      "brazil_jobs": 127
     },
     {
       "board": "agilize",
@@ -142,7 +142,7 @@
     {
       "board": "bancopan",
       "company": "Banco PAN",
-      "brazil_jobs": 17
+      "brazil_jobs": 16
     },
     {
       "board": "bees",
@@ -260,6 +260,11 @@
       "brazil_jobs": 3
     },
     {
+      "board": "clinchoice",
+      "company": "ClinChoice",
+      "brazil_jobs": 4
+    },
+    {
       "board": "css",
       "company": "CloudKitchens",
       "brazil_jobs": 1
@@ -268,11 +273,6 @@
       "board": "coinbase",
       "company": "Coinbase",
       "brazil_jobs": 4
-    },
-    {
-      "board": "cookunity",
-      "company": "CookUnity",
-      "brazil_jobs": 3
     },
     {
       "board": "counterpart",
@@ -328,6 +328,11 @@
       "board": "elastic",
       "company": "Elastic",
       "brazil_jobs": 4
+    },
+    {
+      "board": "encora10",
+      "company": "Encora",
+      "brazil_jobs": 19
     },
     {
       "board": "enforce",
@@ -580,11 +585,6 @@
       "brazil_jobs": 1
     },
     {
-      "board": "realtimeboardglobal",
-      "company": "Miro",
-      "brazil_jobs": 1
-    },
-    {
       "board": "mongodb",
       "company": "MongoDB",
       "brazil_jobs": 4
@@ -692,11 +692,6 @@
     {
       "board": "try-picnic",
       "company": "Picnic Delivery",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "planetlabs",
-      "company": "Planet",
       "brazil_jobs": 1
     },
     {
@@ -907,7 +902,7 @@
     {
       "board": "valtech",
       "company": "Valtech",
-      "brazil_jobs": 10
+      "brazil_jobs": 11
     },
     {
       "board": "vectranetworks",
