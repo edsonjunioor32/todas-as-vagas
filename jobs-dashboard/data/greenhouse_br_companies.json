@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-29T09:50:11.226216+00:00",
+  "generated_at": "2026-09-29T10:34:03.691738+00:00",
   "candidate_count": 8331,
   "company_count": 197,
   "companies": [
@@ -123,6 +123,11 @@
       "board": "axon",
       "company": "Axon",
       "brazil_jobs": 4
+    },
+    {
+      "board": "axonius",
+      "company": "Axonius",
+      "brazil_jobs": 2
     },
     {
       "board": "b12",
@@ -733,11 +738,6 @@
       "board": "rdsourcing",
       "company": "RD Station - Sourcing",
       "brazil_jobs": 3
-    },
-    {
-      "board": "remotecom",
-      "company": "Remote",
-      "brazil_jobs": 1
     },
     {
       "board": "ripple",
