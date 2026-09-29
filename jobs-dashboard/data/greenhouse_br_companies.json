@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-29T21:11:58.213032+00:00",
+  "generated_at": "2026-09-29T21:41:34.721588+00:00",
   "candidate_count": 8331,
-  "company_count": 199,
+  "company_count": 198,
   "companies": [
     {
       "board": "abinbev",
@@ -27,7 +27,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 123
+      "brazil_jobs": 120
     },
     {
       "board": "agilize",
@@ -123,11 +123,6 @@
       "board": "axon",
       "company": "Axon",
       "brazil_jobs": 4
-    },
-    {
-      "board": "axonius",
-      "company": "Axonius",
-      "brazil_jobs": 2
     },
     {
       "board": "b12",
