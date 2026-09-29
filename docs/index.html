@@ -31,7 +31,8 @@
     <link rel="stylesheet" href="./styles.css?v=21">
     <link rel="stylesheet" href="./fit-entry.css?v=2">
     <script src="./fit-entry.js?v=1" defer></script>
-    <script src="./app.js?v=17" defer></script>
+    <script src="./filter-terms.js?v=1" defer></script>
+    <script src="./app.js?v=18" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#resultados">Pular para os resultados</a>
@@ -176,6 +177,12 @@
                 <span aria-hidden="true">⌕</span>
                 <input id="searchInput" name="busca" type="search" placeholder="Cargo, empresa ou palavra-chave" spellcheck="false">
               </div>
+            </div>
+
+            <div class="field field-compact">
+              <label for="excludeTerms">Não exibir vagas com:</label>
+              <input id="excludeTerms" name="excluir" type="text" placeholder="Ex.: vitru, estágio" spellcheck="false" aria-describedby="excludeTermsHint">
+              <small id="excludeTermsHint">Separe os termos por vírgula. Vagas que contenham qualquer termo serão ocultadas.</small>
             </div>
 
             <div class="field field-compact">
