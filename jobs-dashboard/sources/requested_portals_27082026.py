@@ -60,6 +60,17 @@ WORKDAY = {
         "url": "https://wd3.myworkdaysite.com/recruiting/edenpeople/Edenred_Careers/1/refreshFacet/318c8bb6f553100021d223d9780d30be",
         "detail_base": "https://wd3.myworkdaysite.com/recruiting/edenpeople/Edenred_Careers/1/",
     },
+    "acciona": {
+        "host": "acciona.wd3.myworkdayjobs.com",
+        "tenant": "acciona",
+        "site": "ACCIONA_Employment_Channel",
+        "company": "ACCIONA",
+        "url": "https://acciona.wd3.myworkdayjobs.com/en-US/ACCIONA_Employment_Channel/",
+        "detail_base": "https://acciona.wd3.myworkdayjobs.com/en-US/ACCIONA_Employment_Channel/",
+        "brazil_facet": {
+            "Country": ["1a29bb1357b240ab99a2fa755cc87c0e"],
+        },
+    },
 }
 
 WORKDAY_API = "https://{host}/wday/cxs/{tenant}/{site}/jobs"
@@ -92,7 +103,12 @@ def _workday_rows(name):
     while offset < 5000:
         payload = post_json(
             WORKDAY_API.format(**config),
-            {"appliedFacets": {}, "limit": limit, "offset": offset, "searchText": ""},
+            {
+                "appliedFacets": config.get("brazil_facet", {}),
+                "limit": limit,
+                "offset": offset,
+                "searchText": "",
+            },
             headers={"Accept": "application/json", "Content-Type": "application/json"},
             timeout=60,
             retries=3,
@@ -107,7 +123,11 @@ def _workday_rows(name):
             native_id = str(item.get("bulletFields", [None])[0] or item.get("jobReqId") or external).strip()
             if not title or not external or not native_id or native_id in seen:
                 continue
-            if not BRAZIL_WORDS.search(location) and not is_brazil_location(location):
+            if (
+                not config.get("brazil_facet")
+                and not BRAZIL_WORDS.search(location)
+                and not is_brazil_location(location)
+            ):
                 continue
             seen.add(native_id)
             detail_base = str(config.get("detail_base") or "").strip()
@@ -157,6 +177,10 @@ def fetch_mdlz():
 
 def fetch_edenred():
     return _workday_rows("edenred")
+
+
+def fetch_acciona():
+    return _workday_rows("acciona")
 
 
 def _jsonld_rows(source, url, company):

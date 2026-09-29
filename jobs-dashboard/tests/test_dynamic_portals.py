@@ -13,6 +13,7 @@ from unittest.mock import patch
 DASHBOARD = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(DASHBOARD))
 
+from sources import REGISTRY  # noqa: E402
 from sources import (  # noqa: E402
     _http, digisystem, requested_careers, requested_portals_27082026,
     requested_portals_29082026, sankhya_senior,
@@ -225,6 +226,47 @@ class EdenredWorkdayTests(unittest.TestCase):
             "https://wd3.myworkdaysite.com/wday/cxs/edenpeople/Edenred_Careers/jobs",
             request.call_args.args[0],
         )
+
+
+class AccionaWorkdayTests(unittest.TestCase):
+    def test_acciona_requests_brazil_facet_and_builds_detail_links(self):
+        payload = {
+            "total": 1,
+            "jobPostings": [{
+                "title": "ENGENHEIRO DE PLANEJAMENTO",
+                "locationsText": "Guarapari",
+                "externalPath": "/job/GUARAPARI/ENGENHEIRO_20102540",
+                "bulletFields": ["20102540"],
+                "postedOn": "2026-09-29",
+            }],
+        }
+        with patch.object(
+            requested_portals_27082026, "post_json", return_value=payload
+        ) as request:
+            rows = requested_portals_27082026.fetch_acciona()
+
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["source"], "acciona")
+        self.assertEqual(rows[0]["native_id"], "20102540")
+        self.assertEqual(rows[0]["company"], "ACCIONA")
+        self.assertEqual(rows[0]["country"], "BR")
+        self.assertEqual(rows[0]["market"], "BR")
+        self.assertEqual(rows[0]["published_date"], "2026-09-29")
+        self.assertEqual(
+            rows[0]["url"],
+            "https://acciona.wd3.myworkdayjobs.com/en-US/ACCIONA_Employment_Channel/job/GUARAPARI/ENGENHEIRO_20102540",
+        )
+        self.assertIn(
+            "https://acciona.wd3.myworkdayjobs.com/wday/cxs/acciona/ACCIONA_Employment_Channel/jobs",
+            request.call_args.args[0],
+        )
+        self.assertEqual(
+            request.call_args.args[1]["appliedFacets"],
+            {"Country": ["1a29bb1357b240ab99a2fa755cc87c0e"]},
+        )
+
+    def test_acciona_is_registered_as_a_source(self):
+        self.assertIs(dict(REGISTRY)["acciona"], requested_portals_27082026.fetch_acciona)
 
 
 class SankhyaSeniorTests(unittest.TestCase):
