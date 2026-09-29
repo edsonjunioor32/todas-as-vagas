@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-29T10:34:03.691738+00:00",
+  "generated_at": "2026-09-29T11:34:13.969370+00:00",
   "candidate_count": 8331,
   "company_count": 197,
   "companies": [
@@ -27,7 +27,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 130
+      "brazil_jobs": 131
     },
     {
       "board": "agilize",
@@ -72,7 +72,7 @@
     {
       "board": "arcoeducacao",
       "company": "Arco Educação",
-      "brazil_jobs": 76
+      "brazil_jobs": 75
     },
     {
       "board": "arctouch",
@@ -462,7 +462,7 @@
     {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 71
+      "brazil_jobs": 70
     },
     {
       "board": "hotmartcareersbr",
