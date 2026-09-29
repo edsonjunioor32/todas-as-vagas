@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-29T17:50:49.446204+00:00",
+  "generated_at": "2026-09-29T18:21:38.214859+00:00",
   "candidate_count": 8331,
-  "company_count": 198,
+  "company_count": 197,
   "companies": [
     {
       "board": "abinbev",
@@ -27,7 +27,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 131
+      "brazil_jobs": 129
     },
     {
       "board": "agilize",
@@ -212,7 +212,7 @@
     {
       "board": "capco",
       "company": "Capco",
-      "brazil_jobs": 120
+      "brazil_jobs": 121
     },
     {
       "board": "careaccess",
@@ -252,17 +252,12 @@
     {
       "board": "clara",
       "company": "Clara",
-      "brazil_jobs": 60
+      "brazil_jobs": 61
     },
     {
       "board": "classpass",
       "company": "ClassPass",
       "brazil_jobs": 3
-    },
-    {
-      "board": "clinchoice",
-      "company": "ClinChoice",
-      "brazil_jobs": 4
     },
     {
       "board": "css",
@@ -333,11 +328,6 @@
       "board": "elastic",
       "company": "Elastic",
       "brazil_jobs": 4
-    },
-    {
-      "board": "encora10",
-      "company": "Encora",
-      "brazil_jobs": 19
     },
     {
       "board": "enforce",
@@ -695,6 +685,11 @@
       "brazil_jobs": 1
     },
     {
+      "board": "payoneer",
+      "company": "Payoneer",
+      "brazil_jobs": 1
+    },
+    {
       "board": "try-picnic",
       "company": "Picnic Delivery",
       "brazil_jobs": 1
@@ -737,7 +732,7 @@
     {
       "board": "rdstation",
       "company": "RD Station",
-      "brazil_jobs": 7
+      "brazil_jobs": 6
     },
     {
       "board": "rdsourcing",
