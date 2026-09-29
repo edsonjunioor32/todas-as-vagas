@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-28T21:35:32.809193+00:00",
+  "generated_at": "2026-09-28T23:34:55.907710+00:00",
   "candidate_count": 8331,
   "company_count": 198,
   "companies": [
@@ -22,7 +22,7 @@
     {
       "board": "aestudio",
       "company": "AE Studio",
-      "brazil_jobs": 2
+      "brazil_jobs": 3
     },
     {
       "board": "agibank",
@@ -202,7 +202,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 157
+      "brazil_jobs": 159
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -212,7 +212,7 @@
     {
       "board": "capco",
       "company": "Capco",
-      "brazil_jobs": 121
+      "brazil_jobs": 120
     },
     {
       "board": "careaccess",
@@ -512,7 +512,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 135
+      "brazil_jobs": 136
     },
     {
       "board": "interbrand",
@@ -732,7 +732,7 @@
     {
       "board": "rdstation",
       "company": "RD Station",
-      "brazil_jobs": 6
+      "brazil_jobs": 7
     },
     {
       "board": "rdsourcing",
@@ -977,7 +977,7 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 172
+      "brazil_jobs": 173
     },
     {
       "board": "xpengmotors",
@@ -992,7 +992,7 @@
     {
       "board": "ilia",
       "company": "ília",
-      "brazil_jobs": 13
+      "brazil_jobs": 14
     }
   ]
 }
