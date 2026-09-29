@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-29T12:29:03.051099+00:00",
+  "generated_at": "2026-09-29T12:56:07.441689+00:00",
   "candidate_count": 8331,
   "company_count": 197,
   "companies": [
@@ -202,7 +202,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 159
+      "brazil_jobs": 160
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -362,12 +362,12 @@
     {
       "board": "externaljobboards",
       "company": "Exadel",
-      "brazil_jobs": 13
+      "brazil_jobs": 12
     },
     {
       "board": "exadelinc",
       "company": "Exadel Inc (Website)",
-      "brazil_jobs": 15
+      "brazil_jobs": 14
     },
     {
       "board": "fanaticscollectibles",
@@ -482,7 +482,7 @@
     {
       "board": "indicacoesifoodinterno",
       "company": "iFood Indicações",
-      "brazil_jobs": 4
+      "brazil_jobs": 3
     },
     {
       "board": "impinjexternal",
@@ -792,7 +792,7 @@
     {
       "board": "sohohouseco",
       "company": "Soho House & Co.",
-      "brazil_jobs": 12
+      "brazil_jobs": 11
     },
     {
       "board": "sonicwall",
@@ -817,7 +817,7 @@
     {
       "board": "stonepatrocina",
       "company": "Stone - Indeed",
-      "brazil_jobs": 243
+      "brazil_jobs": 244
     },
     {
       "board": "stripe",
