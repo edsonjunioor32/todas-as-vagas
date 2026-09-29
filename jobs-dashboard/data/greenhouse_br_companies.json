@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-29T16:15:25.061647+00:00",
+  "generated_at": "2026-09-29T16:45:34.140722+00:00",
   "candidate_count": 8331,
-  "company_count": 192,
+  "company_count": 197,
   "companies": [
     {
       "board": "abinbev",
@@ -65,9 +65,19 @@
       "brazil_jobs": 1
     },
     {
+      "board": "archer56",
+      "company": "Archer",
+      "brazil_jobs": 1
+    },
+    {
       "board": "arcoeducacao",
       "company": "Arco Educação",
       "brazil_jobs": 78
+    },
+    {
+      "board": "arctouch",
+      "company": "ArcTouch",
+      "brazil_jobs": 3
     },
     {
       "board": "arenaim",
@@ -205,6 +215,11 @@
       "brazil_jobs": 120
     },
     {
+      "board": "careaccess",
+      "company": "Care Access",
+      "brazil_jobs": 1
+    },
+    {
       "board": "caronsale",
       "company": "CarOnSale",
       "brazil_jobs": 3
@@ -312,6 +327,11 @@
     {
       "board": "ebury",
       "company": "Ebury",
+      "brazil_jobs": 4
+    },
+    {
+      "board": "elastic",
+      "company": "Elastic",
       "brazil_jobs": 4
     },
     {
@@ -492,7 +512,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 139
+      "brazil_jobs": 140
     },
     {
       "board": "interbrand",
@@ -633,6 +653,11 @@
       "board": "ohalogenetics",
       "company": "Ohalo",
       "brazil_jobs": 1
+    },
+    {
+      "board": "okx",
+      "company": "OKX",
+      "brazil_jobs": 5
     },
     {
       "board": "oliverbrazil",
@@ -947,7 +972,7 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 173
+      "brazil_jobs": 172
     },
     {
       "board": "xpengmotors",
