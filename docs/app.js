@@ -137,6 +137,7 @@
     shareSearch: document.querySelector('#shareSearch'),
     activeFilters: document.querySelector('#activeFilters'),
     searchInput: document.querySelector('#searchInput'),
+    excludeTerms: document.querySelector('#excludeTerms'),
     sourceFilter: document.querySelector('#sourceFilter'),
     workplaceFilter: document.querySelector('#workplaceFilter'),
     contractFilter: document.querySelector('#contractFilter'),
@@ -575,6 +576,7 @@
   function loadParams() {
     const params = new URLSearchParams(window.location.search);
     elements.searchInput.value = params.get('q') || '';
+    elements.excludeTerms.value = params.get('excluir') || '';
     elements.sourceFilter.value = params.get('portal') || '';
     elements.workplaceFilter.value = params.get('modalidade') || '';
     const requestedContract = params.get('contratacao') || '';
@@ -599,6 +601,7 @@
     const params = new URLSearchParams();
     const values = {
       q: elements.searchInput.value.trim(),
+      excluir: elements.excludeTerms.value.trim(),
       portal: elements.sourceFilter.value,
       modalidade: elements.workplaceFilter.value,
       contratacao: elements.contractFilter.value,
@@ -625,6 +628,7 @@
       if (value) entries.push({ key, label, value });
     };
     add('q', 'Busca', elements.searchInput.value.trim());
+    add('excluir', 'Não exibir vagas com', elements.excludeTerms.value.trim());
     add('cidade', 'Local', elements.cityFilter.value.trim());
     add('modalidade', 'Modalidade', elements.workplaceFilter.value);
     add('contratacao', 'Contrato', contractLabel(elements.contractFilter.value));
@@ -665,6 +669,7 @@
   function clearFilter(key) {
     const fields = {
       q: elements.searchInput,
+      excluir: elements.excludeTerms,
       cidade: elements.cityFilter,
       modalidade: elements.workplaceFilter,
       contratacao: elements.contractFilter,
@@ -732,6 +737,7 @@
 
   function filterJobs() {
     const search = normalize(elements.searchInput.value);
+    const excludedTerms = window.TodasAsVagasFilterTerms.parseExcludedTerms(elements.excludeTerms.value);
     const source = elements.sourceFilter.value;
     const workplace = elements.workplaceFilter.value;
     const contract = elements.contractFilter.value;
@@ -748,6 +754,7 @@
 
     state.filtered = state.jobs.filter(job => {
       if (search && !job._search.includes(search)) return false;
+      if (window.TodasAsVagasFilterTerms.matchesExcludedTerm(job._search, excludedTerms)) return false;
       if (source && job.source !== source) return false;
       if (workplace && job.workplaceType !== workplace) return false;
       if (contract) {
@@ -1080,6 +1087,7 @@
 
   function bindEvents() {
     elements.searchInput.addEventListener('input', scheduleRender);
+    elements.excludeTerms.addEventListener('input', scheduleRender);
     elements.cityFilter.addEventListener('input', scheduleRender);
     elements.filtersForm.addEventListener('change', () => { state.page = 1; render(); });
     elements.sortFilter.addEventListener('change', () => { state.page = 1; render(); });
