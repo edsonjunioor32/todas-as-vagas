@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-29T12:56:07.441689+00:00",
+  "generated_at": "2026-09-29T13:31:15.311138+00:00",
   "candidate_count": 8331,
   "company_count": 197,
   "companies": [
@@ -27,7 +27,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 131
+      "brazil_jobs": 129
     },
     {
       "board": "agilize",
@@ -202,7 +202,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 160
+      "brazil_jobs": 161
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -232,7 +232,7 @@
     {
       "board": "caylent",
       "company": "Caylent",
-      "brazil_jobs": 20
+      "brazil_jobs": 22
     },
     {
       "board": "chainguard",
@@ -342,7 +342,7 @@
     {
       "board": "enforce",
       "company": "Enforce",
-      "brazil_jobs": 11
+      "brazil_jobs": 12
     },
     {
       "board": "enova",
@@ -462,7 +462,7 @@
     {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 70
+      "brazil_jobs": 71
     },
     {
       "board": "hotmartcareersbr",
@@ -932,7 +932,7 @@
     {
       "board": "vmlenterprisesolutions",
       "company": "VML/WPP Enterprise Solutions",
-      "brazil_jobs": 30
+      "brazil_jobs": 29
     },
     {
       "board": "vtex",
@@ -967,7 +967,7 @@
     {
       "board": "wppmedia",
       "company": "WPP Media",
-      "brazil_jobs": 36
+      "brazil_jobs": 37
     },
     {
       "board": "xpinc",
