@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-29T18:58:07.667964+00:00",
+  "generated_at": "2026-09-29T20:10:15.150116+00:00",
   "candidate_count": 8331,
-  "company_count": 196,
+  "company_count": 197,
   "companies": [
     {
       "board": "abinbev",
@@ -17,7 +17,7 @@
     {
       "board": "adyen",
       "company": "Adyen",
-      "brazil_jobs": 7
+      "brazil_jobs": 8
     },
     {
       "board": "aestudio",
@@ -232,7 +232,7 @@
     {
       "board": "caylent",
       "company": "Caylent",
-      "brazil_jobs": 22
+      "brazil_jobs": 20
     },
     {
       "board": "chainguard",
@@ -273,6 +273,11 @@
       "board": "coinbase",
       "company": "Coinbase",
       "brazil_jobs": 4
+    },
+    {
+      "board": "cookunity",
+      "company": "CookUnity",
+      "brazil_jobs": 3
     },
     {
       "board": "counterpart",
@@ -457,7 +462,7 @@
     {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 75
+      "brazil_jobs": 76
     },
     {
       "board": "hotmartcareersbr",
@@ -495,11 +500,6 @@
       "brazil_jobs": 1
     },
     {
-      "board": "innovecs",
-      "company": "Innovecs",
-      "brazil_jobs": 1
-    },
-    {
       "board": "insightassurance",
       "company": "Insight Assurance",
       "brazil_jobs": 1
@@ -507,7 +507,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 139
+      "brazil_jobs": 140
     },
     {
       "board": "interbrand",
@@ -570,11 +570,6 @@
       "brazil_jobs": 8
     },
     {
-      "board": "mindbody",
-      "company": "Mindbody",
-      "brazil_jobs": 4
-    },
-    {
       "board": "mintel",
       "company": "Mintel",
       "brazil_jobs": 1
@@ -582,6 +577,11 @@
     {
       "board": "miqdigital",
       "company": "MiQ Digital",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "realtimeboardglobal",
+      "company": "Miro",
       "brazil_jobs": 1
     },
     {
@@ -695,6 +695,11 @@
       "brazil_jobs": 1
     },
     {
+      "board": "planetlabs",
+      "company": "Planet",
+      "brazil_jobs": 1
+    },
+    {
       "board": "platformscience",
       "company": "Platform Science",
       "brazil_jobs": 16
@@ -732,11 +737,6 @@
     {
       "board": "rdsourcing",
       "company": "RD Station - Sourcing",
-      "brazil_jobs": 3
-    },
-    {
-      "board": "ripple",
-      "company": "Ripple",
       "brazil_jobs": 3
     },
     {
@@ -860,6 +860,11 @@
       "brazil_jobs": 2
     },
     {
+      "board": "theknotworldwide",
+      "company": "The Knot Worldwide",
+      "brazil_jobs": 1
+    },
+    {
       "board": "thunes",
       "company": "Thunes",
       "brazil_jobs": 2
@@ -877,7 +882,7 @@
     {
       "board": "turing",
       "company": "Turing",
-      "brazil_jobs": 4
+      "brazil_jobs": 5
     },
     {
       "board": "twilio",
@@ -937,7 +942,7 @@
     {
       "board": "gympass",
       "company": "Wellhub",
-      "brazil_jobs": 37
+      "brazil_jobs": 36
     },
     {
       "board": "wildlifestudios",
@@ -967,7 +972,7 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 172
+      "brazil_jobs": 174
     },
     {
       "board": "xpengmotors",
