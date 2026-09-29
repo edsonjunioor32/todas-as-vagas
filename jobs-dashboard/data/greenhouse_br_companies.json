@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-29T11:34:13.969370+00:00",
+  "generated_at": "2026-09-29T12:29:03.051099+00:00",
   "candidate_count": 8331,
   "company_count": 197,
   "companies": [
     {
       "board": "abinbev",
       "company": "AB InBev  | Growth Group",
-      "brazil_jobs": 49
+      "brazil_jobs": 48
     },
     {
       "board": "advancedtechnologyservices",
@@ -72,7 +72,7 @@
     {
       "board": "arcoeducacao",
       "company": "Arco Educação",
-      "brazil_jobs": 75
+      "brazil_jobs": 78
     },
     {
       "board": "arctouch",
@@ -147,7 +147,7 @@
     {
       "board": "bees",
       "company": "BEES",
-      "brazil_jobs": 48
+      "brazil_jobs": 47
     },
     {
       "board": "betsson",
@@ -337,7 +337,7 @@
     {
       "board": "encora10",
       "company": "Encora",
-      "brazil_jobs": 17
+      "brazil_jobs": 19
     },
     {
       "board": "enforce",
@@ -512,7 +512,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 136
+      "brazil_jobs": 137
     },
     {
       "board": "interbrand",
@@ -827,7 +827,7 @@
     {
       "board": "sumup",
       "company": "SumUp",
-      "brazil_jobs": 22
+      "brazil_jobs": 23
     },
     {
       "board": "syndigo",
@@ -847,7 +847,7 @@
     {
       "board": "teachablecareers",
       "company": "Teachable",
-      "brazil_jobs": 4
+      "brazil_jobs": 5
     },
     {
       "board": "telnyx54",
