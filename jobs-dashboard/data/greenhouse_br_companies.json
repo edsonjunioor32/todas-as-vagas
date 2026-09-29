@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-29T20:40:50.500131+00:00",
+  "generated_at": "2026-09-29T21:11:58.213032+00:00",
   "candidate_count": 8331,
-  "company_count": 197,
+  "company_count": 199,
   "companies": [
     {
       "board": "abinbev",
@@ -27,7 +27,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 126
+      "brazil_jobs": 123
     },
     {
       "board": "agilize",
@@ -72,7 +72,7 @@
     {
       "board": "arcoeducacao",
       "company": "Arco Educação",
-      "brazil_jobs": 77
+      "brazil_jobs": 78
     },
     {
       "board": "arctouch",
@@ -138,6 +138,11 @@
       "board": "b2c2",
       "company": "B2C2",
       "brazil_jobs": 1
+    },
+    {
+      "board": "bancopan",
+      "company": "Banco PAN",
+      "brazil_jobs": 16
     },
     {
       "board": "bees",
@@ -248,6 +253,11 @@
       "board": "clara",
       "company": "Clara",
       "brazil_jobs": 61
+    },
+    {
+      "board": "classpass",
+      "company": "ClassPass",
+      "brazil_jobs": 3
     },
     {
       "board": "clinchoice",
@@ -452,7 +462,7 @@
     {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 76
+      "brazil_jobs": 77
     },
     {
       "board": "hotmartcareersbr",
@@ -767,7 +777,7 @@
     {
       "board": "sertradingsa",
       "company": "Sertrading",
-      "brazil_jobs": 6
+      "brazil_jobs": 7
     },
     {
       "board": "sezzle",
@@ -942,7 +952,7 @@
     {
       "board": "gympass",
       "company": "Wellhub",
-      "brazil_jobs": 36
+      "brazil_jobs": 35
     },
     {
       "board": "wildlifestudios",
