@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-29T16:45:34.140722+00:00",
+  "generated_at": "2026-09-29T17:50:49.446204+00:00",
   "candidate_count": 8331,
-  "company_count": 197,
+  "company_count": 198,
   "companies": [
     {
       "board": "abinbev",
@@ -27,7 +27,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 130
+      "brazil_jobs": 131
     },
     {
       "board": "agilize",
@@ -202,7 +202,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 163
+      "brazil_jobs": 161
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -367,7 +367,7 @@
     {
       "board": "exadelinc",
       "company": "Exadel Inc (Website)",
-      "brazil_jobs": 14
+      "brazil_jobs": 15
     },
     {
       "board": "fanaticscollectibles",
@@ -462,7 +462,7 @@
     {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 72
+      "brazil_jobs": 75
     },
     {
       "board": "hotmartcareersbr",
@@ -512,7 +512,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 140
+      "brazil_jobs": 139
     },
     {
       "board": "interbrand",
@@ -585,6 +585,11 @@
       "brazil_jobs": 1
     },
     {
+      "board": "miqdigital",
+      "company": "MiQ Digital",
+      "brazil_jobs": 1
+    },
+    {
       "board": "realtimeboardglobal",
       "company": "Miro",
       "brazil_jobs": 1
@@ -597,7 +602,7 @@
     {
       "board": "monks",
       "company": "Monks",
-      "brazil_jobs": 46
+      "brazil_jobs": 45
     },
     {
       "board": "monumentsoftwareinc",
@@ -642,7 +647,7 @@
     {
       "board": "newsela",
       "company": "Newsela",
-      "brazil_jobs": 2
+      "brazil_jobs": 1
     },
     {
       "board": "nice",
@@ -717,7 +722,7 @@
     {
       "board": "powerdigitalmarketing",
       "company": "Power Digital",
-      "brazil_jobs": 53
+      "brazil_jobs": 52
     },
     {
       "board": "pfm",
@@ -827,7 +832,7 @@
     {
       "board": "sumup",
       "company": "SumUp",
-      "brazil_jobs": 23
+      "brazil_jobs": 24
     },
     {
       "board": "syndigo",
