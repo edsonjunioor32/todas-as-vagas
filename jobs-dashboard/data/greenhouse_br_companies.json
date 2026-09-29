@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-29T13:31:15.311138+00:00",
+  "generated_at": "2026-09-29T14:36:25.622957+00:00",
   "candidate_count": 8331,
-  "company_count": 197,
+  "company_count": 195,
   "companies": [
     {
       "board": "abinbev",
       "company": "AB InBev  | Growth Group",
-      "brazil_jobs": 48
+      "brazil_jobs": 47
     },
     {
       "board": "advancedtechnologyservices",
@@ -157,7 +157,7 @@
     {
       "board": "blip-global",
       "company": "Blip Global",
-      "brazil_jobs": 13
+      "brazil_jobs": 12
     },
     {
       "board": "boldmetrics",
@@ -202,7 +202,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 161
+      "brazil_jobs": 163
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -233,11 +233,6 @@
       "board": "caylent",
       "company": "Caylent",
       "brazil_jobs": 22
-    },
-    {
-      "board": "chainguard",
-      "company": "Chainguard",
-      "brazil_jobs": 1
     },
     {
       "board": "charterup",
@@ -462,7 +457,7 @@
     {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 71
+      "brazil_jobs": 72
     },
     {
       "board": "hotmartcareersbr",
@@ -597,7 +592,7 @@
     {
       "board": "monks",
       "company": "Monks",
-      "brazil_jobs": 45
+      "brazil_jobs": 46
     },
     {
       "board": "monumentsoftwareinc",
@@ -662,7 +657,7 @@
     {
       "board": "oliverbrazil",
       "company": "OLIVER Agency - Brasil",
-      "brazil_jobs": 3
+      "brazil_jobs": 2
     },
     {
       "board": "onrunning",
@@ -860,11 +855,6 @@
       "brazil_jobs": 1
     },
     {
-      "board": "thanx",
-      "company": "Thanx",
-      "brazil_jobs": 2
-    },
-    {
       "board": "thunes",
       "company": "Thunes",
       "brazil_jobs": 2
@@ -967,7 +957,7 @@
     {
       "board": "wppmedia",
       "company": "WPP Media",
-      "brazil_jobs": 37
+      "brazil_jobs": 35
     },
     {
       "board": "xpinc",
