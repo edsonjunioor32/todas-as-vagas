@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-30T15:46:08.379482+00:00",
+  "generated_at": "2026-09-30T16:20:00.220320+00:00",
   "candidate_count": 8331,
-  "company_count": 195,
+  "company_count": 196,
   "companies": [
     {
       "board": "abinbev",
@@ -50,9 +50,19 @@
       "brazil_jobs": 6
     },
     {
+      "board": "appdirect",
+      "company": "AppDirect",
+      "brazil_jobs": 4
+    },
+    {
       "board": "appnovation",
       "company": "Appnovation Technologies",
       "brazil_jobs": 8
+    },
+    {
+      "board": "appsflyer",
+      "company": "AppsFlyer",
+      "brazil_jobs": 1
     },
     {
       "board": "archer56",
@@ -112,7 +122,7 @@
     {
       "board": "axon",
       "company": "Axon",
-      "brazil_jobs": 4
+      "brazil_jobs": 3
     },
     {
       "board": "axonius",
@@ -192,7 +202,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 161
+      "brazil_jobs": 160
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -203,11 +213,6 @@
       "board": "capco",
       "company": "Capco",
       "brazil_jobs": 120
-    },
-    {
-      "board": "careaccess",
-      "company": "Care Access",
-      "brazil_jobs": 1
     },
     {
       "board": "caronsale",
@@ -477,7 +482,7 @@
     {
       "board": "inflect",
       "company": "Inflect",
-      "brazil_jobs": 1
+      "brazil_jobs": 2
     },
     {
       "board": "infuse",
@@ -775,11 +780,6 @@
       "brazil_jobs": 2
     },
     {
-      "board": "smartlyio",
-      "company": "Smartly",
-      "brazil_jobs": 2
-    },
-    {
       "board": "sohohouseco",
       "company": "Soho House & Co.",
       "brazil_jobs": 11
@@ -808,6 +808,11 @@
       "board": "stonepatrocina",
       "company": "Stone - Indeed",
       "brazil_jobs": 243
+    },
+    {
+      "board": "stripe",
+      "company": "Stripe",
+      "brazil_jobs": 2
     },
     {
       "board": "sumup",
@@ -897,7 +902,7 @@
     {
       "board": "valtech",
       "company": "Valtech",
-      "brazil_jobs": 11
+      "brazil_jobs": 12
     },
     {
       "board": "vectranetworks",
