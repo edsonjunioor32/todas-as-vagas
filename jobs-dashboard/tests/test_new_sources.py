@@ -598,11 +598,15 @@ class CompanyBatchTests(unittest.TestCase):
 
 
 class JournyScheduleTests(unittest.TestCase):
-    def test_journy_is_excluded_from_daytime_registry_but_explicitly_selectable(self):
-        regular_names = {name for name, _fetch in pipeline.selected_registry("")}
-        nightly_names = {name for name, _fetch in pipeline.selected_registry("journy")}
-        self.assertNotIn("journy", regular_names)
-        self.assertEqual(nightly_names, {"journy"})
+    def test_journy_is_in_regular_catalog_and_can_still_be_selected_alone(self):
+        regular_journy = [
+            name for name, _fetch in pipeline.selected_registry("") if name == "journy"
+        ]
+        explicit_names = {
+            name for name, _fetch in pipeline.selected_registry("journy")
+        }
+        self.assertEqual(regular_journy, ["journy"])
+        self.assertEqual(explicit_names, {"journy"})
 
 
 class WellfoundTests(unittest.TestCase):

@@ -37,9 +37,6 @@ JSON_PATH = ROOT / "docs" / "data" / "vagas.json"
 # explicitly documented as a feed that can legitimately be empty. Keep this
 # allowlist small: empty required feeds are integration failures and must not
 # replace the last valid snapshot.
-# Journy is refreshed by its dedicated 02:17 Brasília workflow, not by the
-# four daytime refreshes that serve the other portals.
-NIGHTLY_ONLY_SOURCES = {"journy"}
 PAUSED_SOURCES = frozenset({"azify", "assefaz", "cprocco", "atitude"})
 
 ALLOW_EMPTY_SOURCES = frozenset({
@@ -74,7 +71,7 @@ def selected_registry(names):
         return [
             (name, fetch)
             for name, fetch in REGISTRY
-            if name not in NIGHTLY_ONLY_SOURCES and name not in PAUSED_SOURCES
+            if name not in PAUSED_SOURCES
         ]
     wanted = {part.strip().lower() for part in names.split(",") if part.strip()}
     selected = [

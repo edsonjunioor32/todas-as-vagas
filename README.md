@@ -171,6 +171,7 @@ O workflow `.github/workflows/telegram.yml` deste repositório é acionado manua
 
 - até cinco fontes independentes são consultadas em paralelo, sem alterar a ordem determinística da consolidação;
 - a Sólides mantém a cobertura de até 12.000 vagas mais recentes (600 páginas de 20 registros) e usa até oito requisições simultâneas;
+- o Journy participa das quatro coletas programadas do catálogo, em vez de uma publicação noturna isolada;
 - detalhes da InHire são reutilizados por até 24 horas por meio do cache do GitHub Actions; vagas novas ou com título, local ou modalidade alterados são consultadas imediatamente;
 - o Nerdin participa da coleta geral e, por isso, usa a mesma transação SQLite e a mesma exportação JSON das demais fontes;
 - todos os publicadores compartilham uma trava de concorrência: uma execução ativa por vez, sem cancelar uma coleta em andamento;
