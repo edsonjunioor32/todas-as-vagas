@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-30T03:08:47.081876+00:00",
+  "generated_at": "2026-09-30T04:33:17.460571+00:00",
   "candidate_count": 8331,
-  "company_count": 199,
+  "company_count": 198,
   "companies": [
     {
       "board": "abinbev",
@@ -497,11 +497,6 @@
     {
       "board": "infuse",
       "company": "INFUSE",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "insightassurance",
-      "company": "Insight Assurance",
       "brazil_jobs": 1
     },
     {
