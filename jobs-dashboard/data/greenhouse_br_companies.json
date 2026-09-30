@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-30T10:58:47.530518+00:00",
+  "generated_at": "2026-09-30T11:33:49.588755+00:00",
   "candidate_count": 8331,
   "company_count": 198,
   "companies": [
@@ -767,7 +767,7 @@
     {
       "board": "schonfeld",
       "company": "Schonfeld",
-      "brazil_jobs": 12
+      "brazil_jobs": 13
     },
     {
       "board": "sertradingsa",
