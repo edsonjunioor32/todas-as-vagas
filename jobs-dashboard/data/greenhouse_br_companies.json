@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-30T18:08:20.202523+00:00",
+  "generated_at": "2026-09-30T18:42:15.955374+00:00",
   "candidate_count": 8331,
-  "company_count": 196,
+  "company_count": 193,
   "companies": [
     {
       "board": "abinbev",
@@ -27,7 +27,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 115
+      "brazil_jobs": 114
     },
     {
       "board": "agilize",
@@ -142,17 +142,12 @@
     {
       "board": "bancopan",
       "company": "Banco PAN",
-      "brazil_jobs": 16
+      "brazil_jobs": 15
     },
     {
       "board": "bees",
       "company": "BEES",
       "brazil_jobs": 47
-    },
-    {
-      "board": "betsson",
-      "company": "Betsson Group",
-      "brazil_jobs": 1
     },
     {
       "board": "blip-global",
@@ -202,7 +197,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 160
+      "brazil_jobs": 161
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -283,11 +278,6 @@
       "board": "counterpart",
       "company": "Counterpart",
       "brazil_jobs": 1
-    },
-    {
-      "board": "databricks",
-      "company": "Databricks",
-      "brazil_jobs": 6
     },
     {
       "board": "datacamp",
@@ -455,11 +445,6 @@
       "brazil_jobs": 1
     },
     {
-      "board": "quintoandar",
-      "company": "Grupo QuintoAndar",
-      "brazil_jobs": 77
-    },
-    {
       "board": "hotmartcareersbr",
       "company": "Hotmart",
       "brazil_jobs": 19
@@ -485,11 +470,6 @@
       "brazil_jobs": 3
     },
     {
-      "board": "inflect",
-      "company": "Inflect",
-      "brazil_jobs": 2
-    },
-    {
       "board": "infuse",
       "company": "INFUSE",
       "brazil_jobs": 1
@@ -497,7 +477,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 142
+      "brazil_jobs": 143
     },
     {
       "board": "interbrand",
@@ -555,11 +535,6 @@
       "brazil_jobs": 1
     },
     {
-      "board": "agency",
-      "company": "Meridial",
-      "brazil_jobs": 8
-    },
-    {
       "board": "mindbody",
       "company": "Mindbody",
       "brazil_jobs": 4
@@ -567,6 +542,11 @@
     {
       "board": "mintel",
       "company": "Mintel",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "miqdigital",
+      "company": "MiQ Digital",
       "brazil_jobs": 1
     },
     {
@@ -582,7 +562,7 @@
     {
       "board": "monks",
       "company": "Monks",
-      "brazil_jobs": 46
+      "brazil_jobs": 47
     },
     {
       "board": "monumentsoftwareinc",
@@ -718,6 +698,11 @@
       "board": "pfm",
       "company": "Precision for Medicine",
       "brazil_jobs": 9
+    },
+    {
+      "board": "precisionmedicinegroup",
+      "company": "Precision Medicine Group",
+      "brazil_jobs": 10
     },
     {
       "board": "rdstation",
@@ -967,7 +952,7 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 175
+      "brazil_jobs": 174
     },
     {
       "board": "xpengmotors",
