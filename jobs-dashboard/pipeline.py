@@ -42,7 +42,15 @@ JSON_PATH = ROOT / "docs" / "data" / "vagas.json"
 NIGHTLY_ONLY_SOURCES = {"journy"}
 PAUSED_SOURCES = frozenset({"azify", "assefaz", "cprocco", "atitude"})
 
-ALLOW_EMPTY_SOURCES = frozenset({"fiotec", "saleco"})
+ALLOW_EMPTY_SOURCES = frozenset({
+    "fiotec", "saleco",
+    # Compleo is a multi-company ATS: an individual employer may legitimately
+    # have no open roles, which should clear its old vacancies from the index.
+    "providerit", "beq", "emphasys", "mootit", "slmandic", "frigelar",
+    "grupokyly", "ctdoagro", "grupolagoa", "lncarreira", "rhvital",
+    "grupobembarato", "faisrh", "excelenciarh", "grandy", "agiliza",
+    "slmandic.slmandichospitais", "harpiait",
+})
 NONEMPTY_SOURCES = frozenset(
     {name for name, _fetch in REGISTRY if name not in ALLOW_EMPTY_SOURCES}
     | PAUSED_SOURCES
