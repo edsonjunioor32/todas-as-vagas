@@ -443,6 +443,11 @@ def fetch_abler_talentodovalesc():
     return _abler_rows("talentodovalesc", "talentodovalesc", "Talento do Vale SC")
 
 
+def fetch_precisionrh():
+    """Collect the open Brazilian vacancies on Precision RH's Abler board."""
+    return _abler_rows("precisionrh", "precision", "Precision RH")
+
+
 def fetch_beq():
     return _compleo_rows("beq", "BEQ", "B&Q Energia")
 
@@ -486,6 +491,7 @@ TARGETS = (
     ("avanade", fetch_avanade),
     ("huntit", fetch_huntit),
     ("talentodovalesc", fetch_abler_talentodovalesc),
+    ("precisionrh", fetch_precisionrh),
     ("beq", fetch_beq),
     ("forza", fetch_forza),
     ("saleco", fetch_saleco),

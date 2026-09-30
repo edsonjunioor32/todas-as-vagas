@@ -95,6 +95,7 @@ REGISTRY = [
     ("avanade", requested_portals_27082026.fetch_avanade),
     ("huntit", requested_portals_27082026.fetch_huntit),
     ("talentodovalesc", requested_portals_27082026.fetch_abler_talentodovalesc),
+    ("precisionrh", requested_portals_27082026.fetch_precisionrh),
     ("beq", requested_portals_27082026.fetch_beq),
     ("forza", requested_portals_27082026.fetch_forza),
     ("saleco", requested_portals_27082026.fetch_saleco),
