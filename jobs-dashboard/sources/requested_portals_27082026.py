@@ -14,6 +14,7 @@ from urllib.parse import urljoin
 
 from ._common import is_brazil_location, iso_date, job, strip_html, work_model_label
 from ._http import get_json, get_text, post_json
+from . import compleo as compleo_source
 
 
 WORKDAY = {
@@ -431,74 +432,11 @@ def _abler_rows(source, subdomain, company):
 
 
 def _compleo_row(source, url, company):
-    data = _next_data(get_text(url, timeout=45, retries=3))
-    value = data.get("props", {}).get("pageProps", {}).get("jobViewData") or {}
-    if not value or not value.get("isAvailableOnCareersSite", True):
-        return None
-    location = value.get("location") or {}
-    city = location.get("city") or {}
-    state = location.get("provinceOrState") or {}
-    country = location.get("country") or {}
-    model = value.get("workingModel") or {}
-    contract = value.get("employmentType") or {}
-    category = value.get("category") or {}
-    level = value.get("experienceLevel") or {}
-    tags = value.get("tags") or []
-    if isinstance(tags, dict):
-        tags = list(tags.values())
-    country_text = str(country.get("label") or country.get("value") or "").strip()
-    location_text = " ".join(
-        str(part or "").strip()
-        for part in (
-            city.get("label"), city.get("value"), state.get("label"), state.get("value"),
-            country_text,
-        )
-    )
-    if country_text and not (is_brazil_location(location_text) or BRAZIL_WORDS.search(location_text)):
-        return None
-    native_id = str(value.get("pk") or url.rstrip("/").split("/")[-1]).replace("JOB:", "")
-    title = str(value.get("title") or "").strip()
-    if not native_id or not title:
-        return None
-    description = " ".join(
-        str(value.get(field) or "")
-        for field in ("description", "responsibilities", "requirements")
-    )
-    return job(
-        source, native_id, title=title, company=company, url=url,
-        work_model=work_model_label(raw=model.get("label") or model.get("label-pt-BR")),
-        city=str(city.get("label") or city.get("value") or "Brasil").strip(),
-        state=str(city.get("uf") or state.get("value") or "").strip(),
-        country="BR", market="BR", published_date=iso_date(value.get("openingDate")),
-        expires_date=iso_date(value.get("hiringEndDate")),
-        description=strip_html(description),
-        categories=[str(category.get("label") or "").strip()] if category.get("label") else [],
-        levels=[str(level.get("label") or "").strip()] if level.get("label") else [],
-        skills=[str(tag).strip() for tag in tags if str(tag).strip()],
-        contract_types=[str(contract.get("label") or "").strip()] if contract.get("label") else [],
-    )
+    return compleo_source._compleo_row(source, url, company)
 
 
 def _compleo_rows(source, board, company):
-    sitemap = html.unescape(get_text("https://jobs.compleo.app/sitemap.xml", timeout=45, retries=3))
-    urls = sorted({
-        match for match in re.findall(r"<loc>([^<]+)</loc>", sitemap, re.I)
-        if f"/{board.lower()}/" in match.lower()
-    })
-    if not urls:
-        raise RuntimeError(f"Compleo/{board} sitemap returned no detail URLs")
-    rows = []
-    for url in urls:
-        try:
-            row = _compleo_row(source, url, company)
-        except Exception as error:
-            print(f"    [compleo:{board}] {url}: {str(error)[:80]}")
-            continue
-        if row:
-            rows.append(row)
-    if not rows:
-        raise RuntimeError(f"Compleo/{board} returned no public vacancies")
-    return rows
+    return compleo_source.fetch_board(source, board, company)
 
 
 def fetch_abler_talentodovalesc():

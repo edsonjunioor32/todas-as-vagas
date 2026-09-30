@@ -15,7 +15,7 @@ sys.path.insert(0, str(DASHBOARD))
 
 from sources import REGISTRY  # noqa: E402
 from sources import (  # noqa: E402
-    _http, digisystem, requested_careers, requested_portals_27082026,
+    _http, compleo, digisystem, requested_careers, requested_portals_27082026,
     requested_portals_29082026, sankhya_senior,
 )
 
@@ -267,6 +267,114 @@ class AccionaWorkdayTests(unittest.TestCase):
 
     def test_acciona_is_registered_as_a_source(self):
         self.assertIs(dict(REGISTRY)["acciona"], requested_portals_27082026.fetch_acciona)
+
+
+class CompleoTests(unittest.TestCase):
+    def test_sitemap_is_loaded_once_and_shared_between_company_boards(self):
+        sitemap = (
+            "<urlset><url><loc>https://jobs.compleo.app/mootit/jobdetail/1</loc></url>"
+            "<url><loc>https://jobs.compleo.app/harpiait/jobdetail/2</loc></url></urlset>"
+        )
+        with patch.object(compleo, "_SITEMAP_URLS", None), patch.object(
+            compleo, "get_text", return_value=sitemap
+        ) as request:
+            first = compleo._sitemap_urls()
+            second = compleo._sitemap_urls()
+
+        self.assertEqual(first, second)
+        self.assertEqual(len(first), 2)
+        request.assert_called_once_with(compleo.SITEMAP_URL, timeout=45, retries=2)
+
+    def test_board_parser_uses_exact_tenant_and_skips_closed_jobs(self):
+        sitemap_urls = (
+            "https://jobs.compleo.app/mootit/jobdetail/open-1",
+            "https://jobs.compleo.app/mootit/jobdetail/closed-2",
+            "https://jobs.compleo.app/mootit-extra/jobdetail/wrong-tenant",
+            "https://jobs.compleo.app/mootit/jobapplication/not-a-vacancy",
+        )
+
+        def detail(url, **_kwargs):
+            closed = url.endswith("closed-2")
+            data = {"props": {"pageProps": {"jobViewData": {
+                "pk": "JOB:COM-1",
+                "title": "Pessoa Desenvolvedora",
+                "isAvailableOnCareersSite": not closed,
+                "location": {
+                    "city": {"label": "São Paulo", "uf": "SP"},
+                    "country": {"label": "Brasil"},
+                },
+                "description": "<p>Descrição da oportunidade</p>",
+                "openingDate": "2026-09-25T03:00:00.000Z",
+            }}}}
+            return '<script id="__NEXT_DATA__">' + json.dumps(data) + "</script>"
+
+        with patch.object(compleo, "_sitemap_urls", return_value=sitemap_urls), patch.object(
+            compleo, "get_text", side_effect=detail
+        ) as request:
+            rows = compleo.fetch_board("mootit", "mootit", "Moot It Consulting")
+
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["native_id"], "COM-1")
+        self.assertEqual(rows[0]["source"], "mootit")
+        self.assertEqual(rows[0]["company"], "Moot It Consulting")
+        self.assertIn("Descrição da oportunidade", rows[0]["description"])
+        self.assertEqual(request.call_count, 2)
+
+    def test_detail_errors_raise_with_successful_rows_for_partial_publication(self):
+        urls = (
+            "https://jobs.compleo.app/mootit/jobdetail/good",
+            "https://jobs.compleo.app/mootit/jobdetail/bad",
+        )
+
+        def detail(url, **_kwargs):
+            if url.endswith("bad"):
+                raise OSError("temporarily unavailable")
+            data = {"props": {"pageProps": {"jobViewData": {
+                "pk": "JOB:COM-2", "title": "Vaga válida",
+                "location": {"country": {"label": "Brasil"}},
+            }}}}
+            return '<script id="__NEXT_DATA__">' + json.dumps(data) + "</script>"
+
+        with patch.object(compleo, "_sitemap_urls", return_value=urls), patch.object(
+            compleo, "get_text", side_effect=detail
+        ):
+            with self.assertRaisesRegex(RuntimeError, "1 of 2 detail requests failed") as caught:
+                compleo.fetch_board("mootit", "mootit", "Moot It Consulting")
+
+        self.assertEqual(len(caught.exception.rows), 1)
+        self.assertEqual(caught.exception.rows[0]["native_id"], "COM-2")
+
+    def test_all_detail_errors_raise_to_preserve_previous_snapshot(self):
+        with patch.object(
+            compleo, "_sitemap_urls",
+            return_value=("https://jobs.compleo.app/mootit/jobdetail/1",),
+        ), patch.object(compleo, "get_text", side_effect=OSError("temporarily unavailable")):
+            with self.assertRaisesRegex(RuntimeError, "1 of 1 detail requests failed"):
+                compleo.fetch_board("mootit", "mootit", "Moot It Consulting")
+
+    def test_all_requested_boards_are_registered_once(self):
+        names = [name for name, _fetch in REGISTRY]
+        expected = {board for board, _company in compleo.COMPANIES}
+        expected.add("grandy")
+        self.assertTrue(expected <= set(names))
+        for name in expected:
+            self.assertEqual(names.count(name), 1)
+        for name in ("providerit", "beq", "emphasys"):
+            self.assertEqual(names.count(name), 1)
+
+    def test_grandy_branded_boards_are_combined_and_duplicate_ids_collapsed(self):
+        def duplicate(board, *_args):
+            return [{"native_id": "HN15301T", "url": f"https://jobs.compleo.app/{board}/jobdetail/HN15301T"}]
+
+        with patch.object(compleo, "fetch_board", side_effect=duplicate) as fetch:
+            rows = compleo.fetch_grandy()
+
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(fetch.call_args_list[0].args, ("grandy", "grandy", "Grandy"))
+        self.assertEqual(
+            [call.args[1] for call in fetch.call_args_list],
+            ["grandy", "grandy.supermercadogule", "grandy.sanrafael"],
+        )
 
 
 class SankhyaSeniorTests(unittest.TestCase):

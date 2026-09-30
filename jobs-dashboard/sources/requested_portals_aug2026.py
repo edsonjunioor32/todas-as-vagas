@@ -10,13 +10,12 @@ from urllib.parse import urljoin
 
 from ._common import iso_date, job, strip_html, work_model_label
 from ._http import get_text
+from . import compleo as compleo_source
 
 
 NEXT_DATA_RE = re.compile(
     r'<script[^>]+id=["\']__NEXT_DATA__["\'][^>]*>(.*?)</script>', re.I | re.S
 )
-COMPLETEO_SITEMAP = "https://jobs.compleo.app/sitemap.xml"
-COMPLETEO_PREFIX = "https://jobs.compleo.app/providerit/jobdetail/"
 FISERV_SEARCH = "https://careers.fiserv.com/us/en/search-results?from={offset}&s=1"
 PANDAPE = "https://metalfriosolutions.pandape.infojobs.com.br/"
 REVOLUT = "https://www.revolut.com/careers/"
@@ -45,46 +44,8 @@ def _parallel(urls, parser, workers=10):
     return rows
 
 
-def _compleo_detail(url):
-    data = _next_data(get_text(url, timeout=35, retries=2))
-    row = data.get("props", {}).get("pageProps", {}).get("jobViewData") or {}
-    if not row.get("isAvailableOnCareersSite", True):
-        return None
-    location = row.get("location") or {}
-    city_data = location.get("city") or {}
-    state_data = location.get("provinceOrState") or {}
-    country_data = location.get("country") or {}
-    model = row.get("workingModel") or {}
-    contract = row.get("employmentType") or {}
-    category = row.get("category") or {}
-    level = row.get("experienceLevel") or {}
-    tags = row.get("tags") or []
-    if isinstance(tags, dict):
-        tags = list(tags.values())
-    description = " ".join(
-        str(row.get(field) or "")
-        for field in ("description", "responsibilities", "requirements")
-    )
-    native_id = str(row.get("pk") or url.rstrip("/").split("/")[-1]).replace("JOB:", "")
-    return job(
-        "providerit", native_id, title=row.get("title"), company="Provider IT", url=url,
-        work_model=work_model_label(raw=model.get("label") or model.get("label-pt-BR")),
-        city=city_data.get("label") or "Brasil", state=city_data.get("uf") or state_data.get("value") or "",
-        country="BR", market="BR", published_date=iso_date(row.get("openingDate")),
-        expires_date=iso_date(row.get("hiringEndDate")), description=strip_html(description),
-        categories=[category.get("label")] if category.get("label") else [],
-        levels=[level.get("label")] if level.get("label") else [],
-        skills=[str(value) for value in tags if value],
-        contract_types=[contract.get("label")] if contract.get("label") else [],
-    )
-
-
 def fetch_providerit():
-    sitemap = html.unescape(get_text(COMPLETEO_SITEMAP, timeout=45, retries=2))
-    urls = sorted(set(re.findall(r"<loc>(%s[^<]+)</loc>" % re.escape(COMPLETEO_PREFIX), sitemap)))
-    if not urls:
-        raise RuntimeError("Provider IT sitemap returned no active vacancies")
-    return [row for row in _parallel(urls, _compleo_detail, workers=8) if row]
+    return compleo_source.fetch_board("providerit", "providerit", "Provider IT")
 
 
 def _phenom_payload(page):

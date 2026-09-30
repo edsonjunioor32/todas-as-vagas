@@ -40,7 +40,13 @@ def sample_job(source, native_id, *, work_model="", city="São Paulo", country="
 class CollectionTests(unittest.TestCase):
     def test_empty_response_policy_covers_registry_except_explicit_empty_feeds(self):
         registry_sources = {name for name, _fetch in pipeline.REGISTRY}
-        allow_empty = {"fiotec", "saleco"}
+        allow_empty = {
+            "fiotec", "saleco", "providerit", "beq", "emphasys", "mootit",
+            "slmandic", "frigelar", "grupokyly", "ctdoagro", "grupolagoa",
+            "lncarreira", "rhvital", "grupobembarato", "faisrh",
+            "excelenciarh", "grandy", "agiliza", "slmandic.slmandichospitais",
+            "harpiait",
+        }
 
         self.assertEqual(
             pipeline.NONEMPTY_SOURCES,
