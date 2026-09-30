@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-30T16:20:00.220320+00:00",
+  "generated_at": "2026-09-30T17:34:00.787689+00:00",
   "candidate_count": 8331,
-  "company_count": 196,
+  "company_count": 197,
   "companies": [
     {
       "board": "abinbev",
@@ -48,11 +48,6 @@
       "board": "amyrisinc",
       "company": "Amyris, Inc.",
       "brazil_jobs": 6
-    },
-    {
-      "board": "appdirect",
-      "company": "AppDirect",
-      "brazil_jobs": 4
     },
     {
       "board": "appnovation",
@@ -202,7 +197,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 160
+      "brazil_jobs": 159
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -213,6 +208,11 @@
       "board": "capco",
       "company": "Capco",
       "brazil_jobs": 120
+    },
+    {
+      "board": "careaccess",
+      "company": "Care Access",
+      "brazil_jobs": 1
     },
     {
       "board": "caronsale",
@@ -227,7 +227,7 @@
     {
       "board": "caylent",
       "company": "Caylent",
-      "brazil_jobs": 21
+      "brazil_jobs": 20
     },
     {
       "board": "chainguard",
@@ -332,7 +332,7 @@
     {
       "board": "encora10",
       "company": "Encora",
-      "brazil_jobs": 21
+      "brazil_jobs": 20
     },
     {
       "board": "enforce",
@@ -472,7 +472,7 @@
     {
       "board": "indicacoesifoodinterno",
       "company": "iFood Indicações",
-      "brazil_jobs": 3
+      "brazil_jobs": 2
     },
     {
       "board": "impinjexternal",
@@ -492,7 +492,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 142
+      "brazil_jobs": 141
     },
     {
       "board": "interbrand",
@@ -617,7 +617,7 @@
     {
       "board": "netcracker",
       "company": "Netcracker",
-      "brazil_jobs": 3
+      "brazil_jobs": 4
     },
     {
       "board": "netskope",
@@ -652,7 +652,7 @@
     {
       "board": "onrunning",
       "company": "On",
-      "brazil_jobs": 7
+      "brazil_jobs": 6
     },
     {
       "board": "openfx",
@@ -762,7 +762,7 @@
     {
       "board": "schonfeld",
       "company": "Schonfeld",
-      "brazil_jobs": 10
+      "brazil_jobs": 11
     },
     {
       "board": "sertradingsa",
@@ -777,6 +777,11 @@
     {
       "board": "shifttechnology",
       "company": "Shift Technology",
+      "brazil_jobs": 2
+    },
+    {
+      "board": "smartlyio",
+      "company": "Smartly",
       "brazil_jobs": 2
     },
     {
@@ -967,7 +972,7 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 174
+      "brazil_jobs": 175
     },
     {
       "board": "xpengmotors",
