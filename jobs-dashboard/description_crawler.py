@@ -11,10 +11,12 @@ The crawler is intentionally conservative:
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import html
 import json
 import os
 import re
+import subprocess
 import sys
 import time
 import urllib.error
@@ -36,6 +38,9 @@ DEFAULT_USER_AGENT = "TodasAsVagasDescriptionIndexer/1.0 (+public-job-index)"
 MAX_RESPONSE_BYTES = 4 * 1024 * 1024
 MAX_ROBOTS_BYTES = 512 * 1024
 DEFAULT_MIN_DESCRIPTION_CHARS = 120
+ROBOTS_RETRY_BASE_SECONDS = 24 * 60 * 60
+DEFAULT_OBSCURA_BIN = "/usr/local/bin/obscura"
+OBSCURA_FALLBACK_STATUSES = {"http_403", "network_error", "response_too_large"}
 SKIP_TAGS = {"script", "style", "noscript", "svg", "nav", "footer", "header", "form"}
 VOID_TAGS = {
     "area", "base", "br", "col", "embed", "hr", "img", "input", "link",
@@ -46,6 +51,72 @@ JOB_MARKERS = (
     "vacancy-description", "job-details", "jobdetails", "posting", "opening",
     "responsibilities", "requirements", "content-job",
 )
+
+OBSCURA_DESCRIPTION_EXPRESSION = r"""
+(() => {
+  const candidates = [];
+  const normalize = (value) => {
+    if (!value) return "";
+    const root = document.createElement("div");
+    root.innerHTML = String(value);
+    root.querySelectorAll("script,style,noscript,svg,nav,footer,header,form").forEach((node) => node.remove());
+    root.querySelectorAll("br,p,li,h1,h2,h3,h4,h5,h6,section,article,div").forEach((node) => {
+      node.appendChild(document.createTextNode("\n"));
+    });
+    return (root.innerText || root.textContent || "")
+      .replace(/\u00a0/g, " ")
+      .replace(/[ \t]+/g, " ")
+      .replace(/\n[ \t]+/g, "\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
+  };
+  const add = (value, kind) => {
+    const text = normalize(value);
+    if (text) candidates.push({ description: text, kind });
+  };
+  const walk = (value) => {
+    if (Array.isArray(value)) {
+      value.forEach(walk);
+      return;
+    }
+    if (!value || typeof value !== "object") return;
+    Object.entries(value).forEach(([key, child]) => {
+      const normalizedKey = key.toLowerCase();
+      if (["description", "jobdescription", "job_description"].includes(normalizedKey) && typeof child === "string") {
+        add(child, "jsonld");
+      }
+      if (child && typeof child === "object") walk(child);
+    });
+  };
+  document.querySelectorAll('script[type="application/ld+json"]').forEach((script) => {
+    try { walk(JSON.parse(script.textContent)); } catch (_) {}
+  });
+  [
+    '[data-automation-id="jobPostingDescription"]',
+    '[data-testid="job-description"]',
+    '[itemprop="description"]',
+    '#job-description',
+    '#jobDescription',
+    '.job-description',
+    '.jobDescription',
+    '.job-posting-description',
+    '.position-description',
+    '.vacancy-description',
+    '[class*="job-description"]',
+    '[class*="jobDescription"]',
+    '[id*="job-description"]',
+    '[id*="jobDescription"]'
+  ].forEach((selector) => {
+    document.querySelectorAll(selector).forEach((node) => add(node.innerHTML, "selector"));
+  });
+  const unique = new Map();
+  candidates.forEach((candidate) => {
+    if (!unique.has(candidate.description)) unique.set(candidate.description, candidate);
+  });
+  const best = Array.from(unique.values()).sort((a, b) => b.description.length - a.description.length)[0];
+  return JSON.stringify(best || { description: "", kind: "none" });
+})()
+""".strip()
 
 
 def clean_text(value: object, limit: int = 60000) -> str:
@@ -275,6 +346,62 @@ def fetch_page(
         raise FetchError("network_error", str(error)[:200]) from error
 
 
+def fetch_description_with_obscura(
+    url: str,
+    *,
+    binary: str,
+    timeout: float,
+    min_chars: int = DEFAULT_MIN_DESCRIPTION_CHARS,
+) -> tuple[str, str, str]:
+    """Render one page in an isolated Obscura process and return description text."""
+    executable = str(binary or "").strip()
+    if not executable:
+        return "", "", "obscura desabilitado"
+    command = [
+        executable,
+        "fetch",
+        url.replace("http://", "https://", 1),
+        "--timeout",
+        str(max(5, int(timeout))),
+        "--wait-until",
+        "load",
+        "--wait",
+        "1",
+        "--eval",
+        OBSCURA_DESCRIPTION_EXPRESSION,
+        "--quiet",
+    ]
+    try:
+        result = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=max(10.0, float(timeout) + 15.0),
+            check=False,
+        )
+    except FileNotFoundError:
+        return "", "", f"binário Obscura não encontrado: {executable}"
+    except subprocess.TimeoutExpired:
+        return "", "", "Obscura excedeu o tempo limite"
+    except OSError as error:
+        return "", "", f"falha ao executar Obscura: {str(error)[:180]}"
+
+    if result.returncode != 0:
+        detail = clean_text(result.stderr or result.stdout, limit=240)
+        return "", "", f"Obscura encerrou com código {result.returncode}: {detail}"
+    try:
+        payload = json.loads(result.stdout.strip() or "{}")
+    except (TypeError, ValueError):
+        return "", "", "Obscura retornou resposta inválida"
+    description = clean_text(payload.get("description"), limit=60000)
+    if len(description) < max(1, int(min_chars)):
+        return "", "", "Obscura não encontrou descrição suficiente"
+    kind = clean_text(payload.get("kind"), limit=40) or "rendered"
+    return description, f"obscura_{kind}", ""
+
+
 class RobotsCache:
     def __init__(self, user_agent: str, *, timeout: float = 10.0) -> None:
         self.user_agent = user_agent
@@ -409,6 +536,21 @@ def parse_args() -> argparse.Namespace:
         type=int,
         default=int(os.environ.get("DESCRIPTION_MIN_CHARS", str(DEFAULT_MIN_DESCRIPTION_CHARS))),
     )
+    parser.add_argument(
+        "--obscura-bin",
+        default=os.environ.get("DESCRIPTION_OBSCURA_BIN", DEFAULT_OBSCURA_BIN),
+        help="binário do Obscura usado somente como fallback para páginas problemáticas",
+    )
+    parser.add_argument(
+        "--obscura-timeout",
+        type=float,
+        default=float(os.environ.get("DESCRIPTION_OBSCURA_TIMEOUT", "45")),
+    )
+    parser.add_argument(
+        "--disable-obscura-fallback",
+        action="store_true",
+        help="não renderizar páginas problemáticas com o Obscura",
+    )
     parser.add_argument("--force", action="store_true", help="reconsultar também descrições já coletadas")
     parser.add_argument("--ignore-robots", action="store_true", help="não recomendado; ignora robots.txt")
     parser.add_argument("--user-agent", default=DEFAULT_USER_AGENT)
@@ -452,6 +594,23 @@ def main() -> None:
     fetched = 0
     failed = 0
     denied = 0
+    obscura_fetched = 0
+    obscura_failed = 0
+    failures_by_status: Counter[str] = Counter()
+
+    def obscura_fallback(job: dict) -> tuple[str, str]:
+        nonlocal obscura_failed
+        if args.disable_obscura_fallback:
+            return "", ""
+        description, kind, error = fetch_description_with_obscura(
+            job["url"],
+            binary=args.obscura_bin,
+            timeout=max(5.0, args.obscura_timeout),
+            min_chars=max(1, args.min_description_chars),
+        )
+        if error:
+            obscura_failed += 1
+        return description, kind
 
     for job in pending:
         if args.limit and processed >= args.limit:
@@ -467,9 +626,10 @@ def main() -> None:
                 job,
                 status="robots_denied",
                 error="robots.txt não autoriza a coleta",
-                permanent=True,
+                retry_after_seconds=ROBOTS_RETRY_BASE_SECONDS,
             )
             denied += 1
+            failures_by_status["robots_denied"] += 1
             processed += 1
             continue
         try:
@@ -481,15 +641,29 @@ def main() -> None:
                 body, content_type, min_chars=max(1, args.min_description_chars)
             )
             if not description:
-                description_store.record_failure(
-                    connection,
-                    job,
-                    status="no_description",
-                    error="página sem descrição extraível; pode exigir JavaScript",
-                    http_status=http_status,
-                    retry_after_seconds=7 * 86400,
-                )
-                failed += 1
+                description, kind = obscura_fallback(job)
+                if description:
+                    description_store.record_success(
+                        connection,
+                        job,
+                        description,
+                        content_kind=kind,
+                        http_status=http_status,
+                        refresh_after_days=max(1, args.refresh_after_days),
+                    )
+                    fetched += 1
+                    obscura_fetched += 1
+                else:
+                    description_store.record_failure(
+                        connection,
+                        job,
+                        status="no_description",
+                        error="página sem descrição extraível após renderização",
+                        http_status=http_status,
+                        retry_after_seconds=7 * 86400,
+                    )
+                    failed += 1
+                    failures_by_status["no_description"] += 1
             else:
                 description_store.record_success(
                     connection,
@@ -502,16 +676,33 @@ def main() -> None:
                 fetched += 1
         except FetchError as error:
             last_request = time.monotonic()
-            description_store.record_failure(
-                connection,
-                job,
-                status=error.status,
-                error=str(error),
-                http_status=error.http_status,
-                retry_after_seconds=3600 if error.retryable else 7 * 86400,
-                permanent=not error.retryable,
-            )
-            failed += 1
+            description = ""
+            kind = ""
+            if error.status in OBSCURA_FALLBACK_STATUSES:
+                description, kind = obscura_fallback(job)
+            if description:
+                description_store.record_success(
+                    connection,
+                    job,
+                    description,
+                    content_kind=kind,
+                    http_status=error.http_status or 200,
+                    refresh_after_days=max(1, args.refresh_after_days),
+                )
+                fetched += 1
+                obscura_fetched += 1
+            else:
+                description_store.record_failure(
+                    connection,
+                    job,
+                    status=error.status,
+                    error=str(error),
+                    http_status=error.http_status,
+                    retry_after_seconds=3600 if error.retryable else 7 * 86400,
+                    permanent=not error.retryable,
+                )
+                failed += 1
+                failures_by_status[error.status] += 1
         except (ValueError, TypeError, UnicodeError) as error:
             description_store.record_failure(
                 connection,
@@ -521,27 +712,50 @@ def main() -> None:
                 retry_after_seconds=7 * 86400,
             )
             failed += 1
+            failures_by_status["parse_error"] += 1
         processed += 1
 
-    summary = description_store.stats(connection)
+    summary = description_store.stats(
+        connection,
+        seen_at=seen_at,
+        refresh_after_days=max(0, args.refresh_after_days),
+    )
     connection.close()
     elapsed = time.monotonic() - started
-    print(
-        "Manifesto: %d vagas · removidas do índice: %d · candidatas: %d · "
-        "processadas: %d · descrições: %d · falhas/sem descrição: %d · "
-        "robots negados: %d · armazenado: %.1f MB · tempo: %.1fs"
-        % (
-            manifest_count,
-            removed,
-            len(pending),
-            processed,
-            fetched,
-            failed,
-            denied,
-            summary["bytes"] / (1024 * 1024),
-            elapsed,
-        )
+    http_failures = sum(
+        amount
+        for status, amount in failures_by_status.items()
+        if status.startswith("http_")
     )
+    other_failures = sum(
+        amount
+        for status, amount in failures_by_status.items()
+        if not status.startswith("http_")
+        and status not in {"no_description", "robots_denied"}
+    )
+    metrics = {
+        "manifest_jobs": manifest_count,
+        "removed_from_index": removed,
+        "candidates_due": len(pending),
+        "candidates_due_by_status": dict(
+            sorted(Counter(job["status"] for job in pending).items())
+        ),
+        "processed": processed,
+        "failed_attempts": failed + denied,
+        "descriptions_fetched_this_run": fetched,
+        "descriptions_fetched_with_obscura": obscura_fetched,
+        "obscura_failed_attempts": obscura_failed,
+        "descriptions_stored_total": summary["with_description"],
+        "http_failures": http_failures,
+        "no_description_failures": failures_by_status["no_description"],
+        "robots_denied": denied,
+        "other_failures": other_failures,
+        "failures_by_status": dict(sorted(failures_by_status.items())),
+        "backlog_due_by_status": summary["backlog_due_by_status"],
+        "stored_description_bytes": summary["bytes"],
+        "elapsed_seconds": round(elapsed, 1),
+    }
+    print("DESCRIPTION_CRAWLER_METRICS " + json.dumps(metrics, sort_keys=True))
 
 
 if __name__ == "__main__":
