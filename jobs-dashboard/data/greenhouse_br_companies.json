@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-30T22:02:18.665338+00:00",
+  "generated_at": "2026-09-30T23:28:51.870310+00:00",
   "candidate_count": 8331,
-  "company_count": 197,
+  "company_count": 196,
   "companies": [
     {
       "board": "abinbev",
@@ -202,7 +202,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 163
+      "brazil_jobs": 164
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -495,6 +495,11 @@
       "brazil_jobs": 1
     },
     {
+      "board": "inter",
+      "company": "Inter Carreiras",
+      "brazil_jobs": 145
+    },
+    {
       "board": "interbrand",
       "company": "Interbrand",
       "brazil_jobs": 1
@@ -517,11 +522,6 @@
     {
       "board": "jusbrasil",
       "company": "Jusbrasil",
-      "brazil_jobs": 4
-    },
-    {
-      "board": "kaizengaming",
-      "company": "Kaizen Gaming",
       "brazil_jobs": 4
     },
     {
@@ -562,11 +562,6 @@
     {
       "board": "mintel",
       "company": "Mintel",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "miqdigital",
-      "company": "MiQ Digital",
       "brazil_jobs": 1
     },
     {
@@ -772,7 +767,7 @@
     {
       "board": "sezzle",
       "company": "Sezzle",
-      "brazil_jobs": 21
+      "brazil_jobs": 22
     },
     {
       "board": "shifttechnology",
@@ -972,7 +967,7 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 173
+      "brazil_jobs": 174
     },
     {
       "board": "xpengmotors",
