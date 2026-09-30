@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-30T17:34:00.787689+00:00",
+  "generated_at": "2026-09-30T18:08:20.202523+00:00",
   "candidate_count": 8331,
-  "company_count": 197,
+  "company_count": 196,
   "companies": [
     {
       "board": "abinbev",
@@ -27,7 +27,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 114
+      "brazil_jobs": 115
     },
     {
       "board": "agilize",
@@ -48,6 +48,11 @@
       "board": "amyrisinc",
       "company": "Amyris, Inc.",
       "brazil_jobs": 6
+    },
+    {
+      "board": "appdirect",
+      "company": "AppDirect",
+      "brazil_jobs": 4
     },
     {
       "board": "appnovation",
@@ -197,17 +202,17 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 159
+      "brazil_jobs": 160
     },
     {
       "board": "candidaturasdirecionadasxpinc",
       "company": "Candidaturas Direcionadas",
-      "brazil_jobs": 13
+      "brazil_jobs": 14
     },
     {
       "board": "capco",
       "company": "Capco",
-      "brazil_jobs": 120
+      "brazil_jobs": 121
     },
     {
       "board": "careaccess",
@@ -292,7 +297,7 @@
     {
       "board": "datadog",
       "company": "Datadog",
-      "brazil_jobs": 18
+      "brazil_jobs": 17
     },
     {
       "board": "deliveryassociates",
@@ -492,7 +497,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 141
+      "brazil_jobs": 142
     },
     {
       "board": "interbrand",
@@ -562,11 +567,6 @@
     {
       "board": "mintel",
       "company": "Mintel",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "miqdigital",
-      "company": "MiQ Digital",
       "brazil_jobs": 1
     },
     {
@@ -712,17 +712,12 @@
     {
       "board": "powerdigitalmarketing",
       "company": "Power Digital",
-      "brazil_jobs": 49
+      "brazil_jobs": 51
     },
     {
       "board": "pfm",
       "company": "Precision for Medicine",
       "brazil_jobs": 9
-    },
-    {
-      "board": "precisionmedicinegroup",
-      "company": "Precision Medicine Group",
-      "brazil_jobs": 10
     },
     {
       "board": "rdstation",
@@ -927,12 +922,12 @@
     {
       "board": "wundermanthompson",
       "company": "VML",
-      "brazil_jobs": 23
+      "brazil_jobs": 22
     },
     {
       "board": "vmlenterprisesolutions",
       "company": "VML/WPP Enterprise Solutions",
-      "brazil_jobs": 33
+      "brazil_jobs": 32
     },
     {
       "board": "vtex",
