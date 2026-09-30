@@ -448,7 +448,7 @@ class JournyTests(unittest.TestCase):
         self.assertEqual(row["levels"], ["Sênior"])
         self.assertEqual(row["contract_types"], ["PJ"])
         self.assertEqual(row["description"], "Descrição pública")
-        self.assertEqual(row["url"], "https://main.d3mg4gpkl052zo.amplifyapp.com/carreiras/" + item["id"])
+        self.assertEqual(row["url"], "https://www.journy.com.br/carreiras/" + item["id"])
 
     def test_detail_description_parser_reads_marked_div(self):
         markup = '<div data-testid="vaga-descricao"><p>Requisitos</p><ul><li>Python</li></ul></div>'
