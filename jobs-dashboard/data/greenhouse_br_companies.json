@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-30T00:18:34.763790+00:00",
+  "generated_at": "2026-09-30T03:08:47.081876+00:00",
   "candidate_count": 8331,
-  "company_count": 198,
+  "company_count": 199,
   "companies": [
     {
       "board": "abinbev",
@@ -507,7 +507,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 141
+      "brazil_jobs": 142
     },
     {
       "board": "interbrand",
@@ -723,6 +723,11 @@
       "board": "powerdigitalmarketing",
       "company": "Power Digital",
       "brazil_jobs": 51
+    },
+    {
+      "board": "pfm",
+      "company": "Precision for Medicine",
+      "brazil_jobs": 9
     },
     {
       "board": "precisionmedicinegroup",
