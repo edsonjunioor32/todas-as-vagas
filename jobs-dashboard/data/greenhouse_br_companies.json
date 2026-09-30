@@ -1,23 +1,13 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-29T22:51:32.949455+00:00",
+  "generated_at": "2026-09-29T23:35:57.551413+00:00",
   "candidate_count": 8331,
-  "company_count": 198,
+  "company_count": 197,
   "companies": [
     {
       "board": "abinbev",
       "company": "AB InBev  | Growth Group",
       "brazil_jobs": 47
-    },
-    {
-      "board": "advancedtechnologyservices",
-      "company": "Advanced Technology Services",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "adyen",
-      "company": "Adyen",
-      "brazil_jobs": 8
     },
     {
       "board": "aestudio",
@@ -460,6 +450,11 @@
       "brazil_jobs": 1
     },
     {
+      "board": "quintoandar",
+      "company": "Grupo QuintoAndar",
+      "brazil_jobs": 77
+    },
+    {
       "board": "hotmartcareersbr",
       "company": "Hotmart",
       "brazil_jobs": 20
@@ -592,7 +587,7 @@
     {
       "board": "monks",
       "company": "Monks",
-      "brazil_jobs": 45
+      "brazil_jobs": 46
     },
     {
       "board": "monumentsoftwareinc",
