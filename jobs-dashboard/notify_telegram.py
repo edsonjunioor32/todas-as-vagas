@@ -82,6 +82,7 @@ SOURCE_LABELS = {
     "fiserv": "Fiserv",
     "metalfrio": "Metalfrio",
     "experian": "Experian",
+    "vale": "Vale",
     "providerit": "Provider IT",
     "inlog": "Inlog",
     "revolut": "Revolut",
