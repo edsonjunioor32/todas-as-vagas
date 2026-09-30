@@ -30,7 +30,11 @@ PAGES = {
 HOST = "https://jobs.recrutei.com.br"
 PUBLIC = "https://empregos.recrutei.com.br/vagas"
 CARD = re.compile(r"/([^/]+)/vacancy/(\d+)-", re.I)
-PUBLIC_CARD = re.compile(r"/vaga/([^/]+)/(\d+)(?:-[^/?#]+)?", re.I)
+PUBLIC_CARD = re.compile(
+    r"/vaga/([^/?#]+)/(\d+|[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12})"
+    r"(?:-[^/?#]*)?(?=$|[?#])",
+    re.I,
+)
 CONTRACT = re.compile(r"^(?:CLT|PJ|CLT ou PJ|Estágio|Temporário|Pessoa Jurídica)$", re.I)
 PUBLICATION_TIME = re.compile(
     r"\bpublicad[ao]\b|\bh[áa]\s+\d+\s+(?:minuto|hora|dia|semana|m[eê]s)",
@@ -48,7 +52,9 @@ class PublicCards(HTMLParser):
         self.card = None
         self.rows = []
         self._div_depth = 0
+        self._article_depth = 0
         self._card_depth = 0
+        self._card_tag = ""
         self._elements = []
 
     @staticmethod
@@ -68,6 +74,11 @@ class PublicCards(HTMLParser):
             self.card["company"] = value
         elif kind == "location":
             self.card["location"] = value
+        elif kind == "meta":
+            parts = re.split(r"\s*[·•]\s*", value, maxsplit=1)
+            company = parts[0]
+            self.card["company"] = company.strip()
+            self.card["location"] = parts[1].strip() if len(parts) > 1 else ""
         elif kind == "badge":
             self.card["badges"].append(value)
 
@@ -97,6 +108,21 @@ class PublicCards(HTMLParser):
                     "badges": [],
                 }
                 self._card_depth = self._div_depth
+                self._card_tag = "div"
+        elif tag == "article":
+            self._article_depth += 1
+            if self.card is None and "d2-jobrow" in classes:
+                self.card = {
+                    "groups": (),
+                    "url": "",
+                    "parts": [],
+                    "title": "",
+                    "company": "",
+                    "location": "",
+                    "badges": [],
+                }
+                self._card_depth = self._article_depth
+                self._card_tag = "article"
         if self.card:
             href = attributes.get("href", "")
             match = self.matcher.search(href)
@@ -104,8 +130,12 @@ class PublicCards(HTMLParser):
                 self.card["groups"] = match.groups()
                 self.card["url"] = urljoin(self.base, href)
             kind = ""
-            if tag == "a" and "job-title" in classes:
+            if (tag == "a" and "job-title" in classes) or (
+                tag == "h3" and "d2-jobrow__title" in classes
+            ):
                 kind = "title"
+            elif tag == "p" and "d2-jobrow__meta" in classes:
+                kind = "meta"
             elif tag == "p" and "text-muted" in classes and "f-14" in classes:
                 kind = "company"
             elif (
@@ -124,10 +154,15 @@ class PublicCards(HTMLParser):
                 element = self._elements.pop(index)
                 self._finish_element(element)
                 break
-        if tag == "div":
-            if self.card and self._div_depth == self._card_depth:
+        if tag == self._card_tag:
+            depth = self._article_depth if tag == "article" else self._div_depth
+            if self.card and depth == self._card_depth:
                 self._finish_card()
+                self._card_tag = ""
+        if tag == "div":
             self._div_depth = max(0, self._div_depth - 1)
+        elif tag == "article":
+            self._article_depth = max(0, self._article_depth - 1)
 
     def handle_data(self, data):
         if self.card and data.strip():
@@ -379,8 +414,7 @@ def _public_rows():
         badges = card.get("badges") or []
         contract = next(
             (part for part in badges
-             if not work_model_label(raw=part)
-             and part.casefold() not in {"presencial ou remoto", "remoto ou presencial"}),
+             if CONTRACT.fullmatch(part)),
             "",
         )
         model = _public_model(badges) or detail.get("work_model", "")
@@ -420,3 +454,4 @@ def fetch():
     if not out:
         raise RuntimeError("Recrutei returned no recognizable public vacancy cards")
     return list(out.values())
+
