@@ -16,7 +16,7 @@ from ._common import job, strip_html, work_model_label
 from ._http import get_text
 
 
-CAREERS_URL = "https://main.d3mg4gpkl052zo.amplifyapp.com/carreiras"
+CAREERS_URL = "https://www.journy.com.br/carreiras"
 DETAIL_URL = CAREERS_URL + "/{0}"
 SOURCE = "journy"
 _RSC_MARKER = '"vagas"'
