@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-30T09:53:37.430671+00:00",
+  "generated_at": "2026-09-30T10:58:47.530518+00:00",
   "candidate_count": 8331,
   "company_count": 198,
   "companies": [
@@ -362,7 +362,7 @@
     {
       "board": "externaljobboards",
       "company": "Exadel",
-      "brazil_jobs": 12
+      "brazil_jobs": 14
     },
     {
       "board": "exadelinc",
@@ -717,7 +717,7 @@
     {
       "board": "powerdigitalmarketing",
       "company": "Power Digital",
-      "brazil_jobs": 51
+      "brazil_jobs": 50
     },
     {
       "board": "pfm",
