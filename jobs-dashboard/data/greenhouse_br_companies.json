@@ -1,13 +1,23 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-29T23:35:57.551413+00:00",
+  "generated_at": "2026-09-30T00:18:34.763790+00:00",
   "candidate_count": 8331,
-  "company_count": 197,
+  "company_count": 198,
   "companies": [
     {
       "board": "abinbev",
       "company": "AB InBev  | Growth Group",
       "brazil_jobs": 47
+    },
+    {
+      "board": "advancedtechnologyservices",
+      "company": "Advanced Technology Services",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "adyen",
+      "company": "Adyen",
+      "brazil_jobs": 8
     },
     {
       "board": "aestudio",
@@ -715,11 +725,6 @@
       "brazil_jobs": 51
     },
     {
-      "board": "pfm",
-      "company": "Precision for Medicine",
-      "brazil_jobs": 9
-    },
-    {
       "board": "precisionmedicinegroup",
       "company": "Precision Medicine Group",
       "brazil_jobs": 10
@@ -797,7 +802,7 @@
     {
       "board": "spacexglobal",
       "company": "SpaceX_Global",
-      "brazil_jobs": 4
+      "brazil_jobs": 5
     },
     {
       "board": "speechify",
