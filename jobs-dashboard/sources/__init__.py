@@ -50,6 +50,7 @@ from . import (
     wellfound,
     workable,
     workable_brazil,
+    vagascom,
 )
 
 REGISTRY = [
@@ -149,4 +150,5 @@ REGISTRY = [
     ("greenhouse", ats_boards.fetch_greenhouse),
     ("lever", ats_boards.fetch_lever),
     ("ashby", ats_boards.fetch_ashby),
+    ("vagascom", vagascom.fetch),
 ]
