@@ -38,6 +38,14 @@ Na arquitetura atual:
 
 O bot e o OpenWA não dependem de uma aba do navegador para o catálogo ser atualizado. A comunicação interna entre os containers usa a rede Docker `openwa_net`, com o OpenWA acessível ao bot por `http://openwa:2785`. As chaves do OpenWA, do webhook e demais credenciais pertencem ao ambiente do `botwhats`/VPS e não devem ser adicionadas a este repositório.
 
+### Integração com LinkedIn via Postiz
+
+O workflow publica um único resumo diário de até cinco vagas na Página do LinkedIn, por meio da API do Postiz. O resumo roda somente após a atualização programada das 20h07 (horário de Brasília) terminar com sucesso e o snapshot mais recente estar publicado. Uma falha no Postiz é isolada e não reprova nem desfaz a coleta do catálogo.
+
+Para ativar a integração, configure a variável de repositório `POSTIZ_ENABLED=true`, a variável `POSTIZ_API_BASE_URL` com a URL completa da API da instância (incluindo `/api/public/v1`) e os secrets `POSTIZ_API_KEY` e `POSTIZ_LINKEDIN_INTEGRATION_ID`. O controle de duplicidade fica no armazenamento persistente do usuário do runner da VPS; o workflow também procura o marcador diário no histórico do Postiz antes de publicar.
+
+A instância do Postiz já está auto-hospedada na VPS; não é necessário contratar o Postiz Cloud nem instalar outra cópia. Antes de conectar o LinkedIn, a instância precisa ter uma URL HTTPS estável, um aplicativo de desenvolvedor LinkedIn com permissões aprovadas e a Página conectada no Postiz. As chaves ficam somente nos secrets. Consulte o guia oficial [Postiz — LinkedIn Page](https://docs.postiz.com/self-host/providers/linkedin-page) para os escopos e o endereço de retorno OAuth.
+
 ### Fluxo completo
 
 ```text
@@ -48,7 +56,8 @@ Coleta, normalização, deduplicação e validação
 Snapshot público (public-data/data/vagas.json)
       ├── GitHub Pages: portal pesquisável
       ├── Telegram: notificações de novas vagas
-      └── WhatsApp: consulta interativa pelo botwhats/OpenWA
+      ├── WhatsApp: consulta interativa pelo botwhats/OpenWA
+      └── LinkedIn: resumo diário via Postiz após a coleta final bem-sucedida
 ```
 
 Assim, o catálogo permanece em um único ponto de verdade: uma atualização bem-sucedida alimenta o site e deixa os dados disponíveis para os dois canais, enquanto cada canal mantém sua própria camada de entrega e suas próprias credenciais.
