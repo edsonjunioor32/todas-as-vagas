@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-30T15:17:41.200216+00:00",
+  "generated_at": "2026-09-30T15:46:08.379482+00:00",
   "candidate_count": 8331,
-  "company_count": 196,
+  "company_count": 195,
   "companies": [
     {
       "board": "abinbev",
@@ -27,7 +27,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 116
+      "brazil_jobs": 114
     },
     {
       "board": "agilize",
@@ -50,24 +50,19 @@
       "brazil_jobs": 6
     },
     {
-      "board": "appdirect",
-      "company": "AppDirect",
-      "brazil_jobs": 4
-    },
-    {
       "board": "appnovation",
       "company": "Appnovation Technologies",
       "brazil_jobs": 8
     },
     {
-      "board": "appsflyer",
-      "company": "AppsFlyer",
-      "brazil_jobs": 1
-    },
-    {
       "board": "archer56",
       "company": "Archer",
       "brazil_jobs": 1
+    },
+    {
+      "board": "arcoeducacao",
+      "company": "Arco Educação",
+      "brazil_jobs": 77
     },
     {
       "board": "arctouch",
@@ -467,7 +462,7 @@
     {
       "board": "housecall",
       "company": "Housecall Pro",
-      "brazil_jobs": 16
+      "brazil_jobs": 15
     },
     {
       "board": "indicacoesifoodinterno",
@@ -780,6 +775,11 @@
       "brazil_jobs": 2
     },
     {
+      "board": "smartlyio",
+      "company": "Smartly",
+      "brazil_jobs": 2
+    },
+    {
       "board": "sohohouseco",
       "company": "Soho House & Co.",
       "brazil_jobs": 11
@@ -808,11 +808,6 @@
       "board": "stonepatrocina",
       "company": "Stone - Indeed",
       "brazil_jobs": 243
-    },
-    {
-      "board": "stripe",
-      "company": "Stripe",
-      "brazil_jobs": 2
     },
     {
       "board": "sumup",
