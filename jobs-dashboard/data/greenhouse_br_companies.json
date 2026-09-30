@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-30T19:46:16.754364+00:00",
+  "generated_at": "2026-09-30T20:16:08.783199+00:00",
   "candidate_count": 8331,
-  "company_count": 197,
+  "company_count": 198,
   "companies": [
     {
       "board": "abinbev",
@@ -27,7 +27,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 113
+      "brazil_jobs": 112
     },
     {
       "board": "agilize",
@@ -202,7 +202,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 161
+      "brazil_jobs": 162
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -322,7 +322,7 @@
     {
       "board": "ebanx",
       "company": "EBANX",
-      "brazil_jobs": 23
+      "brazil_jobs": 22
     },
     {
       "board": "ebury",
@@ -337,7 +337,7 @@
     {
       "board": "encora10",
       "company": "Encora",
-      "brazil_jobs": 20
+      "brazil_jobs": 21
     },
     {
       "board": "enforce",
@@ -497,7 +497,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 143
+      "brazil_jobs": 145
     },
     {
       "board": "interbrand",
@@ -578,6 +578,11 @@
       "board": "realtimeboardglobal",
       "company": "Miro",
       "brazil_jobs": 1
+    },
+    {
+      "board": "mongodb",
+      "company": "MongoDB",
+      "brazil_jobs": 4
     },
     {
       "board": "monks",
@@ -727,7 +732,7 @@
     {
       "board": "rdstation",
       "company": "RD Station",
-      "brazil_jobs": 6
+      "brazil_jobs": 7
     },
     {
       "board": "rdsourcing",
@@ -737,7 +742,7 @@
     {
       "board": "ripple",
       "company": "Ripple",
-      "brazil_jobs": 3
+      "brazil_jobs": 2
     },
     {
       "board": "riskified",
@@ -772,7 +777,7 @@
     {
       "board": "sezzle",
       "company": "Sezzle",
-      "brazil_jobs": 22
+      "brazil_jobs": 21
     },
     {
       "board": "shifttechnology",
@@ -812,7 +817,7 @@
     {
       "board": "stonepatrocina",
       "company": "Stone - Indeed",
-      "brazil_jobs": 242
+      "brazil_jobs": 241
     },
     {
       "board": "stripe",
@@ -932,7 +937,7 @@
     {
       "board": "vmlenterprisesolutions",
       "company": "VML/WPP Enterprise Solutions",
-      "brazil_jobs": 32
+      "brazil_jobs": 31
     },
     {
       "board": "vtex",
@@ -972,7 +977,7 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 173
+      "brazil_jobs": 174
     },
     {
       "board": "xpengmotors",
