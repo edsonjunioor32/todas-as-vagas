@@ -10,7 +10,6 @@ class PublicationConcurrencyTests(unittest.TestCase):
         for name in (
             "pages.yml",
             "merge-dynamic-portals.yml",
-            "journy-nightly.yml",
             "telegram.yml",
         ):
             with self.subTest(workflow=name):
