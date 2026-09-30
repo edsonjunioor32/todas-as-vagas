@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-30T08:36:34.078791+00:00",
+  "generated_at": "2026-09-30T09:08:48.763308+00:00",
   "candidate_count": 8331,
   "company_count": 198,
   "companies": [
@@ -812,7 +812,7 @@
     {
       "board": "sterlingtonpllc",
       "company": "Sterlington, PLLC",
-      "brazil_jobs": 5
+      "brazil_jobs": 6
     },
     {
       "board": "stonepatrocina",
