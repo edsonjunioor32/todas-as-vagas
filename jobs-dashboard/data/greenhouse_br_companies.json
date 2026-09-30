@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-30T18:42:15.955374+00:00",
+  "generated_at": "2026-09-30T19:46:16.754364+00:00",
   "candidate_count": 8331,
-  "company_count": 193,
+  "company_count": 197,
   "companies": [
     {
       "board": "abinbev",
@@ -27,7 +27,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 114
+      "brazil_jobs": 113
     },
     {
       "board": "agilize",
@@ -72,7 +72,7 @@
     {
       "board": "arcoeducacao",
       "company": "Arco Educação",
-      "brazil_jobs": 77
+      "brazil_jobs": 76
     },
     {
       "board": "arctouch",
@@ -142,12 +142,17 @@
     {
       "board": "bancopan",
       "company": "Banco PAN",
-      "brazil_jobs": 15
+      "brazil_jobs": 14
     },
     {
       "board": "bees",
       "company": "BEES",
       "brazil_jobs": 47
+    },
+    {
+      "board": "betsson",
+      "company": "Betsson Group",
+      "brazil_jobs": 1
     },
     {
       "board": "blip-global",
@@ -247,7 +252,7 @@
     {
       "board": "clara",
       "company": "Clara",
-      "brazil_jobs": 61
+      "brazil_jobs": 63
     },
     {
       "board": "classpass",
@@ -278,6 +283,11 @@
       "board": "counterpart",
       "company": "Counterpart",
       "brazil_jobs": 1
+    },
+    {
+      "board": "databricks",
+      "company": "Databricks",
+      "brazil_jobs": 6
     },
     {
       "board": "datacamp",
@@ -372,7 +382,7 @@
     {
       "board": "figma",
       "company": "Figma",
-      "brazil_jobs": 4
+      "brazil_jobs": 5
     },
     {
       "board": "figureai",
@@ -445,9 +455,14 @@
       "brazil_jobs": 1
     },
     {
+      "board": "quintoandar",
+      "company": "Grupo QuintoAndar",
+      "brazil_jobs": 78
+    },
+    {
       "board": "hotmartcareersbr",
       "company": "Hotmart",
-      "brazil_jobs": 19
+      "brazil_jobs": 18
     },
     {
       "board": "housebuyersofamerica",
@@ -467,6 +482,11 @@
     {
       "board": "impinjexternal",
       "company": "Impinj",
+      "brazil_jobs": 3
+    },
+    {
+      "board": "inflect",
+      "company": "Inflect",
       "brazil_jobs": 3
     },
     {
@@ -535,6 +555,11 @@
       "brazil_jobs": 1
     },
     {
+      "board": "agency",
+      "company": "Meridial",
+      "brazil_jobs": 8
+    },
+    {
       "board": "mindbody",
       "company": "Mindbody",
       "brazil_jobs": 4
@@ -555,14 +580,9 @@
       "brazil_jobs": 1
     },
     {
-      "board": "mongodb",
-      "company": "MongoDB",
-      "brazil_jobs": 4
-    },
-    {
       "board": "monks",
       "company": "Monks",
-      "brazil_jobs": 47
+      "brazil_jobs": 46
     },
     {
       "board": "monumentsoftwareinc",
@@ -692,7 +712,7 @@
     {
       "board": "powerdigitalmarketing",
       "company": "Power Digital",
-      "brazil_jobs": 51
+      "brazil_jobs": 52
     },
     {
       "board": "pfm",
@@ -752,7 +772,7 @@
     {
       "board": "sezzle",
       "company": "Sezzle",
-      "brazil_jobs": 23
+      "brazil_jobs": 22
     },
     {
       "board": "shifttechnology",
@@ -792,7 +812,7 @@
     {
       "board": "stonepatrocina",
       "company": "Stone - Indeed",
-      "brazil_jobs": 243
+      "brazil_jobs": 242
     },
     {
       "board": "stripe",
@@ -917,7 +937,7 @@
     {
       "board": "vtex",
       "company": "VTEX",
-      "brazil_jobs": 18
+      "brazil_jobs": 19
     },
     {
       "board": "gympass",
@@ -952,7 +972,7 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 174
+      "brazil_jobs": 173
     },
     {
       "board": "xpengmotors",
@@ -967,7 +987,7 @@
     {
       "board": "ilia",
       "company": "ília",
-      "brazil_jobs": 15
+      "brazil_jobs": 14
     }
   ]
 }
