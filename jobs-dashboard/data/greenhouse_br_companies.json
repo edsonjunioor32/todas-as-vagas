@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-30T21:07:55.207151+00:00",
+  "generated_at": "2026-09-30T22:02:18.665338+00:00",
   "candidate_count": 8331,
   "company_count": 197,
   "companies": [
@@ -72,7 +72,7 @@
     {
       "board": "arcoeducacao",
       "company": "Arco Educação",
-      "brazil_jobs": 76
+      "brazil_jobs": 74
     },
     {
       "board": "arctouch",
@@ -202,7 +202,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 162
+      "brazil_jobs": 163
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -495,11 +495,6 @@
       "brazil_jobs": 1
     },
     {
-      "board": "inter",
-      "company": "Inter Carreiras",
-      "brazil_jobs": 145
-    },
-    {
       "board": "interbrand",
       "company": "Interbrand",
       "brazil_jobs": 1
@@ -532,7 +527,7 @@
     {
       "board": "knowbe4",
       "company": "KnowBe4",
-      "brazil_jobs": 17
+      "brazil_jobs": 19
     },
     {
       "board": "artefactlinkedin",
@@ -660,6 +655,11 @@
       "brazil_jobs": 6
     },
     {
+      "board": "openfx",
+      "company": "OpenFX",
+      "brazil_jobs": 1
+    },
+    {
       "board": "optimove",
       "company": "Optimove",
       "brazil_jobs": 2
@@ -727,7 +727,7 @@
     {
       "board": "rdstation",
       "company": "RD Station",
-      "brazil_jobs": 7
+      "brazil_jobs": 8
     },
     {
       "board": "rdsourcing",
@@ -942,7 +942,7 @@
     {
       "board": "gympass",
       "company": "Wellhub",
-      "brazil_jobs": 36
+      "brazil_jobs": 39
     },
     {
       "board": "wildlifestudios",
@@ -972,7 +972,7 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 174
+      "brazil_jobs": 173
     },
     {
       "board": "xpengmotors",
