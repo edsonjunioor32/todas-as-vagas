@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-30T12:44:13.194344+00:00",
+  "generated_at": "2026-09-30T13:33:50.915790+00:00",
   "candidate_count": 8331,
-  "company_count": 199,
+  "company_count": 197,
   "companies": [
     {
       "board": "abinbev",
@@ -27,7 +27,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 119
+      "brazil_jobs": 118
     },
     {
       "board": "agilize",
@@ -62,11 +62,6 @@
     {
       "board": "appsflyer",
       "company": "AppsFlyer",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "archer56",
-      "company": "Archer",
       "brazil_jobs": 1
     },
     {
@@ -212,7 +207,7 @@
     {
       "board": "capco",
       "company": "Capco",
-      "brazil_jobs": 120
+      "brazil_jobs": 121
     },
     {
       "board": "careaccess",
@@ -370,11 +365,6 @@
       "brazil_jobs": 15
     },
     {
-      "board": "fanaticscollectibles",
-      "company": "Fanatics Collectibles",
-      "brazil_jobs": 1
-    },
-    {
       "board": "feedzai",
       "company": "Feedzai",
       "brazil_jobs": 1
@@ -447,7 +437,7 @@
     {
       "board": "globalli",
       "company": "Globalli",
-      "brazil_jobs": 4
+      "brazil_jobs": 5
     },
     {
       "board": "growe",
@@ -462,7 +452,7 @@
     {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 78
+      "brazil_jobs": 77
     },
     {
       "board": "hotmartcareersbr",
@@ -502,7 +492,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 141
+      "brazil_jobs": 140
     },
     {
       "board": "interbrand",
@@ -782,7 +772,7 @@
     {
       "board": "sezzle",
       "company": "Sezzle",
-      "brazil_jobs": 24
+      "brazil_jobs": 23
     },
     {
       "board": "shifttechnology",
@@ -822,7 +812,7 @@
     {
       "board": "stonepatrocina",
       "company": "Stone - Indeed",
-      "brazil_jobs": 244
+      "brazil_jobs": 243
     },
     {
       "board": "stripe",
@@ -937,7 +927,7 @@
     {
       "board": "wundermanthompson",
       "company": "VML",
-      "brazil_jobs": 23
+      "brazil_jobs": 22
     },
     {
       "board": "vmlenterprisesolutions",
@@ -952,7 +942,7 @@
     {
       "board": "gympass",
       "company": "Wellhub",
-      "brazil_jobs": 37
+      "brazil_jobs": 36
     },
     {
       "board": "wildlifestudios",
