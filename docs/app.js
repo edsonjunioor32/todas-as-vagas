@@ -61,6 +61,7 @@
     lever: 'Lever',
     ashby: 'Ashby',
     abler: 'Abler',
+    precisionrh: 'Precision RH',
     accenture: 'Accenture',
     bradesco: 'Bradesco',
     cloudwalk: 'CloudWalk',

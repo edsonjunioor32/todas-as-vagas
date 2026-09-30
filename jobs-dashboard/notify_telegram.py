@@ -69,6 +69,7 @@ SOURCE_LABELS = {
     "github": "GitHub",
     "Nerdin": "Nerdin",
     "abler": "Abler",
+    "precisionrh": "Precision RH",
     "infojobs": "InfoJobs",
     "recrutei": "Recrutei",
     "accenture": "Accenture",
