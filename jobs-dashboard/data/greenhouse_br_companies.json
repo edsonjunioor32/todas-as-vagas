@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-30T20:16:08.783199+00:00",
+  "generated_at": "2026-09-30T21:07:55.207151+00:00",
   "candidate_count": 8331,
-  "company_count": 198,
+  "company_count": 197,
   "companies": [
     {
       "board": "abinbev",
@@ -27,7 +27,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 112
+      "brazil_jobs": 108
     },
     {
       "board": "agilize",
@@ -457,7 +457,7 @@
     {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 78
+      "brazil_jobs": 79
     },
     {
       "board": "hotmartcareersbr",
@@ -587,7 +587,7 @@
     {
       "board": "monks",
       "company": "Monks",
-      "brazil_jobs": 46
+      "brazil_jobs": 47
     },
     {
       "board": "monumentsoftwareinc",
@@ -660,11 +660,6 @@
       "brazil_jobs": 6
     },
     {
-      "board": "openfx",
-      "company": "OpenFX",
-      "brazil_jobs": 1
-    },
-    {
       "board": "optimove",
       "company": "Optimove",
       "brazil_jobs": 2
@@ -717,7 +712,7 @@
     {
       "board": "powerdigitalmarketing",
       "company": "Power Digital",
-      "brazil_jobs": 52
+      "brazil_jobs": 51
     },
     {
       "board": "pfm",
@@ -817,7 +812,7 @@
     {
       "board": "stonepatrocina",
       "company": "Stone - Indeed",
-      "brazil_jobs": 241
+      "brazil_jobs": 240
     },
     {
       "board": "stripe",
@@ -967,7 +962,7 @@
     {
       "board": "wpp",
       "company": "WPP",
-      "brazil_jobs": 6
+      "brazil_jobs": 5
     },
     {
       "board": "wppmedia",
