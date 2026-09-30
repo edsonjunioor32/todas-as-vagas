@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-30T14:06:13.101441+00:00",
+  "generated_at": "2026-09-30T14:35:42.767346+00:00",
   "candidate_count": 8331,
-  "company_count": 194,
+  "company_count": 197,
   "companies": [
     {
       "board": "abinbev",
@@ -27,7 +27,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 118
+      "brazil_jobs": 116
     },
     {
       "board": "agilize",
@@ -72,7 +72,7 @@
     {
       "board": "arcoeducacao",
       "company": "Arco Educação",
-      "brazil_jobs": 78
+      "brazil_jobs": 77
     },
     {
       "board": "arctouch",
@@ -212,7 +212,7 @@
     {
       "board": "capco",
       "company": "Capco",
-      "brazil_jobs": 121
+      "brazil_jobs": 120
     },
     {
       "board": "careaccess",
@@ -295,11 +295,6 @@
       "brazil_jobs": 1
     },
     {
-      "board": "datadog",
-      "company": "Datadog",
-      "brazil_jobs": 18
-    },
-    {
       "board": "deliveryassociates",
       "company": "Delivery Associates",
       "brazil_jobs": 1
@@ -327,7 +322,7 @@
     {
       "board": "ebury",
       "company": "Ebury",
-      "brazil_jobs": 4
+      "brazil_jobs": 3
     },
     {
       "board": "elastic",
@@ -415,6 +410,11 @@
       "brazil_jobs": 2
     },
     {
+      "board": "globalizationpartners",
+      "company": "G-P",
+      "brazil_jobs": 1
+    },
+    {
       "board": "gacampus",
       "company": "General Atlantic - Campus",
       "brazil_jobs": 2
@@ -427,6 +427,11 @@
     {
       "board": "gitlab",
       "company": "GitLab",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "globalaccelerator",
+      "company": "Global Accelerator",
       "brazil_jobs": 1
     },
     {
@@ -548,6 +553,11 @@
       "board": "agency",
       "company": "Meridial",
       "brazil_jobs": 8
+    },
+    {
+      "board": "mindbody",
+      "company": "Mindbody",
+      "brazil_jobs": 4
     },
     {
       "board": "mintel",
@@ -953,6 +963,11 @@
       "board": "wpp",
       "company": "WPP",
       "brazil_jobs": 6
+    },
+    {
+      "board": "wppmedia",
+      "company": "WPP Media",
+      "brazil_jobs": 35
     },
     {
       "board": "xpinc",
