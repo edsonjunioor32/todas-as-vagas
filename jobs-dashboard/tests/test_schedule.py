@@ -41,10 +41,11 @@ def cron_entries(path: str) -> list[str]:
 
 class ScheduleTests(unittest.TestCase):
     def test_daily_collection_runs_at_brasilia_hours(self):
-        self.assertIn(
-            "7 11,14,18,23 * * *",
-            cron_entries(".github/workflows/pages.yml"),
-        )
+        schedule = cron_entries(".github/workflows/pages.yml")
+        self.assertIn("7 11,14,18 * * *", schedule)
+        self.assertIn("7 23 * * *", schedule)
+        pages = (ROOT / ".github/workflows/pages.yml").read_text(encoding="utf-8")
+        self.assertIn("github.event.schedule == '7 23 * * *'", pages)
 
     def test_greenhouse_discovery_condition_matches_its_sunday_schedule(self):
         pages = (ROOT / ".github/workflows/pages.yml").read_text(encoding="utf-8")

@@ -22,8 +22,10 @@ on:
     types: [catalog_recovery]
   schedule:
     # GitHub Actions usa UTC; Brasília/Fortaleza permanece em UTC-3.
-    # Equivale a 08h07, 11h07, 15h07 e 20h07 em Brasília/Fortaleza.
-    - cron: "7 11,14,18,23 * * *"
+    # Equivale a 08h07, 11h07 e 15h07 em Brasília/Fortaleza.
+    - cron: "7 11,14,18 * * *"
+    # Mantido separado para identificar inequivocamente a rodada diária das 20h07.
+    - cron: "7 23 * * *"
     # Atualização semanal do catálogo Greenhouse: domingo às 04h43 (UTC-3).
     - cron: "43 7 * * 0"
 
@@ -106,6 +108,50 @@ jobs:
         with:
           artifact_name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
 
+  publicar-resumo-linkedin:
+    needs: [atualizar-e-publicar]
+    if: >-
+      needs.atualizar-e-publicar.result == 'success' &&
+      github.event_name == 'schedule' &&
+      github.event.schedule == '7 23 * * *' &&
+      vars.POSTIZ_ENABLED == 'true'
+    runs-on: [self-hosted, Linux, ARM64]
+    timeout-minutes: 10
+    continue-on-error: true
+
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Carregar o snapshot publicado
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin public-data
+          git show origin/public-data:data/vagas.json > "$RUNNER_TEMP/vagas.json"
+          test -s "$RUNNER_TEMP/vagas.json"
+
+      - name: Publicar resumo diário no LinkedIn pelo Postiz
+        id: postiz
+        continue-on-error: true
+        env:
+          POSTIZ_API_BASE_URL: ${{ vars.POSTIZ_API_BASE_URL }}
+          POSTIZ_API_KEY: ${{ secrets.POSTIZ_API_KEY }}
+          POSTIZ_LINKEDIN_INTEGRATION_ID: ${{ secrets.POSTIZ_LINKEDIN_INTEGRATION_ID }}
+        run: python jobs-dashboard/postiz_linkedin.py --snapshot "$RUNNER_TEMP/vagas.json"
+
+      - name: Registrar falha isolada do Postiz
+        if: steps.postiz.outcome == 'failure'
+        shell: bash
+        run: |
+          echo "⚠️ A rotina do LinkedIn/Postiz falhou. A falha é isolada e não invalida a coleta nem a publicação do catálogo." >> "$GITHUB_STEP_SUMMARY"
   atualizar-e-publicar:
     if: github.ref == 'refs/heads/main' && (github.event_name != 'push' || (contains(github.event.head_commit.message, '[refresh-fit]') && !contains(github.event.head_commit.message, '[isolated]')))
     runs-on: [self-hosted, Linux, ARM64]
