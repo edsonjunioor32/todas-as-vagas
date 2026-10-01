@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-01T20:31:40.654184+00:00",
+  "generated_at": "2026-10-01T22:03:10.527217+00:00",
   "candidate_count": 8331,
   "company_count": 197,
   "companies": [
@@ -32,7 +32,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 111
+      "brazil_jobs": 108
     },
     {
       "board": "agilize",
@@ -102,7 +102,7 @@
     {
       "board": "assessoriadeinvestimentosxp",
       "company": "Assessoria de Investimentos - XP Inc.",
-      "brazil_jobs": 21
+      "brazil_jobs": 20
     },
     {
       "board": "atolls",
@@ -152,7 +152,7 @@
     {
       "board": "blip-global",
       "company": "Blip Global",
-      "brazil_jobs": 12
+      "brazil_jobs": 11
     },
     {
       "board": "boldmetrics",
@@ -197,7 +197,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 163
+      "brazil_jobs": 164
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -452,7 +452,7 @@
     {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 78
+      "brazil_jobs": 77
     },
     {
       "board": "hotmartcareersbr",
@@ -472,7 +472,7 @@
     {
       "board": "indicacoesifoodinterno",
       "company": "iFood Indicações",
-      "brazil_jobs": 2
+      "brazil_jobs": 1
     },
     {
       "board": "impinjexternal",
@@ -492,7 +492,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 146
+      "brazil_jobs": 145
     },
     {
       "board": "interbrand",
@@ -637,7 +637,7 @@
     {
       "board": "okx",
       "company": "OKX",
-      "brazil_jobs": 5
+      "brazil_jobs": 6
     },
     {
       "board": "oliverbrazil",
@@ -822,7 +822,7 @@
     {
       "board": "sumup",
       "company": "SumUp",
-      "brazil_jobs": 36
+      "brazil_jobs": 37
     },
     {
       "board": "syndigo",
@@ -932,7 +932,7 @@
     {
       "board": "vmlenterprisesolutions",
       "company": "VML/WPP Enterprise Solutions",
-      "brazil_jobs": 31
+      "brazil_jobs": 30
     },
     {
       "board": "vtex",
@@ -972,7 +972,7 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 171
+      "brazil_jobs": 170
     },
     {
       "board": "xpengmotors",
@@ -987,7 +987,7 @@
     {
       "board": "ilia",
       "company": "ília",
-      "brazil_jobs": 15
+      "brazil_jobs": 17
     }
   ]
 }
