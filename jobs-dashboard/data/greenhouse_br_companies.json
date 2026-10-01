@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-01T10:43:28.975153+00:00",
+  "generated_at": "2026-10-01T11:34:40.169470+00:00",
   "candidate_count": 8331,
   "company_count": 198,
   "companies": [
     {
       "board": "abinbev",
       "company": "AB InBev  | Growth Group",
-      "brazil_jobs": 47
+      "brazil_jobs": 46
     },
     {
       "board": "advancedtechnologyservices",
@@ -147,7 +147,7 @@
     {
       "board": "bees",
       "company": "BEES",
-      "brazil_jobs": 47
+      "brazil_jobs": 46
     },
     {
       "board": "betsson",
@@ -497,7 +497,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 145
+      "brazil_jobs": 144
     },
     {
       "board": "interbrand",
@@ -817,7 +817,7 @@
     {
       "board": "stonepatrocina",
       "company": "Stone - Indeed",
-      "brazil_jobs": 240
+      "brazil_jobs": 239
     },
     {
       "board": "stripe",
@@ -882,7 +882,7 @@
     {
       "board": "toradex",
       "company": "Toradex",
-      "brazil_jobs": 17
+      "brazil_jobs": 18
     },
     {
       "board": "trinks",
