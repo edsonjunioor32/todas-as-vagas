@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-01T12:49:43.472533+00:00",
+  "generated_at": "2026-10-01T14:35:07.463156+00:00",
   "candidate_count": 8331,
-  "company_count": 198,
+  "company_count": 193,
   "companies": [
     {
       "board": "abinbev",
@@ -17,7 +17,7 @@
     {
       "board": "adyen",
       "company": "Adyen",
-      "brazil_jobs": 8
+      "brazil_jobs": 9
     },
     {
       "board": "aestudio",
@@ -27,17 +27,12 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 110
+      "brazil_jobs": 111
     },
     {
       "board": "agilize",
       "company": "Agilize",
       "brazil_jobs": 6
-    },
-    {
-      "board": "airbnb",
-      "company": "Airbnb",
-      "brazil_jobs": 9
     },
     {
       "board": "alvys",
@@ -50,11 +45,6 @@
       "brazil_jobs": 6
     },
     {
-      "board": "appdirect",
-      "company": "AppDirect",
-      "brazil_jobs": 4
-    },
-    {
       "board": "appnovation",
       "company": "Appnovation Technologies",
       "brazil_jobs": 8
@@ -62,11 +52,6 @@
     {
       "board": "appsflyer",
       "company": "AppsFlyer",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "archer56",
-      "company": "Archer",
       "brazil_jobs": 1
     },
     {
@@ -142,17 +127,12 @@
     {
       "board": "bancopan",
       "company": "Banco PAN",
-      "brazil_jobs": 14
+      "brazil_jobs": 13
     },
     {
       "board": "bees",
       "company": "BEES",
       "brazil_jobs": 46
-    },
-    {
-      "board": "betsson",
-      "company": "Betsson Group",
-      "brazil_jobs": 1
     },
     {
       "board": "blip-global",
@@ -213,11 +193,6 @@
       "board": "capco",
       "company": "Capco",
       "brazil_jobs": 121
-    },
-    {
-      "board": "careaccess",
-      "company": "Care Access",
-      "brazil_jobs": 1
     },
     {
       "board": "caronsale",
@@ -462,7 +437,7 @@
     {
       "board": "hotmartcareersbr",
       "company": "Hotmart",
-      "brazil_jobs": 18
+      "brazil_jobs": 17
     },
     {
       "board": "housebuyersofamerica",
@@ -497,7 +472,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 145
+      "brazil_jobs": 144
     },
     {
       "board": "interbrand",
@@ -912,7 +887,7 @@
     {
       "board": "valtech",
       "company": "Valtech",
-      "brazil_jobs": 12
+      "brazil_jobs": 13
     },
     {
       "board": "vectranetworks",
@@ -947,7 +922,7 @@
     {
       "board": "gympass",
       "company": "Wellhub",
-      "brazil_jobs": 39
+      "brazil_jobs": 38
     },
     {
       "board": "wildlifestudios",
@@ -972,7 +947,7 @@
     {
       "board": "wppmedia",
       "company": "WPP Media",
-      "brazil_jobs": 35
+      "brazil_jobs": 33
     },
     {
       "board": "xpinc",
