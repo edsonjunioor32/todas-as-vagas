@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-01T05:49:20.252853+00:00",
+  "generated_at": "2026-10-01T06:38:34.095216+00:00",
   "candidate_count": 8331,
-  "company_count": 197,
+  "company_count": 198,
   "companies": [
     {
       "board": "abinbev",
@@ -43,6 +43,11 @@
       "board": "alvys",
       "company": "Alvys",
       "brazil_jobs": 1
+    },
+    {
+      "board": "amyrisinc",
+      "company": "Amyris, Inc.",
+      "brazil_jobs": 6
     },
     {
       "board": "appdirect",
