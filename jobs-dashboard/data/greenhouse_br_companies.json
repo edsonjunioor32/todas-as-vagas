@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-01T14:35:07.463156+00:00",
+  "generated_at": "2026-10-01T15:11:11.971772+00:00",
   "candidate_count": 8331,
-  "company_count": 193,
+  "company_count": 199,
   "companies": [
     {
       "board": "abinbev",
@@ -27,12 +27,17 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 111
+      "brazil_jobs": 110
     },
     {
       "board": "agilize",
       "company": "Agilize",
       "brazil_jobs": 6
+    },
+    {
+      "board": "airbnb",
+      "company": "Airbnb",
+      "brazil_jobs": 9
     },
     {
       "board": "alvys",
@@ -45,6 +50,11 @@
       "brazil_jobs": 6
     },
     {
+      "board": "appdirect",
+      "company": "AppDirect",
+      "brazil_jobs": 4
+    },
+    {
       "board": "appnovation",
       "company": "Appnovation Technologies",
       "brazil_jobs": 8
@@ -55,9 +65,14 @@
       "brazil_jobs": 1
     },
     {
+      "board": "archer56",
+      "company": "Archer",
+      "brazil_jobs": 1
+    },
+    {
       "board": "arcoeducacao",
       "company": "Arco Educação",
-      "brazil_jobs": 74
+      "brazil_jobs": 75
     },
     {
       "board": "arctouch",
@@ -135,6 +150,11 @@
       "brazil_jobs": 46
     },
     {
+      "board": "betsson",
+      "company": "Betsson Group",
+      "brazil_jobs": 1
+    },
+    {
       "board": "blip-global",
       "company": "Blip Global",
       "brazil_jobs": 12
@@ -193,6 +213,11 @@
       "board": "capco",
       "company": "Capco",
       "brazil_jobs": 121
+    },
+    {
+      "board": "careaccess",
+      "company": "Care Access",
+      "brazil_jobs": 1
     },
     {
       "board": "caronsale",
@@ -345,6 +370,11 @@
       "brazil_jobs": 15
     },
     {
+      "board": "fanaticscollectibles",
+      "company": "Fanatics Collectibles",
+      "brazil_jobs": 2
+    },
+    {
       "board": "feedzai",
       "company": "Feedzai",
       "brazil_jobs": 1
@@ -432,7 +462,7 @@
     {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 78
+      "brazil_jobs": 79
     },
     {
       "board": "hotmartcareersbr",
@@ -802,7 +832,7 @@
     {
       "board": "sumup",
       "company": "SumUp",
-      "brazil_jobs": 24
+      "brazil_jobs": 27
     },
     {
       "board": "syndigo",
@@ -922,7 +952,7 @@
     {
       "board": "gympass",
       "company": "Wellhub",
-      "brazil_jobs": 38
+      "brazil_jobs": 39
     },
     {
       "board": "wildlifestudios",
