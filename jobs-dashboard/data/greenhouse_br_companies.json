@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-30T23:28:51.870310+00:00",
+  "generated_at": "2026-10-01T00:24:59.449069+00:00",
   "candidate_count": 8331,
-  "company_count": 196,
+  "company_count": 198,
   "companies": [
     {
       "board": "abinbev",
@@ -525,6 +525,11 @@
       "brazil_jobs": 4
     },
     {
+      "board": "kaizengaming",
+      "company": "Kaizen Gaming",
+      "brazil_jobs": 4
+    },
+    {
       "board": "knowbe4",
       "company": "KnowBe4",
       "brazil_jobs": 19
@@ -562,6 +567,11 @@
     {
       "board": "mintel",
       "company": "Mintel",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "miqdigital",
+      "company": "MiQ Digital",
       "brazil_jobs": 1
     },
     {
@@ -767,7 +777,7 @@
     {
       "board": "sezzle",
       "company": "Sezzle",
-      "brazil_jobs": 22
+      "brazil_jobs": 23
     },
     {
       "board": "shifttechnology",
@@ -967,7 +977,7 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 174
+      "brazil_jobs": 173
     },
     {
       "board": "xpengmotors",
