@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-01T08:33:59.577009+00:00",
+  "generated_at": "2026-10-01T09:11:56.407413+00:00",
   "candidate_count": 8331,
-  "company_count": 196,
+  "company_count": 197,
   "companies": [
     {
       "board": "abinbev",
@@ -93,6 +93,11 @@
       "board": "artefact",
       "company": "Artefact",
       "brazil_jobs": 5
+    },
+    {
+      "board": "assessoriadeinvestimentosxp",
+      "company": "Assessoria de Investimentos - XP Inc.",
+      "brazil_jobs": 21
     },
     {
       "board": "atolls",
@@ -807,7 +812,7 @@
     {
       "board": "sterlingtonpllc",
       "company": "Sterlington, PLLC",
-      "brazil_jobs": 6
+      "brazil_jobs": 5
     },
     {
       "board": "stonepatrocina",
