@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-01T19:33:40.742839+00:00",
+  "generated_at": "2026-10-01T20:31:40.654184+00:00",
   "candidate_count": 8331,
   "company_count": 197,
   "companies": [
@@ -22,7 +22,7 @@
     {
       "board": "adyen",
       "company": "Adyen",
-      "brazil_jobs": 9
+      "brazil_jobs": 8
     },
     {
       "board": "aestudio",
@@ -197,7 +197,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 164
+      "brazil_jobs": 163
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -457,7 +457,7 @@
     {
       "board": "hotmartcareersbr",
       "company": "Hotmart",
-      "brazil_jobs": 17
+      "brazil_jobs": 16
     },
     {
       "board": "housebuyersofamerica",
@@ -492,7 +492,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 145
+      "brazil_jobs": 146
     },
     {
       "board": "interbrand",
@@ -503,11 +503,6 @@
       "board": "intersystems",
       "company": "InterSystems",
       "brazil_jobs": 3
-    },
-    {
-      "board": "interviewengineering",
-      "company": "Interview Engineering",
-      "brazil_jobs": 1
     },
     {
       "board": "invisibletech",
@@ -527,7 +522,7 @@
     {
       "board": "knowbe4",
       "company": "KnowBe4",
-      "brazil_jobs": 19
+      "brazil_jobs": 18
     },
     {
       "board": "artefactlinkedin",
@@ -795,6 +790,11 @@
       "brazil_jobs": 1
     },
     {
+      "board": "soundagriculture",
+      "company": "Sound Agriculture",
+      "brazil_jobs": 1
+    },
+    {
       "board": "spacexglobal",
       "company": "SpaceX_Global",
       "brazil_jobs": 5
@@ -822,7 +822,7 @@
     {
       "board": "sumup",
       "company": "SumUp",
-      "brazil_jobs": 30
+      "brazil_jobs": 36
     },
     {
       "board": "syndigo",
@@ -847,7 +847,7 @@
     {
       "board": "teachablecareers",
       "company": "Teachable",
-      "brazil_jobs": 5
+      "brazil_jobs": 3
     },
     {
       "board": "telnyx54",
@@ -987,7 +987,7 @@
     {
       "board": "ilia",
       "company": "ília",
-      "brazil_jobs": 14
+      "brazil_jobs": 15
     }
   ]
 }
