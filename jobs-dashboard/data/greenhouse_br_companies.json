@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-01T00:24:59.449069+00:00",
+  "generated_at": "2026-10-01T03:29:09.634463+00:00",
   "candidate_count": 8331,
   "company_count": 198,
   "companies": [
@@ -827,7 +827,7 @@
     {
       "board": "sumup",
       "company": "SumUp",
-      "brazil_jobs": 25
+      "brazil_jobs": 24
     },
     {
       "board": "syndigo",
