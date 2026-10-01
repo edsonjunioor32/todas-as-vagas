@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-01T12:08:44.647656+00:00",
+  "generated_at": "2026-10-01T12:49:43.472533+00:00",
   "candidate_count": 8331,
-  "company_count": 197,
+  "company_count": 198,
   "companies": [
     {
       "board": "abinbev",
@@ -27,7 +27,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 108
+      "brazil_jobs": 110
     },
     {
       "board": "agilize",
@@ -97,7 +97,7 @@
     {
       "board": "assessoriadeinvestimentosxp",
       "company": "Assessoria de Investimentos - XP Inc.",
-      "brazil_jobs": 21
+      "brazil_jobs": 20
     },
     {
       "board": "atolls",
@@ -337,7 +337,7 @@
     {
       "board": "encora10",
       "company": "Encora",
-      "brazil_jobs": 21
+      "brazil_jobs": 20
     },
     {
       "board": "enforce",
@@ -457,7 +457,7 @@
     {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 79
+      "brazil_jobs": 78
     },
     {
       "board": "hotmartcareersbr",
@@ -497,7 +497,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 144
+      "brazil_jobs": 145
     },
     {
       "board": "interbrand",
@@ -732,7 +732,7 @@
     {
       "board": "rdstation",
       "company": "RD Station",
-      "brazil_jobs": 8
+      "brazil_jobs": 7
     },
     {
       "board": "rdsourcing",
@@ -855,6 +855,11 @@
       "brazil_jobs": 5
     },
     {
+      "board": "telnyx54",
+      "company": "Telnyx",
+      "brazil_jobs": 6
+    },
+    {
       "board": "testlio",
       "company": "Testlio",
       "brazil_jobs": 1
@@ -972,7 +977,7 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 173
+      "brazil_jobs": 171
     },
     {
       "board": "xpengmotors",
