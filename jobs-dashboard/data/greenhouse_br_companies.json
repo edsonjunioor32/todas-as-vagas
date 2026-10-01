@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-01T09:11:56.407413+00:00",
+  "generated_at": "2026-10-01T10:04:49.421882+00:00",
   "candidate_count": 8331,
-  "company_count": 197,
+  "company_count": 198,
   "companies": [
     {
       "board": "abinbev",
@@ -843,6 +843,11 @@
       "board": "taboola",
       "company": "Taboola",
       "brazil_jobs": 5
+    },
+    {
+      "board": "takealotcom",
+      "company": "takealot.com",
+      "brazil_jobs": 1
     },
     {
       "board": "teachablecareers",
