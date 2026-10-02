@@ -320,8 +320,8 @@ def fetch_cloudwalk():
 
 CWI_LISTING = "https://cwi.com.br/talentos/oportunidades/"
 CWI_LINK_RE = re.compile(
-    r'<a\\b[^>]*href=["\\']([^"\\']*/talentos/oportunidade/[^"\\']+)["\\'][^>]*>'
-    r'([\\s\\S]*?)</a>',
+    r'<a\b[^>]*href=["\']([^"\']*/talentos/oportunidade/[^"\']+)["\'][^>]*>'
+    r'([\s\S]*?)</a>',
     re.I,
 )
 
@@ -333,19 +333,19 @@ def _cwi_listing_links(markup):
         absolute = urljoin(CWI_LISTING, html.unescape(href).strip())
         absolute = re.sub(r"[?#].*$", "", absolute).rstrip("/") + "/"
         if not re.match(
-            r"https://(?:www\\.)?cwi\\.com\\.br/talentos/oportunidade/",
+            r"https://(?:www\.)?cwi\.com\.br/talentos/oportunidade/",
             absolute,
             re.I,
         ):
             continue
 
         native_id = absolute.rstrip("/").rsplit("/", 1)[-1]
-        suffix = re.search(r"-(\\d+)$", native_id)
+        suffix = re.search(r"-(\d+)$", native_id)
         if suffix:
             native_id = suffix.group(1)
         label = strip_html(html.unescape(label_markup))
         title = re.split(
-            r"\\s+(?:remoto|híbrido|hibrido|presencial)\\b",
+            r"\s+(?:remoto|híbrido|hibrido|presencial)\b",
             label,
             maxsplit=1,
             flags=re.I,
@@ -360,14 +360,14 @@ def _cwi_listing_links(markup):
 def _cwi_detail_fields(markup):
     """Extract the heading and job content, excluding CWI testimonials."""
     page = re.sub(
-        r"<(script|style)\\b[^>]*>[\\s\\S]*?</\\1>",
+        r"<(script|style)\b[^>]*>[\s\S]*?</\1>",
         " ",
         markup or "",
         flags=re.I,
     )
-    heading = re.search(r"<h1\\b[^>]*>([\\s\\S]*?)</h1>", page, re.I)
+    heading = re.search(r"<h1\b[^>]*>([\s\S]*?)</h1>", page, re.I)
     title = strip_html(html.unescape(heading.group(1))) if heading else ""
-    title = re.sub(r"^oportunidade\\s*:\\s*", "", title, flags=re.I).strip()
+    title = re.sub(r"^oportunidade\s*:\s*", "", title, flags=re.I).strip()
 
     start = heading.end() if heading else 0
     boundaries = [
@@ -379,7 +379,7 @@ def _cwi_detail_fields(markup):
     excerpt = page[start:end]
     description = strip_html(html.unescape(excerpt), limit=6000)
     description = re.sub(
-        r"\\s*(?:Candidate-se|Apply now)\\s*$",
+        r"\s*(?:Candidate-se|Apply now)\s*$",
         "",
         description,
         flags=re.I,
@@ -390,11 +390,11 @@ def _cwi_detail_fields(markup):
 def _cwi_location(text):
     model = work_model_label(raw=text)
     location = re.search(
-        r"\\b([A-ZÀ-ÖØ-Þ][A-Za-zÀ-ÿ.'-]*(?:\\s+[A-Za-zÀ-ÿ.'-]+){0,4}\\s+-\\s*[A-Z]{2})\\b",
+        r"\b([A-ZÀ-ÖØ-Þ][A-Za-zÀ-ÿ.'-]*(?:\s+[A-Za-zÀ-ÿ.'-]+){0,4}\s+-\s*[A-Z]{2})\b",
         text or "",
     )
     if location:
-        city, state = re.split(r"\\s+-\\s*", location.group(1), maxsplit=1)
+        city, state = re.split(r"\s+-\s*", location.group(1), maxsplit=1)
         return model, city.strip(), state.strip()
     return model, "Brasil", ""
 
