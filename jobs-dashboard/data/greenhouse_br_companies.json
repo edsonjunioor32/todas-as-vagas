@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-02T11:32:35.313917+00:00",
+  "generated_at": "2026-10-02T12:22:35.342153+00:00",
   "candidate_count": 8331,
   "company_count": 196,
   "companies": [
@@ -32,7 +32,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 108
+      "brazil_jobs": 111
     },
     {
       "board": "agilize",
@@ -197,7 +197,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 164
+      "brazil_jobs": 165
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -487,7 +487,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 145
+      "brazil_jobs": 144
     },
     {
       "board": "interbrand",
@@ -517,7 +517,7 @@
     {
       "board": "knowbe4",
       "company": "KnowBe4",
-      "brazil_jobs": 18
+      "brazil_jobs": 19
     },
     {
       "board": "artefactlinkedin",
@@ -777,7 +777,7 @@
     {
       "board": "sohohouseco",
       "company": "Soho House & Co.",
-      "brazil_jobs": 11
+      "brazil_jobs": 10
     },
     {
       "board": "sonicwall",
@@ -962,7 +962,7 @@
     {
       "board": "wppmedia",
       "company": "WPP Media",
-      "brazil_jobs": 32
+      "brazil_jobs": 33
     },
     {
       "board": "xpinc",
