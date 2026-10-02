@@ -413,7 +413,7 @@ def fetch_cwi():
         try:
             detail = get_text(url, timeout=35, retries=2)
             title, description = _cwi_detail_fields(detail)
-            detail_text = strip_html(detail, limit=6000)
+            detail_text = description
         except Exception:
             # A single stale/unavailable posting must not discard the rest of CWI.
             pass
