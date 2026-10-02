@@ -389,9 +389,15 @@ def _cwi_detail_fields(markup):
 
 def _cwi_location(text):
     model = work_model_label(raw=text)
+    location_text = re.sub(
+        r"\\b(?:remoto|híbrido|hibrido|presencial)\\b",
+        " ",
+        text or "",
+        flags=re.I,
+    )
     location = re.search(
         r"\b([A-ZÀ-ÖØ-Þ][A-Za-zÀ-ÿ.'-]*(?:\s+[A-Za-zÀ-ÿ.'-]+){0,4}\s+-\s*[A-Z]{2})\b",
-        text or "",
+        location_text,
     )
     if location:
         city, state = re.split(r"\s+-\s*", location.group(1), maxsplit=1)
