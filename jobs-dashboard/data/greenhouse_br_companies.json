@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-02T19:07:51.849964+00:00",
+  "generated_at": "2026-10-02T19:42:40.681552+00:00",
   "candidate_count": 8331,
   "company_count": 195,
   "companies": [
@@ -32,7 +32,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 116
+      "brazil_jobs": 115
     },
     {
       "board": "agilize",
@@ -77,7 +77,7 @@
     {
       "board": "arcoeducacao",
       "company": "Arco Educação",
-      "brazil_jobs": 74
+      "brazil_jobs": 73
     },
     {
       "board": "arctouch",
@@ -312,7 +312,7 @@
     {
       "board": "ebanx",
       "company": "EBANX",
-      "brazil_jobs": 23
+      "brazil_jobs": 22
     },
     {
       "board": "ebury",
@@ -927,12 +927,12 @@
     {
       "board": "vtex",
       "company": "VTEX",
-      "brazil_jobs": 20
+      "brazil_jobs": 19
     },
     {
       "board": "gympass",
       "company": "Wellhub",
-      "brazil_jobs": 39
+      "brazil_jobs": 38
     },
     {
       "board": "wildlifestudios",
