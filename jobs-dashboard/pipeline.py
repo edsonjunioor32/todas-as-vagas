@@ -13,12 +13,14 @@ import sys
 import tempfile
 import time
 from collections import Counter
+from datetime import date
 from pathlib import Path
 
 import classify
 import storage
 from sources import (
     REGISTRY,
+    gupy as gupy_source,
     recrutei as recrutei_source,
     solides as solides_source,
 )
@@ -63,6 +65,9 @@ def sources_to_preserve(failed_sources):
         for source in (failed_sources or [])
         if str(source).strip()
     }
+    # A failed Gupy search must not make cached jobs look current. The source
+    # only returns to the snapshot after a successful public MCP collection.
+    failed.discard("gupy")
     return sorted(failed | PAUSED_SOURCES)
 
 
@@ -99,6 +104,7 @@ def _env_int(name, default, minimum=1, maximum=16):
 _ROW_TEXT_FIELDS = (
     "company", "area", "seniority", "work_model", "city", "state", "country",
     "market", "salary_currency", "published_date", "expires_date", "description",
+    "source_status", "source_type", "source_publication_type",
 )
 _ROW_LIST_FIELDS = ("skills", "contract_types", "levels", "categories")
 
@@ -467,24 +473,33 @@ def discard_unknown_market(rows):
     ]
     return kept, len(rows) - len(kept)
 
-def discard_old_publications(rows, cutoff, today=None):
+def discard_old_publications(rows, cutoff, today=None, max_age_months=2):
     """Drop rows whose normalized publication date is older than the cutoff.
 
     Rows without a portal-supplied date are retained here. The database uses
     their first-seen date as the fallback and expires them after two months.
-    A Gupy vacancy with a current application deadline remains eligible even
-    when the portal keeps its original publication date after reopening it.
+    Gupy rows require public evidence from either its candidate MCP search or
+    the legacy explicit publication fields, plus a publication date inside the
+    strict calendar-month window. A future application deadline is not a
+    substitute for current publication.
     """
     today = today or storage.local_today().isoformat()
+    gupy_cutoff = storage.months_ago(
+        date.fromisoformat(today), max(0, max_age_months)
+    ).isoformat()
     kept, dropped = [], 0
     for row in rows:
         published = str(row.get("published_date") or "")[:10]
-        expires = str(row.get("expires_date") or "")[:10]
-        active_gupy = row.get("source") == "gupy" and expires and expires >= today
+        if row.get("source") == "gupy":
+            verified = gupy_source.is_verified_public_listing(row)
+            if not verified or not published or published < gupy_cutoff:
+                dropped += 1
+            else:
+                kept.append(row)
+            continue
         if (
             published
             and published < cutoff
-            and not active_gupy
             and row.get("source") not in storage.ACTIVE_PUBLIC_FEED_SOURCES
         ):
             dropped += 1
@@ -579,7 +594,10 @@ def main(before_persist=None):
         max_age_days=max_age_days,
     )
     rows, old_dropped = discard_old_publications(
-        rows, publication_cutoff, today=collection_today
+        rows,
+        publication_cutoff,
+        today=collection_today,
+        max_age_months=max(0, args.max_age_months),
     )
     counts = Counter(row["source"] for row in rows)
     print("-" * 72)
@@ -591,7 +609,8 @@ def main(before_persist=None):
     )
     print(
         f"  corte: publicadas desde {publication_cutoff} · janela: {window} · "
-        f"Gupy com prazo vigente · {old_dropped} antigas descartadas"
+        f"Gupy: corte estrito de {max(0, args.max_age_months)} meses · "
+        f"{old_dropped} antigas/inverificáveis descartadas"
     )
     print(f"  por portal: {dict(sorted(counts.items()))}")
     if failed:
@@ -707,6 +726,7 @@ def main(before_persist=None):
         max_age_days=max_age_days,
     )
     after = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
+    snapshot_failed_sources = sorted(set(preserved_sources) | set(failed))
     count, size_mb = storage.export_snapshot(
         conn,
         str(JSON_PATH),
@@ -715,7 +735,7 @@ def main(before_persist=None):
         max_age_months=max(0, args.max_age_months),
         max_age_days=max_age_days,
         source_counts=dict(sorted(counts.items())),
-        failed_sources=preserved_sources,
+        failed_sources=snapshot_failed_sources,
     )
     conn.close()
     phases["Banco e fotografia pública"] = time.perf_counter() - stage_started
@@ -732,4 +752,3 @@ def main(before_persist=None):
 
 if __name__ == "__main__":
     main()
-

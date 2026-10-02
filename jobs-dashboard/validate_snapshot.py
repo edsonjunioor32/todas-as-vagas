@@ -2,6 +2,7 @@
 """Integrity and privacy checks for the GitHub Pages snapshot."""
 import json
 import os
+import re
 import sys
 from datetime import date
 from pathlib import Path
@@ -13,9 +14,12 @@ SNAPSHOT = ROOT / "docs" / "data" / "vagas.json"
 REQUIRED_COLUMNS = {
     "title", "src", "cmp", "area", "sen", "wm", "mk", "co", "city",
     "pub", "seen", "exp", "url", "np", "sk", "smin", "smax", "cur",
-    "pcd", "blind", "ct",
+    "pcd", "blind", "ct", "status", "type", "publication_type",
 }
 FORBIDDEN_KEYS = {"description", "descricao", "requirements", "requisitos", "email", "phone"}
+GUPY_TALENT_POOL_RE = re.compile(
+    r"\b(?:banco\s+(?:de\s+)?talentos?|talent\s+pool)\b", re.I
+)
 
 
 def fail(message):
@@ -140,25 +144,55 @@ def main():
                 f"{published} > {generated_date}"
             )
     max_age_months = int(data.get("max_age_months") or 0)
+    generated_date = data.get("generated_date") or date.today().isoformat()
     expected_cutoff = storage.publication_cutoff(
-        data.get("generated_date") or date.today().isoformat(), max_age_months
+        generated_date, max_age_months
     )
     if data.get("publication_cutoff") != expected_cutoff:
         fail("data de corte de publicação ausente ou inconsistente")
     source_names = dictionaries["source"]
-    generated_date = data.get("generated_date") or date.today().isoformat()
     old_indexes = [
         index for index, value in enumerate(columns["pub"])
         if value and value < expected_cutoff
-        and not (
-            source_names[columns["src"][index]] == "gupy"
-            and columns["exp"][index]
-            and columns["exp"][index] >= generated_date
-        )
         and source_names[columns["src"][index]] not in storage.ACTIVE_PUBLIC_FEED_SOURCES
     ]
     if old_indexes:
         fail(f"há {len(old_indexes)} vagas publicadas antes do corte {expected_cutoff}")
+    gupy_cutoff = storage.months_ago(
+        date.fromisoformat(generated_date), max(0, max_age_months)
+    ).isoformat()
+    gupy_invalid = []
+    for index in range(count):
+        if source_names[columns["src"][index]] != "gupy":
+            continue
+        published = str(columns["pub"][index] or "")[:10]
+        title = str(columns["title"][index] or "")
+        status = str(columns["status"][index] or "").strip().casefold()
+        job_type = str(columns["type"][index] or "").strip().casefold()
+        publication_type = str(
+            columns["publication_type"][index] or ""
+        ).strip().casefold()
+        expires = str(columns["exp"][index] or "")[:10]
+        public_evidence = (
+            (status == "published" and publication_type == "external")
+            or (status == "public_search" and publication_type == "candidate_mcp")
+        )
+        if (
+            not public_evidence
+            or not job_type
+            or job_type == "vacancy_type_talent_pool"
+            or GUPY_TALENT_POOL_RE.search(title)
+            or not published
+            or published < gupy_cutoff
+            or (expires and expires < generated_date)
+        ):
+            gupy_invalid.append(index)
+    if gupy_invalid:
+        fail(
+            f"há {len(gupy_invalid)} vagas Gupy sem evidência pública confirmada, "
+            f"fora do corte estrito de {max_age_months} meses ({gupy_cutoff}) "
+            "ou com prazo expirado"
+        )
     country_names = dictionaries["country"]
     autozone_foreign = [
         index for index in range(count)

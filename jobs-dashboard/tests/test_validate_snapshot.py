@@ -40,6 +40,9 @@ def snapshot_with_preserved_jobs(count=2):
         "pcd": [False] * count,
         "blind": [False] * count,
         "ct": [""] * count,
+        "status": ["published"] * count,
+        "type": ["vacancy_type_effective"] * count,
+        "publication_type": ["external"] * count,
     }
     return {
         "count": count,
@@ -101,6 +104,63 @@ class PreservedSnapshotTests(unittest.TestCase):
         self.assertIn("AVISO", stderr.getvalue())
         self.assertIn("50.00%", stderr.getvalue())
         self.assertIn("a publicação continuará", stderr.getvalue())
+
+    def test_gupy_past_publication_is_rejected_even_with_future_deadline(self):
+        snapshot = snapshot_with_preserved_jobs(count=1)
+        snapshot["dict"]["source"] = ["gupy"]
+        snapshot["jobs"]["pub"] = ["2026-07-25"]
+        snapshot["jobs"]["exp"] = ["2026-12-31"]
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "vagas.json"
+            path.write_text(json.dumps(snapshot), encoding="utf-8")
+            stdout, stderr = io.StringIO(), io.StringIO()
+            with patch.object(validate_snapshot, "SNAPSHOT", path), patch.dict(
+                os.environ,
+                {"MIN_PUBLIC_JOBS": "1", "PREVIOUS_SNAPSHOT_PATH": ""},
+                clear=False,
+            ), contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                with self.assertRaises(SystemExit):
+                    validate_snapshot.main()
+
+        self.assertIn("corte estrito de 2 meses", stderr.getvalue())
+
+    def test_gupy_recent_verified_publication_passes_validation(self):
+        snapshot = snapshot_with_preserved_jobs(count=1)
+        snapshot["dict"]["source"] = ["gupy"]
+        snapshot["jobs"]["pub"] = ["2026-07-26"]
+        snapshot["jobs"]["exp"] = ["2026-12-31"]
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "vagas.json"
+            path.write_text(json.dumps(snapshot), encoding="utf-8")
+            stdout, stderr = io.StringIO(), io.StringIO()
+            with patch.object(validate_snapshot, "SNAPSHOT", path), patch.dict(
+                os.environ,
+                {"MIN_PUBLIC_JOBS": "1", "PREVIOUS_SNAPSHOT_PATH": ""},
+                clear=False,
+            ), contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                validate_snapshot.main()
+
+        self.assertIn("OK: 1 vagas", stdout.getvalue())
+
+    def test_gupy_public_candidate_mcp_evidence_passes_validation(self):
+        snapshot = snapshot_with_preserved_jobs(count=1)
+        snapshot["dict"]["source"] = ["gupy"]
+        snapshot["jobs"]["pub"] = ["2026-09-20"]
+        snapshot["jobs"]["exp"] = ["2026-12-31"]
+        snapshot["jobs"]["status"] = ["public_search"]
+        snapshot["jobs"]["publication_type"] = ["candidate_mcp"]
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "vagas.json"
+            path.write_text(json.dumps(snapshot), encoding="utf-8")
+            stdout, stderr = io.StringIO(), io.StringIO()
+            with patch.object(validate_snapshot, "SNAPSHOT", path), patch.dict(
+                os.environ,
+                {"MIN_PUBLIC_JOBS": "1", "PREVIOUS_SNAPSHOT_PATH": ""},
+                clear=False,
+            ), contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                validate_snapshot.main()
+
+        self.assertIn("OK: 1 vagas", stdout.getvalue())
 
 
 if __name__ == "__main__":
