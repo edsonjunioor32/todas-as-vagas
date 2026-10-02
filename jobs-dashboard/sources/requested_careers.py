@@ -316,3 +316,127 @@ def fetch_cloudwalk():
     if not rows:
         raise RuntimeError("CloudWalk page returned no active vacancy links")
     return rows
+
+
+CWI_LISTING = "https://cwi.com.br/talentos/oportunidades/"
+CWI_LINK_RE = re.compile(
+    r'<a\\b[^>]*href=["\\']([^"\\']*/talentos/oportunidade/[^"\\']+)["\\'][^>]*>'
+    r'([\\s\\S]*?)</a>',
+    re.I,
+)
+
+
+def _cwi_listing_links(markup):
+    """Return unique active opportunity links from CWI's general listing."""
+    rows, seen = [], set()
+    for href, label_markup in CWI_LINK_RE.findall(markup or ""):
+        absolute = urljoin(CWI_LISTING, html.unescape(href).strip())
+        absolute = re.sub(r"[?#].*$", "", absolute).rstrip("/") + "/"
+        if not re.match(
+            r"https://(?:www\\.)?cwi\\.com\\.br/talentos/oportunidade/",
+            absolute,
+            re.I,
+        ):
+            continue
+
+        native_id = absolute.rstrip("/").rsplit("/", 1)[-1]
+        suffix = re.search(r"-(\\d+)$", native_id)
+        if suffix:
+            native_id = suffix.group(1)
+        label = strip_html(html.unescape(label_markup))
+        title = re.split(
+            r"\\s+(?:remoto|híbrido|hibrido|presencial)\\b",
+            label,
+            maxsplit=1,
+            flags=re.I,
+        )[0].strip()
+        if not native_id or absolute in seen:
+            continue
+        seen.add(absolute)
+        rows.append((absolute, native_id, title, label))
+    return rows
+
+
+def _cwi_detail_fields(markup):
+    """Extract the heading and job content, excluding CWI testimonials."""
+    page = re.sub(
+        r"<(script|style)\\b[^>]*>[\\s\\S]*?</\\1>",
+        " ",
+        markup or "",
+        flags=re.I,
+    )
+    heading = re.search(r"<h1\\b[^>]*>([\\s\\S]*?)</h1>", page, re.I)
+    title = strip_html(html.unescape(heading.group(1))) if heading else ""
+    title = re.sub(r"^oportunidade\\s*:\\s*", "", title, flags=re.I).strip()
+
+    start = heading.end() if heading else 0
+    boundaries = [
+        match.start()
+        for pattern in (r"Candidate-se", r"Somos feitos de pessoas")
+        if (match := re.search(pattern, page[start:], re.I))
+    ]
+    end = start + min(boundaries) if boundaries else len(page)
+    excerpt = page[start:end]
+    description = strip_html(html.unescape(excerpt), limit=6000)
+    description = re.sub(
+        r"\\s*(?:Candidate-se|Apply now)\\s*$",
+        "",
+        description,
+        flags=re.I,
+    ).strip()
+    return title, description
+
+
+def _cwi_location(text):
+    model = work_model_label(raw=text)
+    location = re.search(
+        r"\\b([A-ZÀ-ÖØ-Þ][A-Za-zÀ-ÿ.'-]*(?:\\s+[A-Za-zÀ-ÿ.'-]+){0,4}\\s+-\\s*[A-Z]{2})\\b",
+        text or "",
+    )
+    if location:
+        city, state = re.split(r"\\s+-\\s*", location.group(1), maxsplit=1)
+        return model, city.strip(), state.strip()
+    return model, "Brasil", ""
+
+
+def fetch_cwi():
+    """Collect all active opportunities from CWI's general careers page."""
+    listing = get_text(CWI_LISTING, timeout=40, retries=3)
+    links = _cwi_listing_links(listing)
+    if not links:
+        raise RuntimeError("CWI listing returned no active opportunity links")
+
+    rows = []
+    for url, native_id, listing_title, listing_text in links:
+        title, description = "", ""
+        detail_text = ""
+        try:
+            detail = get_text(url, timeout=35, retries=2)
+            title, description = _cwi_detail_fields(detail)
+            detail_text = strip_html(detail, limit=6000)
+        except Exception:
+            # A single stale/unavailable posting must not discard the rest of CWI.
+            pass
+
+        title = title or listing_title
+        if not title:
+            continue
+        model, city, state = _cwi_location(detail_text or listing_text)
+        rows.append(job(
+            "cwi",
+            native_id,
+            title=title,
+            company="CWI",
+            url=url,
+            work_model=model,
+            city=city,
+            state=state,
+            country="BR",
+            market="BR",
+            description=description,
+            categories=["Carreiras CWI"],
+        ))
+
+    if not rows:
+        raise RuntimeError("CWI listing contained no usable active opportunities")
+    return rows
