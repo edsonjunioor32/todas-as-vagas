@@ -223,7 +223,10 @@ CREATE TABLE IF NOT EXISTS jobs (
     pcd              INTEGER DEFAULT 0,
     blind_selection  INTEGER DEFAULT 0,
     description      TEXT DEFAULT '',
-    dedupe_key       TEXT
+    dedupe_key       TEXT,
+    source_status    TEXT DEFAULT '',
+    source_type      TEXT DEFAULT '',
+    source_publication_type TEXT DEFAULT ''
 );
 CREATE INDEX IF NOT EXISTS idx_jobs_dedupe ON jobs(dedupe_key);
 CREATE INDEX IF NOT EXISTS idx_jobs_seen ON jobs(last_seen_date);
@@ -236,6 +239,9 @@ MIGRATION_COLUMNS = {
     "pcd": "INTEGER DEFAULT 0",
     "blind_selection": "INTEGER DEFAULT 0",
     "description": "TEXT DEFAULT ''",
+    "source_status": "TEXT DEFAULT ''",
+    "source_type": "TEXT DEFAULT ''",
+    "source_publication_type": "TEXT DEFAULT ''",
 }
 
 _STOP = re.compile(
@@ -320,6 +326,8 @@ def upsert(conn, jobs, today=None):
                 item.get("url", ""), skills, contracts, int(bool(item.get("pcd"))),
                 int(bool(item.get("blind_selection"))), "",
                 dedupe_key(item["title"], item["company"]),
+                item.get("source_status", ""), item.get("source_type", ""),
+                item.get("source_publication_type", ""),
             )
 
     conn.executemany("""
@@ -327,8 +335,9 @@ def upsert(conn, jobs, today=None):
             job_uid, source, title, company, area, seniority, work_model, city,
             state, country, market, salary_min, salary_max, salary_currency,
             published_date, expires_date, first_seen_date, last_seen_date, url,
-            skills, contract_types, pcd, blind_selection, description, dedupe_key
-        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            skills, contract_types, pcd, blind_selection, description, dedupe_key,
+            source_status, source_type, source_publication_type
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
         ON CONFLICT(job_uid) DO UPDATE SET
             last_seen_date=excluded.last_seen_date,
             title=excluded.title, company=excluded.company, area=excluded.area,
@@ -341,7 +350,10 @@ def upsert(conn, jobs, today=None):
             url=excluded.url, skills=excluded.skills,
             contract_types=excluded.contract_types, pcd=excluded.pcd,
             blind_selection=excluded.blind_selection, description='',
-            dedupe_key=excluded.dedupe_key
+            dedupe_key=excluded.dedupe_key,
+            source_status=excluded.source_status,
+            source_type=excluded.source_type,
+            source_publication_type=excluded.source_publication_type
     """, values())
     conn.commit()
 
@@ -533,17 +545,18 @@ def prune(conn, keep_days=120, today=None, max_age_months=2,
     age_cutoff = publication_cutoff(
         today, max_age_months, max_age_days=max_age_days
     )
+    gupy_cutoff = months_ago(
+        date.fromisoformat(today), max(0, max_age_months)
+    ).isoformat()
     active = sorted({str(source).strip() for source in (active_feed_sources or [])
                      if str(source).strip() in ACTIVE_PUBLIC_FEED_SOURCES})
-    exemptions = [
-        "source = 'gupy' AND COALESCE(NULLIF(expires_date, ''), '') >= ?",
-    ]
+    exemptions = []
     active_params = []
     if active:
         placeholders = ", ".join("?" for _ in active)
         exemptions.insert(0, f"source IN ({placeholders})")
         active_params.extend(active)
-    publication_exemption = " OR ".join(f"({item})" for item in exemptions)
+    publication_exemption = " OR ".join(f"({item})" for item in exemptions) or "0"
     cursor = conn.execute(f"""
         DELETE FROM jobs
         WHERE last_seen_date < ?
@@ -551,8 +564,16 @@ def prune(conn, keep_days=120, today=None, max_age_months=2,
                COALESCE(NULLIF(published_date, ''), first_seen_date) < ?
                AND NOT ({publication_exemption})
            )
+           OR (
+               source = 'gupy'
+               AND (
+                   NULLIF(published_date, '') IS NULL
+                   OR published_date < ?
+                   OR (NULLIF(expires_date, '') IS NOT NULL AND expires_date < ?)
+               )
+           )
            OR (source = 'greenhouse' AND COALESCE(market, '') <> 'BR')
-    """, (seen_cutoff, age_cutoff, *active_params, today))
+    """, (seen_cutoff, age_cutoff, *active_params, gupy_cutoff, today))
     conn.commit()
     return cursor.rowcount
 
@@ -619,6 +640,9 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
     removing all of that portal's vacancies from the public page. When a
     source explicitly failed, its last valid rows remain eligible until the
     normal publication-age cutoff instead of disappearing after three days.
+    Gupy is the exception: its cached rows are not current unless a successful
+    collection on this date confirms a public candidate-MCP result (or the
+    legacy published/external evidence) and a permitted non-talent-pool type.
     By default the public snapshot is not truncated by a job-count limit;
     callers may still pass ``max_jobs`` for an explicitly bounded export.
     """
@@ -631,13 +655,18 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
     age_cutoff = publication_cutoff(
         today, max_age_months, max_age_days=effective_max_age_days
     )
+    gupy_cutoff = months_ago(
+        date.fromisoformat(today), max(0, max_age_months)
+    ).isoformat()
     failed = sorted({str(source).strip() for source in (failed_sources or []) if str(source).strip()})
+    preserve_failed = [source for source in failed if source != "gupy"]
     failed_clause = ""
     failed_params = []
-    if failed:
-        placeholders = ", ".join("?" for _ in failed)
+    if preserve_failed:
+        placeholders = ", ".join("?" for _ in preserve_failed)
         failed_clause = f" OR source IN ({placeholders})"
-        failed_params = failed
+        failed_params = preserve_failed
+    gupy_failed_clause = " AND source <> 'gupy'" if "gupy" in failed else ""
     source_counts = source_counts or {}
     # Public company boards can expose active postings with an original opening date while
     # retaining their original 2021 release date. Include that source only
@@ -657,7 +686,8 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
     # The general refresh leaves max_jobs unset so every eligible row is exported.
     limit_clause = ""
     query_params = (
-        cutoff, *failed_params, today, age_cutoff, today, *active_feed_params
+        cutoff, *failed_params, today, age_cutoff, *active_feed_params,
+        today, gupy_cutoff,
     )
     if max_jobs is not None:
         limit_clause = "LIMIT ?"
@@ -666,19 +696,36 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
         SELECT source, title, company, area, seniority, work_model, city, state,
                country, market, salary_min, salary_max, salary_currency,
                published_date, first_seen_date, last_seen_date, expires_date,
-               url, skills, dedupe_key, pcd, blind_selection, contract_types
+               url, skills, dedupe_key, pcd, blind_selection, contract_types,
+               source_status, source_type, source_publication_type
         FROM jobs
         WHERE (last_seen_date >= ?{failed_clause})
+          {gupy_failed_clause}
           AND (expires_date IS NULL OR expires_date = '' OR expires_date >= ?)
           AND COALESCE(NULLIF(market, ''), 'Não informado') <> 'Não informado'
           AND (source <> 'greenhouse' OR market = 'BR')
           AND (
               COALESCE(NULLIF(published_date, ''), first_seen_date) >= ?
-              OR (
-                  source = 'gupy'
-                  AND COALESCE(NULLIF(expires_date, ''), '') >= ?
-              )
               {active_feed_clause}
+          )
+          AND (
+              source <> 'gupy'
+              OR (
+                  last_seen_date >= ?
+                  AND NULLIF(published_date, '') >= ?
+                  AND (
+                      (source_status = 'published'
+                       AND source_publication_type = 'external')
+                      OR
+                      (source_status = 'public_search'
+                       AND source_publication_type = 'candidate_mcp')
+                  )
+                  AND COALESCE(NULLIF(source_type, ''), '') <> ''
+                  AND lower(source_type) <> 'vacancy_type_talent_pool'
+                  AND lower(title) NOT LIKE '%banco de talentos%'
+                  AND lower(title) NOT LIKE '%banco de talento%'
+                  AND lower(title) NOT LIKE '%talent pool%'
+              )
           )
         ORDER BY MAX(COALESCE(published_date,''), first_seen_date) DESC,
                  last_seen_date DESC
@@ -708,12 +755,13 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
     columns = {name: [] for name in (
         "title", "src", "cmp", "area", "sen", "wm", "mk", "co", "city",
         "pub", "seen", "exp", "url", "np", "sk", "smin", "smax", "cur",
-        "pcd", "blind", "ct"
+        "pcd", "blind", "ct", "status", "type", "publication_type"
     )}
     for row in rows:
         (source, title, company, area, seniority, work_model, city, state, country,
          market, salary_min, salary_max, currency, published, first_seen, last_seen,
-         expires, url, skills, duplicate, pcd, blind, contracts) = row
+         expires, url, skills, duplicate, pcd, blind, contracts,
+         source_status, source_type, source_publication_type) = row
         columns["title"].append(title or "")
         columns["src"].append(code("source", source))
         columns["cmp"].append(code("company", company))
@@ -735,6 +783,9 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
         columns["pcd"].append(1 if pcd else 0)
         columns["blind"].append(1 if blind else 0)
         columns["ct"].append(contracts or "")
+        columns["status"].append(source_status or "")
+        columns["type"].append(source_type or "")
+        columns["publication_type"].append(source_publication_type or "")
 
     try:
         collected_count = sum(max(0, int(value or 0)) for value in source_counts.values())
@@ -746,7 +797,7 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
     preserved_count = max(0, len(rows) - collected_count)
 
     payload = {
-        "schema_version": 3,
+        "schema_version": 4,
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "generated_date": today,
         "fresh_days": fresh_days,

@@ -104,6 +104,10 @@ class CollectionTests(unittest.TestCase):
         self.assertEqual(failed, ["greenhouse"])
         self.assertEqual(metrics[0]["status"], "falha")
 
+    def test_failed_gupy_is_not_added_to_sources_to_preserve(self):
+        self.assertNotIn("gupy", pipeline.sources_to_preserve(["gupy"]))
+        self.assertIn("greenhouse", pipeline.sources_to_preserve(["greenhouse"]))
+
     def test_malformed_rows_are_isolated_and_degrade_only_their_source(self):
         missing_source = sample_job("ignored", "2")
         missing_source.pop("source")
@@ -229,6 +233,35 @@ class PublicationWindowTests(unittest.TestCase):
             storage.publication_cutoff("2026-08-31", max_age_months=2),
             "2026-06-29",
         )
+
+    def test_gupy_requires_recent_publication_even_with_future_application_deadline(self):
+        recent = sample_job("gupy", "recent")
+        recent["published_date"] = "2026-08-02"
+        recent["expires_date"] = "2026-12-31"
+        recent["source_status"] = "published"
+        recent["source_type"] = "vacancy_type_effective"
+        recent["source_publication_type"] = "external"
+        mcp_recent = sample_job("gupy", "mcp-recent")
+        mcp_recent["published_date"] = "2026-08-02"
+        mcp_recent["expires_date"] = "2026-12-31"
+        mcp_recent["source_status"] = "public_search"
+        mcp_recent["source_type"] = "vacancy_type_effective"
+        mcp_recent["source_publication_type"] = "candidate_mcp"
+        stale = sample_job("gupy", "stale")
+        stale["published_date"] = "2026-08-01"
+        stale["expires_date"] = "2026-12-31"
+        missing_date = sample_job("gupy", "unknown-date")
+        missing_date["expires_date"] = "2026-12-31"
+
+        kept, dropped = pipeline.discard_old_publications(
+            [recent, mcp_recent, stale, missing_date],
+            cutoff="2026-07-31",
+            today="2026-10-02",
+            max_age_months=2,
+        )
+
+        self.assertEqual([row["native_id"] for row in kept], ["recent", "mcp-recent"])
+        self.assertEqual(dropped, 2)
         self.assertEqual(
             storage.publication_cutoff("2026-08-25", max_age_months=2),
             "2026-06-25",
@@ -324,6 +357,136 @@ class StorageTests(unittest.TestCase):
                 failed_sources=["greenhouse"],
             )
             self.assertEqual(count, 1)
+            conn.close()
+
+    def test_failed_gupy_is_never_exported_as_current(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            conn = storage.connect(str(Path(temporary) / "jobs.db"))
+            current = sample_job("gupy", "current")
+            current["published_date"] = "2026-09-30"
+            current["expires_date"] = "2026-12-31"
+            storage.upsert(conn, [current], today="2026-10-02")
+            out = Path(temporary) / "vagas.json"
+
+            count, _ = storage.export_snapshot(
+                conn,
+                str(out),
+                fresh_days=3,
+                today="2026-10-02",
+                failed_sources=["gupy"],
+            )
+
+            self.assertEqual(count, 0)
+            conn.close()
+
+    def test_verified_current_gupy_export_includes_publication_evidence(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            conn = storage.connect(str(Path(temporary) / "jobs.db"))
+            verified = sample_job("gupy", "verified")
+            verified.update({
+                "published_date": "2026-08-02",
+                "expires_date": "2026-12-31",
+                "source_status": "published",
+                "source_type": "vacancy_type_effective",
+                "source_publication_type": "external",
+            })
+            storage.upsert(conn, [verified], today="2026-10-02")
+            out = Path(temporary) / "vagas.json"
+
+            count, _ = storage.export_snapshot(
+                conn,
+                str(out),
+                fresh_days=3,
+                today="2026-10-02",
+            )
+            payload = json.loads(out.read_text(encoding="utf-8"))
+
+            self.assertEqual(count, 1)
+            self.assertEqual(payload["jobs"]["status"], ["published"])
+            self.assertEqual(payload["jobs"]["type"], ["vacancy_type_effective"])
+            self.assertEqual(payload["jobs"]["publication_type"], ["external"])
+            conn.close()
+
+    def test_public_candidate_mcp_listing_is_exported_with_its_actual_evidence(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            conn = storage.connect(str(Path(temporary) / "jobs.db"))
+            row = sample_job("gupy", "mcp-public")
+            row.update({
+                "published_date": "2026-10-01",
+                "expires_date": "2026-12-31",
+                "source_status": "public_search",
+                "source_type": "vacancy_type_effective",
+                "source_publication_type": "candidate_mcp",
+            })
+            storage.upsert(conn, [row], today="2026-10-02")
+            out = Path(temporary) / "vagas.json"
+
+            count, _ = storage.export_snapshot(
+                conn, str(out), fresh_days=3, today="2026-10-02"
+            )
+            payload = json.loads(out.read_text(encoding="utf-8"))
+
+            self.assertEqual(count, 1)
+            self.assertEqual(payload["jobs"]["status"], ["public_search"])
+            self.assertEqual(payload["jobs"]["publication_type"], ["candidate_mcp"])
+            conn.close()
+
+    def test_unverified_legacy_gupy_row_is_not_exported(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            conn = storage.connect(str(Path(temporary) / "jobs.db"))
+            legacy = sample_job("gupy", "legacy")
+            legacy["published_date"] = "2026-09-30"
+            storage.upsert(conn, [legacy], today="2026-10-02")
+            out = Path(temporary) / "vagas.json"
+
+            count, _ = storage.export_snapshot(
+                conn,
+                str(out),
+                fresh_days=3,
+                today="2026-10-02",
+            )
+
+            self.assertEqual(count, 0)
+            conn.close()
+
+    def test_gupy_future_deadline_does_not_bypass_publication_cutoff(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            conn = storage.connect(str(Path(temporary) / "jobs.db"))
+            stale = sample_job("gupy", "stale")
+            stale["published_date"] = "2026-08-01"
+            stale["expires_date"] = "2026-12-31"
+            storage.upsert(conn, [stale], today="2026-10-02")
+            out = Path(temporary) / "vagas.json"
+
+            count, _ = storage.export_snapshot(
+                conn,
+                str(out),
+                fresh_days=3,
+                today="2026-10-02",
+            )
+
+            self.assertEqual(count, 0)
+            conn.close()
+
+    def test_gupy_prune_uses_publication_age_not_future_deadline(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            conn = storage.connect(str(Path(temporary) / "jobs.db"))
+            stale = sample_job("gupy", "stale")
+            stale["published_date"] = "2026-08-01"
+            stale["expires_date"] = "2026-12-31"
+            missing = sample_job("gupy", "missing-date")
+            missing["expires_date"] = "2026-12-31"
+            storage.upsert(conn, [stale, missing], today="2026-10-02")
+
+            removed = storage.prune(
+                conn,
+                today="2026-10-02",
+                max_age_months=2,
+                max_age_days=63,
+            )
+
+            self.assertEqual(removed, 2)
+            self.assertEqual(conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0], 0)
             conn.close()
 
 
@@ -526,4 +689,3 @@ class SolidesTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

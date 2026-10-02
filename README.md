@@ -61,6 +61,10 @@ Assim, o catálogo permanece em um único ponto de verdade: uma atualização be
 
 O painel permite combinar pesquisa livre com filtros de cidade, portal, modalidade, mercado, área, senioridade, data, vagas afirmativas para PcD e oportunidades encontradas em mais de um portal. O campo de cidade oferece sugestões a partir das localidades presentes na base e também aceita digitação livre. A exportação CSV respeita os filtros selecionados. O botão de tema no cabeçalho alterna entre os modos claro e escuro, salva a escolha no navegador e, na primeira visita, respeita a preferência do sistema.
 
+## Gupy via MCP público de candidatos
+
+A coleta da Gupy usa o servidor MCP público de candidatos (`search_jobs` e, nas páginas monitoradas, `get_job_by_id`), sem credencial de recrutador. A consulta ampla percorre até 10.000 resultados por execução; buscas complementares por termos de diferentes áreas podem acrescentar até cinco páginas de 100 resultados por termo. Isso respeita o limite de paginação do MCP, mas não representa uma exportação integral das aproximadamente 82 mil oportunidades que o índice reporta. A coleta remove bancos de talentos e páginas confidenciais, exige data de publicação dentro de dois meses e descarta prazos já expirados. Como o MCP pode informar o total apenas como o tamanho da página, o coletor continua a paginação enquanto as páginas vierem completas. Em caso de rate limit ou indisponibilidade, somente a Gupy é marcada como falha e seu cache antigo não é exibido como atual; as outras fontes seguem normalmente.
+
 ## Sólides, Recrut.AI, Taggui RH, GeekHunter e InfoJobs
 
 A Sólides é consultada pelo catálogo público utilizado pelo próprio portal. A interface pública é percorrida em páginas de **20 registros** e cada atualização cobre até as **12.000 vagas mais recentes** (`SOLIDES_MAX_PAGES=600`). Aumentar muito esse valor também aumenta o tempo, a carga da coleta e a possibilidade de limitação temporária pelo portal. A deduplicação pode reduzir a quantidade efetivamente incorporada.
