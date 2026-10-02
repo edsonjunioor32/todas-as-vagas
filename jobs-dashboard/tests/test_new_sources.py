@@ -916,6 +916,93 @@ class NewSourceRegistryTests(unittest.TestCase):
         self.assertEqual([name for name, _fetch in selected], ["boschgroup"])
 
 
+
+class CWICareersTests(unittest.TestCase):
+    def test_general_listing_deduplicates_job_links_and_rejects_other_paths(self):
+        markup = """
+        <a href="/talentos/oportunidade/desenvolvedor-java-228">
+          <span>Desenvolvedor(a) Java Remoto São Paulo - SP</span>
+        </a>
+        <a href="https://cwi.com.br/talentos/oportunidade/desenvolvedor-java-228/">
+          Vaga duplicada
+        </a>
+        <a href="/talentos/oportunidades/#geral">Geral</a>
+        """
+        links = requested_careers._cwi_listing_links(markup)
+        self.assertEqual(len(links), 1)
+        self.assertEqual(links[0][0], "https://cwi.com.br/talentos/oportunidade/desenvolvedor-java-228/")
+        self.assertEqual(links[0][1], "228")
+        self.assertEqual(links[0][2], "Desenvolvedor(a) Java")
+
+    def test_fetch_reads_details_and_keeps_job_specific_metadata(self):
+        listing = """
+        <a href="/talentos/oportunidade/desenvolvedor-java-228">
+          Desenvolvedor(a) Java Remoto São Paulo - SP
+        </a>
+        """
+        detail = """
+        <h1>Oportunidade: Desenvolvedor(a) Java</h1>
+        <p>Construir integrações e manter serviços.</p>
+        <p>Remoto São Paulo - SP</p>
+        <h2>Buscamos alguém que:</h2>
+        <ul><li>Experiência com Java</li><li>Conhecimento de APIs</li></ul>
+        <a>Candidate-se</a>
+        <h2>Somos feitos de pessoas</h2>
+        <p>Texto institucional que não deve entrar na descrição.</p>
+        """
+        with patch.object(requested_careers, "get_text", side_effect=[listing, detail]) as request:
+            rows = requested_careers.fetch_cwi()
+
+        self.assertEqual(len(rows), 1)
+        row = rows[0]
+        self.assertEqual(row["source"], "cwi")
+        self.assertEqual(row["native_id"], "228")
+        self.assertEqual(row["title"], "Desenvolvedor(a) Java")
+        self.assertEqual(row["company"], "CWI")
+        self.assertEqual(row["work_model"], "remote")
+        self.assertEqual(row["city"], "São Paulo")
+        self.assertEqual(row["state"], "SP")
+        self.assertIn("Experiência com Java", row["description"])
+        self.assertNotIn("Texto institucional", row["description"])
+        self.assertEqual(request.call_count, 2)
+
+    def test_one_unavailable_detail_does_not_drop_other_cwi_opportunities(self):
+        listing = """
+        <a href="/talentos/oportunidade/analista-de-dados-229">
+          Analista de Dados Híbrido Porto Alegre - RS
+        </a>
+        <a href="/talentos/oportunidade/analista-de-testes-230">
+          Analista de Testes Remoto
+        </a>
+        """
+        detail = """
+        <h1>Oportunidade: Analista de Testes</h1>
+        <p>Automatizar testes de software.</p>
+        <p>Remoto</p><a>Candidate-se</a>
+        """
+        with patch.object(
+            requested_careers,
+            "get_text",
+            side_effect=[listing, RuntimeError("vaga temporariamente indisponível"), detail],
+        ):
+            rows = requested_careers.fetch_cwi()
+
+        self.assertEqual([row["native_id"] for row in rows], ["229", "230"])
+        self.assertEqual(rows[0]["title"], "Analista de Dados")
+        self.assertEqual(rows[1]["title"], "Analista de Testes")
+        self.assertEqual(rows[1]["work_model"], "remote")
+
+    def test_cwi_is_registered_and_selectable_without_running_other_sources(self):
+        names = {name for name, _fetch in pipeline.REGISTRY}
+        self.assertIn("cwi", names)
+        self.assertIn("cwi", pipeline.NONEMPTY_SOURCES)
+        self.assertEqual(
+            [name for name, _fetch in pipeline.selected_registry("cwi")],
+            ["cwi"],
+        )
+
+
+
 class EYTechEYTests(unittest.TestCase):
     def test_public_techey_listing_normalizes_detail_and_location(self):
         listing = """

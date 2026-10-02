@@ -82,6 +82,7 @@ REGISTRY = [
     ("docusign", requested_careers.fetch_docusign),
     ("smartrecruiters_brazil", smartrecruiters_brazil.fetch),
     ("dbccompany", requested_careers.fetch_dbccompany),
+    ("cwi", requested_careers.fetch_cwi),
     ("boschgroup", requested_careers.fetch_boschgroup),
     ("cloudwalk", requested_careers.fetch_cloudwalk),
     ("sensedia", trakstar.fetch),
