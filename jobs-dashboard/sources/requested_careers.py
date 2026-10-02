@@ -390,7 +390,7 @@ def _cwi_detail_fields(markup):
 def _cwi_location(text):
     model = work_model_label(raw=text)
     location_text = re.sub(
-        r"\\b(?:remoto|híbrido|hibrido|presencial)\\b",
+        r"\b(?:remoto|híbrido|hibrido|presencial)\b",
         " ",
         text or "",
         flags=re.I,
