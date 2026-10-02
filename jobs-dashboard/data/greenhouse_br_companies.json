@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-02T15:05:54.616565+00:00",
+  "generated_at": "2026-10-02T15:37:51.825598+00:00",
   "candidate_count": 8331,
   "company_count": 196,
   "companies": [
@@ -517,7 +517,7 @@
     {
       "board": "knowbe4",
       "company": "KnowBe4",
-      "brazil_jobs": 19
+      "brazil_jobs": 18
     },
     {
       "board": "artefactlinkedin",
