@@ -121,6 +121,15 @@ jobs:
           ref: main
           # Só usamos a ponta atual do código; o histórico completo inclui versões antigas de jobs.db e excede o disco do runner.
           fetch-depth: 1
+      
+      - name: Limpar histórico antigo do runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --depth=1 --no-tags origin +refs/heads/history-data:refs/remotes/origin/history-data
+          git fetch --depth=1 --no-tags origin +refs/heads/public-data:refs/remotes/origin/public-data
+          git reflog expire --expire=now --all
+          git gc --prune=now
 
       - name: Preparar navegador Chromium ARM64
         shell: bash
