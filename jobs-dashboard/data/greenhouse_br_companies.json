@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-02T18:07:40.265208+00:00",
+  "generated_at": "2026-10-02T18:32:55.533191+00:00",
   "candidate_count": 8331,
   "company_count": 195,
   "companies": [
@@ -32,7 +32,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 116
+      "brazil_jobs": 117
     },
     {
       "board": "agilize",
@@ -477,7 +477,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 145
+      "brazil_jobs": 144
     },
     {
       "board": "interbrand",
