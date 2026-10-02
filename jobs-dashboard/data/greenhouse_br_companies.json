@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-02T20:18:44.312075+00:00",
+  "generated_at": "2026-10-02T20:57:51.567820+00:00",
   "candidate_count": 8331,
   "company_count": 194,
   "companies": [
@@ -32,7 +32,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 112
+      "brazil_jobs": 110
     },
     {
       "board": "agilize",
@@ -192,7 +192,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 165
+      "brazil_jobs": 164
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -707,7 +707,7 @@
     {
       "board": "rdstation",
       "company": "RD Station",
-      "brazil_jobs": 6
+      "brazil_jobs": 7
     },
     {
       "board": "rdsourcing",
@@ -752,7 +752,7 @@
     {
       "board": "sezzle",
       "company": "Sezzle",
-      "brazil_jobs": 24
+      "brazil_jobs": 27
     },
     {
       "board": "shifttechnology",
@@ -932,7 +932,7 @@
     {
       "board": "wildlifestudios",
       "company": "Wildlife Studios",
-      "brazil_jobs": 11
+      "brazil_jobs": 12
     },
     {
       "board": "agencywithin",
