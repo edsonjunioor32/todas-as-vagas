@@ -936,6 +936,10 @@
     "tenantName": "Grupo Boticário"
   },
   {
+    "slug": "grupobotuvera",
+    "tenantName": "grupobotuvera"
+  },
+  {
     "slug": "grupocentral",
     "tenantName": "Grupo Central"
   },

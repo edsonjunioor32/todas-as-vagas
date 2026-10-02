@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-01T22:03:10.527217+00:00",
+  "generated_at": "2026-10-02T03:22:54.238338+00:00",
   "candidate_count": 8331,
-  "company_count": 197,
+  "company_count": 196,
   "companies": [
     {
       "board": "abinbev",
@@ -247,7 +247,7 @@
     {
       "board": "clara",
       "company": "Clara",
-      "brazil_jobs": 63
+      "brazil_jobs": 64
     },
     {
       "board": "classpass",
@@ -277,6 +277,11 @@
     {
       "board": "counterpart",
       "company": "Counterpart",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "sourcingcour",
+      "company": "Coursera Sourcing",
       "brazil_jobs": 1
     },
     {
@@ -440,19 +445,9 @@
       "brazil_jobs": 5
     },
     {
-      "board": "growe",
-      "company": "GROWE",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "growetalents",
-      "company": "Growe Talents",
-      "brazil_jobs": 1
-    },
-    {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 77
+      "brazil_jobs": 78
     },
     {
       "board": "hotmartcareersbr",
@@ -647,7 +642,7 @@
     {
       "board": "onrunning",
       "company": "On",
-      "brazil_jobs": 6
+      "brazil_jobs": 4
     },
     {
       "board": "openfx",
