@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-02T12:57:41.758159+00:00",
+  "generated_at": "2026-10-02T13:32:50.638682+00:00",
   "candidate_count": 8331,
   "company_count": 196,
   "companies": [
@@ -32,7 +32,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 116
+      "brazil_jobs": 118
     },
     {
       "board": "agilize",
@@ -687,7 +687,7 @@
     {
       "board": "platformscience",
       "company": "Platform Science",
-      "brazil_jobs": 16
+      "brazil_jobs": 17
     },
     {
       "board": "sonyinteractiveentertainmentglobal",
@@ -797,12 +797,12 @@
     {
       "board": "sterlingtonpllc",
       "company": "Sterlington, PLLC",
-      "brazil_jobs": 4
+      "brazil_jobs": 5
     },
     {
       "board": "stonepatrocina",
       "company": "Stone - Indeed",
-      "brazil_jobs": 238
+      "brazil_jobs": 235
     },
     {
       "board": "stripe",
@@ -937,7 +937,7 @@
     {
       "board": "gympass",
       "company": "Wellhub",
-      "brazil_jobs": 39
+      "brazil_jobs": 41
     },
     {
       "board": "wildlifestudios",
@@ -962,12 +962,12 @@
     {
       "board": "wppmedia",
       "company": "WPP Media",
-      "brazil_jobs": 33
+      "brazil_jobs": 34
     },
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 167
+      "brazil_jobs": 165
     },
     {
       "board": "xpengmotors",
