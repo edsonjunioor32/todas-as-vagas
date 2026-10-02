@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-02T08:47:20.980649+00:00",
+  "generated_at": "2026-10-02T10:27:28.401529+00:00",
   "candidate_count": 8331,
   "company_count": 196,
   "companies": [
@@ -842,7 +842,7 @@
     {
       "board": "telnyx54",
       "company": "Telnyx",
-      "brazil_jobs": 6
+      "brazil_jobs": 7
     },
     {
       "board": "testlio",
