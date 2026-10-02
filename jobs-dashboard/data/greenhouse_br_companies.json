@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-02T20:57:51.567820+00:00",
+  "generated_at": "2026-10-02T21:32:40.263523+00:00",
   "candidate_count": 8331,
   "company_count": 194,
   "companies": [
@@ -32,7 +32,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 110
+      "brazil_jobs": 109
     },
     {
       "board": "agilize",
@@ -477,7 +477,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 145
+      "brazil_jobs": 146
     },
     {
       "board": "interbrand",
@@ -932,7 +932,7 @@
     {
       "board": "wildlifestudios",
       "company": "Wildlife Studios",
-      "brazil_jobs": 12
+      "brazil_jobs": 13
     },
     {
       "board": "agencywithin",
