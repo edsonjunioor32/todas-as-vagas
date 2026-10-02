@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-02T07:17:38.883156+00:00",
+  "generated_at": "2026-10-02T07:57:26.256693+00:00",
   "candidate_count": 8331,
-  "company_count": 197,
+  "company_count": 196,
   "companies": [
     {
       "board": "abinbev",
@@ -793,11 +793,6 @@
       "board": "spacexglobal",
       "company": "SpaceX_Global",
       "brazil_jobs": 5
-    },
-    {
-      "board": "speechify",
-      "company": "Speechify",
-      "brazil_jobs": 4
     },
     {
       "board": "sterlingtonpllc",
