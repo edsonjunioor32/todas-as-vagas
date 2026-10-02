@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-02T12:22:35.342153+00:00",
+  "generated_at": "2026-10-02T12:57:41.758159+00:00",
   "candidate_count": 8331,
   "company_count": 196,
   "companies": [
     {
       "board": "abinbev",
       "company": "AB InBev  | Growth Group",
-      "brazil_jobs": 45
+      "brazil_jobs": 46
     },
     {
       "board": "abnormalsecurity",
@@ -32,7 +32,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 111
+      "brazil_jobs": 116
     },
     {
       "board": "agilize",
@@ -112,7 +112,7 @@
     {
       "board": "awin",
       "company": "Awin",
-      "brazil_jobs": 4
+      "brazil_jobs": 5
     },
     {
       "board": "axicom",
@@ -142,17 +142,17 @@
     {
       "board": "bancopan",
       "company": "Banco PAN",
-      "brazil_jobs": 13
+      "brazil_jobs": 12
     },
     {
       "board": "bees",
       "company": "BEES",
-      "brazil_jobs": 45
+      "brazil_jobs": 46
     },
     {
       "board": "blip-global",
       "company": "Blip Global",
-      "brazil_jobs": 11
+      "brazil_jobs": 12
     },
     {
       "board": "boldmetrics",
@@ -207,7 +207,7 @@
     {
       "board": "capco",
       "company": "Capco",
-      "brazil_jobs": 122
+      "brazil_jobs": 121
     },
     {
       "board": "careaccess",
@@ -322,7 +322,7 @@
     {
       "board": "ebanx",
       "company": "EBANX",
-      "brazil_jobs": 22
+      "brazil_jobs": 21
     },
     {
       "board": "ebury",
@@ -802,7 +802,7 @@
     {
       "board": "stonepatrocina",
       "company": "Stone - Indeed",
-      "brazil_jobs": 239
+      "brazil_jobs": 238
     },
     {
       "board": "stripe",
@@ -902,7 +902,7 @@
     {
       "board": "valtech",
       "company": "Valtech",
-      "brazil_jobs": 13
+      "brazil_jobs": 14
     },
     {
       "board": "vectranetworks",
@@ -967,7 +967,7 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 170
+      "brazil_jobs": 167
     },
     {
       "board": "xpengmotors",
