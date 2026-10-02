@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-02T19:42:40.681552+00:00",
+  "generated_at": "2026-10-02T20:18:44.312075+00:00",
   "candidate_count": 8331,
-  "company_count": 195,
+  "company_count": 194,
   "companies": [
     {
       "board": "abinbev",
@@ -32,7 +32,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 115
+      "brazil_jobs": 112
     },
     {
       "board": "agilize",
@@ -167,7 +167,7 @@
     {
       "board": "brex",
       "company": "Brex",
-      "brazil_jobs": 12
+      "brazil_jobs": 13
     },
     {
       "board": "broadsign",
@@ -202,7 +202,7 @@
     {
       "board": "capco",
       "company": "Capco",
-      "brazil_jobs": 122
+      "brazil_jobs": 123
     },
     {
       "board": "careaccess",
@@ -477,7 +477,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 144
+      "brazil_jobs": 145
     },
     {
       "board": "interbrand",
@@ -810,11 +810,6 @@
       "brazil_jobs": 37
     },
     {
-      "board": "syndigo",
-      "company": "Syndigo",
-      "brazil_jobs": 1
-    },
-    {
       "board": "systemiq",
       "company": "Systemiq",
       "brazil_jobs": 1
@@ -962,7 +957,7 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 167
+      "brazil_jobs": 166
     },
     {
       "board": "xpengmotors",
