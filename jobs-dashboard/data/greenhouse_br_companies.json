@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-02T16:12:51.511142+00:00",
+  "generated_at": "2026-10-02T17:09:37.355210+00:00",
   "candidate_count": 8331,
-  "company_count": 196,
+  "company_count": 197,
   "companies": [
     {
       "board": "abinbev",
@@ -32,7 +32,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 119
+      "brazil_jobs": 116
     },
     {
       "board": "agilize",
@@ -77,7 +77,7 @@
     {
       "board": "arcoeducacao",
       "company": "Arco Educação",
-      "brazil_jobs": 75
+      "brazil_jobs": 73
     },
     {
       "board": "arctouch",
@@ -207,7 +207,7 @@
     {
       "board": "capco",
       "company": "Capco",
-      "brazil_jobs": 121
+      "brazil_jobs": 122
     },
     {
       "board": "careaccess",
@@ -322,7 +322,7 @@
     {
       "board": "ebanx",
       "company": "EBANX",
-      "brazil_jobs": 21
+      "brazil_jobs": 22
     },
     {
       "board": "ebury",
@@ -617,7 +617,7 @@
     {
       "board": "newsela",
       "company": "Newsela",
-      "brazil_jobs": 1
+      "brazil_jobs": 2
     },
     {
       "board": "nice",
@@ -770,6 +770,11 @@
       "brazil_jobs": 2
     },
     {
+      "board": "signifyd95",
+      "company": "Signifyd",
+      "brazil_jobs": 1
+    },
+    {
       "board": "smartlyio",
       "company": "Smartly",
       "brazil_jobs": 2
@@ -872,7 +877,7 @@
     {
       "board": "toradex",
       "company": "Toradex",
-      "brazil_jobs": 21
+      "brazil_jobs": 22
     },
     {
       "board": "trinks",
@@ -967,7 +972,7 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 167
+      "brazil_jobs": 166
     },
     {
       "board": "xpengmotors",
