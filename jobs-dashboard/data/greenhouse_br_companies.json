@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-02T17:09:37.355210+00:00",
+  "generated_at": "2026-10-02T17:46:12.940328+00:00",
   "candidate_count": 8331,
-  "company_count": 197,
+  "company_count": 195,
   "companies": [
     {
       "board": "abinbev",
@@ -77,7 +77,7 @@
     {
       "board": "arcoeducacao",
       "company": "Arco Educação",
-      "brazil_jobs": 73
+      "brazil_jobs": 74
     },
     {
       "board": "arctouch",
@@ -152,16 +152,11 @@
     {
       "board": "blip-global",
       "company": "Blip Global",
-      "brazil_jobs": 11
+      "brazil_jobs": 10
     },
     {
       "board": "boldmetrics",
       "company": "Bold Metrics",
-      "brazil_jobs": 2
-    },
-    {
-      "board": "brandwatch",
-      "company": "Brandwatch",
       "brazil_jobs": 2
     },
     {
@@ -238,11 +233,6 @@
       "board": "charterup",
       "company": "CharterUP",
       "brazil_jobs": 3
-    },
-    {
-      "board": "cision",
-      "company": "Cision",
-      "brazil_jobs": 2
     },
     {
       "board": "clara",
@@ -322,7 +312,7 @@
     {
       "board": "ebanx",
       "company": "EBANX",
-      "brazil_jobs": 22
+      "brazil_jobs": 23
     },
     {
       "board": "ebury",
@@ -617,7 +607,7 @@
     {
       "board": "newsela",
       "company": "Newsela",
-      "brazil_jobs": 2
+      "brazil_jobs": 4
     },
     {
       "board": "nice",
@@ -877,7 +867,7 @@
     {
       "board": "toradex",
       "company": "Toradex",
-      "brazil_jobs": 22
+      "brazil_jobs": 20
     },
     {
       "board": "trinks",
@@ -927,7 +917,7 @@
     {
       "board": "wundermanthompson",
       "company": "VML",
-      "brazil_jobs": 23
+      "brazil_jobs": 26
     },
     {
       "board": "vmlenterprisesolutions",
@@ -972,7 +962,7 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 166
+      "brazil_jobs": 167
     },
     {
       "board": "xpengmotors",
