@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-02T18:32:55.533191+00:00",
+  "generated_at": "2026-10-02T19:07:51.849964+00:00",
   "candidate_count": 8331,
   "company_count": 195,
   "companies": [
@@ -32,7 +32,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 117
+      "brazil_jobs": 116
     },
     {
       "board": "agilize",
@@ -707,7 +707,7 @@
     {
       "board": "rdstation",
       "company": "RD Station",
-      "brazil_jobs": 7
+      "brazil_jobs": 6
     },
     {
       "board": "rdsourcing",
@@ -742,7 +742,7 @@
     {
       "board": "schonfeld",
       "company": "Schonfeld",
-      "brazil_jobs": 8
+      "brazil_jobs": 7
     },
     {
       "board": "sertradingsa",
