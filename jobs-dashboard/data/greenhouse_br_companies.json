@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-02T21:32:40.263523+00:00",
+  "generated_at": "2026-10-02T22:40:02.519341+00:00",
   "candidate_count": 8331,
   "company_count": 194,
   "companies": [
@@ -277,7 +277,7 @@
     {
       "board": "databricks",
       "company": "Databricks",
-      "brazil_jobs": 6
+      "brazil_jobs": 7
     },
     {
       "board": "datacamp",
@@ -752,7 +752,7 @@
     {
       "board": "sezzle",
       "company": "Sezzle",
-      "brazil_jobs": 27
+      "brazil_jobs": 28
     },
     {
       "board": "shifttechnology",
@@ -917,7 +917,7 @@
     {
       "board": "vmlenterprisesolutions",
       "company": "VML/WPP Enterprise Solutions",
-      "brazil_jobs": 30
+      "brazil_jobs": 31
     },
     {
       "board": "vtex",
@@ -927,7 +927,7 @@
     {
       "board": "gympass",
       "company": "Wellhub",
-      "brazil_jobs": 38
+      "brazil_jobs": 39
     },
     {
       "board": "wildlifestudios",
@@ -952,7 +952,7 @@
     {
       "board": "wppmedia",
       "company": "WPP Media",
-      "brazil_jobs": 34
+      "brazil_jobs": 35
     },
     {
       "board": "xpinc",
@@ -972,7 +972,7 @@
     {
       "board": "ilia",
       "company": "ília",
-      "brazil_jobs": 18
+      "brazil_jobs": 20
     }
   ]
 }
