@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-02T17:46:12.940328+00:00",
+  "generated_at": "2026-10-02T18:07:40.265208+00:00",
   "candidate_count": 8331,
   "company_count": 195,
   "companies": [
@@ -722,7 +722,7 @@
     {
       "board": "riskified",
       "company": "Riskified",
-      "brazil_jobs": 2
+      "brazil_jobs": 1
     },
     {
       "board": "roblox",
@@ -932,7 +932,7 @@
     {
       "board": "gympass",
       "company": "Wellhub",
-      "brazil_jobs": 41
+      "brazil_jobs": 39
     },
     {
       "board": "wildlifestudios",
