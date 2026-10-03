@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-02T22:40:02.519341+00:00",
+  "generated_at": "2026-10-02T23:32:37.969092+00:00",
   "candidate_count": 8331,
   "company_count": 194,
   "companies": [
@@ -972,7 +972,7 @@
     {
       "board": "ilia",
       "company": "ília",
-      "brazil_jobs": 20
+      "brazil_jobs": 22
     }
   ]
 }
