@@ -27,10 +27,12 @@ from github_scheduler import (
     dispatch_collection as scheduler_dispatch_collection,
     fetch_runs,
     latest_slot,
+    resume_key_for_attempt,
     resume_key_for_slot as scheduler_resume_key_for_slot,
     SchedulerLock,
     load_state,
     save_state,
+    _record_dispatch,
 )
 
 
@@ -247,7 +249,7 @@ class ScheduleTests(unittest.TestCase):
         self.assertEqual(result["action"], "skip")
         self.assertEqual(result["reason"], "dispatch_visibility_grace")
 
-    def test_vps_scheduler_still_retries_a_visible_failed_dispatch_after_short_cooldown(self):
+    def test_vps_scheduler_backs_off_before_retrying_a_visible_failed_dispatch(self):
         now = datetime(2026, 9, 11, 14, 45, tzinfo=timezone.utc)
         failed = {
             "event": "workflow_dispatch",
@@ -263,7 +265,66 @@ class ScheduleTests(unittest.TestCase):
             }
         }
         result = decide(now, [failed], state)
-        self.assertEqual(result["action"], "dispatch")
+        self.assertEqual(result["action"], "skip")
+        self.assertEqual(result["reason"], "dispatch_backoff")
+        retry_ready = decide(datetime(2026, 9, 11, 15, 1, tzinfo=timezone.utc), [failed], state)
+        self.assertEqual(retry_ready["action"], "dispatch")
+
+    def test_vps_scheduler_stops_after_the_per_slot_dispatch_attempt_limit(self):
+        now = datetime(2026, 9, 11, 14, 45, tzinfo=timezone.utc)
+        state = {
+            "dispatched_slots": {
+                "2026-09-11T14:00:00+00:00": {
+                    "attempts": 4,
+                    "last_attempt_at_utc": "2026-09-11T14:31:00+00:00",
+                    "posted_at_utc": "2026-09-11T14:31:00+00:00",
+                }
+            }
+        }
+        result = decide(now, [], state)
+        self.assertEqual(result["action"], "skip")
+        self.assertEqual(result["reason"], "dispatch_attempt_limit")
+        self.assertEqual(result["attempts"], 4)
+
+    def test_vps_scheduler_records_attempt_before_post_and_marks_acceptance(self):
+        slot = datetime(2026, 9, 11, 14, 0, tzinfo=timezone.utc)
+        attempted_at = datetime(2026, 9, 11, 14, 45, tzinfo=timezone.utc)
+        attempted = _record_dispatch({}, slot, attempted_at, resume_key="run-123")
+        record = attempted["dispatched_slots"]["2026-09-11T14:00:00+00:00"]
+        self.assertEqual(record["attempts"], 1)
+        self.assertEqual(record["resume_key"], "run-123")
+        self.assertNotIn("posted_at_utc", record)
+        accepted = _record_dispatch(attempted, slot, attempted_at, accepted=True)
+        record = accepted["dispatched_slots"]["2026-09-11T14:00:00+00:00"]
+        self.assertEqual(record["attempts"], 1)
+        self.assertEqual(record["posted_at_utc"], attempted_at.isoformat())
+        self.assertEqual(record["resume_key"], "run-123")
+
+    def test_vps_scheduler_reuses_checkpoint_key_for_every_retry_of_the_slot(self):
+        slot = datetime(2026, 9, 11, 14, 0, tzinfo=timezone.utc)
+        runs = [
+            {
+                "id": 123,
+                "event": "schedule",
+                "status": "completed",
+                "conclusion": "failure",
+                "created_at": "2026-09-11T14:01:00Z",
+            },
+            {
+                "id": 456,
+                "event": "workflow_dispatch",
+                "status": "completed",
+                "conclusion": "failure",
+                "created_at": "2026-09-11T15:01:00Z",
+            },
+        ]
+        state = {
+            "dispatched_slots": {
+                "2026-09-11T14:00:00+00:00": {"resume_key": "run-123"}
+            }
+        }
+        self.assertEqual(resume_key_for_attempt(runs, slot, state), "run-123")
+        self.assertEqual(resume_key_for_attempt(runs, slot, {}), "run-456")
 
     def test_vps_scheduler_retries_a_failed_dispatch_when_not_locally_confirmed(self):
         now = datetime(2026, 9, 11, 14, 45, tzinfo=timezone.utc)
