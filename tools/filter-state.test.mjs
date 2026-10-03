@@ -47,3 +47,38 @@ assert.match(html, /<link rel="canonical" href="https:\/\/edsonjunioor32\.github
 assert.match(html, /meta property="og:url" content="https:\/\/edsonjunioor32\.github\.io\/todas-as-vagas\/"/);
 assert.match(html, /id="resultsTitle" aria-live="polite"/);
 assert.match(html, /id="activeFilters" role="status" aria-live="polite"/);
+assert.match(
+  app,
+  /cache: force \? 'no-store' : 'no-cache'/,
+  'A visita normal deve revalidar a URL estável; a tentativa manual continua ignorando o cache.'
+);
+assert.match(
+  app,
+  /state\.jobs = decode\(data\)\.sort\(/,
+  'A ordenação por recência deve acontecer uma vez ao carregar o snapshot.'
+);
+assert.match(
+  app,
+  /if \(sort !== 'recent'\) state\.filtered\.sort/,
+  'A filtragem padrão deve preservar a ordem de recência sem reordenar todo o resultado.'
+);
+assert.doesNotMatch(
+  app,
+  /const sorted = \[\.\.\.state\.jobs\]\.sort/,
+  'A lista de empresas recentes não deve ordenar novamente o catálogo completo.'
+);
+assert.doesNotMatch(
+  app,
+  /const version = encodeURIComponent\(state\.meta\?\./,
+  'A URL do índice de aderência deve permanecer estável entre versões do catálogo.'
+);
+assert.match(
+  app,
+  /fetch\('\.\/data\/fit\.json', \{ cache: 'no-cache' \}\)/,
+  'O índice de aderência deve revalidar a URL estável em vez de baixar uma cópia por versão.'
+);
+assert.match(
+  app,
+  /fetch\(`\.\/data\/vagas\.json\$\{suffix\}`, \{ cache: force \? 'no-store' : 'no-cache' \}\)/,
+  'O catálogo deve revalidar a URL estável e só ignorar o cache no retry manual.'
+);

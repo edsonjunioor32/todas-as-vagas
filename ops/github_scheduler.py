@@ -26,6 +26,8 @@ COLLECTION_HOURS_UTC = (11, 14, 18, 23)
 DEFAULT_GRACE_MINUTES = 30
 DEFAULT_DISPATCH_COOLDOWN_MINUTES = 10
 DEFAULT_PENDING_DISPATCH_GRACE_MINUTES = 30
+DEFAULT_MAX_DISPATCH_ATTEMPTS = 4
+DISPATCH_RETRY_BACKOFF_MINUTES = (15, 30, 60)
 DEFAULT_REPOSITORY = "edsonjunioor32/todas-as-vagas"
 DEFAULT_STATE_PATH = "~/.local/state/todas-as-vagas/github-scheduler.json"
 DEFAULT_LOCK_PATH = "~/.local/state/todas-as-vagas/github-scheduler.lock"
@@ -80,12 +82,44 @@ def is_collection_run(run: dict) -> bool:
 
 
 def _state_posted_at(state: dict, key: str) -> datetime | None:
-    slots = state.get("dispatched_slots") if isinstance(state, dict) else None
-    if not isinstance(slots, dict) or key not in slots:
+    record = _slot_record(state, key)
+    value = record.get("posted_at_utc")
+    if not value:
+        # Legacy state files stored the timestamp directly as a string.
+        slots = state.get("dispatched_slots") if isinstance(state, dict) else None
+        value = slots.get(key) if isinstance(slots, dict) else None
+    if not isinstance(value, str):
         return None
-    value = slots[key]
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone(UTC)
+    except ValueError:
+        return None
+
+
+def _slot_record(state: dict, key: str) -> dict:
+    slots = state.get("dispatched_slots") if isinstance(state, dict) else None
+    value = slots.get(key) if isinstance(slots, dict) else None
     if isinstance(value, dict):
-        value = value.get("posted_at_utc")
+        return value
+    if isinstance(value, str):
+        return {"posted_at_utc": value, "attempts": 1}
+    return {}
+
+
+def _state_attempt_count(state: dict, key: str) -> int:
+    record = _slot_record(state, key)
+    value = record.get("attempts")
+    if value is None:
+        return 1 if record.get("posted_at_utc") else 0
+    try:
+        return max(0, int(value))
+    except (TypeError, ValueError):
+        return 0
+
+
+def _state_last_attempt_at(state: dict, key: str) -> datetime | None:
+    record = _slot_record(state, key)
+    value = record.get("last_attempt_at_utc") or record.get("posted_at_utc")
     if not isinstance(value, str):
         return None
     try:
@@ -118,6 +152,14 @@ def resume_key_for_slot(runs: list[dict], slot: datetime) -> str:
     return f"slot-{slot.isoformat()}"
 
 
+def resume_key_for_attempt(runs: list[dict], slot: datetime, state: dict) -> str:
+    """Reuse the original checkpoint key across retries of the same slot."""
+    saved_key = _slot_record(state, slot_key(slot)).get("resume_key")
+    if isinstance(saved_key, str) and saved_key.strip():
+        return saved_key.strip()
+    return resume_key_for_slot(runs, slot)
+
+
 def decide(
     now: datetime,
     runs: list[dict],
@@ -125,12 +167,13 @@ def decide(
     grace_minutes: int = DEFAULT_GRACE_MINUTES,
     dispatch_cooldown_minutes: int = DEFAULT_DISPATCH_COOLDOWN_MINUTES,
     pending_dispatch_grace_minutes: int = DEFAULT_PENDING_DISPATCH_GRACE_MINUTES,
-) -> dict[str, str | datetime]:
+    max_dispatch_attempts: int = DEFAULT_MAX_DISPATCH_ATTEMPTS,
+) -> dict[str, str | datetime | int]:
     """Decide whether a dispatch is needed for the current slot.
 
-    A local dispatch gets a visibility grace in case GitHub has accepted the
-    request but its run is not yet visible to the API. Visible failed runs can
-    still be retried after the shorter dispatch cooldown.
+    Persisted attempts impose an increasing retry delay and a hard per-slot
+    cap. This protects against API eventual consistency and repeated failures
+    turning the five-minute timer into an unbounded Actions dispatcher.
     """
     current = _as_utc(now)
     slot = latest_slot(current)
@@ -161,18 +204,45 @@ def decide(
     ):
         return {"action": "skip", "reason": "dispatch_cooldown", "slot": slot}
     posted_at = _state_posted_at(state, key)
-    if posted_at is not None:
+    attempt_count = _state_attempt_count(state, key)
+    last_attempt_at = _state_last_attempt_at(state, key)
+    if attempt_count >= max(1, int(max_dispatch_attempts)):
+        return {
+            "action": "skip",
+            "reason": "dispatch_attempt_limit",
+            "attempts": attempt_count,
+            "slot": slot,
+        }
+
+    if posted_at is not None or last_attempt_at is not None:
         matching_dispatch = any(
             str(run.get("event") or "") == "workflow_dispatch"
             and (created := _run_time(run)) is not None
-            and created >= posted_at - timedelta(minutes=2)
+            and created >= (last_attempt_at or posted_at) - timedelta(minutes=2)
             for run in slot_runs
         )
-        visibility_deadline = posted_at + timedelta(
+        reference_time = last_attempt_at or posted_at
+        visibility_deadline = reference_time + timedelta(
             minutes=max(0, int(pending_dispatch_grace_minutes))
         )
         if not matching_dispatch and current < visibility_deadline:
             return {"action": "skip", "reason": "dispatch_visibility_grace", "slot": slot}
+
+        if last_attempt_at is not None:
+            backoff_index = min(max(attempt_count - 1, 0), len(DISPATCH_RETRY_BACKOFF_MINUTES) - 1)
+            backoff_minutes = max(
+                int(dispatch_cooldown_minutes),
+                DISPATCH_RETRY_BACKOFF_MINUTES[backoff_index],
+            )
+            retry_at = last_attempt_at + timedelta(minutes=backoff_minutes)
+            if current < retry_at:
+                return {
+                    "action": "skip",
+                    "reason": "dispatch_backoff",
+                    "attempts": attempt_count,
+                    "retry_at": retry_at,
+                    "slot": slot,
+                }
 
     return {"action": "dispatch", "reason": "slot_missing", "slot": slot}
 
@@ -330,10 +400,33 @@ def _lock_path() -> Path:
     return Path(os.environ.get("GITHUB_SCHEDULER_LOCK", DEFAULT_LOCK_PATH)).expanduser()
 
 
-def _record_dispatch(state: dict, slot: datetime, posted_at: datetime) -> dict:
+def _record_dispatch(
+    state: dict,
+    slot: datetime,
+    attempted_at: datetime,
+    *,
+    accepted: bool = False,
+    resume_key: str | None = None,
+) -> dict:
     updated = dict(state)
     slots = dict(updated.get("dispatched_slots") or {})
-    slots[slot_key(slot)] = {"posted_at_utc": _as_utc(posted_at).isoformat()}
+    key = slot_key(slot)
+    previous = _slot_record(state, key)
+    attempts = _state_attempt_count(state, key)
+    if not accepted:
+        attempts += 1
+    elif attempts == 0:
+        attempts = 1
+    record = {
+        **previous,
+        "attempts": attempts,
+        "last_attempt_at_utc": _as_utc(attempted_at).isoformat(),
+    }
+    if resume_key:
+        record["resume_key"] = resume_key
+    if accepted:
+        record["posted_at_utc"] = _as_utc(attempted_at).isoformat()
+    slots[key] = record
     updated["dispatched_slots"] = dict(sorted(slots.items())[-32:])
     return updated
 
@@ -369,6 +462,15 @@ def main() -> int:
             )
         except ValueError:
             pending_grace_minutes = DEFAULT_PENDING_DISPATCH_GRACE_MINUTES
+        try:
+            max_dispatch_attempts = int(
+                os.environ.get(
+                    "CATCHUP_DISPATCH_MAX_ATTEMPTS",
+                    str(DEFAULT_MAX_DISPATCH_ATTEMPTS),
+                )
+            )
+        except ValueError:
+            max_dispatch_attempts = DEFAULT_MAX_DISPATCH_ATTEMPTS
         result = decide(
             now,
             runs,
@@ -376,6 +478,7 @@ def main() -> int:
             int(os.environ.get("CATCHUP_GRACE_MINUTES", DEFAULT_GRACE_MINUTES)),
             cooldown_minutes,
             pending_grace_minutes,
+            max_dispatch_attempts,
         )
         slot = result["slot"]
         assert isinstance(slot, datetime)
@@ -386,13 +489,26 @@ def main() -> int:
             f"slot_brt={slot.astimezone(BRASILIA).isoformat()}",
             flush=True,
         )
+        if result.get("reason") == "dispatch_attempt_limit":
+            print(
+                f"SCHEDULER_ALERT=dispatch_attempt_limit attempts={result['attempts']} "
+                f"slot_utc={slot.isoformat()}",
+                flush=True,
+            )
         if result["action"] != "dispatch":
             return 0
 
-        dispatch_collection(repository, token, resume_key_for_slot(runs, slot))
-        save_state(_state_path(), _record_dispatch(state, slot, now))
+        state_path = _state_path()
+        resume_key = resume_key_for_attempt(runs, slot, state)
+        attempted_state = _record_dispatch(state, slot, now, resume_key=resume_key)
+        # Write ahead before POST: if the network drops after GitHub accepts
+        # the dispatch, the next timer tick still sees this attempt and waits.
+        save_state(state_path, attempted_state)
+        dispatch_collection(repository, token, resume_key)
+        save_state(state_path, _record_dispatch(attempted_state, slot, now, accepted=True))
         print(
-            f"SCHEDULER_DISPATCHED=true slot_utc={slot.isoformat()}",
+            f"SCHEDULER_DISPATCHED=true attempt={attempted_state['dispatched_slots'][slot_key(slot)]['attempts']} "
+            f"slot_utc={slot.isoformat()}",
             flush=True,
         )
         return 0
