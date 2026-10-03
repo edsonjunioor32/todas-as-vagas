@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-03T07:47:26.250420+00:00",
+  "generated_at": "2026-10-03T08:32:07.679546+00:00",
   "candidate_count": 8331,
-  "company_count": 194,
+  "company_count": 170,
   "companies": [
     {
       "board": "abinbev",
@@ -585,11 +585,6 @@
       "brazil_jobs": 4
     },
     {
-      "board": "tripactions",
-      "company": "Navan",
-      "brazil_jobs": 1
-    },
-    {
       "board": "neo4j",
       "company": "Neo4j",
       "brazil_jobs": 1
@@ -663,11 +658,6 @@
       "board": "payoneer",
       "company": "Payoneer",
       "brazil_jobs": 2
-    },
-    {
-      "board": "try-picnic",
-      "company": "Picnic Delivery",
-      "brazil_jobs": 1
     },
     {
       "board": "planetlabs",
@@ -845,84 +835,9 @@
       "brazil_jobs": 2
     },
     {
-      "board": "theknotworldwide",
-      "company": "The Knot Worldwide",
-      "brazil_jobs": 1
-    },
-    {
       "board": "cloudbedsthirdpartyboard",
       "company": "Third-Party Job Posts",
       "brazil_jobs": 1
-    },
-    {
-      "board": "thunes",
-      "company": "Thunes",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "toradex",
-      "company": "Toradex",
-      "brazil_jobs": 20
-    },
-    {
-      "board": "trinks",
-      "company": "Trinks",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "turing",
-      "company": "Turing",
-      "brazil_jobs": 4
-    },
-    {
-      "board": "twilio",
-      "company": "Twilio",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "twitch",
-      "company": "Twitch",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "usergems",
-      "company": "UserGems",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "valtech",
-      "company": "Valtech",
-      "brazil_jobs": 14
-    },
-    {
-      "board": "vectranetworks",
-      "company": "Vectra",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "veeamsoftware",
-      "company": "Veeam Software",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "veriff",
-      "company": "Veriff",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "wundermanthompson",
-      "company": "VML",
-      "brazil_jobs": 26
-    },
-    {
-      "board": "vmlenterprisesolutions",
-      "company": "VML/WPP Enterprise Solutions",
-      "brazil_jobs": 31
-    },
-    {
-      "board": "vtex",
-      "company": "VTEX",
-      "brazil_jobs": 19
     },
     {
       "board": "gympass",
@@ -930,44 +845,9 @@
       "brazil_jobs": 39
     },
     {
-      "board": "wildlifestudios",
-      "company": "Wildlife Studios",
-      "brazil_jobs": 13
-    },
-    {
       "board": "agencywithin",
       "company": "WITHIN",
       "brazil_jobs": 2
-    },
-    {
-      "board": "wizinc",
-      "company": "Wiz, Inc.",
-      "brazil_jobs": 6
-    },
-    {
-      "board": "wpp",
-      "company": "WPP",
-      "brazil_jobs": 5
-    },
-    {
-      "board": "wppmedia",
-      "company": "WPP Media",
-      "brazil_jobs": 35
-    },
-    {
-      "board": "xpinc",
-      "company": "XP Inc.",
-      "brazil_jobs": 166
-    },
-    {
-      "board": "xpengmotors",
-      "company": "XPENG",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "zscaler",
-      "company": "Zscaler",
-      "brazil_jobs": 1
     },
     {
       "board": "ilia",
