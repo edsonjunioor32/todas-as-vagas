@@ -1151,7 +1151,7 @@
       const response = await fetch(`./data/vagas.json${suffix}`, { cache: force ? 'no-store' : 'no-cache' });
       if (!response.ok) throw new Error('A base de vagas não respondeu.');
       const data = await response.json();
-      if (data.schema_version !== 3 || !data.jobs || !Number.isInteger(data.count)) {
+      if (![3, 4].includes(data.schema_version) || !data.jobs || !Number.isInteger(data.count)) {
         throw new Error('O formato da base de vagas é inválido.');
       }
       state.meta = data;
