@@ -360,7 +360,7 @@
   }
 
   function activityTime(job) {
-    const time = toTime(job.publishedAt) || toTime(job.lastSeenAt);
+    const time = job._activityTimestamp ?? (toTime(job.publishedAt) || toTime(job.lastSeenAt));
     return Math.min(time, Date.now());
   }
 
@@ -428,6 +428,7 @@
         blindSelection: Boolean(jobs.blind[index]),
         contractTypes: contracts
       };
+      item._activityTimestamp = toTime(item.publishedAt) || toTime(item.lastSeenAt);
       item._location = normalize(rawLocation);
       item._search = buildSearchText(item);
       output.push(item);
@@ -469,8 +470,7 @@
 
   function loadFitIndex() {
     if (state.fitPromise) return state.fitPromise;
-    const version = encodeURIComponent(state.meta?.generated_at || state.meta?.generated_date || 'current');
-    state.fitPromise = fetch(`./data/fit.json?v=${version}`, { cache: 'no-cache' })
+    state.fitPromise = fetch('./data/fit.json', { cache: 'no-cache' })
       .then(response => {
         if (!response.ok) throw new Error('Índice de palavras-chave indisponível.');
         return response.json();
@@ -779,7 +779,9 @@
     });
 
     const sort = elements.sortFilter.value;
-    state.filtered.sort((a, b) => {
+    // The base is sorted once by recency at load time; Array.filter preserves
+    // that order and avoids sorting tens of thousands of rows on each keystroke.
+    if (sort !== 'recent') state.filtered.sort((a, b) => {
       if (sort === 'company') return collator.compare(a.company, b.company) || activityTime(b) - activityTime(a);
       if (sort === 'title') return collator.compare(a.title, b.title) || activityTime(b) - activityTime(a);
       if (sort === 'portals') return (b.portals - a.portals) || activityTime(b) - activityTime(a);
@@ -952,11 +954,13 @@
 
   function recentCompaniesData() {
     const unique = new Map();
-    const sorted = [...state.jobs].sort((a, b) => activityTime(b) - activityTime(a));
-    for (const job of sorted) {
+    // state.jobs is already in recency order, so the visible 16 companies can
+    // be selected in one short pass instead of sorting and scanning the catalog.
+    for (const job of state.jobs) {
       const key = normalize(job.company);
       if (!key || unique.has(key)) continue;
       unique.set(key, { company: job.company, activity: activityTime(job) });
+      if (unique.size === 16) break;
     }
     return [...unique.values()];
   }
@@ -1148,6 +1152,8 @@
     }
     try {
       const suffix = force ? `?retry=${Date.now()}` : '';
+      // Keep a stable URL so HTTP validators can reuse unchanged catalog data;
+      // manual retry uses a unique URL and bypasses the cache.
       const response = await fetch(`./data/vagas.json${suffix}`, { cache: force ? 'no-store' : 'no-cache' });
       if (!response.ok) throw new Error('A base de vagas não respondeu.');
       const data = await response.json();
@@ -1155,7 +1161,11 @@
         throw new Error('O formato da base de vagas é inválido.');
       }
       state.meta = data;
-      state.jobs = decode(data);
+      const now = Date.now();
+      state.jobs = decode(data).sort((a, b) =>
+        Math.min(b._activityTimestamp, now) - Math.min(a._activityTimestamp, now)
+        || collator.compare(a.title, b.title)
+      );
       resetFilterOptions();
       elements.totalJobs.textContent = numberFormatter.format(data.count);
       elements.totalCompanies.textContent = numberFormatter.format(data.companies || new Set(state.jobs.map(job => job.company)).size);
