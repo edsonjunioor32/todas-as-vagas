@@ -72,7 +72,7 @@ def _run_time(run: dict) -> datetime | None:
 
 def is_collection_run(run: dict) -> bool:
     event = str(run.get("event") or "")
-    if event in {"schedule", "workflow_dispatch"}:
+    if event in {"schedule", "workflow_dispatch", "repository_dispatch"}:
         return True
     if event == "push":
         message = str((run.get("head_commit") or {}).get("message") or "")
@@ -215,18 +215,28 @@ def decide(
         }
 
     if posted_at is not None or last_attempt_at is not None:
-        matching_dispatch = any(
-            str(run.get("event") or "") == "workflow_dispatch"
+        record = _slot_record(state, key)
+        resume_key = str(record.get("resume_key") or "").strip()
+        matching_runs = [
+            run for run in slot_runs
+            if str(run.get("event") or "") == "workflow_dispatch"
             and (created := _run_time(run)) is not None
             and created >= (last_attempt_at or posted_at) - timedelta(minutes=2)
-            for run in slot_runs
-        )
+            and (not resume_key or resume_key in str(run.get("display_title") or ""))
+        ]
         reference_time = last_attempt_at or posted_at
         visibility_deadline = reference_time + timedelta(
             minutes=max(0, int(pending_dispatch_grace_minutes))
         )
-        if not matching_dispatch and current < visibility_deadline:
-            return {"action": "skip", "reason": "dispatch_visibility_grace", "slot": slot}
+        if not matching_runs:
+            reason = "dispatch_visibility_grace" if current < visibility_deadline else "dispatch_unconfirmed"
+            return {"action": "skip", "reason": reason, "slot": slot}
+
+        latest_dispatch = max(matching_runs, key=lambda run: _run_time(run) or slot)
+        if str(latest_dispatch.get("status") or "") != "completed":
+            return {"action": "skip", "reason": "dispatch_pending", "slot": slot}
+        if str(latest_dispatch.get("conclusion") or "") not in {"failure", "cancelled", "timed_out"}:
+            return {"action": "skip", "reason": "dispatch_not_failed", "slot": slot}
 
         if last_attempt_at is not None:
             backoff_index = min(max(attempt_count - 1, 0), len(DISPATCH_RETRY_BACKOFF_MINUTES) - 1)
@@ -356,17 +366,25 @@ def _open_get(request: urllib.request.Request):
 def fetch_runs(repository: str, token: str) -> list[dict]:
     if not repository.strip() or not token.strip():
         raise ValueError("repository e token são obrigatórios")
-    query = urllib.parse.urlencode({"branch": "main", "per_page": 100})
-    request = urllib.request.Request(
-        f"{API_BASE}/repos/{repository}/actions/workflows/pages.yml/runs?{query}",
-        headers=_headers(token),
-    )
-    with _open_get(request) as response:
-        try:
-            payload = json.loads(response.read().decode("utf-8"))
-        except (UnicodeDecodeError, json.JSONDecodeError) as error:
-            raise RuntimeError("resposta de runs do GitHub não é JSON válido") from error
-    return list(payload.get("workflow_runs") or [])
+    runs: list[dict] = []
+    oldest_needed = latest_slot(datetime.now(UTC)) - timedelta(hours=4)
+    for page in range(1, 6):
+        query = urllib.parse.urlencode({"branch": "main", "per_page": 100, "page": page})
+        request = urllib.request.Request(
+            f"{API_BASE}/repos/{repository}/actions/workflows/pages.yml/runs?{query}",
+            headers=_headers(token),
+        )
+        with _open_get(request) as response:
+            try:
+                payload = json.loads(response.read().decode("utf-8"))
+            except (UnicodeDecodeError, json.JSONDecodeError) as error:
+                raise RuntimeError("resposta de runs do GitHub não é JSON válido") from error
+        batch = list(payload.get("workflow_runs") or [])
+        runs.extend(batch)
+        oldest = min((created for run in batch if (created := _run_time(run))), default=None)
+        if len(batch) < 100 or (oldest is not None and oldest <= oldest_needed):
+            return runs
+    raise RuntimeError("histórico de runs incompleto; dispatch suspenso para evitar duplicidade")
 
 
 def dispatch_collection(repository: str, token: str, resume_key: str | None = None) -> None:
@@ -489,9 +507,9 @@ def main() -> int:
             f"slot_brt={slot.astimezone(BRASILIA).isoformat()}",
             flush=True,
         )
-        if result.get("reason") == "dispatch_attempt_limit":
+        if result.get("reason") in {"dispatch_attempt_limit", "dispatch_unconfirmed"}:
             print(
-                f"SCHEDULER_ALERT=dispatch_attempt_limit attempts={result['attempts']} "
+                f"SCHEDULER_ALERT={result['reason']} attempts={result.get('attempts', 0)} "
                 f"slot_utc={slot.isoformat()}",
                 flush=True,
             )

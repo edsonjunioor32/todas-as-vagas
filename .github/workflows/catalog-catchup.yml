@@ -20,7 +20,9 @@ permissions:
 # a publicação self-hosted. A fila é independente do runner da VPS.
 concurrency:
   group: catalog-catchup-control
-  queue: max
+  # O monitor sempre reavalia o slot atual; descartar verificações pendentes
+  # antigas evita uma fila de recuperações obsoletas após atraso do runner.
+  queue: single
 
 env:
   CATCHUP_GRACE_MINUTES: "30"

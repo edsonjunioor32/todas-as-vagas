@@ -1,6 +1,6 @@
 name: Atualizar vagas multiportal e publicar GitHub Pages
 run-name: >-
-  ${{ github.event_name == 'repository_dispatch' && github.event.action == 'catalog_recovery' && 'Recuperação automática do catálogo' || github.event_name == 'workflow_dispatch' && 'Execução manual do catálogo' || 'Atualização programada do catálogo' }}
+  ${{ github.event_name == 'repository_dispatch' && github.event.action == 'catalog_recovery' && 'Recuperação automática do catálogo' || github.event_name == 'workflow_dispatch' && format('Execução manual do catálogo {0}', inputs.resume_key) || 'Atualização programada do catálogo' }}
 
 on:
   push:

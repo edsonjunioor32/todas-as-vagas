@@ -68,6 +68,7 @@ class ScheduleTests(unittest.TestCase):
         self.assertIn("issues: write", workflow)
         self.assertIn("CATCHUP_GRACE_MINUTES", workflow)
         self.assertIn("catalog_catchup.py", workflow)
+        self.assertIn("  queue: single", workflow)
         pages = (ROOT / ".github/workflows/pages.yml").read_text(encoding="utf-8")
         self.assertIn("  repository_dispatch:", pages)
         self.assertIn("types: [catalog_recovery]", pages)
@@ -249,6 +250,39 @@ class ScheduleTests(unittest.TestCase):
         self.assertEqual(result["action"], "skip")
         self.assertEqual(result["reason"], "dispatch_visibility_grace")
 
+    def test_vps_scheduler_never_reposts_an_unconfirmed_dispatch(self):
+        state = {"dispatched_slots": {"2026-09-11T14:00:00+00:00": {
+            "attempts": 1,
+            "resume_key": "slot-2026-09-11T14:00:00+00:00",
+            "posted_at_utc": "2026-09-11T14:31:00+00:00",
+        }}}
+        now = datetime(2026, 9, 11, 15, 5, tzinfo=timezone.utc)
+        result = decide(now, [], state)
+        self.assertEqual(result["reason"], "dispatch_unconfirmed")
+        self.assertEqual(result["action"], "skip")
+        unrelated = {"event": "workflow_dispatch", "status": "completed",
+                     "conclusion": "failure", "created_at": "2026-09-11T14:40:00Z",
+                     "display_title": "Execução manual do catálogo run-other"}
+        self.assertEqual(decide(now, [unrelated], state)["reason"], "dispatch_unconfirmed")
+
+    def test_vps_scheduler_retries_only_its_confirmed_failed_run(self):
+        key = "slot-2026-09-11T14:00:00+00:00"
+        state = {"dispatched_slots": {"2026-09-11T14:00:00+00:00": {
+            "attempts": 1, "resume_key": key,
+            "posted_at_utc": "2026-09-11T14:31:00+00:00",
+        }}}
+        failed = {"event": "workflow_dispatch", "status": "completed",
+                  "conclusion": "failure", "created_at": "2026-09-11T14:32:00Z",
+                  "display_title": f"Execução manual do catálogo {key}"}
+        now = datetime(2026, 9, 11, 15, 5, tzinfo=timezone.utc)
+        self.assertEqual(decide(now, [failed], state)["action"], "dispatch")
+
+    def test_vps_scheduler_observes_repository_recovery_as_collection(self):
+        now = datetime(2026, 9, 11, 14, 50, tzinfo=timezone.utc)
+        recovery = {"event": "repository_dispatch", "status": "in_progress",
+                    "created_at": "2026-09-11T14:45:00Z"}
+        self.assertEqual(decide(now, [recovery], {})["reason"], "collection_active")
+
     def test_vps_scheduler_backs_off_before_retrying_a_visible_failed_dispatch(self):
         now = datetime(2026, 9, 11, 14, 45, tzinfo=timezone.utc)
         failed = {
@@ -352,6 +386,26 @@ class ScheduleTests(unittest.TestCase):
         request = urlopen.call_args.args[0]
         self.assertIn("actions/workflows/pages.yml/runs", request.full_url)
         self.assertEqual(request.get_header("Authorization"), "Bearer secret")
+
+    def test_vps_scheduler_paginates_runs_before_deciding_to_dispatch(self):
+        class Response:
+            def __init__(self, body):
+                self.body = body
+            def __enter__(self):
+                return self
+            def __exit__(self, *args):
+                return None
+            def read(self):
+                return json.dumps({"workflow_runs": self.body}).encode("utf-8")
+
+        first_page = [{"id": number, "created_at": datetime.now(timezone.utc).isoformat()}
+                      for number in range(100)]
+        second_page = [{"id": 101, "created_at": datetime.now(timezone.utc).isoformat()}]
+        with patch("github_scheduler.urllib.request.urlopen",
+                   side_effect=[Response(first_page), Response(second_page)]) as urlopen:
+            runs = fetch_runs("edsonjunioor32/todas-as-vagas", "secret")
+        self.assertEqual(len(runs), 101)
+        self.assertIn("page=2", urlopen.call_args.args[0].full_url)
 
     def test_vps_scheduler_dispatches_pages_workflow(self):
         with patch("github_scheduler.urllib.request.urlopen") as urlopen:
