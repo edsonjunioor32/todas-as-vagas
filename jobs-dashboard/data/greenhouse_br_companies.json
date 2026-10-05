@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-04T18:32:24.112210+00:00",
+  "generated_at": "2026-10-04T23:32:26.700504+00:00",
   "candidate_count": 8331,
   "company_count": 194,
   "companies": [
@@ -192,7 +192,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 164
+      "brazil_jobs": 163
     },
     {
       "board": "candidaturasdirecionadasxpinc",
