@@ -19,6 +19,14 @@ Este registro complementa o README. Atualize-o quando mudar agenda, recuperadore
 
 Se houver `dispatch_unconfirmed`, verificar manualmente o run no GitHub antes de qualquer novo disparo. Não apagar o arquivo de estado para forçar repetição: isso remove a proteção contra duplicidade.
 
+## 2026-10-05 — Falha de publicação por termos com aparência de PII
+
+- A coleta do catálogo concluiu, mas a publicação foi bloqueada em `validate_fit.py`: um termo do vocabulário do índice auxiliar de aderência correspondia ao padrão de e-mail/telefone. O valor é deliberadamente omitido dos logs e deste registro.
+- A causa estava no pipeline: `fit_requirements.export_fit_index` cria a lista global de termos e referências; `pipeline_fit` enriquecia/quarentenava metadados de vagas, mas não isolava termos PII. Como a validação ocorria antes da publicação, um único termo interrompia a atualização inteira.
+- Correção implementada: remover do índice de aderência termos que correspondam aos padrões de e-mail/telefone, reindexar as referências restantes e excluir do índice apenas vagas que ficarem sem requisitos; manter a validação final rígida. Os logs registram somente contagens, nunca os valores sinalizados. O catálogo público principal não é alterado por essa quarentena.
+- Testes: 30 testes focados passaram (extração do índice, exportação, quarentena de vagas/termos, merge dinâmico e validação do snapshot); teste integrado confirma que o pipeline sanitiza o índice antes do validador completo.
+- Publicação: ainda depende de revisão e merge do PR. Nenhuma execução de produção foi disparada e a VPS não foi alterada.
+
 ## 2026-10-03 — Espaço da VPS
 
 - O alerta do disco do runner está no workflow `vps-health.yml` do repositório `botwhats` (aviso em 75%, falha em 85%).

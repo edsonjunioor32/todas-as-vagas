@@ -1,3 +1,5 @@
+import contextlib
+import io
 import json
 import sys
 import tempfile
@@ -10,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "jobs-dashboard"))
 import fit_requirements as fr
 import pipeline_fit as pf
+import validate_fit as vf
 
 
 class FitRequirementsTests(unittest.TestCase):
@@ -97,6 +100,94 @@ class FitRequirementsTests(unittest.TestCase):
             count, _ = fr.export_fit_index(rows, out, taxonomy_path=ROOT / "docs" / "data" / "fit-taxonomy.json")
             self.assertEqual(count, 0)
 
+    def test_pii_terms_are_quarantined_and_job_indexes_are_rebuilt(self):
+        payload = {
+            "schema_version": 1,
+            "count": 2,
+            "terms": ["Python", "user@example.com", "SQL", "00000000000", "Docker"],
+            "jobs": {
+                "https://example.com/job/kept": {
+                    "m": [0, 1, 4], "p": [3], "c": [2], "x": [], "q": 95,
+                },
+                "https://example.com/job/removed": {
+                    "m": [3], "p": [], "c": [], "x": [], "q": 45,
+                },
+            },
+        }
+
+        clean, summary = pf.quarantine_pii_terms(payload)
+
+        self.assertEqual(clean["terms"], ["Python", "SQL", "Docker"])
+        self.assertEqual(clean["jobs"]["https://example.com/job/kept"]["m"], [0, 2])
+        self.assertEqual(clean["jobs"]["https://example.com/job/kept"]["p"], [])
+        self.assertEqual(clean["jobs"]["https://example.com/job/kept"]["c"], [1])
+        self.assertNotIn("https://example.com/job/removed", clean["jobs"])
+        self.assertEqual(clean["count"], 1)
+        self.assertEqual(summary, {"terms": 2, "references": 3, "entries": 1})
+        serialized = json.dumps(clean)
+        self.assertNotIn("user@example.com", serialized)
+        self.assertNotIn("00000000000", serialized)
+
+    def test_pii_quarantine_preserves_malformed_references_for_validation(self):
+        payload = {
+            "terms": ["Python", "private@example.com"],
+            "jobs": {"https://example.com/job/1": {"m": [99], "p": [], "c": [], "x": [], "q": 50}},
+        }
+
+        clean, summary = pf.quarantine_pii_terms(payload)
+
+        self.assertEqual(clean["jobs"]["https://example.com/job/1"]["m"], [99])
+        self.assertEqual(summary["terms"], 1)
+        self.assertIsNotNone(pf.validate_entry("https://example.com/job/1", clean["jobs"]["https://example.com/job/1"], len(clean["terms"])))
+
+    def test_pipeline_export_applies_pii_quarantine_before_publication(self):
+        generated = {
+            "schema_version": 1,
+            "generated_at": "2026-10-05T00:00:00+00:00",
+            "count": 1,
+            "terms": ["Python", "person@example.com"],
+            "jobs": {
+                "https://example.com/job/1": {
+                    "m": [0, 1], "p": [], "c": [], "x": [], "q": 95,
+                },
+            },
+        }
+
+        def write_generated_index(_rows, out_path):
+            Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+            Path(out_path).write_text(json.dumps(generated), encoding="utf-8")
+            return 1, 0.1
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            target = root / "docs" / "data" / "fit.json"
+            output = io.StringIO()
+            with patch.object(pf, "ROOT", root), patch.object(pf, "FIT_JSON", target), patch.object(
+                pf.fit_requirements, "export_fit_index", side_effect=write_generated_index
+            ), contextlib.redirect_stdout(output):
+                pf.export_fit_index([])
+
+            clean = json.loads(target.read_text(encoding="utf-8"))
+            self.assertEqual(clean["terms"], ["Python"])
+            self.assertEqual(clean["jobs"]["https://example.com/job/1"]["m"], [0])
+            self.assertEqual(clean["count"], 1)
+            self.assertIsNone(
+                pf.validate_entry(
+                    "https://example.com/job/1",
+                    clean["jobs"]["https://example.com/job/1"],
+                    len(clean["terms"]),
+                )
+            )
+            self.assertNotIn("person@example.com", target.read_text(encoding="utf-8"))
+            self.assertNotIn("person@example.com", output.getvalue())
+            self.assertIn("valores omitidos", output.getvalue())
+            validation_output = io.StringIO()
+            with patch.object(vf, "FIT", target), patch.object(
+                vf, "TAXONOMY", ROOT / "docs" / "data" / "fit-taxonomy.json"
+            ), contextlib.redirect_stdout(validation_output):
+                vf.main()
+            self.assertIn("sem descrições/PII", validation_output.getvalue())
+
     def test_quarantine_removes_only_invalid_fit_entry(self):
         valid_url = "https://example.com/job/valid"
         invalid_url = "https://example.com/job/invalid"
@@ -131,4 +222,4 @@ class FitRequirementsTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
+

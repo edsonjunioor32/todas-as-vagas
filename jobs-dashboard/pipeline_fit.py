@@ -6,7 +6,7 @@ from pathlib import Path
 
 import fit_requirements
 import pipeline
-from validate_fit import validate_entry
+from validate_fit import quarantine_pii_terms, validate_entry
 
 ROOT = Path(__file__).resolve().parents[1]
 FIT_JSON = ROOT / "docs" / "data" / "fit.json"
@@ -132,6 +132,19 @@ def quarantine_invalid_entries(payload):
 
 def export_fit_index(jobs):
     count, _ = fit_requirements.export_fit_index(jobs, FIT_JSON)
+    payload = json.loads(FIT_JSON.read_text(encoding="utf-8"))
+    payload, pii_quarantine = quarantine_pii_terms(payload)
+    if any(pii_quarantine.values()):
+        FIT_JSON.write_text(
+            json.dumps(payload, ensure_ascii=False, separators=(",", ":")),
+            encoding="utf-8",
+        )
+        count = payload["count"]
+        print(
+            "  fit quarantine: itens com aparência de PII removidos "
+            f"(termos={pii_quarantine['terms']}, referências={pii_quarantine['references']}, "
+            f"vagas do índice={pii_quarantine['entries']}); valores omitidos"
+        )
     size_mb = _attach_public_metadata(jobs)
     payload = json.loads(FIT_JSON.read_text(encoding="utf-8"))
     payload, rejected = quarantine_invalid_entries(payload)
@@ -139,7 +152,7 @@ def export_fit_index(jobs):
         text = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
         size_mb = len(text.encode("utf-8")) / 1_048_576
         FIT_JSON.write_text(text, encoding="utf-8")
-        count = payload["count"]
+    count = payload["count"]
     print(f"  índice de aderência: {count} vagas · {size_mb:.2f} MB · {FIT_JSON.relative_to(ROOT)}")
 
 
