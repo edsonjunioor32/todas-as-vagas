@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-04T23:32:26.700504+00:00",
+  "generated_at": "2026-10-05T11:32:39.505925+00:00",
   "candidate_count": 8331,
-  "company_count": 194,
+  "company_count": 193,
   "companies": [
     {
       "board": "abinbev",
@@ -288,11 +288,6 @@
       "board": "datadog",
       "company": "Datadog",
       "brazil_jobs": 17
-    },
-    {
-      "board": "deliveryassociates",
-      "company": "Delivery Associates",
-      "brazil_jobs": 1
     },
     {
       "board": "doordashinternational",
@@ -822,7 +817,7 @@
     {
       "board": "takealotcom",
       "company": "takealot.com",
-      "brazil_jobs": 1
+      "brazil_jobs": 2
     },
     {
       "board": "teachablecareers",
@@ -832,7 +827,7 @@
     {
       "board": "telnyx54",
       "company": "Telnyx",
-      "brazil_jobs": 7
+      "brazil_jobs": 6
     },
     {
       "board": "testlio",
