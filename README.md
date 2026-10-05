@@ -214,6 +214,60 @@ python3 jobs-dashboard/description_crawler.py --limit 10 --max-seconds 120 --min
 
 O resultado dessa primeira etapa é uma base privada pronta para a próxima etapa: comparar o currículo com requisitos extraídos das descrições e ranquear as vagas. Nenhuma tela pública é alterada nesta fase.
 
+### Recuperação opcional de descrições, sem API paga
+
+O coletor continua tentando HTTP e Obscura primeiro. Quando ambos não encontram
+uma descrição, há duas integrações opcionais, sempre após a verificação de
+`robots.txt`: `browser-use` com **Chromium local, sem agente/LLM**, e Firecrawl
+**auto-hospedado em localhost**. Ambas exigem a mesma URL de vaga após
+redirecionamentos, rejeitam páginas de bloqueio e só gravam texto que passe
+pelos critérios de qualidade. Se estiverem indisponíveis, o coletor mantém seu
+comportamento anterior. HTTP 404 e 429 não ativam esses fallbacks: uma vaga
+removida ou um limite de requisições não deve ser contornado automaticamente.
+
+Configurações opcionais do serviço privado:
+
+```ini
+Environment=DESCRIPTION_BROWSER_USE_PYTHON=/home/ubuntu/todas-as-vagas-private/browser-use-venv/bin/python
+Environment=DESCRIPTION_BROWSER_USE_CHROMIUM=/snap/bin/chromium
+Environment=DESCRIPTION_BROWSER_USE_TIMEOUT=45
+Environment=DESCRIPTION_BROWSER_USE_SOURCES=inhire
+Environment=DESCRIPTION_BROWSER_USE_LIMIT=10
+# Somente quando uma instância Firecrawl local tiver sido validada:
+# Environment=DESCRIPTION_FIRECRAWL_URL=http://127.0.0.1:3002
+```
+
+O limite de tentativas extras impede que renderizações lentas ocupem toda a
+janela do coletor. Comece com uma fonte comprovadamente acessível; o valor
+`0` desativa uma das integrações sem afetar a coleta normal.
+
+O código não chama Firecrawl Cloud, Browser Use Cloud nem provedores de IA.
+Firecrawl não é instalado automaticamente: sua implantação exige PostgreSQL e
+outros serviços, e deve passar por verificação de espaço, memória e segurança.
+Não exponha sua API local à Internet. O `browser-use` deve ser instalado em um
+ambiente Python isolado; sem `DESCRIPTION_BROWSER_USE_PYTHON`, ele permanece
+desativado. A biblioteca é usada diretamente para renderizar HTML, sem modelo.
+
+O `jobspy-mcp` pode sugerir, sob demanda, anúncios semelhantes em Indeed e
+Google Jobs para revisão humana. Ele **não** substitui automaticamente a
+descrição de uma vaga por texto de outro portal:
+
+```bash
+/home/ubuntu/todas-as-vagas-private/jobspy-venv/bin/python \
+  jobs-dashboard/description_alternates.py \
+  --db /home/ubuntu/todas-as-vagas-private/descriptions.sqlite3 \
+  --source inhire --limit 3
+```
+
+Use um ambiente separado para JobSpy MCP; sua dependência `markdownify` é
+incompatível com a versão exigida pelo `browser-use`, e o servidor JobSpy atual
+exige `mcp>=1.8,<2`. Exemplo: `pip install jobspy-mcp==0.1.0 'mcp>=1.8,<2'`.
+As sugestões trazem URL, título, empresa e pontuação de similaridade, com
+`review_required=true`. A validação de identidade, disponibilidade e origem
+segue a abordagem de evidências do Career Ops; não copiamos seus fluxos de
+currículo ou candidatura para o coletor. As descrições permanecem apenas no
+SQLite privado.
+
 ## Privacidade e conteúdo
 
 O site publica apenas metadados: cargo, empresa, portal, modalidade, localização, classificação, datas, salário quando disponível e link original. Descrições completas não são gravadas no JSON público nem no banco versionado.
