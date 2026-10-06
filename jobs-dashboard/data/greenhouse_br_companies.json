@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-06T11:32:33.042263+00:00",
+  "generated_at": "2026-10-06T14:32:50.353782+00:00",
   "candidate_count": 8331,
   "company_count": 192,
   "companies": [
@@ -22,7 +22,7 @@
     {
       "board": "adyen",
       "company": "Adyen",
-      "brazil_jobs": 8
+      "brazil_jobs": 9
     },
     {
       "board": "aestudio",
@@ -32,7 +32,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 109
+      "brazil_jobs": 110
     },
     {
       "board": "agilize",
@@ -77,7 +77,7 @@
     {
       "board": "arcoeducacao",
       "company": "Arco Educação",
-      "brazil_jobs": 71
+      "brazil_jobs": 70
     },
     {
       "board": "arctouch",
@@ -142,7 +142,7 @@
     {
       "board": "bancopan",
       "company": "Banco PAN",
-      "brazil_jobs": 11
+      "brazil_jobs": 10
     },
     {
       "board": "bees",
@@ -152,7 +152,7 @@
     {
       "board": "blip-global",
       "company": "Blip Global",
-      "brazil_jobs": 10
+      "brazil_jobs": 11
     },
     {
       "board": "boldmetrics",
@@ -177,7 +177,7 @@
     {
       "board": "bugcrowd",
       "company": "Bugcrowd",
-      "brazil_jobs": 2
+      "brazil_jobs": 1
     },
     {
       "board": "engineeringatgigs",
@@ -292,7 +292,7 @@
     {
       "board": "doordashinternational",
       "company": "DoorDash Brazil",
-      "brazil_jobs": 13
+      "brazil_jobs": 16
     },
     {
       "board": "dunnhumby",
@@ -322,12 +322,12 @@
     {
       "board": "encora10",
       "company": "Encora",
-      "brazil_jobs": 20
+      "brazil_jobs": 21
     },
     {
       "board": "enforce",
       "company": "Enforce",
-      "brazil_jobs": 12
+      "brazil_jobs": 11
     },
     {
       "board": "enova",
@@ -427,7 +427,7 @@
     {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 76
+      "brazil_jobs": 73
     },
     {
       "board": "hotmartcareersbr",
@@ -443,11 +443,6 @@
       "board": "housecall",
       "company": "Housecall Pro",
       "brazil_jobs": 14
-    },
-    {
-      "board": "hubspotjobs",
-      "company": "HubSpot",
-      "brazil_jobs": 1
     },
     {
       "board": "impinjexternal",
@@ -467,7 +462,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 145
+      "brazil_jobs": 149
     },
     {
       "board": "interbrand",
@@ -667,7 +662,7 @@
     {
       "board": "platformscience",
       "company": "Platform Science",
-      "brazil_jobs": 14
+      "brazil_jobs": 13
     },
     {
       "board": "sonyinteractiveentertainmentglobal",
@@ -687,12 +682,12 @@
     {
       "board": "pfm",
       "company": "Precision for Medicine",
-      "brazil_jobs": 10
+      "brazil_jobs": 9
     },
     {
       "board": "precisionmedicinegroup",
       "company": "Precision Medicine Group",
-      "brazil_jobs": 11
+      "brazil_jobs": 10
     },
     {
       "board": "rdstation",
@@ -782,7 +777,7 @@
     {
       "board": "sterlingtonpllc",
       "company": "Sterlington, PLLC",
-      "brazil_jobs": 5
+      "brazil_jobs": 4
     },
     {
       "board": "stonepatrocina",
@@ -798,6 +793,11 @@
       "board": "sumup",
       "company": "SumUp",
       "brazil_jobs": 42
+    },
+    {
+      "board": "syndigo",
+      "company": "Syndigo",
+      "brazil_jobs": 1
     },
     {
       "board": "systemiq",
@@ -907,12 +907,12 @@
     {
       "board": "vmlenterprisesolutions",
       "company": "VML/WPP Enterprise Solutions",
-      "brazil_jobs": 29
+      "brazil_jobs": 30
     },
     {
       "board": "vtex",
       "company": "VTEX",
-      "brazil_jobs": 19
+      "brazil_jobs": 20
     },
     {
       "board": "gympass",
@@ -942,12 +942,12 @@
     {
       "board": "wppmedia",
       "company": "WPP Media",
-      "brazil_jobs": 32
+      "brazil_jobs": 31
     },
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 162
+      "brazil_jobs": 164
     },
     {
       "board": "xpengmotors",
@@ -962,7 +962,7 @@
     {
       "board": "ilia",
       "company": "ília",
-      "brazil_jobs": 19
+      "brazil_jobs": 21
     }
   ]
 }
