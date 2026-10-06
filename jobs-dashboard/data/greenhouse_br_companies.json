@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-06T02:42:35.044487+00:00",
+  "generated_at": "2026-10-06T11:32:33.042263+00:00",
   "candidate_count": 8331,
   "company_count": 192,
   "companies": [
@@ -192,7 +192,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 163
+      "brazil_jobs": 164
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -427,7 +427,7 @@
     {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 77
+      "brazil_jobs": 76
     },
     {
       "board": "hotmartcareersbr",
@@ -467,7 +467,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 146
+      "brazil_jobs": 145
     },
     {
       "board": "interbrand",
@@ -942,7 +942,7 @@
     {
       "board": "wppmedia",
       "company": "WPP Media",
-      "brazil_jobs": 35
+      "brazil_jobs": 32
     },
     {
       "board": "xpinc",
