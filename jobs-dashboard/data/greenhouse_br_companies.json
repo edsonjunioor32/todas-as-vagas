@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-06T14:32:50.353782+00:00",
+  "generated_at": "2026-10-06T18:33:14.460089+00:00",
   "candidate_count": 8331,
-  "company_count": 192,
+  "company_count": 191,
   "companies": [
     {
       "board": "abinbev",
@@ -12,11 +12,6 @@
     {
       "board": "abnormalsecurity",
       "company": "Abnormal",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "advancedtechnologyservices",
-      "company": "Advanced Technology Services",
       "brazil_jobs": 1
     },
     {
@@ -32,7 +27,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 110
+      "brazil_jobs": 109
     },
     {
       "board": "agilize",
@@ -42,7 +37,7 @@
     {
       "board": "airbnb",
       "company": "Airbnb",
-      "brazil_jobs": 8
+      "brazil_jobs": 10
     },
     {
       "board": "alvys",
@@ -57,7 +52,7 @@
     {
       "board": "appdirect",
       "company": "AppDirect",
-      "brazil_jobs": 4
+      "brazil_jobs": 5
     },
     {
       "board": "appnovation",
@@ -87,7 +82,7 @@
     {
       "board": "arenaim",
       "company": "Arena.im",
-      "brazil_jobs": 9
+      "brazil_jobs": 11
     },
     {
       "board": "arionkoder",
@@ -142,7 +137,7 @@
     {
       "board": "bancopan",
       "company": "Banco PAN",
-      "brazil_jobs": 10
+      "brazil_jobs": 11
     },
     {
       "board": "bees",
@@ -192,7 +187,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 164
+      "brazil_jobs": 162
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -202,7 +197,7 @@
     {
       "board": "capco",
       "company": "Capco",
-      "brazil_jobs": 123
+      "brazil_jobs": 121
     },
     {
       "board": "careaccess",
@@ -377,7 +372,7 @@
     {
       "board": "figureai",
       "company": "Figure",
-      "brazil_jobs": 8
+      "brazil_jobs": 7
     },
     {
       "board": "firstglobalmanagementservicesinc",
@@ -432,7 +427,7 @@
     {
       "board": "hotmartcareersbr",
       "company": "Hotmart",
-      "brazil_jobs": 16
+      "brazil_jobs": 18
     },
     {
       "board": "housebuyersofamerica",
@@ -447,7 +442,7 @@
     {
       "board": "impinjexternal",
       "company": "Impinj",
-      "brazil_jobs": 3
+      "brazil_jobs": 2
     },
     {
       "board": "inflect",
@@ -462,7 +457,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 149
+      "brazil_jobs": 150
     },
     {
       "board": "interbrand",
@@ -472,7 +467,7 @@
     {
       "board": "intersystems",
       "company": "InterSystems",
-      "brazil_jobs": 3
+      "brazil_jobs": 1
     },
     {
       "board": "invisibletech",
@@ -522,7 +517,7 @@
     {
       "board": "mindbody",
       "company": "Mindbody",
-      "brazil_jobs": 4
+      "brazil_jobs": 2
     },
     {
       "board": "mintel",
@@ -547,7 +542,7 @@
     {
       "board": "monks",
       "company": "Monks",
-      "brazil_jobs": 46
+      "brazil_jobs": 45
     },
     {
       "board": "monumentsoftwareinc",
@@ -582,7 +577,7 @@
     {
       "board": "netcracker",
       "company": "Netcracker",
-      "brazil_jobs": 3
+      "brazil_jobs": 4
     },
     {
       "board": "netskope",
@@ -592,7 +587,7 @@
     {
       "board": "newsela",
       "company": "Newsela",
-      "brazil_jobs": 3
+      "brazil_jobs": 4
     },
     {
       "board": "nice",
@@ -677,22 +672,22 @@
     {
       "board": "powerdigitalmarketing",
       "company": "Power Digital",
-      "brazil_jobs": 50
+      "brazil_jobs": 60
     },
     {
       "board": "pfm",
       "company": "Precision for Medicine",
-      "brazil_jobs": 9
+      "brazil_jobs": 8
     },
     {
       "board": "precisionmedicinegroup",
       "company": "Precision Medicine Group",
-      "brazil_jobs": 10
+      "brazil_jobs": 9
     },
     {
       "board": "rdstation",
       "company": "RD Station",
-      "brazil_jobs": 8
+      "brazil_jobs": 7
     },
     {
       "board": "rdsourcing",
@@ -722,7 +717,7 @@
     {
       "board": "rtbhouse",
       "company": "RTB House",
-      "brazil_jobs": 4
+      "brazil_jobs": 5
     },
     {
       "board": "schonfeld",
@@ -737,7 +732,7 @@
     {
       "board": "sezzle",
       "company": "Sezzle",
-      "brazil_jobs": 28
+      "brazil_jobs": 27
     },
     {
       "board": "shifttechnology",
@@ -942,12 +937,12 @@
     {
       "board": "wppmedia",
       "company": "WPP Media",
-      "brazil_jobs": 31
+      "brazil_jobs": 32
     },
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 164
+      "brazil_jobs": 163
     },
     {
       "board": "xpengmotors",
