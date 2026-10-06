@@ -23,9 +23,12 @@ Se houver `dispatch_unconfirmed`, verificar manualmente o run no GitHub antes de
 
 - A coleta do catálogo concluiu, mas a publicação foi bloqueada em `validate_fit.py`: um termo do vocabulário do índice auxiliar de aderência correspondia ao padrão de e-mail/telefone. O valor é deliberadamente omitido dos logs e deste registro.
 - A causa estava no pipeline: `fit_requirements.export_fit_index` cria a lista global de termos e referências; `pipeline_fit` enriquecia/quarentenava metadados de vagas, mas não isolava termos PII. Como a validação ocorria antes da publicação, um único termo interrompia a atualização inteira.
-- Correção implementada: remover do índice de aderência termos que correspondam aos padrões de e-mail/telefone, reindexar as referências restantes e excluir do índice apenas vagas que ficarem sem requisitos; manter a validação final rígida. Os logs registram somente contagens, nunca os valores sinalizados. O catálogo público principal não é alterado por essa quarentena.
+- Correção implementada no PR #141: remover do índice de aderência termos que correspondam aos padrões de e-mail/telefone, reindexar as referências restantes e excluir do índice apenas vagas que ficarem sem requisitos; manter a validação final rígida. Os logs registram somente contagens, nunca os valores sinalizados. O catálogo público principal não é alterado por essa quarentena.
 - Testes: 30 testes focados passaram (extração do índice, exportação, quarentena de vagas/termos, merge dinâmico e validação do snapshot); teste integrado confirma que o pipeline sanitiza o índice antes do validador completo.
-- Publicação: ainda depende de revisão e merge do PR. Nenhuma execução de produção foi disparada e a VPS não foi alterada.
+- PR #141 mesclado em `main` no commit `c3644437919e498b69ecbc209506af6dc3986f68`.
+- A execução #828 foi iniciada com o código anterior ao merge e falhou na validação; portanto, não publicou. A #829 terminou com sucesso, mas o evento de merge executou apenas a publicação da interface e pulou a coleta — sucesso desse run não significava atualização dos dados do catálogo.
+- A recuperação #830 (`repository_dispatch`) executou o commit corrigido, concluiu coleta e validação, publicou banco histórico e snapshots e implantou o GitHub Pages com sucesso em 2026-10-06 00:41 UTC (2026-10-05 21:41 BRT). [Run #830](https://github.com/edsonjunioor32/todas-as-vagas/actions/runs/37392384422). O site publicado é https://edsonjunioor32.github.io/todas-as-vagas/.
+- A publicação de produção foi confirmada no log do deploy do Pages (`Reported success!`). Nenhuma alteração foi feita na VPS.
 
 ## 2026-10-03 — Espaço da VPS
 
