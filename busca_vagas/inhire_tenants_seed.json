@@ -104,6 +104,10 @@
     "tenantName": "Instituto Alana"
   },
   {
+    "slug": "aldaktecnologia",
+    "tenantName": "aldaktecnologia"
+  },
+  {
     "slug": "alelo",
     "tenantName": "Alelo"
   },
@@ -666,6 +670,10 @@
   {
     "slug": "eclipseworks",
     "tenantName": "Eclipseworks"
+  },
+  {
+    "slug": "ecommit",
+    "tenantName": "ecommit"
   },
   {
     "slug": "ecore",

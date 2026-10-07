@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-06T23:32:29.065190+00:00",
+  "generated_at": "2026-10-07T11:32:35.043509+00:00",
   "candidate_count": 8331,
-  "company_count": 192,
+  "company_count": 193,
   "companies": [
     {
       "board": "abinbev",
@@ -285,6 +285,11 @@
       "brazil_jobs": 17
     },
     {
+      "board": "dicefm-careers",
+      "company": "DICE",
+      "brazil_jobs": 1
+    },
+    {
       "board": "doordashinternational",
       "company": "DoorDash Brazil",
       "brazil_jobs": 16
@@ -317,7 +322,7 @@
     {
       "board": "encora10",
       "company": "Encora",
-      "brazil_jobs": 22
+      "brazil_jobs": 21
     },
     {
       "board": "enforce",
@@ -362,7 +367,7 @@
     {
       "board": "feverup",
       "company": "FeverUp",
-      "brazil_jobs": 16
+      "brazil_jobs": 17
     },
     {
       "board": "figma",
@@ -417,7 +422,7 @@
     {
       "board": "globalli",
       "company": "Globalli",
-      "brazil_jobs": 5
+      "brazil_jobs": 4
     },
     {
       "board": "quintoandar",
@@ -787,12 +792,12 @@
     {
       "board": "stripe",
       "company": "Stripe",
-      "brazil_jobs": 2
+      "brazil_jobs": 1
     },
     {
       "board": "sumup",
       "company": "SumUp",
-      "brazil_jobs": 42
+      "brazil_jobs": 40
     },
     {
       "board": "syndigo",
@@ -902,7 +907,7 @@
     {
       "board": "wundermanthompson",
       "company": "VML",
-      "brazil_jobs": 26
+      "brazil_jobs": 27
     },
     {
       "board": "vmlenterprisesolutions",
