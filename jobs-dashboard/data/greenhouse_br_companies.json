@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-07T23:38:44.329512+00:00",
+  "generated_at": "2026-10-08T11:32:40.588092+00:00",
   "candidate_count": 8331,
-  "company_count": 194,
+  "company_count": 195,
   "companies": [
     {
       "board": "abinbev",
@@ -72,7 +72,7 @@
     {
       "board": "arcoeducacao",
       "company": "Arco Educação",
-      "brazil_jobs": 70
+      "brazil_jobs": 69
     },
     {
       "board": "arctouch",
@@ -232,7 +232,7 @@
     {
       "board": "clara",
       "company": "Clara",
-      "brazil_jobs": 69
+      "brazil_jobs": 70
     },
     {
       "board": "classpass",
@@ -465,6 +465,11 @@
       "brazil_jobs": 2
     },
     {
+      "board": "innovecs",
+      "company": "Innovecs",
+      "brazil_jobs": 1
+    },
+    {
       "board": "inter",
       "company": "Inter Carreiras",
       "brazil_jobs": 158
@@ -552,7 +557,7 @@
     {
       "board": "monks",
       "company": "Monks",
-      "brazil_jobs": 41
+      "brazil_jobs": 40
     },
     {
       "board": "monumentsoftwareinc",
@@ -927,7 +932,7 @@
     {
       "board": "gympass",
       "company": "Wellhub",
-      "brazil_jobs": 41
+      "brazil_jobs": 40
     },
     {
       "board": "wildlifestudios",

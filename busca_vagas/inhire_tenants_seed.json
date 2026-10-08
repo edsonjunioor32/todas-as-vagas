@@ -2152,6 +2152,10 @@
     "tenantName": "Vinta"
   },
   {
+    "slug": "vintglobal",
+    "tenantName": "vintglobal"
+  },
+  {
     "slug": "viseu",
     "tenantName": "Viseu Secondment"
   },
