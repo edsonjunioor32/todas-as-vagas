@@ -87,6 +87,7 @@ SOURCE_LABELS = {
     "providerit": "Provider IT",
     "inlog": "Inlog",
     "revolut": "Revolut",
+    "jobii": "Jobii",
 }
 TI_RE = re.compile(
     r"\b(?:ti|tecnologia|software|sistemas?|suporte|desenvolv|devops|"

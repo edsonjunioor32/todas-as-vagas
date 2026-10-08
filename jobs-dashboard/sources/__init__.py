@@ -38,6 +38,7 @@ from . import (
     sankhya_senior,
     gupy,
     inhire,
+    jobii,
     oracle_careers,
     remote_boards,
     recrut_ai,
@@ -157,4 +158,5 @@ REGISTRY = [
     ("lever", ats_boards.fetch_lever),
     ("ashby", ats_boards.fetch_ashby),
     ("vagascom", vagascom.fetch),
+    ("jobii", jobii.fetch),
 ]

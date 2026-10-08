@@ -108,7 +108,8 @@
     glcapital: 'GL Capital',
     grupoamigao: 'Grupo Amigão',
     true: 'True',
-    wise: 'Wise'
+    wise: 'Wise',
+    jobii: 'Jobii'
   };
 
   const state = {
