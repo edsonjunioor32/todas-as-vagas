@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-08T11:32:40.588092+00:00",
+  "generated_at": "2026-10-08T14:33:14.259277+00:00",
   "candidate_count": 8331,
   "company_count": 195,
   "companies": [
@@ -27,12 +27,12 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 100
+      "brazil_jobs": 104
     },
     {
       "board": "agilize",
       "company": "Agilize",
-      "brazil_jobs": 6
+      "brazil_jobs": 5
     },
     {
       "board": "airbnb",
@@ -52,7 +52,7 @@
     {
       "board": "appdirect",
       "company": "AppDirect",
-      "brazil_jobs": 5
+      "brazil_jobs": 4
     },
     {
       "board": "appnovation",
@@ -72,7 +72,7 @@
     {
       "board": "arcoeducacao",
       "company": "Arco Educação",
-      "brazil_jobs": 69
+      "brazil_jobs": 68
     },
     {
       "board": "arctouch",
@@ -187,7 +187,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 162
+      "brazil_jobs": 161
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -197,7 +197,7 @@
     {
       "board": "capco",
       "company": "Capco",
-      "brazil_jobs": 123
+      "brazil_jobs": 120
     },
     {
       "board": "careaccess",
@@ -237,7 +237,7 @@
     {
       "board": "classpass",
       "company": "ClassPass",
-      "brazil_jobs": 3
+      "brazil_jobs": 5
     },
     {
       "board": "clinchoice",
@@ -297,7 +297,7 @@
     {
       "board": "dunnhumby",
       "company": "dunnhumby",
-      "brazil_jobs": 6
+      "brazil_jobs": 5
     },
     {
       "board": "dyopath",
@@ -485,6 +485,11 @@
       "brazil_jobs": 1
     },
     {
+      "board": "invgate",
+      "company": "InvGate",
+      "brazil_jobs": 1
+    },
+    {
       "board": "invisibletech",
       "company": "Invisible Technologies",
       "brazil_jobs": 1
@@ -502,7 +507,7 @@
     {
       "board": "knowbe4",
       "company": "KnowBe4",
-      "brazil_jobs": 16
+      "brazil_jobs": 15
     },
     {
       "board": "artefactlinkedin",
@@ -717,7 +722,7 @@
     {
       "board": "rdsourcing",
       "company": "RD Station - Sourcing",
-      "brazil_jobs": 3
+      "brazil_jobs": 4
     },
     {
       "board": "ripple",
@@ -782,11 +787,6 @@
     {
       "board": "sonicwall",
       "company": "SonicWall",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "soundagriculture",
-      "company": "Sound Agriculture",
       "brazil_jobs": 1
     },
     {
@@ -917,7 +917,7 @@
     {
       "board": "wundermanthompson",
       "company": "VML",
-      "brazil_jobs": 26
+      "brazil_jobs": 27
     },
     {
       "board": "vmlenterprisesolutions",
@@ -932,7 +932,7 @@
     {
       "board": "gympass",
       "company": "Wellhub",
-      "brazil_jobs": 40
+      "brazil_jobs": 41
     },
     {
       "board": "wildlifestudios",
@@ -962,7 +962,7 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 159
+      "brazil_jobs": 156
     },
     {
       "board": "xpengmotors",
