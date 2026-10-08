@@ -1,0 +1,8 @@
+[Unit]
+Description=Garante que a coleta privada de descricoes esteja ativa
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/systemctl start --no-block todas-as-vagas-descriptions.service
