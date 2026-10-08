@@ -185,6 +185,8 @@ ACTIVE_PUBLIC_FEED_SOURCES = {
     "uniflexgroup",
     # Valorei still lists older postings as open on its current public board.
     "valorei",
+    # Jobii's paginated public board contains only currently active vacancies.
+    "jobii",
     "vagasautomotivas",
     "vagasconsultoria",
     "verity",
