@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-09T14:32:59.952874+00:00",
+  "generated_at": "2026-10-09T18:33:09.893183+00:00",
   "candidate_count": 8331,
-  "company_count": 195,
+  "company_count": 196,
   "companies": [
     {
       "board": "abinbev",
       "company": "AB InBev  | Growth Group",
-      "brazil_jobs": 49
+      "brazil_jobs": 50
     },
     {
       "board": "abnormalsecurity",
@@ -32,7 +32,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 103
+      "brazil_jobs": 105
     },
     {
       "board": "agilize",
@@ -77,7 +77,7 @@
     {
       "board": "arcoeducacao",
       "company": "Arco Educação",
-      "brazil_jobs": 68
+      "brazil_jobs": 69
     },
     {
       "board": "arctouch",
@@ -128,6 +128,11 @@
       "board": "axonius",
       "company": "Axonius",
       "brazil_jobs": 1
+    },
+    {
+      "board": "blab",
+      "company": "B Lab",
+      "brazil_jobs": 9
     },
     {
       "board": "b12",
@@ -202,7 +207,7 @@
     {
       "board": "capco",
       "company": "Capco",
-      "brazil_jobs": 120
+      "brazil_jobs": 132
     },
     {
       "board": "careaccess",
@@ -222,7 +227,7 @@
     {
       "board": "caylent",
       "company": "Caylent",
-      "brazil_jobs": 17
+      "brazil_jobs": 16
     },
     {
       "board": "charterup",
@@ -272,7 +277,7 @@
     {
       "board": "databricks",
       "company": "Databricks",
-      "brazil_jobs": 7
+      "brazil_jobs": 6
     },
     {
       "board": "datacamp",
@@ -322,7 +327,7 @@
     {
       "board": "encora10",
       "company": "Encora",
-      "brazil_jobs": 20
+      "brazil_jobs": 19
     },
     {
       "board": "enforce",
@@ -337,7 +342,7 @@
     {
       "board": "ensono",
       "company": "Ensono",
-      "brazil_jobs": 3
+      "brazil_jobs": 4
     },
     {
       "board": "epicgames",
@@ -362,7 +367,7 @@
     {
       "board": "feedzai",
       "company": "Feedzai",
-      "brazil_jobs": 1
+      "brazil_jobs": 2
     },
     {
       "board": "feverup",
@@ -427,7 +432,7 @@
     {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 75
+      "brazil_jobs": 77
     },
     {
       "board": "harnessinc",
@@ -437,7 +442,7 @@
     {
       "board": "hotmartcareersbr",
       "company": "Hotmart",
-      "brazil_jobs": 17
+      "brazil_jobs": 15
     },
     {
       "board": "housebuyersofamerica",
@@ -472,7 +477,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 160
+      "brazil_jobs": 156
     },
     {
       "board": "interbrand",
@@ -697,7 +702,7 @@
     {
       "board": "powerdigitalmarketing",
       "company": "Power Digital",
-      "brazil_jobs": 63
+      "brazil_jobs": 64
     },
     {
       "board": "pfm",
@@ -717,7 +722,7 @@
     {
       "board": "rdstation",
       "company": "RD Station",
-      "brazil_jobs": 7
+      "brazil_jobs": 8
     },
     {
       "board": "rdsourcing",
@@ -782,7 +787,7 @@
     {
       "board": "sohohouseco",
       "company": "Soho House & Co.",
-      "brazil_jobs": 8
+      "brazil_jobs": 9
     },
     {
       "board": "sonicwall",
@@ -802,7 +807,7 @@
     {
       "board": "stonepatrocina",
       "company": "Stone - Indeed",
-      "brazil_jobs": 225
+      "brazil_jobs": 227
     },
     {
       "board": "sumup",
@@ -827,7 +832,7 @@
     {
       "board": "takealotcom",
       "company": "takealot.com",
-      "brazil_jobs": 2
+      "brazil_jobs": 1
     },
     {
       "board": "teachablecareers",
@@ -902,7 +907,7 @@
     {
       "board": "valtech",
       "company": "Valtech",
-      "brazil_jobs": 14
+      "brazil_jobs": 12
     },
     {
       "board": "vectranetworks",
@@ -922,7 +927,7 @@
     {
       "board": "vmlenterprisesolutions",
       "company": "VML/WPP Enterprise Solutions",
-      "brazil_jobs": 35
+      "brazil_jobs": 36
     },
     {
       "board": "vtex",
@@ -962,7 +967,7 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 156
+      "brazil_jobs": 155
     },
     {
       "board": "xpengmotors",
