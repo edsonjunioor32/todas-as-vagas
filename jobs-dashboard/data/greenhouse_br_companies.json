@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-09T11:32:40.654745+00:00",
+  "generated_at": "2026-10-09T14:32:59.952874+00:00",
   "candidate_count": 8331,
   "company_count": 195,
   "companies": [
@@ -22,7 +22,7 @@
     {
       "board": "adyen",
       "company": "Adyen",
-      "brazil_jobs": 9
+      "brazil_jobs": 8
     },
     {
       "board": "aestudio",
@@ -32,7 +32,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 100
+      "brazil_jobs": 103
     },
     {
       "board": "agilize",
@@ -152,7 +152,7 @@
     {
       "board": "blip-global",
       "company": "Blip Global",
-      "brazil_jobs": 11
+      "brazil_jobs": 12
     },
     {
       "board": "boldmetrics",
@@ -192,7 +192,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 158
+      "brazil_jobs": 153
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -297,7 +297,7 @@
     {
       "board": "dunnhumby",
       "company": "dunnhumby",
-      "brazil_jobs": 5
+      "brazil_jobs": 6
     },
     {
       "board": "dyopath",
@@ -352,7 +352,7 @@
     {
       "board": "exadelinc",
       "company": "Exadel Inc (Website)",
-      "brazil_jobs": 18
+      "brazil_jobs": 19
     },
     {
       "board": "fanaticscollectibles",
@@ -437,7 +437,7 @@
     {
       "board": "hotmartcareersbr",
       "company": "Hotmart",
-      "brazil_jobs": 18
+      "brazil_jobs": 17
     },
     {
       "board": "housebuyersofamerica",
@@ -447,7 +447,7 @@
     {
       "board": "housecall",
       "company": "Housecall Pro",
-      "brazil_jobs": 14
+      "brazil_jobs": 13
     },
     {
       "board": "impinjexternal",
@@ -562,7 +562,7 @@
     {
       "board": "monks",
       "company": "Monks",
-      "brazil_jobs": 42
+      "brazil_jobs": 40
     },
     {
       "board": "monumentsoftwareinc",
@@ -722,7 +722,7 @@
     {
       "board": "rdsourcing",
       "company": "RD Station - Sourcing",
-      "brazil_jobs": 4
+      "brazil_jobs": 3
     },
     {
       "board": "ripple",
@@ -802,7 +802,7 @@
     {
       "board": "stonepatrocina",
       "company": "Stone - Indeed",
-      "brazil_jobs": 230
+      "brazil_jobs": 225
     },
     {
       "board": "sumup",
@@ -957,12 +957,12 @@
     {
       "board": "wppmedia",
       "company": "WPP Media",
-      "brazil_jobs": 35
+      "brazil_jobs": 36
     },
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 155
+      "brazil_jobs": 156
     },
     {
       "board": "xpengmotors",
