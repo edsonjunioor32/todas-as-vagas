@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-09T23:32:44.579200+00:00",
+  "generated_at": "2026-10-10T11:32:35.013126+00:00",
   "candidate_count": 8331,
   "company_count": 197,
   "companies": [
@@ -317,7 +317,7 @@
     {
       "board": "ebanx",
       "company": "EBANX",
-      "brazil_jobs": 28
+      "brazil_jobs": 27
     },
     {
       "board": "ebury",
