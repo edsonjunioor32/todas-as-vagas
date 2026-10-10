@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-10T11:32:35.013126+00:00",
+  "generated_at": "2026-10-10T14:32:33.791506+00:00",
   "candidate_count": 8331,
   "company_count": 197,
   "companies": [
@@ -972,7 +972,7 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 155
+      "brazil_jobs": 154
     },
     {
       "board": "xpengmotors",
