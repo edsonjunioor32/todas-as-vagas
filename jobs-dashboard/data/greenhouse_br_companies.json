@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-10T14:32:33.791506+00:00",
+  "generated_at": "2026-10-10T18:32:33.741306+00:00",
   "candidate_count": 8331,
   "company_count": 197,
   "companies": [
@@ -202,7 +202,7 @@
     {
       "board": "candidaturasdirecionadasxpinc",
       "company": "Candidaturas Direcionadas",
-      "brazil_jobs": 13
+      "brazil_jobs": 14
     },
     {
       "board": "capco",
@@ -722,7 +722,7 @@
     {
       "board": "rdstation",
       "company": "RD Station",
-      "brazil_jobs": 6
+      "brazil_jobs": 4
     },
     {
       "board": "rdsourcing",
