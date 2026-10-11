@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-10T23:32:41.295916+00:00",
+  "generated_at": "2026-10-11T11:32:36.523829+00:00",
   "candidate_count": 8331,
   "company_count": 197,
   "companies": [
@@ -32,7 +32,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 94
+      "brazil_jobs": 91
     },
     {
       "board": "agilize",
