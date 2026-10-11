@@ -37,6 +37,11 @@ const el={
   gapList:document.querySelector('#gapList'),
   optionalList:document.querySelector('#optionalList'),
   manualList:document.querySelector('#manualList'),
+  adjustmentEvidence:document.querySelector('#adjustmentEvidence'),
+  adjustmentGaps:document.querySelector('#adjustmentGaps'),
+  adjustmentOptional:document.querySelector('#adjustmentOptional'),
+  copyAdjustmentPlan:document.querySelector('#copyAdjustmentPlan'),
+  adjustmentStatus:document.querySelector('#adjustmentStatus'),
   downloadReport:document.querySelector('#downloadReport')
 };
 
@@ -193,6 +198,106 @@ function renderChipList(container,values,emptyMessage,variant=''){
   container.replaceChildren(...unique.map(value=>chip(value,variant)));
 }
 
+function evidenceExcerpt(label,resumeText){
+  const entry=(state.taxonomyIndex?.entries||[]).find(item=>normalize(item.label)===normalize(label));
+  const aliases=[label,...(entry?.aliases||[])].filter(Boolean);
+  const fragments=String(resumeText||'').split(/\\r?\\n/).flatMap(line=>line.match(/[^.!?]+[.!?]?/g)||[line]).map(value=>value.trim()).filter(Boolean);
+  const found=fragments.find(fragment=>aliases.some(alias=>containsAlias(normalize(fragment),alias)));
+  if(!found)return'';
+  const excerpt=found.replace(/\\s+/g,' ').trim();
+  return excerpt.length>260?excerpt.slice(0,257).trimEnd()+'…':excerpt;
+}
+
+function renderAdjustmentList(container,items,emptyMessage,detailFor){
+  if(!container)return;
+  if(!items.length){
+    const empty=document.createElement('li');
+    empty.className='adjustment-empty';
+    empty.textContent=emptyMessage;
+    container.replaceChildren(empty);
+    return;
+  }
+  const nodes=items.map(label=>{
+    const item=document.createElement('li');
+    item.className='adjustment-item';
+    const title=document.createElement('strong');
+    title.textContent=label;
+    const detail=document.createElement('p');
+    detail.textContent=detailFor(label);
+    item.append(title,detail);
+    return item;
+  });
+  container.replaceChildren(...nodes);
+}
+
+function renderAdjustmentPlan(result,resumeText){
+  const scored=result.status==='scored'&&Number.isFinite(result.score);
+  const evidenced=[...new Set([...(result.mandatory?.matched||[]),...(result.preferred?.matched||[])])];
+  renderAdjustmentList(
+    el.adjustmentEvidence,
+    evidenced,
+    scored?'Nenhuma evidência de requisito foi identificada para destacar.':'A descrição não permitiu identificar requisitos suficientes.',
+    label=>{
+      const excerpt=evidenceExcerpt(label,resumeText);
+      return excerpt?'Trecho do currículo para revisar: “'+excerpt+'”':'Competência reconhecida na comparação. Confira no currículo o trecho que a comprova antes de destacá-la.';
+    }
+  );
+  renderAdjustmentList(
+    el.adjustmentGaps,
+    scored?(result.gaps||[]):[],
+    scored?'Nenhum requisito obrigatório ficou sem correspondência textual.':'Não calculadas: revise manualmente a descrição da vaga.',
+    label=>'Não localizado no texto do currículo. Você já fez isso? Se sim, registre um exemplo real com contexto, ação, ferramenta e resultado; se não, não inclua como competência.'
+  );
+  renderAdjustmentList(
+    el.adjustmentOptional,
+    scored?(result.optionalMissing||[]):[],
+    scored?'Nenhum diferencial opcional ficou sem correspondência textual.':'Não calculados: revise manualmente a descrição da vaga.',
+    label=>'Diferencial não localizado no currículo. Só vale acrescentá-lo se você realmente tiver essa experiência; não é requisito obrigatório.'
+  );
+  if(el.adjustmentStatus)el.adjustmentStatus.textContent='';
+}
+
+function makeAdjustmentPlan(){
+  const result=state.selectedAnalysis;
+  if(!result)return'';
+  const job=state.selectedJob||{};
+  const scored=result.status==='scored'&&Number.isFinite(result.score);
+  const evidence=[...new Set([...(result.mandatory?.matched||[]),...(result.preferred?.matched||[])])];
+  const gaps=result.gaps||[],optional=result.optionalMissing||[];
+  return[
+    'Plano de ajuste do currículo — Todas as Vagas',
+    'Vaga: '+(job.title||'Não informada'),
+    'Empresa: '+(job.company||'Não informada'),
+    'Link: '+(job.url||'Não informado'),
+    '',
+    scored?'EVIDÊNCIAS RECONHECIDAS — revise os trechos antes de reutilizar:':'ANÁLISE INCOMPLETA — não foi possível extrair requisitos suficientes da descrição.',
+    ...(evidence.length?evidence.map(label=>{
+      const excerpt=evidenceExcerpt(label,currentResumeText());
+      return '- '+label+(excerpt?'\\n  Trecho do currículo: “'+excerpt+'”':'\\n  Confirme no currículo a evidência exata antes de destacá-la.');
+    }):['- Nenhuma evidência para listar.']),
+    '',
+    'REQUISITOS OBRIGATÓRIOS NÃO LOCALIZADOS NO TEXTO:',
+    ...(gaps.length?gaps.map(label=>'- '+label+' — se tiver experiência real, acrescente um exemplo verificável (contexto, ação, ferramenta e resultado); caso contrário, não declare essa competência.'):['- Nenhum identificado ou análise insuficiente.']),
+    '',
+    'DIFERENCIAIS OPCIONAIS NÃO LOCALIZADOS:',
+    ...(optional.length?optional.map(label=>'- '+label+' — inclua somente se houver experiência real; é um diferencial, não um requisito obrigatório.'):['- Nenhum identificado ou análise insuficiente.']),
+    '',
+    'A pontuação é uma estimativa local, não uma probabilidade de contratação. Uma lacuna no texto não confirma ausência de experiência.'
+  ].join('\\n');
+}
+
+async function copyAdjustmentPlan(){
+  const text=makeAdjustmentPlan();
+  if(!text||!el.adjustmentStatus)return;
+  try{
+    if(!navigator.clipboard?.writeText)throw new Error('Área de transferência indisponível');
+    await navigator.clipboard.writeText(text);
+    el.adjustmentStatus.textContent='Plano copiado. Use apenas evidências e informações verdadeiras.';
+  }catch{
+    el.adjustmentStatus.textContent='Não foi possível copiar automaticamente. Você ainda pode baixar o relatório da análise.';
+  }
+}
+
 function renderAnalysis(job,result){
   state.selectedJob=job;
   state.selectedAnalysis=result;
@@ -209,6 +314,7 @@ function renderAnalysis(job,result){
   renderChipList(el.gapList,result.gaps,scored?'Nenhuma lacuna obrigatória foi identificada.':'Não calculadas sem requisitos reconhecidos.','gap');
   renderChipList(el.optionalList,result.optionalMissing,scored?'Nenhum diferencial ausente identificado.':'Não calculados sem requisitos reconhecidos.','optional');
   renderChipList(el.manualList,result.manual,scored?'Nada adicional para confirmar manualmente.':'Confirme manualmente as condições do anúncio.','manual');
+  renderAdjustmentPlan(result,currentResumeText());
   el.analysisSection.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
@@ -303,6 +409,7 @@ el.jobCompanyInput?.addEventListener('input',()=>updateAnalyzeButton());
 el.jobUrlInput?.addEventListener('input',()=>updateAnalyzeButton());
 el.analyzeJob?.addEventListener('click',analyzeJob);
 el.downloadReport?.addEventListener('click',downloadReport);
+el.copyAdjustmentPlan?.addEventListener('click',copyAdjustmentPlan);
 
 initTheme();
 initUpload();
