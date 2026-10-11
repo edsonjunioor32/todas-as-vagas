@@ -201,10 +201,10 @@ function renderChipList(container,values,emptyMessage,variant=''){
 function evidenceExcerpt(label,resumeText){
   const entry=(state.taxonomyIndex?.entries||[]).find(item=>normalize(item.label)===normalize(label));
   const aliases=[label,...(entry?.aliases||[])].filter(Boolean);
-  const fragments=String(resumeText||'').split(/\\r?\\n/).flatMap(line=>line.match(/[^.!?]+[.!?]?/g)||[line]).map(value=>value.trim()).filter(Boolean);
+  const fragments=String(resumeText||'').split(/\r?\n/).flatMap(line=>line.match(/[^.!?]+[.!?]?/g)||[line]).map(value=>value.trim()).filter(Boolean);
   const found=fragments.find(fragment=>aliases.some(alias=>containsAlias(normalize(fragment),alias)));
   if(!found)return'';
-  const excerpt=found.replace(/\\s+/g,' ').trim();
+  const excerpt=found.replace(/\s+/g,' ').trim();
   return excerpt.length>260?excerpt.slice(0,257).trimEnd()+'…':excerpt;
 }
 
@@ -273,7 +273,7 @@ function makeAdjustmentPlan(){
     scored?'EVIDÊNCIAS RECONHECIDAS — revise os trechos antes de reutilizar:':'ANÁLISE INCOMPLETA — não foi possível extrair requisitos suficientes da descrição.',
     ...(evidence.length?evidence.map(label=>{
       const excerpt=evidenceExcerpt(label,currentResumeText());
-      return '- '+label+(excerpt?'\\n  Trecho do currículo: “'+excerpt+'”':'\\n  Confirme no currículo a evidência exata antes de destacá-la.');
+      return '- '+label+(excerpt?'\n  Trecho do currículo: “'+excerpt+'”':'\n  Confirme no currículo a evidência exata antes de destacá-la.');
     }):['- Nenhuma evidência para listar.']),
     '',
     'REQUISITOS OBRIGATÓRIOS NÃO LOCALIZADOS NO TEXTO:',
@@ -283,7 +283,7 @@ function makeAdjustmentPlan(){
     ...(optional.length?optional.map(label=>'- '+label+' — inclua somente se houver experiência real; é um diferencial, não um requisito obrigatório.'):['- Nenhum identificado ou análise insuficiente.']),
     '',
     'A pontuação é uma estimativa local, não uma probabilidade de contratação. Uma lacuna no texto não confirma ausência de experiência.'
-  ].join('\\n');
+  ].join('\n');
 }
 
 async function copyAdjustmentPlan(){
