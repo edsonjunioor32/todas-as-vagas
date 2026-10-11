@@ -282,6 +282,12 @@ function makeAdjustmentPlan(){
     'DIFERENCIAIS OPCIONAIS NÃO LOCALIZADOS:',
     ...(optional.length?optional.map(label=>'- '+label+' — inclua somente se houver experiência real; é um diferencial, não um requisito obrigatório.'):['- Nenhum identificado ou análise insuficiente.']),
     '',
+    'REVISÃO FINAL ANTES DE SE CANDIDATAR:',
+    '- Confirme no portal oficial da empresa se a vaga continua aberta.',
+    '- Revise os requisitos eliminatórios, a localidade, a modalidade e a senioridade no anúncio.',
+    '- Use exemplos concretos e verdadeiros; não acrescente palavras-chave ou experiências que não representem seu histórico.',
+    '- Confira o currículo e decida por conta própria. Este analisador não envia candidaturas.',
+    '',
     'A pontuação é uma estimativa local, não uma probabilidade de contratação. Uma lacuna no texto não confirma ausência de experiência.'
   ].join('\n');
 }
