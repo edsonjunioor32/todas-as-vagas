@@ -700,6 +700,10 @@
     "tenantName": "EDGE"
   },
   {
+    "slug": "educbank",
+    "tenantName": "educbank"
+  },
+  {
     "slug": "eiti",
     "tenantName": "Eiti Gestão de Ti"
   },
