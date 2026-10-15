@@ -111,6 +111,7 @@ REGISTRY = [
     ("santander", requested_portals_27082026.fetch_santander),
     ("iberdrola", requested_portals_27082026.fetch_iberdrola),
     ("acciona", requested_portals_27082026.fetch_acciona),
+    ("3m", requested_portals_27082026.fetch_3m),
     ("iqvia", requested_portals_27082026.fetch_iqvia),
     ("mdlz", requested_portals_27082026.fetch_mdlz),
     ("edenred", requested_portals_27082026.fetch_edenred),

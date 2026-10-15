@@ -72,6 +72,17 @@ WORKDAY = {
             "Country": ["1a29bb1357b240ab99a2fa755cc87c0e"],
         },
     },
+    "3m": {
+        "host": "3m.wd1.myworkdayjobs.com",
+        "tenant": "3m",
+        "site": "Search",
+        "company": "3M",
+        "url": "https://3m.wd1.myworkdayjobs.com/pt-BR/Search?Location_Country=1a29bb1357b240ab99a2fa755cc87c0e",
+        "detail_base": "https://3m.wd1.myworkdayjobs.com/pt-BR/Search/",
+        "brazil_facet": {
+            "Location_Country": ["1a29bb1357b240ab99a2fa755cc87c0e"],
+        },
+    },
 }
 
 WORKDAY_API = "https://{host}/wday/cxs/{tenant}/{site}/jobs"
@@ -182,6 +193,10 @@ def fetch_edenred():
 
 def fetch_acciona():
     return _workday_rows("acciona")
+
+
+def fetch_3m():
+    return _workday_rows("3m")
 
 
 def _jsonld_rows(source, url, company):
