@@ -63,6 +63,7 @@
     abler: 'Abler',
     precisionrh: 'Precision RH',
     accenture: 'Accenture',
+    '3m': '3M',
     bradesco: 'Bradesco',
     cloudwalk: 'CloudWalk',
     mercadolivre: 'Mercado Livre',
