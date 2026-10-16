@@ -74,7 +74,7 @@ SOURCE_LABELS = {
     "recrutei": "Recrutei",
     "accenture": "Accenture",
     "ey": "EY",
-    "bradesco: "Bradesco",
+    "bradesco": "Bradesco",
     "cloudwalk": "CloudWalk",
     "mercadolivre": "Mercado Livre",
     "nestle": "Nestlé",
