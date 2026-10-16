@@ -29,6 +29,9 @@ def row(key, *, remote=False, ti=False):
 
 
 class TelegramNotificationTests(unittest.TestCase):
+    def test_ey_source_label_is_human_readable(self):
+        self.assertEqual(notify_telegram._source_label("ey"), "EY")
+
     def test_unnotified_rows_prioritize_remote_ti(self):
         rows = [row("other"), row("remote", remote=True), row("remote-ti", remote=True, ti=True)]
         with patch.object(notify_telegram, "_rows", return_value=rows):
