@@ -6,7 +6,7 @@ import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.parse import urljoin, urlsplit, urlunsplit
 
-from ._common import iso_date, job, strip_html, work_model_label
+from ._common import iso_date, job, strip_html
 from ._html import PublicPageParser, job_posting
 from ._http import get_text
 from ._rendered import rendered_paginated_links
@@ -121,6 +121,34 @@ def _skills(posting):
     ))[:20]
 
 
+_GENERIC_DETAIL_TITLES = frozenset({
+    "description",
+    "job description",
+    "descrição da vaga",
+})
+
+
+def _explicit_work_model(text):
+    """Read the modality from the short vacancy header, not the full prose."""
+    value = str(text or "").casefold()
+    if re.search(r"\b(?:h[ií]brid[oa]|hybrid)\b", value):
+        return "hybrid"
+    if re.search(r"\b(?:on[- ]?site|presencial|in[- ]office)\b", value):
+        return "on-site"
+    if re.search(r"\b(?:remote|remot[oa]|anywhere|home[- ]?office)\b", value):
+        return "remote"
+    return ""
+
+
+def _header_location(text):
+    matches = re.findall(
+        r"(?<![A-Za-zÀ-ÿ])([A-ZÁÉÍÓÚÀÂÃÇÊÍÓÔÕÚÜ][A-Za-zÀ-ÿ]+"
+        r"(?:\s+[A-ZÁÉÍÓÚÀÂÃÇÊÍÓÔÕÚÜ][A-Za-zÀ-ÿ]+){0,4})\s*-\s*([A-Z]{2})\b",
+        str(text or ""),
+    )
+    return matches[-1] if matches else ("", "")
+
+
 def _parse_detail(source, fallback_company, url, fallback_text=""):
     markup = get_text(url, timeout=40, retries=2)
     parser = PublicPageParser()
@@ -131,7 +159,9 @@ def _parse_detail(source, fallback_company, url, fallback_text=""):
         title = next((
             strip_html(value).strip() for value in parser.headings
             if strip_html(value).strip()
-            and strip_html(value).casefold() not in {"careers", "our openings"}
+            and strip_html(value).casefold() not in {
+                "careers", "our openings", *_GENERIC_DETAIL_TITLES
+            }
         ), "")
     if not title and fallback_text:
         title = strip_html(fallback_text).split(" · ")[0].strip()
@@ -148,16 +178,20 @@ def _parse_detail(source, fallback_company, url, fallback_text=""):
     ) or fallback_company
     city, state, country = _location(posting)
     visible = parser.visible_text
-    raw_model = " ".join(
-        str(posting.get(key) or "")
-        for key in ("jobLocationType", "employmentType", "description")
-    ) + " " + visible
     description = strip_html(posting.get("description") or visible)
+    header = visible.split("O que buscamos?", 1)[0]
+    if len(header) < 120:
+        header = visible[:900]
+    model = _explicit_work_model(
+        " ".join((str(posting.get("jobLocationType") or ""), header))
+    )
+    if not city:
+        city, state = _header_location(header)
     employment = posting.get("employmentType")
     return job(
         source, native_id, title=title, company=company, url=url,
-        work_model=work_model_label(raw=raw_model),
-        city=city or ("Brasil" if re.search(r"\b(remote|remoto)\b", raw_model, re.I) else ""),
+        work_model=model,
+        city=city or ("Brasil" if model == "remote" else ""),
         state=state, country=country or "BR", market="BR",
         published_date=iso_date(posting.get("datePosted")),
         description=description, skills=_skills(posting),
@@ -259,3 +293,4 @@ TARGETS = tuple(
     (config["source"], globals()[f"fetch_{config['source']}"])
     for config in TENANTS
 )
+

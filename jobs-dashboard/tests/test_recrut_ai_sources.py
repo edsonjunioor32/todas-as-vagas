@@ -7,7 +7,7 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from sources import recrut_ai, solides, taggui
+from sources import recrut_ai, requested_portals_27082026 as requested, solides, taggui
 from storage import ACTIVE_PUBLIC_FEED_SOURCES
 
 
@@ -58,6 +58,49 @@ class RecrutAiSourceTests(unittest.TestCase):
             "",
         )
 
+    def test_recrut_ai_uses_header_title_and_modality(self):
+        markup = """
+        <h1>Descrição da Vaga</h1>
+        <h2>Analista de Suporte Sênior (Sustentação de Aplicações) 620Q8L</h2>
+        <div>Híbrido · São Leopoldo-RS</div>
+        <div>O que buscamos?</div>
+        <p>Modelo predominantemente remoto, com atividades presenciais quando necessário.</p>
+        """
+        with patch.object(recrut_ai, "get_text", return_value=markup):
+            row = recrut_ai._parse_detail(
+                "insi",
+                "Insi",
+                "https://insi.jobs.recrut.ai/job/620Q8L",
+            )
+        self.assertEqual(
+            row["title"],
+            "Analista de Suporte Sênior (Sustentação de Aplicações) 620Q8L",
+        )
+        self.assertEqual(row["work_model"], "hybrid")
+        self.assertEqual(row["city"], "São Leopoldo")
+        self.assertEqual(row["state"], "RS")
+
+    def test_huntit_detail_uses_jsonld_date_location_and_modality(self):
+        markup = """
+        <script type="application/ld+json">
+        {"@type":"JobPosting","title":"Analista de Redes Nível 2",
+         "datePosted":"2026-07-02T00:00:00-03:00",
+         "description":"Atuação em formato híbrido.",
+         "jobLocation":{"address":{"addressLocality":"São Paulo",
+         "addressRegion":"SP","addressCountry":"BR"}}}
+        </script>
+        """
+        with patch.object(requested, "get_text", return_value=markup):
+            rows = requested._jsonld_rows(
+                "huntit",
+                "https://huntit.com.br/vaga/analista-de-redes-n-vel-2-uy00878q/",
+                "Hunt IT",
+            )
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["published_date"], "2026-07-02T00:00:00-03:00")
+        self.assertEqual(rows[0]["city"], "São Paulo, SP")
+        self.assertEqual(rows[0]["work_model"], "hybrid")
+
     def test_taggui_identity_canonicalization(self):
         url = taggui._canonical_url(
             "https://rs.tagguirh.com.br/visualizar-vaga/valemat/2181?x=1"
@@ -90,3 +133,4 @@ class RecrutAiSourceTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

@@ -421,9 +421,7 @@ def infer_work_models(rows):
         is_brazil = country in {"br", "brasil", "brazil"} or market == "br"
         if not is_brazil:
             continue
-        if location in remote_locations or (
-            not location and country in {"brasil", "brazil"}
-        ):
+        if location in remote_locations:
             row["work_model"] = "remote"
         elif location:
             row["work_model"] = "on-site"
@@ -752,3 +750,4 @@ def main(before_persist=None):
 
 if __name__ == "__main__":
     main()
+
