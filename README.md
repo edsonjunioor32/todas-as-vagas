@@ -12,7 +12,7 @@ O `todas-as-vagas` é o repositório central do catálogo: coleta vagas em fonte
 
 O projeto não é apenas uma página estática. Ele mantém a fotografia pública do catálogo para que os canais de distribuição consultem a mesma base, sem duplicar a coleta nem expor credenciais.
 
-Para localizar a função de cada arquivo rastreado e o histórico de incidentes, consulte o [mapa operacional do repositório](ops/OPERATIONS_CHANGELOG.md#mapa-dos-arquivos-rastreados).
+Para localizar a função de cada arquivo rastreado e o histórico de incidentes, consulte o [mapa operacional do repositório](ops/OPERATIONS_CHANGELOG.md#mapa-dos-arquivos-rastreados). O [mapa do ecossistema](ops/ECOSYSTEM_MAP.md) cobre as branches de dados, os repositórios dos bots, o agente, a VPS e os riscos de mudanças nos workflows.
 
 ### Site e dados publicados
 
@@ -150,7 +150,7 @@ Envie primeiro os arquivos visíveis. Depois use **Add file → Create new file*
 .github/workflows/pages.yml
 ```
 
-Copie para ele todo o conteúdo do arquivo visível `WORKFLOW_PARA_COPIAR.yml` e confirme a alteração na branch `main`.
+**Não copie** `WORKFLOW_PARA_COPIAR.yml` sobre o workflow atual. Esse modelo é obsoleto e perderia a agenda, o runner e a recuperação configurados. O arquivo `.github/workflows/pages.yml` já existe; se precisar restaurá-lo, use a versão atual da branch `main` e revise o [mapa de riscos](ops/ECOSYSTEM_MAP.md) antes de alterar.
 
 ## Atualização automática
 

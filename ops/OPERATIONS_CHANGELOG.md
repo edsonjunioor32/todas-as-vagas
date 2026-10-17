@@ -45,27 +45,28 @@ Se houver `dispatch_unconfirmed`, verificar manualmente o run no GitHub antes de
 
 ## Mapa dos arquivos rastreados
 
-Escopo: 169 arquivos da branch `main` nesta revisão. Cada linha registra a responsabilidade do arquivo; `manual` e `legado` não significam falha. Artefatos gerados em `public-data`/`history-data`, cache, banco privado da VPS e arquivos ignorados não integram esta lista.
+Escopo: 171 arquivos da branch `main` nesta revisão (169 originais, mais `AGENTS.md` e `ops/ECOSYSTEM_MAP.md`). Cada linha registra a responsabilidade do arquivo; `manual` e `legado` não significam falha. Os arquivos das branches `public-data`/`history-data`, os repositórios dos bots, o agente e o projeto InHire separado estão inventariados no [mapa do ecossistema](ECOSYSTEM_MAP.md), que também contém a matriz de riscos e o checklist de mudanças. Cache, banco privado da VPS e arquivos ignorados não são parte desta lista de arquivos rastreados.
 
 ### Raiz e automação GitHub
 
+- `AGENTS.md` — exige análise de impacto e atualização do mapa antes de mudanças operacionais.
 - `.github/telegram-trigger` — marcador histórico de acionamento pontual do Telegram; não é agenda.
 - `.github/telegram_state.json` — estado de deduplicação do envio manual do Telegram.
-- `.github/workflows/benchmark-solides.yml` — benchmark manual da coleta Sólides.
+- `.github/workflows/benchmark-solides.yml` — diagnóstico isolado da Sólides em pushes filtrados de `main` ou manualmente; não publica catálogo.
 - `.github/workflows/catalog-catchup.yml` — vigia atrasos e despacha recuperação do catálogo.
-- `.github/workflows/catalog-ci.yml` — testes e validações do coletor em PRs.
-- `.github/workflows/fit-ci.yml` — testes do analisador de aderência.
+- `.github/workflows/catalog-ci.yml` — validação sem publicação em PRs filtrados ou manualmente.
+- `.github/workflows/fit-ci.yml` — testes e preview do analisador em PRs filtrados e pushes; contém verificação de entrada oculta incompatível com a interface pública atual.
 - `.github/workflows/mercado-livre-isolated.yml` — validação isolada do coletor Mercado Livre.
 - `.github/workflows/merge-dynamic-portals.yml` — mesclagem controlada de portais dinâmicos.
-- `.github/workflows/pages.yml` — coleta agendada, snapshots e publicação do Pages.
+- `.github/workflows/pages.yml` — coleta em quatro horários diários e um horário semanal Greenhouse, acionamento manual/recuperação e deploy de interface em push; push comum pode publicar apenas a interface.
 - `.github/workflows/telegram.yml` — envio operacional/manual e estado do Telegram.
 - `.github/workflows/ux-preview.yml` — validação da interface em PRs.
-- `.github/workflows/validate-dynamic-portals.yml` — valida portais dinâmicos sem publicar o catálogo.
-- `.gitignore` — impede versionamento de bancos, saídas geradas e segredos.
+- `.github/workflows/validate-dynamic-portals.yml` — valida portais dinâmicos em PRs, varredura semanal e execução manual; não publica catálogo.
+- `.gitignore` — ignora saídas geradas e caminhos privados específicos; não substitui revisão de segredos.
 - `LICENSE` — licença do repositório.
 - `README.md` — visão geral, operação e integrações Telegram/WhatsApp.
 - `THIRD_PARTY_NOTICES.md` — atribuições e licenças de terceiros.
-- `WORKFLOW_PARA_COPIAR.yml` — modelo legado de workflow, para referência/cópia manual; não é executado pelo Actions.
+- `WORKFLOW_PARA_COPIAR.yml` — modelo obsoleto fora do Actions; **não copiar sobre o `pages.yml` atual**, pois agenda, runner e recuperação divergem.
 - `package.json` — dependências e scripts Node do site e do pré-processamento.
 
 ### Descoberta InHire e site público
@@ -75,7 +76,7 @@ Escopo: 169 arquivos da branch `main` nesta revisão. Cada linha registra a resp
 - `busca_vagas/inhire_tenants_seed.json` — sementes de empresas InHire.
 - `busca_vagas/validate_public_inhire.js` — valida lote InHire antes da publicação.
 - `docs/.refresh-fit-request` — marcador histórico de atualização solicitada; não é rotina.
-- `docs/aderencia/app.js` — interface da análise de currículo por vaga.
+- `docs/aderencia/app.js` — compara currículo com descrição de vaga informada pela pessoa no navegador; não lê o SQLite privado de descrições.
 - `docs/aderencia/fit-engine.js` — regras de cálculo de aderência no navegador.
 - `docs/aderencia/index.html` — página da análise de currículo.
 - `docs/aderencia/styles.css` — estilos da página de aderência.
@@ -121,7 +122,7 @@ Escopo: 169 arquivos da branch `main` nesta revisão. Cada linha registra a resp
 
 ### Fontes de vagas
 
-O registro ativo fica em `jobs-dashboard/sources/__init__.py`. Cada módulo abaixo fornece coleta de uma plataforma, de uma empresa ou de um grupo de empresas; módulos auxiliares são chamados pelos coletores, não têm agendamento próprio.
+O registro de adaptadores fica em `jobs-dashboard/sources/__init__.py`. Cada módulo abaixo implementa coleta de uma plataforma, empresa ou grupo; estar registrado **não comprova** alimentação saudável em produção. Algumas fontes podem estar pausadas ou preservando vagas anteriores após falha; verifique contagem/estado por portal. Módulos auxiliares são chamados pelos coletores, não têm agendamento próprio.
 
 - `jobs-dashboard/sources/__init__.py` — importa e registra as fontes ativas.
 - `jobs-dashboard/sources/_common.py` — utilitários comuns de normalização.
@@ -222,6 +223,7 @@ Todos os arquivos desta seção são testes automatizados; não são coletores n
 ### Operação, scripts e testes Node
 
 - `ops/OPERATIONS_CHANGELOG.md` — histórico operacional e este mapa de responsabilidades.
+- `ops/ECOSYSTEM_MAP.md` — inventário dos repositórios vinculados, branches de dados, dependências e riscos.
 - `ops/github_scheduler.py` — agendador externo da VPS, com estado de tentativas.
 - `ops/systemd/actions-runner-restart.conf` — política de reinício do runner.
 - `ops/systemd/todas-as-vagas-descriptions.service` — serviço de coleta privada de descrições.
