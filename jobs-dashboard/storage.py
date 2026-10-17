@@ -83,6 +83,7 @@ ACTIVE_PUBLIC_FEED_SOURCES = {
     "grupowish",
     "h2club",
     "healthbit",
+    "huntit",
     "hrin",
     "humtech",
     "hyper",
@@ -774,7 +775,7 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
         columns["mk"].append(code("market", market))
         columns["co"].append(code("country", country))
         columns["city"].append(city or state or "")
-        columns["pub"].append(published or first_seen or "")
+        columns["pub"].append(published or "")
         columns["seen"].append((last_seen or first_seen or "")[:10])
         columns["exp"].append((expires or "")[:10])
         columns["url"].append((url or "").replace("http://", "https://", 1))
@@ -833,3 +834,4 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
         handle.write(text)
     os.replace(temporary, out_path)
     return len(rows), size_mb
+

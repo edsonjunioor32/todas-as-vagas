@@ -185,12 +185,14 @@ class GreenhouseLocationTests(unittest.TestCase):
             sample_job("b", "2", city="São Paulo"),
             sample_job("c", "3", work_model="hybrid", city="Recife"),
             sample_job("d", "4", city="", country="US"),
+            sample_job("e", "5", city="", country="BR"),
         ]
         self.assertEqual(pipeline.infer_work_models(rows), 2)
         self.assertEqual(rows[0]["work_model"], "remote")
         self.assertEqual(rows[1]["work_model"], "on-site")
         self.assertEqual(rows[2]["work_model"], "hybrid")
         self.assertEqual(rows[3]["work_model"], "")
+        self.assertEqual(rows[4]["work_model"], "")
 
     def test_future_publication_dates_are_cleared_without_dropping_rows(self):
         rows = [
@@ -511,6 +513,25 @@ class StorageTests(unittest.TestCase):
             conn.close()
 
 
+    def test_snapshot_does_not_promote_first_seen_to_publication(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            conn = storage.connect(str(Path(temporary) / "jobs.db"))
+            row = sample_job("portal", "without-date")
+            row["published_date"] = ""
+            storage.upsert(conn, [row], today="2026-10-17")
+            out = Path(temporary) / "vagas.json"
+
+            count, _ = storage.export_snapshot(
+                conn, str(out), today="2026-10-17"
+            )
+            payload = json.loads(out.read_text(encoding="utf-8"))
+
+            self.assertEqual(count, 1)
+            self.assertEqual(payload["jobs"]["pub"], [""])
+            self.assertEqual(payload["jobs"]["seen"], ["2026-10-17"])
+            conn.close()
+
+
     def test_snapshot_merges_legacy_nerdin_case_variant_without_losing_unique_rows(self):
         with tempfile.TemporaryDirectory() as temporary:
             conn = storage.connect(str(Path(temporary) / "jobs.db"))
@@ -689,3 +710,4 @@ class SolidesTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
