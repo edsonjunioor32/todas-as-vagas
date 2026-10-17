@@ -12,6 +12,8 @@ O `todas-as-vagas` é o repositório central do catálogo: coleta vagas em fonte
 
 O projeto não é apenas uma página estática. Ele mantém a fotografia pública do catálogo para que os canais de distribuição consultem a mesma base, sem duplicar a coleta nem expor credenciais.
 
+Para localizar a função de cada arquivo rastreado e o histórico de incidentes, consulte o [mapa operacional do repositório](ops/OPERATIONS_CHANGELOG.md#mapa-dos-arquivos-rastreados).
+
 ### Site e dados publicados
 
 - **Portal público:** [Todas as Vagas](https://edsonjunioor32.github.io/todas-as-vagas/).
