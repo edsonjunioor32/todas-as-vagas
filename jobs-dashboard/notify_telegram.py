@@ -41,6 +41,7 @@ SOURCE_LABELS = {
     "grupovanguarda": "Grupo Vanguarda",
     "tirol": "Laticínios Tirol",
     "novomateus": "Novo Mateus",
+    "insi": "Insi",
     "tagguirh": "Taggui RH",
     "geekhunter": "GeekHunter",
     "stone": "Stone",

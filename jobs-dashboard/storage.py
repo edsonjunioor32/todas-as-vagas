@@ -169,6 +169,7 @@ ACTIVE_PUBLIC_FEED_SOURCES = {
     "grupovanguarda",
     "tirol",
     "novomateus",
+    "insi",
     "tagguirh",
     "tagna",
     "talentworksrh",

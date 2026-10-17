@@ -47,6 +47,8 @@ TENANTS = (
      "urls": ("https://tirol.jobs.recrut.ai/",)},
     {"source": "novomateus", "company": "Novo Mateus",
      "urls": ("https://novomateus.jobs.recrut.ai/",)},
+    {"source": "insi", "company": "Insi",
+     "urls": ("https://insi.jobs.recrut.ai/vagas",)},
 )
 
 
@@ -247,6 +249,10 @@ def fetch_tirol():
 
 def fetch_novomateus():
     return _fetch_tenant(TENANTS[12])
+
+
+def fetch_insi():
+    return _fetch_tenant(TENANTS[13])
 
 
 TARGETS = tuple(
