@@ -8,6 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from sources import recrut_ai, solides, taggui
+from storage import ACTIVE_PUBLIC_FEED_SOURCES
 
 
 class RecrutAiSourceTests(unittest.TestCase):
@@ -29,12 +30,21 @@ class RecrutAiSourceTests(unittest.TestCase):
                 "grupovanguarda",
                 "tirol",
                 "novomateus",
+                "insi",
             },
         )
         savegnago = next(
             config for config in recrut_ai.TENANTS if config["source"] == "savegnago"
         )
         self.assertEqual(len(savegnago["urls"]), 2)
+
+    def test_insi_uses_its_public_recrut_ai_board(self):
+        insi = next(
+            config for config in recrut_ai.TENANTS if config["source"] == "insi"
+        )
+        self.assertEqual(insi["company"], "Insi")
+        self.assertEqual(insi["urls"], ("https://insi.jobs.recrut.ai/vagas",))
+        self.assertIn("insi", ACTIVE_PUBLIC_FEED_SOURCES)
 
     def test_recrut_urls_canonicalize_and_ignore_invalid(self):
         self.assertEqual(
