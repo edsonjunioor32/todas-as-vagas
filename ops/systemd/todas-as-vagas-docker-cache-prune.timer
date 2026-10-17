@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily cleanup of stale Docker builder cache
+
+[Timer]
+OnCalendar=*-*-* 04:00:00 UTC
+Persistent=true
+RandomizedDelaySec=15m
+Unit=todas-as-vagas-docker-cache-prune.service
+
+[Install]
+WantedBy=timers.target

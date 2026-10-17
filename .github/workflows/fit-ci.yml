@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - "docs/aderencia/**"
+      - "docs/index.html"
+      - "docs/styles.css"
       - "docs/data/fit*.json"
       - "docs/fit-entry.*"
       - "jobs-dashboard/fit_requirements.py"
@@ -21,6 +23,8 @@ on:
     branches: [main]
     paths:
       - "docs/aderencia/**"
+      - "docs/index.html"
+      - "docs/styles.css"
       - "docs/data/fit*.json"
       - "docs/fit-entry.*"
       - "jobs-dashboard/fit_requirements.py"
@@ -78,12 +82,9 @@ jobs:
         run: python jobs-dashboard/validate_fit.py
       - name: Preparar artifact estático
         run: npm run prepare:fit
-      - name: Verificar que o recurso está oculto no portal
+      - name: Verificar entrada pública do analisador
         run: |
-          ! grep -q 'fit-entry.css' docs/index.html
-          ! grep -q 'fit-entry.js' docs/index.html
-          ! grep -q 'Analisar meu currículo' docs/index.html
-          ! grep -q 'hero-fit-cta' docs/index.html
+          python -c 'import sys; sys.path.insert(0, "tools"); from prepare_fit_assets import verify_public_entry_point; verify_public_entry_point()'
           test -s docs/vendor/pdf.mjs
           test -s docs/vendor/pdf.worker.mjs
           test -s docs/vendor/mammoth.browser.min.js
@@ -98,7 +99,7 @@ jobs:
           1. Extraia todo o ZIP para uma pasta.
           2. Execute iniciar-preview.bat.
           3. O navegador abrirá http://localhost:8765/.
-          4. A página técnica de aderência permanece no pacote para desenvolvimento, mas está oculta do portal público.
+          4. O botão público abre o analisador de currículo; os arquivos e bibliotecas usados no processamento local estão incluídos no pacote.
           5. Para encerrar, feche a janela preta do preview ou pressione Ctrl+C nela.
 
           O currículo usado no teste fica somente no navegador local.
