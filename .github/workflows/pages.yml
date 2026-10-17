@@ -194,6 +194,7 @@ jobs:
           set -euo pipefail
           git fetch --depth=1 --no-tags origin +refs/heads/public-data:refs/remotes/origin/public-data
           previous_dir="$(mktemp -d)"
+          trap 'rm -rf -- "$previous_dir"' EXIT
           git archive origin/public-data data/vagas.json | tar -x -C "$previous_dir"
           cp "$previous_dir/data/vagas.json" .previous-vagas.json
           test -s .previous-vagas.json
