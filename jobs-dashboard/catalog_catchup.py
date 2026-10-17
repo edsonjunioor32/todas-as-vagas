@@ -7,6 +7,7 @@ from datetime import datetime, time, timedelta, timezone
 import json
 import os
 import sys
+from time import sleep
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -201,11 +202,22 @@ def fetch_collection_runs(repository: str, token: str) -> list[dict]:
             f"{API_BASE}/repos/{repository}/actions/workflows/pages.yml/runs?{query}",
             headers=_headers(token),
         )
-        try:
-            with urllib.request.urlopen(request, timeout=20) as response:
-                payload = json.loads(response.read().decode("utf-8"))
-        except (urllib.error.HTTPError, urllib.error.URLError, json.JSONDecodeError) as error:
-            raise RuntimeError(f"não foi possível consultar os runs do catálogo: {error}") from error
+        for attempt in range(3):
+            try:
+                with urllib.request.urlopen(request, timeout=20) as response:
+                    payload = json.loads(response.read().decode("utf-8"))
+                break
+            except (urllib.error.HTTPError, urllib.error.URLError, json.JSONDecodeError) as error:
+                retryable = (
+                    isinstance(error, urllib.error.URLError)
+                    and not isinstance(error, urllib.error.HTTPError)
+                ) or (
+                    isinstance(error, urllib.error.HTTPError)
+                    and error.code in {502, 503, 504}
+                )
+                if not retryable or attempt == 2:
+                    raise RuntimeError(f"não foi possível consultar os runs do catálogo: {error}") from error
+                sleep(2 ** attempt)
 
         batch = list(payload.get("workflow_runs") or [])
         runs.extend(batch)

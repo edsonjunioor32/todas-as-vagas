@@ -35,3 +35,205 @@ Se houver `dispatch_unconfirmed`, verificar manualmente o run no GitHub antes de
 - O alerta do disco do runner está no workflow `vps-health.yml` do repositório `botwhats` (aviso em 75%, falha em 85%).
 - Sem build ativo, foi executado `docker builder prune --filter until=168h --force` na VPS. Somente cache de build sem uso há mais de sete dias foi removido: 3,101 GB. A ocupação de `/` passou de 85% para 78%; imagens, volumes, containers e dados privados não foram apagados.
 - Antes de repetir a limpeza, verificar `Runner.Worker`, builds ativos, `docker system df` e `df -h /`. Evitar `docker system prune` ou exclusão de diretórios de runner sem inventário.
+
+## 2026-10-16 — Auditoria de CI, recuperação e consumidores
+
+- As falhas dos runs [38885541172](https://github.com/edsonjunioor32/todas-as-vagas/actions/runs/38885541172) e [38885541248](https://github.com/edsonjunioor32/todas-as-vagas/actions/runs/38885541248) tinham a mesma causa: aspas faltantes na linha 77 de `notify_telegram.py` em um PR. Os runs seguintes de PR e de `main` passaram; não há motivo para reverter a correção.
+- O run [38925041698](https://github.com/edsonjunioor32/todas-as-vagas/actions/runs/38925041698) do recuperador recebeu HTTP 504 ao consultar a API do GitHub. A consulta agora repete somente falhas transitórias de rede ou HTTP 502/503/504, com limite de três tentativas; erros de autenticação continuam falhando imediatamente. Runs posteriores do recuperador concluíram com sucesso.
+- O agente externo `agente-vagas-edson` falhava diariamente com HTTP 404: seu `SOURCE_URL` padrão apontava para `main/docs/data/vagas.json`, que não existe mais. O catálogo ativo está em `public-data/data/vagas.json`; a correção e o teste de regressão ficam naquele repositório.
+- Não ativar `WORKFLOW_PARA_COPIAR.yml` ou os gatilhos manuais legados só por não serem executados automaticamente. O workflow de Telegram neste repositório é operacional/manual; o envio regular pertence ao repositório dedicado. Rodá-lo automaticamente aqui pode duplicar mensagens.
+
+## Mapa dos arquivos rastreados
+
+Escopo: 169 arquivos da branch `main` nesta revisão. Cada linha registra a responsabilidade do arquivo; `manual` e `legado` não significam falha. Artefatos gerados em `public-data`/`history-data`, cache, banco privado da VPS e arquivos ignorados não integram esta lista.
+
+### Raiz e automação GitHub
+
+- `.github/telegram-trigger` — marcador histórico de acionamento pontual do Telegram; não é agenda.
+- `.github/telegram_state.json` — estado de deduplicação do envio manual do Telegram.
+- `.github/workflows/benchmark-solides.yml` — benchmark manual da coleta Sólides.
+- `.github/workflows/catalog-catchup.yml` — vigia atrasos e despacha recuperação do catálogo.
+- `.github/workflows/catalog-ci.yml` — testes e validações do coletor em PRs.
+- `.github/workflows/fit-ci.yml` — testes do analisador de aderência.
+- `.github/workflows/mercado-livre-isolated.yml` — validação isolada do coletor Mercado Livre.
+- `.github/workflows/merge-dynamic-portals.yml` — mesclagem controlada de portais dinâmicos.
+- `.github/workflows/pages.yml` — coleta agendada, snapshots e publicação do Pages.
+- `.github/workflows/telegram.yml` — envio operacional/manual e estado do Telegram.
+- `.github/workflows/ux-preview.yml` — validação da interface em PRs.
+- `.github/workflows/validate-dynamic-portals.yml` — valida portais dinâmicos sem publicar o catálogo.
+- `.gitignore` — impede versionamento de bancos, saídas geradas e segredos.
+- `LICENSE` — licença do repositório.
+- `README.md` — visão geral, operação e integrações Telegram/WhatsApp.
+- `THIRD_PARTY_NOTICES.md` — atribuições e licenças de terceiros.
+- `WORKFLOW_PARA_COPIAR.yml` — modelo legado de workflow, para referência/cópia manual; não é executado pelo Actions.
+- `package.json` — dependências e scripts Node do site e do pré-processamento.
+
+### Descoberta InHire e site público
+
+- `busca_vagas/build_public_inhire.js` — constrói lote público InHire a partir da descoberta.
+- `busca_vagas/harvest_inhire_public.js` — descobre vagas públicas InHire.
+- `busca_vagas/inhire_tenants_seed.json` — sementes de empresas InHire.
+- `busca_vagas/validate_public_inhire.js` — valida lote InHire antes da publicação.
+- `docs/.refresh-fit-request` — marcador histórico de atualização solicitada; não é rotina.
+- `docs/aderencia/app.js` — interface da análise de currículo por vaga.
+- `docs/aderencia/fit-engine.js` — regras de cálculo de aderência no navegador.
+- `docs/aderencia/index.html` — página da análise de currículo.
+- `docs/aderencia/styles.css` — estilos da página de aderência.
+- `docs/app.js` — lógica da busca, filtros e cartões do portal.
+- `docs/assets/todos-os-cursos-icon.jpg` — ícone do atalho Todos os Cursos.
+- `docs/data/fit-taxonomy.json` — taxonomia pública do analisador.
+- `docs/data/greenhouse-watchlist.json` — lista pública de empresas Greenhouse acompanhadas.
+- `docs/favicon.svg` — favicon do portal.
+- `docs/filter-terms.js` — normalização e termos de filtros.
+- `docs/fit-entry.css` — estilos de entrada para o analisador.
+- `docs/fit-entry.js` — CTA/entrada do analisador no portal.
+- `docs/index.html` — estrutura da página inicial.
+- `docs/og-image.svg` — imagem social do portal.
+- `docs/redesign-grid.css` — grade responsiva do redesenho.
+- `docs/redesign.css` — estilos do redesenho.
+- `docs/robots.txt` — instruções de indexação por robôs.
+- `docs/smartrecruiters-brazil.md` — notas da coleta SmartRecruiters Brasil.
+- `docs/styles.css` — estilos gerais do portal.
+- `docs/theme.js` — comportamento de tema visual.
+
+### Núcleo da coleta e arquivos de dados
+
+- `jobs-dashboard/benchmark_solides.py` — mede o comportamento da fonte Sólides; uso diagnóstico.
+- `jobs-dashboard/catalog_catchup.py` — decide atrasos/recuperação sem sobrepor coleta ativa.
+- `jobs-dashboard/classify.py` — classificação e normalização de vagas.
+- `jobs-dashboard/data/greenhouse_br_companies.json` — empresas brasileiras descobertas no Greenhouse.
+- `jobs-dashboard/data/greenhouse_watchlist.json` — empresas Greenhouse sob acompanhamento.
+- `jobs-dashboard/data/revolut_br_seed.json` — semente de vagas brasileiras da Revolut.
+- `jobs-dashboard/description_crawler.py` — coleta separada de descrições completas para SQLite privado.
+- `jobs-dashboard/description_store.py` — persistência e estado da coleta privada.
+- `jobs-dashboard/discover_greenhouse_br.py` — descobre empresas/vagas Greenhouse no Brasil.
+- `jobs-dashboard/empregare_mcp.py` — consulta diagnóstica/manual da fonte Empregare via MCP.
+- `jobs-dashboard/fit_requirements.py` — extrai requisitos e termos do índice de aderência.
+- `jobs-dashboard/merge_dynamic_portals.py` — mescla resultados dos portais dinâmicos.
+- `jobs-dashboard/notify_telegram.py` — formata e envia notificações Telegram com deduplicação.
+- `jobs-dashboard/pipeline.py` — coordena coletores, histórico e snapshot público.
+- `jobs-dashboard/pipeline_fit.py` — gera índice auxiliar de aderência.
+- `jobs-dashboard/requirements.txt` — dependências Python da coleta e validação.
+- `jobs-dashboard/storage.py` — histórico SQLite e exportação compacta do snapshot.
+- `jobs-dashboard/validate_dynamic_portals.py` — valida seleção/resultados dos portais dinâmicos.
+- `jobs-dashboard/validate_fit.py` — valida índice de aderência antes da publicação.
+- `jobs-dashboard/validate_snapshot.py` — valida integridade e segurança do snapshot.
+
+### Fontes de vagas
+
+O registro ativo fica em `jobs-dashboard/sources/__init__.py`. Cada módulo abaixo fornece coleta de uma plataforma, de uma empresa ou de um grupo de empresas; módulos auxiliares são chamados pelos coletores, não têm agendamento próprio.
+
+- `jobs-dashboard/sources/__init__.py` — importa e registra as fontes ativas.
+- `jobs-dashboard/sources/_common.py` — utilitários comuns de normalização.
+- `jobs-dashboard/sources/_html.py` — extração/parsing HTML compartilhados.
+- `jobs-dashboard/sources/_http.py` — requisições HTTP compartilhadas.
+- `jobs-dashboard/sources/_rendered.py` — captura de páginas renderizadas.
+- `jobs-dashboard/sources/abler.py` — fontes da plataforma Abler.
+- `jobs-dashboard/sources/accenture.py` — vagas Accenture.
+- `jobs-dashboard/sources/ats_boards.py` — quadros Greenhouse, Lever e Ashby.
+- `jobs-dashboard/sources/bradesco.py` — vagas Bradesco.
+- `jobs-dashboard/sources/company_careers.py` — carreiras Stone e iFood.
+- `jobs-dashboard/sources/compleo.py` — empresas na plataforma Compleo.
+- `jobs-dashboard/sources/convagas.py` — fontes da plataforma Convagas.
+- `jobs-dashboard/sources/digisystem.py` — vagas Digisystem.
+- `jobs-dashboard/sources/eightfold.py` — fonte Vale na plataforma Eightfold.
+- `jobs-dashboard/sources/empregare.py` — vagas Empregare.
+- `jobs-dashboard/sources/experian.py` — vagas Experian.
+- `jobs-dashboard/sources/ey.py` — vagas EY.
+- `jobs-dashboard/sources/geekhunter.py` — GeekHunter e NTT Data.
+- `jobs-dashboard/sources/github_boards.py` — fontes de vagas publicadas no GitHub.
+- `jobs-dashboard/sources/gupy.py` — vagas Gupy.
+- `jobs-dashboard/sources/infojobs.py` — funções de coleta InfoJobs (fuso Brasil).
+- `jobs-dashboard/sources/inhire.py` — vagas InHire.
+- `jobs-dashboard/sources/jobii.py` — vagas Jobii.
+- `jobs-dashboard/sources/journy.py` — vagas Journy.
+- `jobs-dashboard/sources/levva.py` — vagas Levva.
+- `jobs-dashboard/sources/mercadolivre.py` — vagas Mercado Livre.
+- `jobs-dashboard/sources/nerdin.py` — vagas Nerdin.
+- `jobs-dashboard/sources/ngcash.py` — vagas NG.CASH.
+- `jobs-dashboard/sources/ntconsult.py` — vagas NTConsult/Compleo.
+- `jobs-dashboard/sources/oracle_careers.py` — empresas em Oracle Careers.
+- `jobs-dashboard/sources/pwc.py` — vagas PwC.
+- `jobs-dashboard/sources/quickin.py` — vagas na plataforma Quickin.
+- `jobs-dashboard/sources/recrut_ai.py` — empresas na plataforma Recrut.ai.
+- `jobs-dashboard/sources/recrutei.py` — vagas Recrutei.
+- `jobs-dashboard/sources/remote_boards.py` — agregadores de trabalho remoto.
+- `jobs-dashboard/sources/requested_careers.py` — empresas de carreira solicitadas individualmente.
+- `jobs-dashboard/sources/requested_portals_03092026.py` — grupo de portais incluídos em 03/09.
+- `jobs-dashboard/sources/requested_portals_16092026.py` — grupo de portais incluídos em 16/09.
+- `jobs-dashboard/sources/requested_portals_27082026.py` — grupo de portais incluídos em 27/08.
+- `jobs-dashboard/sources/requested_portals_28082026.py` — grupo de portais incluídos em 28/08.
+- `jobs-dashboard/sources/requested_portals_29082026.py` — grupo de portais incluídos em 29/08.
+- `jobs-dashboard/sources/requested_portals_aug2026.py` — demais portais solicitados em agosto.
+- `jobs-dashboard/sources/sankhya_senior.py` — vagas Sankhya e Senior.
+- `jobs-dashboard/sources/smartrecruiters_brazil.py` — empresas SmartRecruiters no Brasil.
+- `jobs-dashboard/sources/solides.py` — vagas Sólides.
+- `jobs-dashboard/sources/spassu.py` — vagas Spassu.
+- `jobs-dashboard/sources/taggui.py` — vagas Taggui RH.
+- `jobs-dashboard/sources/themuse.py` — vagas The Muse.
+- `jobs-dashboard/sources/totvs.py` — vagas TOTVS.
+- `jobs-dashboard/sources/trakstar.py` — vagas Sensedia via Trakstar.
+- `jobs-dashboard/sources/unlockcareer.py` — vagas Mavila Consulting via UnlockCareer.
+- `jobs-dashboard/sources/vagascom.py` — vagas Vagas.com.
+- `jobs-dashboard/sources/valorei.py` — vagas Valorei.
+- `jobs-dashboard/sources/wellfound.py` — vagas Wellfound.
+- `jobs-dashboard/sources/wise.py` — vagas Wise.
+- `jobs-dashboard/sources/workable.py` — vagas RecargaPay via Workable.
+- `jobs-dashboard/sources/workable_brazil.py` — busca Workable no Brasil.
+- `jobs-dashboard/sources/wwr.py` — vagas We Work Remotely.
+
+### Testes do coletor
+
+Todos os arquivos desta seção são testes automatizados; não são coletores nem devem ser agendados como fontes.
+
+- `jobs-dashboard/tests/test_abler_precision.py` — precisão Abler e formato Telegram.
+- `jobs-dashboard/tests/test_catalog_catchup.py` — decisões e falhas do recuperador.
+- `jobs-dashboard/tests/test_description_crawler.py` — extração de descrições.
+- `jobs-dashboard/tests/test_dynamic_portals.py` — contratos dos portais dinâmicos.
+- `jobs-dashboard/tests/test_eightfold.py` — fonte Eightfold.
+- `jobs-dashboard/tests/test_fit_requirements.py` — extração de requisitos.
+- `jobs-dashboard/tests/test_gupy.py` — fonte Gupy.
+- `jobs-dashboard/tests/test_homepage_cta_styles.py` — CTAs da página inicial.
+- `jobs-dashboard/tests/test_mercadolivre.py` — fonte Mercado Livre.
+- `jobs-dashboard/tests/test_merge_dynamic_portals.py` — mesclagem dinâmica.
+- `jobs-dashboard/tests/test_new_sources.py` — fontes recém-incorporadas.
+- `jobs-dashboard/tests/test_ngcash.py` — fonte NG.CASH.
+- `jobs-dashboard/tests/test_notify_telegram.py` — notificação Telegram.
+- `jobs-dashboard/tests/test_ntconsult.py` — fonte NTConsult.
+- `jobs-dashboard/tests/test_pipeline.py` — orquestração e persistência.
+- `jobs-dashboard/tests/test_portal_source_resilience.py` — isolamento de falhas de fontes.
+- `jobs-dashboard/tests/test_prepare_fit_assets.py` — preparação de ativos de aderência.
+- `jobs-dashboard/tests/test_private_descriptions.py` — banco privado de descrições.
+- `jobs-dashboard/tests/test_publication_concurrency.py` — prevenção de publicações concorrentes.
+- `jobs-dashboard/tests/test_pwc_source.py` — fonte PwC.
+- `jobs-dashboard/tests/test_quickin_pagination.py` — paginação Quickin.
+- `jobs-dashboard/tests/test_recrut_ai_sources.py` — fontes Recrut.ai.
+- `jobs-dashboard/tests/test_recrutei_current_markup.py` — HTML atual Recrutei.
+- `jobs-dashboard/tests/test_rendered_browser.py` — navegador renderizado.
+- `jobs-dashboard/tests/test_requested_portals_16092026.py` — portais do lote de 16/09.
+- `jobs-dashboard/tests/test_schedule.py` — agenda e recuperação na VPS.
+- `jobs-dashboard/tests/test_smartrecruiters_brazil.py` — fonte SmartRecruiters.
+- `jobs-dashboard/tests/test_trakstar.py` — fonte Trakstar.
+- `jobs-dashboard/tests/test_vagascom.py` — fonte Vagas.com.
+- `jobs-dashboard/tests/test_validate_dynamic_portals.py` — seleção/validação dinâmica.
+- `jobs-dashboard/tests/test_validate_snapshot.py` — integridade do snapshot.
+- `jobs-dashboard/tests/test_valorei.py` — fonte Valorei.
+
+### Operação, scripts e testes Node
+
+- `ops/OPERATIONS_CHANGELOG.md` — histórico operacional e este mapa de responsabilidades.
+- `ops/github_scheduler.py` — agendador externo da VPS, com estado de tentativas.
+- `ops/systemd/actions-runner-restart.conf` — política de reinício do runner.
+- `ops/systemd/todas-as-vagas-descriptions.service` — serviço de coleta privada de descrições.
+- `ops/systemd/todas-as-vagas-descriptions.timer` — agenda da coleta privada.
+- `ops/systemd/todas-as-vagas-github-scheduler.service` — unidade do agendador GitHub na VPS.
+- `ops/systemd/todas-as-vagas-github-scheduler.timer` — timer de verificação da agenda.
+- `tools/ensure_chromium.sh` — prepara Chromium ARM64 para a coleta.
+- `tools/excluded-terms.test.mjs` — testa exclusões dos filtros.
+- `tools/filter-state.test.mjs` — testa persistência/estado de filtros.
+- `tools/fit-engine.test.mjs` — testa o motor de aderência no navegador.
+- `tools/iniciar-preview.bat` — abre prévia local no Windows; uso manual.
+- `tools/prepare_fit_assets.py` — prepara ativos públicos do analisador.
+- `tools/preview_server.ps1` — servidor local de prévia; uso manual.
+- `tools/refresh_request.txt` — registro histórico de pedido manual de atualização.
+- `tools/update_nerdin.py` — manutenção pontual da fonte Nerdin; uso manual.
