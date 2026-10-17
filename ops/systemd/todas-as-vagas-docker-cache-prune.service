@@ -1,0 +1,9 @@
+[Unit]
+Description=Prune unused Docker builder cache older than seven days
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecCondition=/usr/bin/docker info --format={{.ServerVersion}}
+ExecStart=/usr/bin/docker builder prune --filter until=168h --force
+

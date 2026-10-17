@@ -43,9 +43,18 @@ Se houver `dispatch_unconfirmed`, verificar manualmente o run no GitHub antes de
 - O agente externo `agente-vagas-edson` falhava diariamente com HTTP 404: seu `SOURCE_URL` padrão apontava para `main/docs/data/vagas.json`, que não existe mais. O catálogo ativo está em `public-data/data/vagas.json`; a correção e o teste de regressão ficam naquele repositório.
 - Não ativar `WORKFLOW_PARA_COPIAR.yml` ou os gatilhos manuais legados só por não serem executados automaticamente. O workflow de Telegram neste repositório é operacional/manual; o envio regular pertence ao repositório dedicado. Rodá-lo automaticamente aqui pode duplicar mensagens.
 
+## 2026-10-17 — Falhas do scheduler, disco e validações
+
+- O timer `todas-as-vagas-github-scheduler.timer` está instalado como unidade de sistema e ativo. O serviço consulta o GitHub usando o token de `/home/ubuntu/.config/todas-as-vagas/github-scheduler.env`; a validação HTTP sem imprimir a credencial retornou 401. O token salvo na VPS precisa ser substituído por uma credencial válida com acesso Actions ao repositório `edsonjunioor32/todas-as-vagas`; não basta o secret correspondente existir no GitHub, pois secrets não sincronizam automaticamente para a VPS.
+- A partição raiz caiu de 90% para 87%. Foram removidos somente 63,83 MB de cache de build com mais de sete dias, o cache de pacotes apt e duas cópias incompletas de runner (587 MB cada, sem `.runner`, serviço ou processo); imagens, containers, volumes, banco privado, logs e os três runners ativos/configurados foram preservados. O limite de falha do monitor é 85%, então o alerta permanece; o próximo passo exige escolher entre remover uma imagem não referenciada de outro serviço, retirar revisões antigas de rollback ou ampliar o volume.
+- Para limitar recorrência, foram versionados `ops/systemd/todas-as-vagas-docker-cache-prune.service` e `.timer`: execução diária de `docker builder prune --filter until=168h --force`, após confirmar resposta do daemon, sem remoção de imagens, containers ou volumes. A unidade deve ser ativada na VPS após revisão/merge; ela não reduz a ocupação estrutural atual.
+- `fit-ci.yml` foi ajustado para validar a entrada pública do analisador e incluir `docs/index.html`/`docs/styles.css` nos filtros de execução. `prepare_fit_assets.py` valida semanticamente o link visível, sua rota e os ativos; três testes focados passaram.
+- `edsonjunioor32-todas-as-vagas-telegram/tests/test_sync_guard.py` foi convertida para `unittest.TestCase`, compatível com descoberta e execução direta pelo workflow; os quatro casos passaram localmente.
+- Estado: alterações de código ainda estão em branches de correção; não considerar CI/proteção implantada até os PRs serem aprovados, mesclados e verificados. A redundância VPS continuará indisponível até a credencial local ser renovada; a health check de disco continuará falhando enquanto a raiz estiver acima de 85%.
+
 ## Mapa dos arquivos rastreados
 
-Escopo: 171 arquivos da branch `main` nesta revisão (169 originais, mais `AGENTS.md` e `ops/ECOSYSTEM_MAP.md`). Cada linha registra a responsabilidade do arquivo; `manual` e `legado` não significam falha. Os arquivos das branches `public-data`/`history-data`, os repositórios dos bots, o agente e o projeto InHire separado estão inventariados no [mapa do ecossistema](ECOSYSTEM_MAP.md), que também contém a matriz de riscos e o checklist de mudanças. Cache, banco privado da VPS e arquivos ignorados não são parte desta lista de arquivos rastreados.
+Escopo: 173 arquivos rastreados da branch `main` nesta revisão, incluindo `AGENTS.md` e `ops/ECOSYSTEM_MAP.md`. Cada linha registra a responsabilidade do arquivo; `manual` e `legado` não significam falha. Os arquivos das branches `public-data`/`history-data`, os repositórios dos bots, o agente e o projeto InHire separado estão inventariados no [mapa do ecossistema](ECOSYSTEM_MAP.md), que também contém a matriz de riscos e o checklist de mudanças. Cache, banco privado da VPS e arquivos ignorados não são parte desta lista de arquivos rastreados.
 
 ### Raiz e automação GitHub
 
@@ -55,7 +64,7 @@ Escopo: 171 arquivos da branch `main` nesta revisão (169 originais, mais `AGENT
 - `.github/workflows/benchmark-solides.yml` — diagnóstico isolado da Sólides em pushes filtrados de `main` ou manualmente; não publica catálogo.
 - `.github/workflows/catalog-catchup.yml` — vigia atrasos e despacha recuperação do catálogo.
 - `.github/workflows/catalog-ci.yml` — validação sem publicação em PRs filtrados ou manualmente.
-- `.github/workflows/fit-ci.yml` — testes e preview do analisador em PRs filtrados e pushes; contém verificação de entrada oculta incompatível com a interface pública atual.
+- `.github/workflows/fit-ci.yml` — testes e preview do analisador; verifica a entrada pública e dispara quando o CTA ou estilo do portal muda.
 - `.github/workflows/mercado-livre-isolated.yml` — validação isolada do coletor Mercado Livre.
 - `.github/workflows/merge-dynamic-portals.yml` — mesclagem controlada de portais dinâmicos.
 - `.github/workflows/pages.yml` — coleta em quatro horários diários e um horário semanal Greenhouse, acionamento manual/recuperação e deploy de interface em push; push comum pode publicar apenas a interface.
@@ -203,7 +212,7 @@ Todos os arquivos desta seção são testes automatizados; não são coletores n
 - `jobs-dashboard/tests/test_ntconsult.py` — fonte NTConsult.
 - `jobs-dashboard/tests/test_pipeline.py` — orquestração e persistência.
 - `jobs-dashboard/tests/test_portal_source_resilience.py` — isolamento de falhas de fontes.
-- `jobs-dashboard/tests/test_prepare_fit_assets.py` — preparação de ativos de aderência.
+- `jobs-dashboard/tests/test_prepare_fit_assets.py` — valida o ponto público de entrada e os ativos locais do analisador.
 - `jobs-dashboard/tests/test_private_descriptions.py` — banco privado de descrições.
 - `jobs-dashboard/tests/test_publication_concurrency.py` — prevenção de publicações concorrentes.
 - `jobs-dashboard/tests/test_pwc_source.py` — fonte PwC.
@@ -230,6 +239,8 @@ Todos os arquivos desta seção são testes automatizados; não são coletores n
 - `ops/systemd/todas-as-vagas-descriptions.timer` — agenda da coleta privada.
 - `ops/systemd/todas-as-vagas-github-scheduler.service` — unidade do agendador GitHub na VPS.
 - `ops/systemd/todas-as-vagas-github-scheduler.timer` — timer de verificação da agenda.
+- `ops/systemd/todas-as-vagas-docker-cache-prune.service` — confirma a disponibilidade do daemon e limpa cache de build Docker antigo, sem tocar em imagens, containers ou volumes.
+- `ops/systemd/todas-as-vagas-docker-cache-prune.timer` — agenda diária da limpeza limitada de cache Docker.
 - `tools/ensure_chromium.sh` — prepara Chromium ARM64 para a coleta.
 - `tools/excluded-terms.test.mjs` — testa exclusões dos filtros.
 - `tools/filter-state.test.mjs` — testa persistência/estado de filtros.
