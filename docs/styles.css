@@ -1468,16 +1468,20 @@ input::placeholder {
 .company-tone-7 { background: #ec4899; }
 
 /* ==========================================================================
-   RESPONSIVIDADE
+   RESPONSIVIDADE & OTIMIZAÇÃO MOBILE DE ALTA PERFORMANCE
    ========================================================================== */
+
+html, body {
+  overflow-x: hidden;
+}
 
 @media (max-width: 1200px) {
   .hero-grid {
     grid-template-columns: 1fr;
-    gap: 32px;
+    gap: 28px;
   }
   .stats {
-    max-width: 700px;
+    max-width: 100%;
   }
   .content-grid {
     grid-template-columns: 280px minmax(0, 1fr);
@@ -1488,53 +1492,282 @@ input::placeholder {
 @media (max-width: 960px) {
   .content-grid {
     grid-template-columns: 1fr;
+    gap: 20px;
+    padding-block: 24px 48px;
   }
   .filters {
     position: static;
+    top: auto;
   }
   .filter-toggle {
     display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
   .job-list {
     grid-template-columns: 1fr;
   }
   .footer-grid {
     grid-template-columns: 1fr;
-    gap: 28px;
+    gap: 24px;
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 680px) {
   .shell {
     width: calc(100% - 24px);
   }
+
+  /* Header Mobile */
+  .header-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding-block: 10px;
+  }
+  .brand-group {
+    justify-content: space-between;
+    width: 100%;
+  }
+  .header-actions {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    gap: 8px;
+  }
+  .theme-toggle,
+  .source-link {
+    flex: 1;
+    min-height: 38px;
+    font-size: 0.78rem;
+    padding: 6px 10px;
+    justify-content: center;
+  }
+  .header-support {
+    width: 100%;
+    text-align: center;
+    padding: 8px 12px;
+  }
+
+  /* Hero Mobile */
   .hero {
-    padding: 28px 0 20px;
+    padding: 24px 0 18px;
   }
+  .hero-top {
+    gap: 16px;
+  }
+  .hero-copy-block h1 {
+    font-size: clamp(1.85rem, 7.5vw, 2.3rem);
+    line-height: 1.15;
+  }
+  .hero-copy {
+    font-size: 0.92rem;
+    line-height: 1.5;
+    margin-top: 10px;
+  }
+
+  /* Stats em 1 linha compacta no mobile */
   .stats {
-    grid-template-columns: 1fr;
-    gap: 10px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
   }
+  .stat-card {
+    padding: 10px 6px;
+    align-items: center;
+    text-align: center;
+    border-radius: var(--radius-md);
+  }
+  .stat-icon {
+    width: 28px;
+    height: 28px;
+    margin-bottom: 4px;
+  }
+  .stat-icon svg {
+    width: 15px;
+    height: 15px;
+  }
+  .stat-card dd {
+    font-size: 1.25rem;
+  }
+  .stat-card dt {
+    font-size: 0.68rem;
+    line-height: 1.2;
+    margin-top: 2px;
+  }
+
+  /* Cards de Acesso do Hero Mobile */
+  .hero-access-grid {
+    gap: 8px;
+  }
+  .hero-cta {
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--radius-md);
+  }
+  .hero-cta-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+  }
+  .hero-cta-copy strong {
+    font-size: 0.88rem;
+  }
+  .hero-cta-copy small {
+    font-size: 0.72rem;
+    line-height: 1.3;
+  }
+
+  /* Filtros Mobile Colapsáveis */
+  .filters {
+    padding: 14px;
+    border-radius: var(--radius-md);
+  }
+  .filters.is-collapsed #filtersContent {
+    display: none;
+  }
+  .filters-heading {
+    margin-bottom: 0;
+  }
+  .filters:not(.is-collapsed) .filters-heading {
+    margin-bottom: 12px;
+  }
+  .filter-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 4px 12px;
+    background: var(--brand);
+    color: #041317;
+    font-weight: 750;
+    border-radius: var(--radius-sm);
+  }
+  .filter-toggle:hover {
+    background: var(--brand-strong);
+  }
+
+  /* Toolbar de Resultados */
+  .results-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .results-toolbar h2 {
+    font-size: 1.15rem;
+  }
+  .toolbar-actions {
+    display: flex;
+    width: 100%;
+    gap: 8px;
+  }
+  .compact-field {
+    flex: 1;
+  }
+  .compact-field select {
+    width: 100%;
+    min-width: 0;
+    min-height: 42px;
+  }
+  .secondary-button {
+    min-height: 42px;
+  }
+  #downloadCsv {
+    flex-shrink: 0;
+    padding: 8px 12px;
+    font-size: 0.78rem;
+  }
+
+  /* Cards de Vagas Mobile */
   .job-card {
-    padding: 16px;
+    padding: 14px;
+    gap: 12px;
+    border-radius: var(--radius-md);
   }
   .job-card-head {
-    grid-template-columns: 46px minmax(0, 1fr);
+    grid-template-columns: 44px minmax(0, 1fr);
     gap: 10px;
   }
   .company-logo {
-    width: 46px;
-    height: 46px;
-    font-size: 1.1rem;
+    width: 44px;
+    height: 44px;
+    font-size: 1.05rem;
+    border-radius: 8px;
   }
-  .results-toolbar {
+  .job-topline h3 {
+    font-size: 0.98rem;
+    line-height: 1.3;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+  .company-name {
+    font-size: 0.82rem;
+  }
+  .company-meta {
+    font-size: 0.74rem;
+    gap: 4px 8px;
+  }
+  .tags {
+    gap: 4px;
+    margin-top: 8px;
+  }
+  .tag {
+    font-size: 0.68rem;
+    min-height: 22px;
+    padding: 2px 7px;
+  }
+  .job-footer {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
     gap: 10px;
+    margin-top: 8px;
+    padding-top: 10px;
   }
-  .toolbar-actions {
+  .job-date {
+    font-size: 0.74rem;
+    text-align: left;
+  }
+  .primary-link {
     width: 100%;
-    justify-content: space-between;
+    min-height: 42px;
+    font-size: 0.85rem;
+    justify-content: center;
+  }
+
+  /* Paginação Mobile */
+  .pagination {
+    gap: 8px;
+  }
+  .pagination button {
+    flex: 1;
+    min-height: 42px;
+  }
+  #pageLabel {
+    width: 100%;
+    text-align: center;
+    order: -1;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .hero-copy-block h1 {
+    font-size: 1.7rem;
+  }
+  .stats {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .stat-card {
+    flex-direction: row;
+    text-align: left;
+    justify-content: flex-start;
+    padding: 10px 14px;
+  }
+  .stat-icon {
+    margin-bottom: 0;
   }
 }
 
