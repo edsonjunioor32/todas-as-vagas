@@ -195,7 +195,7 @@
     if (elements.themeIcon) elements.themeIcon.textContent = dark ? '☾' : '☀';
     if (elements.themeLabel) elements.themeLabel.textContent = 'Mudar Tema';
     const themeColor = document.querySelector('meta[name="theme-color"]');
-    if (themeColor) themeColor.content = dark ? '#09090b' : '#ffffff';
+    if (themeColor) themeColor.content = dark ? '#061317' : '#ffffff';
     if (persist) {
       try {
         localStorage.setItem(THEME_KEY, selected);
@@ -1123,58 +1123,6 @@
         renderRecentCompanies();
       });
     }
-
-    document.querySelectorAll('[data-quick-workplace]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        elements.workplaceFilter.value = btn.dataset.quickWorkplace;
-        elements.filtersForm.dispatchEvent(new Event('change', { bubbles: true }));
-        elements.resultsTitle?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
-    });
-
-    document.querySelectorAll('[data-quick-search]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        elements.searchInput.value = btn.dataset.quickSearch;
-        elements.searchInput.dispatchEvent(new Event('input', { bubbles: true }));
-        elements.resultsTitle?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
-    });
-
-    document.querySelectorAll('[data-quick-pcd]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        elements.pcdOnly.checked = !elements.pcdOnly.checked;
-        elements.filtersForm.dispatchEvent(new Event('change', { bubbles: true }));
-        elements.resultsTitle?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
-    });
-
-    const copyPixBtn = document.querySelector('#copyPixBtn');
-    if (copyPixBtn) {
-      copyPixBtn.addEventListener('click', async () => {
-        const text = 'edsonjunior32@hotmail.com';
-        const label = document.querySelector('#copyPixLabel');
-        try {
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            await navigator.clipboard.writeText(text);
-          } else {
-            throw new Error('Clipboard API indisponível');
-          }
-        } catch {
-          const input = document.createElement('input');
-          input.value = text;
-          document.body.appendChild(input);
-          input.select();
-          document.execCommand('copy');
-          document.body.removeChild(input);
-        }
-        if (label) {
-          const original = label.textContent;
-          label.textContent = 'Chave copiada! ✓';
-          setTimeout(() => { label.textContent = original; }, 2200);
-        }
-      });
-    }
-
     initFilterPanel();
   }
 
