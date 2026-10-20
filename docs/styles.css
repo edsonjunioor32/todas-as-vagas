@@ -522,13 +522,13 @@ img, svg {
    CARDS DE ACESSO DO HERO (ECOSSISTEMA INTEGRADO)
    ========================================================================== */
 
-.hero-access-grid {
+.hero .hero-access-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
-.hero-cta {
+.hero .hero-access-grid > .hero-cta {
   position: relative;
   display: grid;
   grid-template-columns: 52px minmax(0, 1fr) auto;
@@ -552,7 +552,7 @@ img, svg {
   box-shadow: var(--shadow-md);
 }
 
-.hero-cta-icon {
+.hero .hero-access-grid > .hero-cta .hero-cta-icon {
   width: 52px;
   height: 52px;
   border-radius: 14px;
@@ -1599,17 +1599,17 @@ html, body {
   }
 
   /* Cards de Acesso do Hero Mobile */
-  .hero-access-grid {
+  .hero .hero-access-grid {
     grid-template-columns: 1fr;
     gap: 8px;
   }
-  .hero-cta {
+  .hero .hero-access-grid > .hero-cta {
     grid-template-columns: 44px minmax(0, 1fr) auto;
     gap: 10px;
     padding: 10px 12px;
     border-radius: var(--radius-md);
   }
-  .hero-cta-icon {
+  .hero .hero-access-grid > .hero-cta .hero-cta-icon {
     width: 44px;
     height: 44px;
     border-radius: 10px;
