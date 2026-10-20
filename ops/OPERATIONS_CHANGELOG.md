@@ -274,5 +274,6 @@ Todos os arquivos desta seção são testes automatizados; não são coletores n
 
 - Foi adicionada a rotina `jobs-dashboard/preflight_catalog.py`, com testes unitários em `jobs-dashboard/tests/test_preflight_catalog.py`. Ela valida a fotografia pública anterior antes da coleta e valida o novo snapshot antes de qualquer escrita em `history-data`, `public-data` ou no GitHub Pages.
 - O preflight bloqueia a publicação quando faltam colunas/dicionários do contrato público, há campos privados, o corte de dois meses não é `2`, o snapshot é inválido/futuro, o timestamp não avançou ou há redução insegura do volume.
+- Depois do push, o workflow compara o SHA anterior e o novo de `public-data` e confere byte a byte `data/vagas.json` e `data/fit.json` publicados. Assim, um job verde que só publique a interface não é tratado como coleta concluída.
 - O `pages.yml` continua executando a suíte completa antes da coleta e agora adiciona as duas barreiras nomeadas. Isso evita que uma execução seja considerada saudável sem produzir um snapshot novo.
 - A recuperação #914 já estava em execução durante esta alteração; nenhuma segunda coleta foi disparada. A causa do bloqueio de 18/10 foi registrada acima e permanece separada da rotina de preflight.
