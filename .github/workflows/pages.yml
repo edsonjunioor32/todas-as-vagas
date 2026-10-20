@@ -355,23 +355,6 @@ jobs:
           PREFLIGHT_MIN_ALLOWED_RATIO: "0.5"
         run: python jobs-dashboard/preflight_catalog.py --mode after-collection --snapshot docs/data/vagas.json --previous-snapshot .previous-vagas.json
 
-      - name: Confirmar publicação dos snapshots no ramo público
-        shell: bash
-        run: |
-          set -euo pipefail
-          previous_sha="$(cat .previous-public-data-sha)"
-          git fetch --depth=1 --no-tags origin +refs/heads/public-data:refs/remotes/origin/public-data
-          current_sha="$(git rev-parse origin/public-data)"
-          if [ "$current_sha" = "$previous_sha" ]; then
-            echo "ERRO: o ramo public-data não mudou após a publicação." >&2
-            exit 1
-          fi
-          git show "origin/public-data:data/vagas.json" > .published-vagas.json
-          git show "origin/public-data:data/fit.json" > .published-fit.json
-          cmp --silent docs/data/vagas.json .published-vagas.json
-          cmp --silent docs/data/fit.json .published-fit.json
-          echo "OK: public-data mudou e os snapshots publicados correspondem à execução atual."
-
       - name: Publicar banco histórico no ramo dedicado
         shell: bash
         run: |
@@ -429,6 +412,23 @@ jobs:
             git -C "$data_worktree" commit -m "Atualiza snapshots públicos"
             git -C "$data_worktree" push origin HEAD:public-data
           fi
+
+      - name: Confirmar publicação dos snapshots no ramo público
+        shell: bash
+        run: |
+          set -euo pipefail
+          previous_sha="$(cat .previous-public-data-sha)"
+          git fetch --depth=1 --no-tags origin +refs/heads/public-data:refs/remotes/origin/public-data
+          current_sha="$(git rev-parse origin/public-data)"
+          if [ "$current_sha" = "$previous_sha" ]; then
+            echo "ERRO: o ramo public-data não mudou após a publicação." >&2
+            exit 1
+          fi
+          git show "origin/public-data:data/vagas.json" > .published-vagas.json
+          git show "origin/public-data:data/fit.json" > .published-fit.json
+          cmp --silent docs/data/vagas.json .published-vagas.json
+          cmp --silent docs/data/fit.json .published-fit.json
+          echo "OK: public-data mudou e os snapshots publicados correspondem à execução atual."
 
       - name: Preservar histórico e fotografia pública
         shell: bash
