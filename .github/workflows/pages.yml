@@ -197,6 +197,8 @@ jobs:
           trap 'rm -rf -- "$previous_dir"' EXIT
           git archive origin/public-data data/vagas.json | tar -x -C "$previous_dir"
           cp "$previous_dir/data/vagas.json" .previous-vagas.json
+          git rev-parse origin/public-data > .previous-public-data-sha
+          test -s .previous-public-data-sha
           test -s .previous-vagas.json
 
       - name: Preparar Node.js
@@ -252,6 +254,12 @@ jobs:
           node --check docs/fit-entry.js
           node --input-type=module --check < docs/aderencia/fit-engine.js
           node --input-type=module --check < docs/aderencia/app.js
+
+      - name: Preflight antes da coleta
+        env:
+          PREFLIGHT_MIN_JOBS: "500"
+          PREFLIGHT_MAX_AGE_MONTHS: "2"
+        run: python jobs-dashboard/preflight_catalog.py --mode before-collection --snapshot .previous-vagas.json
 
       - name: Atualizar catálogo brasileiro da Greenhouse
         if: github.event_name == 'workflow_dispatch' || github.event.schedule == '43 7 * * 0'
@@ -339,6 +347,30 @@ jobs:
         run: |
           python jobs-dashboard/validate_snapshot.py
           python jobs-dashboard/validate_fit.py
+
+      - name: Preflight antes da publicação
+        env:
+          PREFLIGHT_MIN_JOBS: "500"
+          PREFLIGHT_MAX_AGE_MONTHS: "2"
+          PREFLIGHT_MIN_ALLOWED_RATIO: "0.5"
+        run: python jobs-dashboard/preflight_catalog.py --mode after-collection --snapshot docs/data/vagas.json --previous-snapshot .previous-vagas.json
+
+      - name: Confirmar publicação dos snapshots no ramo público
+        shell: bash
+        run: |
+          set -euo pipefail
+          previous_sha="$(cat .previous-public-data-sha)"
+          git fetch --depth=1 --no-tags origin +refs/heads/public-data:refs/remotes/origin/public-data
+          current_sha="$(git rev-parse origin/public-data)"
+          if [ "$current_sha" = "$previous_sha" ]; then
+            echo "ERRO: o ramo public-data não mudou após a publicação." >&2
+            exit 1
+          fi
+          git show "origin/public-data:data/vagas.json" > .published-vagas.json
+          git show "origin/public-data:data/fit.json" > .published-fit.json
+          cmp --silent docs/data/vagas.json .published-vagas.json
+          cmp --silent docs/data/fit.json .published-fit.json
+          echo "OK: public-data mudou e os snapshots publicados correspondem à execução atual."
 
       - name: Publicar banco histórico no ramo dedicado
         shell: bash
