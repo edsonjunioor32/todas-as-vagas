@@ -277,3 +277,7 @@ Todos os arquivos desta seção são testes automatizados; não são coletores n
 - Depois do push, o workflow compara o SHA anterior e o novo de `public-data` e confere byte a byte `data/vagas.json` e `data/fit.json` publicados. Assim, um job verde que só publique a interface não é tratado como coleta concluída.
 - O `pages.yml` continua executando a suíte completa antes da coleta e agora adiciona as duas barreiras nomeadas. Isso evita que uma execução seja considerada saudável sem produzir um snapshot novo.
 - A recuperação #914 já estava em execução durante esta alteração; nenhuma segunda coleta foi disparada. A causa do bloqueio de 18/10 foi registrada acima e permanece separada da rotina de preflight.
+
+## 2026-10-20 — Correção da ordem do gate de publicação
+
+- A confirmação de mudança do ramo `public-data` foi reposicionada para depois do passo que realiza o push dos snapshots e antes da publicação do Pages. O gate deixa de bloquear por posição e passa a validar o resultado efetivamente publicado.
