@@ -260,3 +260,12 @@ Todos os arquivos desta seção são testes automatizados; não são coletores n
 - Retenção: HUNT IT foi incluído entre os quadros públicos ativos, pois a listagem atual é a evidência de que anúncios antigos continuam abertos.
 - Validação: compilação Python, 8 testes de Recrut.ai, 35 testes de pipeline e consulta real aos dois anúncios passaram. A suíte completa executou 299 testes; 2 testes preexistentes de UnlockCareer não puderam iniciar por falta do pacote Selenium na VPS.
 - HUNT IT: a localidade pública é normalizada para cidade/UF (por exemplo, São Paulo, SP), mantendo BR no campo de país.\n
+
+
+## 2026-10-20 — Bloqueio de publicação por contrato visual do portal
+
+- As execuções [#911](https://github.com/edsonjunioor32/todas-as-vagas/actions/runs/39355084548) e [#912](https://github.com/edsonjunioor32/todas-as-vagas/actions/runs/39355174955) falharam antes da coleta. As mensagens `[compleo:mootit]` sobre `jobdetail/1` e `jobdetail/bad` são fixtures dos testes de indisponibilidade e não representam anúncios reais; os testes do adaptador Compleo passaram.
+- A causa efetiva foram duas asserções de `test_homepage_cta_styles.py`: `docs/styles.css` havia perdido o grid desktop esperado e as dimensões responsivas dos CTAs. Como `pages.yml` executa os testes antes da coleta, o passo de coleta/publicação foi pulado e o catálogo permaneceu no último snapshot válido.
+- O PR [#155](https://github.com/edsonjunioor32/todas-as-vagas/pull/155) corrigiu somente `docs/styles.css`, preservando o tratamento de falhas dos coletores. Os workflows de validação [#333](https://github.com/edsonjunioor32/todas-as-vagas/actions/runs/39432044252) e [#37](https://github.com/edsonjunioor32/todas-as-vagas/actions/runs/39432044315) passaram; o PR foi mesclado no commit `f3294b692763f73363ba2c1fd29d662f82384506`.
+- O push gerou a execução [#913](https://github.com/edsonjunioor32/todas-as-vagas/actions/runs/39432224034), que publicou apenas a interface (`atualizar-e-publicar` ficou pulado por ser evento de push). Portanto, “success” dessa execução não confirma nova coleta. Na verificação posterior, o snapshot público ainda informava `generated_at=2026-10-18T01:39:24Z`, `count=74117` e `307` fontes; aguardar/confirmar a próxima execução de coleta agendada ou de recuperação.
+- O scheduler externo da VPS continua retornando HTTP 401 ao consultar o GitHub. Nenhuma credencial, fila, banco ou unidade systemd foi alterada nesta correção; a renovação do token continua sendo uma ação operacional separada.
