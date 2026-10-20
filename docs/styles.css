@@ -522,18 +522,19 @@ img, svg {
    CARDS DE ACESSO DO HERO (ECOSSISTEMA INTEGRADO)
    ========================================================================== */
 
-.hero-access-grid {
+.hero .hero-access-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
-.hero-cta {
+.hero .hero-access-grid > .hero-cta {
   position: relative;
   display: grid;
-  grid-template-columns: 46px minmax(0, 1fr) auto;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
   align-items: center;
   gap: 13px;
+  min-height: 82px;
   padding: 14px 16px;
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
@@ -551,10 +552,10 @@ img, svg {
   box-shadow: var(--shadow-md);
 }
 
-.hero-cta-icon {
-  width: 46px;
-  height: 46px;
-  border-radius: 12px;
+.hero .hero-access-grid > .hero-cta .hero-cta-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
   display: grid;
   place-items: center;
   overflow: hidden;
@@ -1598,18 +1599,19 @@ html, body {
   }
 
   /* Cards de Acesso do Hero Mobile */
-  .hero-access-grid {
+  .hero .hero-access-grid {
+    grid-template-columns: 1fr;
     gap: 8px;
   }
-  .hero-cta {
-    grid-template-columns: 40px minmax(0, 1fr) auto;
+  .hero .hero-access-grid > .hero-cta {
+    grid-template-columns: 44px minmax(0, 1fr) auto;
     gap: 10px;
     padding: 10px 12px;
     border-radius: var(--radius-md);
   }
-  .hero-cta-icon {
-    width: 40px;
-    height: 40px;
+  .hero .hero-access-grid > .hero-cta .hero-cta-icon {
+    width: 44px;
+    height: 44px;
     border-radius: 10px;
   }
   .hero-cta-copy strong {
