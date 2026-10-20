@@ -281,3 +281,11 @@ Todos os arquivos desta seção são testes automatizados; não são coletores n
 ## 2026-10-20 — Correção da ordem do gate de publicação
 
 - A confirmação de mudança do ramo `public-data` foi reposicionada para depois do passo que realiza o push dos snapshots e antes da publicação do Pages. O gate deixa de bloquear por posição e passa a validar o resultado efetivamente publicado.
+
+## 2026-10-20 — Recuperação da atualização interrompida desde 18/10
+
+- A execução de recuperação [#914](https://github.com/edsonjunioor32/todas-as-vagas/actions/runs/39432328558) terminou com sucesso em 46m04s. A coleta completa foi executada no runner `serverall-vagas`; não houve segunda coleta concorrente.
+- O ramo `public-data` foi atualizado no commit `174db59ef3e131b072091652f33cbdd6af6aae9d`, às 14:25 UTC. O portal confirmou: `Atualizado em 20/10/2026, 11:24`, 63.342 vagas e 308 portais.
+- A execução registrou falhas parciais em fontes; o portal exibiu 16 fontes sem resposta e aplicou a retenção operacional de até três dias. O snapshot passou a ser público após a validação estrutural e de volume.
+- A rotina de preflight foi entregue pelos PRs [#157](https://github.com/edsonjunioor32/todas-as-vagas/pull/157) e [#158](https://github.com/edsonjunioor32/todas-as-vagas/pull/158), nos commits `d1d0f059` e `5fc21684`. Os checks de catálogo e analisador passaram antes dos merges.
+- O recuperador externo da VPS continua com HTTP 401 por credencial inválida. Ele é redundante em relação à agenda do GitHub e não foi alterado nesta ocorrência para não substituir segredo sem uma credencial válida; a pendência fica registrada para renovação operacional separada.
