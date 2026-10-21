@@ -492,6 +492,10 @@
     "tenantName": "ClickBus"
   },
   {
+    "slug": "clubecandeias",
+    "tenantName": "clubecandeias"
+  },
+  {
     "slug": "coaktion",
     "tenantName": "coaktion"
   },
@@ -1086,6 +1090,10 @@
   {
     "slug": "holy-learning",
     "tenantName": "holy-learning"
+  },
+  {
+    "slug": "hunterstackio",
+    "tenantName": "hunterstackio"
   },
   {
     "slug": "icatu",
@@ -2164,6 +2172,10 @@
     "tenantName": "Venturus"
   },
   {
+    "slug": "vericode",
+    "tenantName": "vericode"
+  },
+  {
     "slug": "verticalrh",
     "tenantName": "VerticalRH"
   },
@@ -2258,6 +2270,10 @@
   {
     "slug": "wellz",
     "tenantName": "Wellz by Wellhub"
+  },
+  {
+    "slug": "weme",
+    "tenantName": "weme"
   },
   {
     "slug": "westwing",
