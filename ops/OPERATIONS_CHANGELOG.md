@@ -296,3 +296,9 @@ Todos os arquivos desta seção são testes automatizados; não são coletores n
 - O PR [#163](https://github.com/edsonjunioor32/todas-as-vagas/pull/163) congelou a data nesses testes; os três checks do PR passaram e a correção foi mesclada no commit 2c53c05e4991969c92d435b19ce0b975b84d189a.
 - Também foi criado o marcador explícito [catalog-refresh]: ele aciona coleta real no pages.yml, enquanto pushes comuns continuam apenas publicando a interface. Isso evita que uma recuperação seja confundida com simples republicação do snapshot anterior.
 - A atualização acionada pela mesclagem concluiu a publicação da interface, mas a coleta real será executada pelo commit de recuperação com esse marcador, após o novo gate ser incorporado.
+
+## 2026-10-27 — Monitor passa a reconhecer recuperações controladas
+
+- O marcador `[catalog-refresh]` foi adicionado ao `pages.yml`, mas o monitor `catalog_catchup.py` ainda classificava apenas `[refresh-fit]` como coleta em eventos `push`.
+- Essa divergência podia gerar uma recuperação duplicada depois de uma coleta marcada. O monitor agora reconhece os dois marcadores e possui testes que confirmam que uma recuperação bem-sucedida satisfaz o slot.
+- A correção foi preparada no PR de prevenção correspondente e será validada antes da mesclagem.

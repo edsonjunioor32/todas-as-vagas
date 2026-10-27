@@ -108,6 +108,26 @@ class CatalogCatchupTests(unittest.TestCase):
         }))
 
 
+    def test_controlled_catalog_refresh_push_counts_as_a_catalog_run(self):
+        self.assertTrue(catalog_catchup.is_collection_run({
+            "event": "push",
+            "head_commit": {"message": "fix(ci): recovery [catalog-refresh]"},
+        }))
+
+    def test_successful_controlled_refresh_satisfies_the_slot(self):
+        now = datetime(2026, 9, 24, 12, 0, tzinfo=timezone.utc)
+        runs = [{
+            "id": 999,
+            "event": "push",
+            "status": "completed",
+            "conclusion": "success",
+            "created_at": "2026-09-24T11:45:00Z",
+            "head_commit": {"message": "fix(ci): recovery [catalog-refresh]"},
+        }]
+        result = catalog_catchup.decide(now, runs)
+        self.assertEqual(result["action"], "skip")
+        self.assertEqual(result["reason"], "slot_succeeded")
+
     def test_alerts_when_a_collection_is_queued_too_long_without_duplicating_it(self):
         now = datetime(2026, 9, 24, 12, 0, tzinfo=timezone.utc)
         runs = [{
