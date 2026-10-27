@@ -289,3 +289,10 @@ Todos os arquivos desta seção são testes automatizados; não são coletores n
 - A execução registrou falhas parciais em fontes; o portal exibiu 16 fontes sem resposta e aplicou a retenção operacional de até três dias. O snapshot passou a ser público após a validação estrutural e de volume.
 - A rotina de preflight foi entregue pelos PRs [#157](https://github.com/edsonjunioor32/todas-as-vagas/pull/157) e [#158](https://github.com/edsonjunioor32/todas-as-vagas/pull/158), nos commits `d1d0f059` e `5fc21684`. Os checks de catálogo e analisador passaram antes dos merges.
 - O recuperador externo da VPS continua com HTTP 401 por credencial inválida. Ele é redundante em relação à agenda do GitHub e não foi alterado nesta ocorrência para não substituir segredo sem uma credencial válida; a pendência fica registrada para renovação operacional separada.
+
+## 2026-10-27 — Correção definitiva do bloqueio de atualização
+
+- A coleta de 27/10 foi bloqueada antes do primeiro portal porque dois testes dependiam da data corrente: os fixtures de 25/08/2026 deixaram de caber na retenção de dois meses após a virada do dia. A mesma revisão havia passado na execução anterior.
+- O PR [#163](https://github.com/edsonjunioor32/todas-as-vagas/pull/163) congelou a data nesses testes; os três checks do PR passaram e a correção foi mesclada no commit 2c53c05e4991969c92d435b19ce0b975b84d189a.
+- Também foi criado o marcador explícito [catalog-refresh]: ele aciona coleta real no pages.yml, enquanto pushes comuns continuam apenas publicando a interface. Isso evita que uma recuperação seja confundida com simples republicação do snapshot anterior.
+- A atualização acionada pela mesclagem concluiu a publicação da interface, mas a coleta real será executada pelo commit de recuperação com esse marcador, após o novo gate ser incorporado.
