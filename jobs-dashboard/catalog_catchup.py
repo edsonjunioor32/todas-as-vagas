@@ -65,7 +65,7 @@ def is_collection_run(run: dict) -> bool:
         return True
     if event == "push":
         message = str((run.get("head_commit") or {}).get("message") or "")
-        return any(marker in message for marker in ("[refresh-fit]", "[catalog-refresh]"))
+        return any(marker in message for marker in ("[refresh-fit]", "[catalog-refresh:run]"))
     return False
 
 
