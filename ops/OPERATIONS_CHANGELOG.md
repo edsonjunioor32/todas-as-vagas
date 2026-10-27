@@ -302,3 +302,9 @@ Todos os arquivos desta seção são testes automatizados; não são coletores n
 - O marcador `[catalog-refresh]` foi adicionado ao `pages.yml`, mas o monitor `catalog_catchup.py` ainda classificava apenas `[refresh-fit]` como coleta em eventos `push`.
 - Essa divergência podia gerar uma recuperação duplicada depois de uma coleta marcada. O monitor agora reconhece os dois marcadores e possui testes que confirmam que uma recuperação bem-sucedida satisfaz o slot.
 - A correção foi preparada no PR de prevenção correspondente e será validada antes da mesclagem.
+
+## 2026-10-27 — Marcador de recuperação tornado explícito
+
+- O monitor e o workflow passaram a aceitar somente `[catalog-refresh:run]` para uma coleta acionada por push.
+- O texto genérico `[catalog-refresh]` não aciona mais coleta, evitando que mensagens de changelog ou commits de manutenção gerem uma execução extra.
+- Foi adicionado teste negativo para garantir que texto não marcado não seja classificado como coleta.
