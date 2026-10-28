@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-28T11:33:43.893922+00:00",
+  "generated_at": "2026-10-28T14:33:59.960265+00:00",
   "candidate_count": 8331,
   "company_count": 200,
   "companies": [
@@ -27,12 +27,12 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 82
+      "brazil_jobs": 92
     },
     {
       "board": "agilize",
       "company": "Agilize",
-      "brazil_jobs": 7
+      "brazil_jobs": 4
     },
     {
       "board": "airbnb",
@@ -362,12 +362,12 @@
     {
       "board": "externaljobboards",
       "company": "Exadel",
-      "brazil_jobs": 16
+      "brazil_jobs": 14
     },
     {
       "board": "exadelinc",
       "company": "Exadel Inc (Website)",
-      "brazil_jobs": 18
+      "brazil_jobs": 15
     },
     {
       "board": "fanaticscollectibles",
@@ -382,7 +382,7 @@
     {
       "board": "feverup",
       "company": "FeverUp",
-      "brazil_jobs": 19
+      "brazil_jobs": 18
     },
     {
       "board": "figma",
@@ -447,7 +447,7 @@
     {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 88
+      "brazil_jobs": 87
     },
     {
       "board": "harnessinc",
@@ -457,7 +457,7 @@
     {
       "board": "hotmartcareersbr",
       "company": "Hotmart",
-      "brazil_jobs": 16
+      "brazil_jobs": 17
     },
     {
       "board": "housebuyersofamerica",
@@ -507,7 +507,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 146
+      "brazil_jobs": 147
     },
     {
       "board": "interbrand",
@@ -517,11 +517,6 @@
     {
       "board": "invgate",
       "company": "InvGate",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "invisibletech",
-      "company": "Invisible Technologies",
       "brazil_jobs": 1
     },
     {
@@ -570,6 +565,11 @@
       "brazil_jobs": 8
     },
     {
+      "board": "mindbody",
+      "company": "Mindbody",
+      "brazil_jobs": 1
+    },
+    {
       "board": "realtimeboardglobal",
       "company": "Miro",
       "brazil_jobs": 1
@@ -582,7 +582,7 @@
     {
       "board": "monks",
       "company": "Monks",
-      "brazil_jobs": 44
+      "brazil_jobs": 45
     },
     {
       "board": "monumentsoftwareinc",
@@ -707,7 +707,7 @@
     {
       "board": "platformscience",
       "company": "Platform Science",
-      "brazil_jobs": 13
+      "brazil_jobs": 12
     },
     {
       "board": "sonyinteractiveentertainmentglobal",
@@ -842,7 +842,7 @@
     {
       "board": "sumup",
       "company": "SumUp",
-      "brazil_jobs": 32
+      "brazil_jobs": 33
     },
     {
       "board": "syndigo",
@@ -952,7 +952,7 @@
     {
       "board": "vmlenterprisesolutions",
       "company": "VML/WPP Enterprise Solutions",
-      "brazil_jobs": 37
+      "brazil_jobs": 36
     },
     {
       "board": "vtex",
@@ -962,7 +962,7 @@
     {
       "board": "gympass",
       "company": "Wellhub",
-      "brazil_jobs": 44
+      "brazil_jobs": 41
     },
     {
       "board": "wildlifestudios",
@@ -992,7 +992,7 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 119
+      "brazil_jobs": 118
     },
     {
       "board": "xpengmotors",
