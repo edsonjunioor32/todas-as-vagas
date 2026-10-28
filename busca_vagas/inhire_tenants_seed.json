@@ -684,6 +684,10 @@
     "tenantName": "Eclipseworks"
   },
   {
+    "slug": "ecoagro",
+    "tenantName": "ecoagro"
+  },
+  {
     "slug": "ecommit",
     "tenantName": "ecommit"
   },
@@ -1824,6 +1828,10 @@
     "tenantName": "Conta Simples - RPO"
   },
   {
+    "slug": "rpo-deloitte",
+    "tenantName": "rpo-deloitte"
+  },
+  {
     "slug": "rpo-olist",
     "tenantName": "Olist"
   },
@@ -2084,6 +2092,10 @@
     "tenantName": "Tray"
   },
   {
+    "slug": "trescal",
+    "tenantName": "trescal"
+  },
+  {
     "slug": "trinca",
     "tenantName": "Trinca"
   },
@@ -2118,6 +2130,10 @@
   {
     "slug": "unimar",
     "tenantName": "Unimar"
+  },
+  {
+    "slug": "unimedvr",
+    "tenantName": "unimedvr"
   },
   {
     "slug": "uninter",
