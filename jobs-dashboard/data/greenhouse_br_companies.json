@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-28T23:33:15.001496+00:00",
+  "generated_at": "2026-10-29T11:33:13.313453+00:00",
   "candidate_count": 8331,
-  "company_count": 199,
+  "company_count": 201,
   "companies": [
     {
       "board": "abinbev",
@@ -27,7 +27,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 91
+      "brazil_jobs": 90
     },
     {
       "board": "agilize",
@@ -38,6 +38,11 @@
       "board": "airbnb",
       "company": "Airbnb",
       "brazil_jobs": 10
+    },
+    {
+      "board": "akidolabs",
+      "company": "Akido",
+      "brazil_jobs": 1
     },
     {
       "board": "alphasights",
@@ -382,7 +387,7 @@
     {
       "board": "figma",
       "company": "Figma",
-      "brazil_jobs": 3
+      "brazil_jobs": 2
     },
     {
       "board": "figureai",
@@ -745,6 +750,11 @@
       "brazil_jobs": 4
     },
     {
+      "board": "thoughtworksreferral",
+      "company": "Referrals Only",
+      "brazil_jobs": 1
+    },
+    {
       "board": "ripple",
       "company": "Ripple",
       "brazil_jobs": 3
@@ -782,7 +792,7 @@
     {
       "board": "sezzle",
       "company": "Sezzle",
-      "brazil_jobs": 33
+      "brazil_jobs": 35
     },
     {
       "board": "shifttechnology",
@@ -882,7 +892,7 @@
     {
       "board": "thoughtworks",
       "company": "Thoughtworks",
-      "brazil_jobs": 2
+      "brazil_jobs": 1
     },
     {
       "board": "thunes",
