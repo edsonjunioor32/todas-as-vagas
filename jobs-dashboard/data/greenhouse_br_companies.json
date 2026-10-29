@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-28T18:33:29.074745+00:00",
+  "generated_at": "2026-10-28T23:33:15.001496+00:00",
   "candidate_count": 8331,
-  "company_count": 201,
+  "company_count": 199,
   "companies": [
     {
       "board": "abinbev",
       "company": "AB InBev  | Growth Group",
-      "brazil_jobs": 46
+      "brazil_jobs": 45
     },
     {
       "board": "addepar1",
@@ -27,7 +27,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 92
+      "brazil_jobs": 91
     },
     {
       "board": "agilize",
@@ -37,7 +37,7 @@
     {
       "board": "airbnb",
       "company": "Airbnb",
-      "brazil_jobs": 11
+      "brazil_jobs": 10
     },
     {
       "board": "alphasights",
@@ -72,7 +72,7 @@
     {
       "board": "arcoeducacao",
       "company": "Arco Educação",
-      "brazil_jobs": 41
+      "brazil_jobs": 43
     },
     {
       "board": "arctouch",
@@ -120,11 +120,6 @@
       "brazil_jobs": 2
     },
     {
-      "board": "blab",
-      "company": "B Lab",
-      "brazil_jobs": 1
-    },
-    {
       "board": "b12",
       "company": "B12",
       "brazil_jobs": 1
@@ -132,12 +127,12 @@
     {
       "board": "bancopan",
       "company": "Banco PAN",
-      "brazil_jobs": 13
+      "brazil_jobs": 12
     },
     {
       "board": "bees",
       "company": "BEES",
-      "brazil_jobs": 55
+      "brazil_jobs": 54
     },
     {
       "board": "blip-global",
@@ -187,7 +182,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 159
+      "brazil_jobs": 157
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -197,7 +192,7 @@
     {
       "board": "capco",
       "company": "Capco",
-      "brazil_jobs": 127
+      "brazil_jobs": 129
     },
     {
       "board": "careaccess",
@@ -222,12 +217,12 @@
     {
       "board": "caylent",
       "company": "Caylent",
-      "brazil_jobs": 15
+      "brazil_jobs": 16
     },
     {
       "board": "chainguard",
       "company": "Chainguard",
-      "brazil_jobs": 2
+      "brazil_jobs": 4
     },
     {
       "board": "cision",
@@ -447,7 +442,7 @@
     {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 89
+      "brazil_jobs": 85
     },
     {
       "board": "harnessinc",
@@ -457,7 +452,7 @@
     {
       "board": "hotmartcareersbr",
       "company": "Hotmart",
-      "brazil_jobs": 18
+      "brazil_jobs": 20
     },
     {
       "board": "housebuyersofamerica",
@@ -467,7 +462,7 @@
     {
       "board": "housecall",
       "company": "Housecall Pro",
-      "brazil_jobs": 7
+      "brazil_jobs": 9
     },
     {
       "board": "hubspotjobs",
@@ -507,7 +502,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 146
+      "brazil_jobs": 145
     },
     {
       "board": "interbrand",
@@ -742,7 +737,7 @@
     {
       "board": "rdstation",
       "company": "RD Station",
-      "brazil_jobs": 10
+      "brazil_jobs": 9
     },
     {
       "board": "rdsourcing",
@@ -753,11 +748,6 @@
       "board": "ripple",
       "company": "Ripple",
       "brazil_jobs": 3
-    },
-    {
-      "board": "riskified",
-      "company": "Riskified",
-      "brazil_jobs": 1
     },
     {
       "board": "roblox",
@@ -827,7 +817,7 @@
     {
       "board": "stonepatrocina",
       "company": "Stone - Indeed",
-      "brazil_jobs": 236
+      "brazil_jobs": 238
     },
     {
       "board": "stripe",
@@ -842,7 +832,7 @@
     {
       "board": "sumup",
       "company": "SumUp",
-      "brazil_jobs": 33
+      "brazil_jobs": 40
     },
     {
       "board": "syndigo",
@@ -952,17 +942,17 @@
     {
       "board": "wundermanthompson",
       "company": "VML",
-      "brazil_jobs": 31
+      "brazil_jobs": 29
     },
     {
       "board": "vmlenterprisesolutions",
       "company": "VML/WPP Enterprise Solutions",
-      "brazil_jobs": 36
+      "brazil_jobs": 33
     },
     {
       "board": "vtex",
       "company": "VTEX",
-      "brazil_jobs": 21
+      "brazil_jobs": 19
     },
     {
       "board": "gympass",
@@ -1007,7 +997,7 @@
     {
       "board": "ilia",
       "company": "ília",
-      "brazil_jobs": 20
+      "brazil_jobs": 21
     }
   ]
 }
