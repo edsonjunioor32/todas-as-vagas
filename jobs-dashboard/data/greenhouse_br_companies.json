@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-29T11:33:13.313453+00:00",
+  "generated_at": "2026-10-29T14:33:30.286088+00:00",
   "candidate_count": 8331,
   "company_count": 201,
   "companies": [
@@ -27,7 +27,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 90
+      "brazil_jobs": 83
     },
     {
       "board": "agilize",
@@ -77,7 +77,7 @@
     {
       "board": "arcoeducacao",
       "company": "Arco Educação",
-      "brazil_jobs": 43
+      "brazil_jobs": 44
     },
     {
       "board": "arctouch",
@@ -187,7 +187,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 157
+      "brazil_jobs": 155
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -317,7 +317,7 @@
     {
       "board": "ebury",
       "company": "Ebury",
-      "brazil_jobs": 5
+      "brazil_jobs": 7
     },
     {
       "board": "elastic",
@@ -327,12 +327,12 @@
     {
       "board": "encora10",
       "company": "Encora",
-      "brazil_jobs": 18
+      "brazil_jobs": 16
     },
     {
       "board": "enforce",
       "company": "Enforce",
-      "brazil_jobs": 11
+      "brazil_jobs": 10
     },
     {
       "board": "enova",
@@ -362,7 +362,7 @@
     {
       "board": "externaljobboards",
       "company": "Exadel",
-      "brazil_jobs": 14
+      "brazil_jobs": 15
     },
     {
       "board": "exadelinc",
@@ -722,7 +722,7 @@
     {
       "board": "powerdigitalmarketing",
       "company": "Power Digital",
-      "brazil_jobs": 48
+      "brazil_jobs": 49
     },
     {
       "board": "pfm",
@@ -812,7 +812,7 @@
     {
       "board": "sohohouseco",
       "company": "Soho House & Co.",
-      "brazil_jobs": 10
+      "brazil_jobs": 9
     },
     {
       "board": "spacexglobal",
@@ -827,7 +827,7 @@
     {
       "board": "stonepatrocina",
       "company": "Stone - Indeed",
-      "brazil_jobs": 238
+      "brazil_jobs": 234
     },
     {
       "board": "stripe",
@@ -932,7 +932,7 @@
     {
       "board": "valtech",
       "company": "Valtech",
-      "brazil_jobs": 8
+      "brazil_jobs": 6
     },
     {
       "board": "vectranetworks",
@@ -957,7 +957,7 @@
     {
       "board": "vmlenterprisesolutions",
       "company": "VML/WPP Enterprise Solutions",
-      "brazil_jobs": 33
+      "brazil_jobs": 34
     },
     {
       "board": "vtex",
@@ -992,7 +992,7 @@
     {
       "board": "wppmedia",
       "company": "WPP Media",
-      "brazil_jobs": 48
+      "brazil_jobs": 49
     },
     {
       "board": "xpinc",
