@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-30T14:32:54.681079+00:00",
+  "generated_at": "2026-10-30T18:33:54.012398+00:00",
   "candidate_count": 8331,
-  "company_count": 200,
+  "company_count": 199,
   "companies": [
     {
       "board": "abinbev",
@@ -102,7 +102,7 @@
     {
       "board": "assessoriadeinvestimentosxp",
       "company": "Assessoria de Investimentos - XP Inc.",
-      "brazil_jobs": 19
+      "brazil_jobs": 20
     },
     {
       "board": "atolls",
@@ -117,7 +117,7 @@
     {
       "board": "axicom",
       "company": "Axicom",
-      "brazil_jobs": 2
+      "brazil_jobs": 1
     },
     {
       "board": "axon",
@@ -142,7 +142,7 @@
     {
       "board": "blip-global",
       "company": "Blip Global",
-      "brazil_jobs": 12
+      "brazil_jobs": 11
     },
     {
       "board": "boldmetrics",
@@ -192,7 +192,7 @@
     {
       "board": "candidaturasdirecionadasxpinc",
       "company": "Candidaturas Direcionadas",
-      "brazil_jobs": 14
+      "brazil_jobs": 15
     },
     {
       "board": "capco",
@@ -312,7 +312,7 @@
     {
       "board": "ebanx",
       "company": "EBANX",
-      "brazil_jobs": 25
+      "brazil_jobs": 26
     },
     {
       "board": "ebury",
@@ -397,7 +397,7 @@
     {
       "board": "firstglobalmanagementservicesinc",
       "company": "First Global Management Services, Inc.",
-      "brazil_jobs": 6
+      "brazil_jobs": 5
     },
     {
       "board": "flexport",
@@ -440,6 +440,11 @@
       "brazil_jobs": 1
     },
     {
+      "board": "globalenergyallianceforpeopleandplanetgeappllc",
+      "company": "Global Energy Alliance for People and Planet (Global Energy Alliance) LLC",
+      "brazil_jobs": 1
+    },
+    {
       "board": "globalli",
       "company": "Globalli",
       "brazil_jobs": 5
@@ -447,7 +452,7 @@
     {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 83
+      "brazil_jobs": 82
     },
     {
       "board": "harnessinc",
@@ -457,7 +462,7 @@
     {
       "board": "hotmartcareersbr",
       "company": "Hotmart",
-      "brazil_jobs": 21
+      "brazil_jobs": 19
     },
     {
       "board": "housebuyersofamerica",
@@ -485,11 +490,6 @@
       "brazil_jobs": 1
     },
     {
-      "board": "indicacoesifoodinterno",
-      "company": "iFood Indicações",
-      "brazil_jobs": 1
-    },
-    {
       "board": "impinjexternal",
       "company": "Impinj",
       "brazil_jobs": 1
@@ -512,7 +512,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 136
+      "brazil_jobs": 139
     },
     {
       "board": "interbrand",
@@ -787,7 +787,7 @@
     {
       "board": "sezzle",
       "company": "Sezzle",
-      "brazil_jobs": 35
+      "brazil_jobs": 34
     },
     {
       "board": "shifttechnology",
@@ -822,7 +822,7 @@
     {
       "board": "stonepatrocina",
       "company": "Stone - Indeed",
-      "brazil_jobs": 231
+      "brazil_jobs": 232
     },
     {
       "board": "stripe",
@@ -925,11 +925,6 @@
       "brazil_jobs": 1
     },
     {
-      "board": "valtech",
-      "company": "Valtech",
-      "brazil_jobs": 7
-    },
-    {
       "board": "vectranetworks",
       "company": "Vectra",
       "brazil_jobs": 1
@@ -962,7 +957,7 @@
     {
       "board": "gympass",
       "company": "Wellhub",
-      "brazil_jobs": 44
+      "brazil_jobs": 45
     },
     {
       "board": "wildlifestudios",
@@ -987,7 +982,7 @@
     {
       "board": "wppmedia",
       "company": "WPP Media",
-      "brazil_jobs": 45
+      "brazil_jobs": 44
     },
     {
       "board": "xpinc",
