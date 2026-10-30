@@ -1,5 +1,12 @@
 # Histórico operacional e mapa de responsabilidades
 
+## 2026-10-29 — Inclusão do portal Gateware
+
+- O portal público da Gateware aponta para a página de carreiras `https://gateware.gupy.io/`.
+- A fonte Gupy agora monitora essa página além da busca pública ampla, garantindo que as vagas da Gateware sejam coletadas mesmo quando não aparecem no limite da busca geral.
+- A coleta continua sem login e sem chave privada; o contrato existente do coletor Gupy e a validação pública das vagas permanecem aplicáveis.
+
+
 Este registro complementa o README. Atualize-o quando mudar agenda, recuperadores ou publicação.
 
 ## Componentes
