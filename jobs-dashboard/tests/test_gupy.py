@@ -190,5 +190,12 @@ class GupyEligibilityTests(unittest.TestCase):
         self.assertEqual(gupy.GupyMCPClient._retry_delay(502, "", 2), 1)
 
 
+    def test_gateware_is_monitored_as_a_public_gupy_career_page(self):
+        self.assertIn(
+            "https://gateware.gupy.io/",
+            gupy.MONITORED_CAREER_PAGES,
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
