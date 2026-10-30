@@ -40,6 +40,7 @@ MCP_PAGE_DELAY_SECONDS = 0.25
 MONITORED_CAREER_PAGES = (
     "https://voxtecnologia.gupy.io/",
     "https://creditas.gupy.io/",
+    "https://gateware.gupy.io/",
 )
 NEXT_DATA_RE = re.compile(
     r'<script[^>]+id="__NEXT_DATA__"[^>]*>(.*?)</script>',
