@@ -7,6 +7,7 @@
 - O workflow agora usa 720 horas (30 dias), recusa snapshots vazios e valida o arquivo antes de gravá-lo. O commit recebe `[linkedin-refresh]`, marcador reconhecido pelo `pages.yml` para executar a rotina principal completa: histórico, deduplicação, validações, `public-data` e GitHub Pages.
 - O snapshot é mantido como entrada intermediária pública, mas a fonte efetiva do portal é o mesmo pipeline das demais origens. Se a coleta falhar, estiver vazia ou ficar desatualizada, ela não sobrescreve o último resultado válido e não bloqueia as outras fontes.
 - A rotina continua sem serviço pago, sem login, cookies ou segredo do LinkedIn. A verificação automatizada do adaptador cobre janela, país, Easy Apply, normalização e expiração do snapshot.
+- O PR [#170](https://github.com/edsonjunioor32/todas-as-vagas/pull/170) foi mesclado no commit `206ad05fd778b8279c3f5a1f3172e7e5d02768d3`. A verificação integrada [#41227356272](https://github.com/edsonjunioor32/todas-as-vagas/actions/runs/41227356272) terminou com sucesso: o LinkedIn entrou com **76 vagas** após a validação de 30 dias, o catálogo consolidou **82.262 vagas** e o ramo `public-data` avançou para `ca2c673`. Os gates de privacidade, preflight, histórico e GitHub Pages passaram.
 
 ## 2026-10-29 — Inclusão do portal Gateware
 
