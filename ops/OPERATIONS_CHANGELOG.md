@@ -1,5 +1,13 @@
 # Histórico operacional e mapa de responsabilidades
 
+## 2026-10-31 — LinkedIn incorporado ao catálogo principal
+
+- A execução isolada [#41215702332](https://github.com/edsonjunioor32/todas-as-vagas/actions/runs/41215702332) concluiu com sucesso e coletou 79 vagas públicas com Candidatura Simplificada. A execução anterior usava a janela de 60 dias e publicava somente `docs/data/linkedin_vagas.json`; portanto, esse sucesso não significava alimentação do portal.
+- O novo adaptador `jobs-dashboard/sources/linkedin.py` valida schema, origem, Easy Apply, link oficial `linkedin.com/jobs/view/<id>`, localidade brasileira, data máxima de 30 dias e frescor do snapshot. Vagas inválidas, antigas, fora do Brasil ou sem candidatura simplificada são descartadas; descrições não são copiadas.
+- O workflow agora usa 720 horas (30 dias), recusa snapshots vazios e valida o arquivo antes de gravá-lo. O commit recebe `[linkedin-refresh]`, marcador reconhecido pelo `pages.yml` para executar a rotina principal completa: histórico, deduplicação, validações, `public-data` e GitHub Pages.
+- O snapshot é mantido como entrada intermediária pública, mas a fonte efetiva do portal é o mesmo pipeline das demais origens. Se a coleta falhar, estiver vazia ou ficar desatualizada, ela não sobrescreve o último resultado válido e não bloqueia as outras fontes.
+- A rotina continua sem serviço pago, sem login, cookies ou segredo do LinkedIn. A verificação automatizada do adaptador cobre janela, país, Easy Apply, normalização e expiração do snapshot.
+
 ## 2026-10-29 — Inclusão do portal Gateware
 
 - O portal público da Gateware aponta para a página de carreiras `https://gateware.gupy.io/`.
@@ -72,6 +80,7 @@ Escopo: 173 arquivos rastreados da branch `main` nesta revisão, incluindo `AGEN
 - `.github/workflows/catalog-catchup.yml` — vigia atrasos e despacha recuperação do catálogo.
 - `.github/workflows/catalog-ci.yml` — validação sem publicação em PRs filtrados ou manualmente.
 - `.github/workflows/fit-ci.yml` — testes e preview do analisador; verifica a entrada pública e dispara quando o CTA ou estilo do portal muda.
+- `.github/workflows/linkedin-jobs.yml` — coleta diária pública do LinkedIn Easy Apply e validação do snapshot intermediário.
 - `.github/workflows/mercado-livre-isolated.yml` — validação isolada do coletor Mercado Livre.
 - `.github/workflows/merge-dynamic-portals.yml` — mesclagem controlada de portais dinâmicos.
 - `.github/workflows/pages.yml` — coleta em quatro horários diários e um horário semanal Greenhouse, acionamento manual/recuperação e deploy de interface em push; push comum pode publicar apenas a interface.
@@ -165,6 +174,7 @@ O registro de adaptadores fica em `jobs-dashboard/sources/__init__.py`. Cada mó
 - `jobs-dashboard/sources/jobii.py` — vagas Jobii.
 - `jobs-dashboard/sources/journy.py` — vagas Journy.
 - `jobs-dashboard/sources/levva.py` — vagas Levva.
+- `jobs-dashboard/sources/linkedin.py` — valida e adapta o snapshot público do LinkedIn para o pipeline principal.
 - `jobs-dashboard/sources/mercadolivre.py` — vagas Mercado Livre.
 - `jobs-dashboard/sources/nerdin.py` — vagas Nerdin.
 - `jobs-dashboard/sources/ngcash.py` — vagas NG.CASH.
@@ -211,6 +221,7 @@ Todos os arquivos desta seção são testes automatizados; não são coletores n
 - `jobs-dashboard/tests/test_fit_requirements.py` — extração de requisitos.
 - `jobs-dashboard/tests/test_gupy.py` — fonte Gupy.
 - `jobs-dashboard/tests/test_homepage_cta_styles.py` — CTAs da página inicial.
+- `jobs-dashboard/tests/test_linkedin.py` — contrato do snapshot LinkedIn, janela de 30 dias e rejeição de dados inválidos.
 - `jobs-dashboard/tests/test_mercadolivre.py` — fonte Mercado Livre.
 - `jobs-dashboard/tests/test_merge_dynamic_portals.py` — mesclagem dinâmica.
 - `jobs-dashboard/tests/test_new_sources.py` — fontes recém-incorporadas.
