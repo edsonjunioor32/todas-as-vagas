@@ -88,7 +88,7 @@ def normalize_linkedin_job(raw_job):
         "description": clean_value(raw_job.get("description"))[:4000] if raw_job.get("description") else "",
     }
 
-def collect_linkedin(terms=None, location="Brazil", results_per_term=15, hours_old=1440, out_path="docs/data/linkedin_vagas.json"):
+def collect_linkedin(terms=None, location="Brazil", results_per_term=15, hours_old=720, out_path="docs/data/linkedin_vagas.json"):
     terms = terms or DEFAULT_SEARCH_TERMS
     print(f"=== [LinkedIn Jobs Collector] Iniciando Coleta ===")
     print(f"Critérios: Termos={len(terms)}, Localização='{location}', Horas={hours_old} (~{hours_old//24} dias), EasyApply=True")
@@ -129,6 +129,8 @@ def collect_linkedin(terms=None, location="Brazil", results_per_term=15, hours_o
             time.sleep(3)
 
     collected_list = list(all_jobs_dict.values())
+    if not collected_list:
+        raise RuntimeError("Nenhuma vaga pública de candidatura simplificada foi coletada")
     print(f"\n==========================================")
     print(f"[Sucesso] Total de vagas únicas coletadas: {len(collected_list)}")
     print(f"==========================================")
@@ -175,7 +177,7 @@ if __name__ == "__main__":
     parser.add_argument("--terms", nargs="+", default=DEFAULT_SEARCH_TERMS, help="Termos de busca")
     parser.add_argument("--location", type=str, default="Brazil", help="País ou localização")
     parser.add_argument("--results-per-term", type=int, default=15, help="Quantidade por termo")
-    parser.add_argument("--hours-old", type=int, default=1440, help="Horas desde a publicação (1440 = 60 dias)")
+    parser.add_argument("--hours-old", type=int, default=720, help="Horas desde a publicação (720 = 30 dias)")
     parser.add_argument("--output", type=str, default="docs/data/linkedin_vagas.json", help="Caminho do arquivo de saída")
     args = parser.parse_args()
 
