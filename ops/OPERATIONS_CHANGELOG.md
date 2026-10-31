@@ -1,5 +1,14 @@
 # Histórico operacional e mapa de responsabilidades
 
+## 2026-10-31 — Correção de vagas remotas Easy Apply no LinkedIn
+
+- **Causa raiz:** O coletor inicial consultava apenas seis termos estritos e mapeava vagas com localização "Brazil" como `on-site`, desconsiderando que o LinkedIn utiliza a localização em nível de país para posições 100% remotas em âmbito nacional. Além disso, a busca pública não aplicava o filtro nativo de vagas remotas (`f_WT=2`) do LinkedIn.
+- **Busca remota dedicada:** Foi implementado suporte direto via patch no JobSpy (`LinkedIn._search_params`) para enviar `f_WT=2` nas consultas remotas quando `is_remote=True`, permitindo varredura de vagas remotas sem cookies, credenciais ou serviços pagos.
+- **Expansão de termos e limite seguro:** O limite seguro por termo foi ampliado para 25 no workflow e script. A lista de termos foi expandida para incluir papéis de suporte avançado, operações e atendimento ("Operations Assistant", "Assistente de Operações", "Suporte de Aplicação", "Help Desk").
+- **Mapeamento correto de modelo de trabalho:** Localizações indicando "Brazil" / "Brasil", indicadores explícitos no título/descrição/localização e vagas coletadas na etapa remota agora são mapeadas como `remote`. Posições com menção a modelo híbrido são classificadas como `hybrid`, e cidades sem indicadores remotos permanecem como `on-site`.
+- **Testes de regressão:** A suíte em `jobs-dashboard/tests/test_linkedin.py` foi expandida com 9 testes, incluindo validação específica para localização "Brazil", aceitação de URLs de subdomínio local (`br.linkedin.com`), normalização de modelo de trabalho e teste de regressão direto para a vaga ID `4483475105` (Tryp.com, Operations Assistant).
+- **Validação de snapshot:** O snapshot `docs/data/linkedin_vagas.json` foi atualizado e reprocessado: o adaptador `sources.linkedin.fetch()` validou 77 vagas aprovadas no filtro de 30 dias, incluindo 8 vagas remotas e a vaga ID `4483475105`.
+
 ## 2026-10-31 — LinkedIn incorporado ao catálogo principal
 
 - A execução isolada [#41215702332](https://github.com/edsonjunioor32/todas-as-vagas/actions/runs/41215702332) concluiu com sucesso e coletou 79 vagas públicas com Candidatura Simplificada. A execução anterior usava a janela de 60 dias e publicava somente `docs/data/linkedin_vagas.json`; portanto, esse sucesso não significava alimentação do portal.
