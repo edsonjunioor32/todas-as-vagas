@@ -58,10 +58,18 @@ Assim, o catálogo permanece em um único ponto de verdade: uma atualização be
 ## Portais incluídos
 
 - Brasil: **InHire, Empregare, Gupy, Sólides, Recrut.AI, Taggui RH, GeekHunter, Nerdin e InfoJobs**;
-- globais: **The Muse, Remotive, Jobicy, Remote OK, Himalayas, Working Nomads, Arbeitnow e We Work Remotely**;
+- globais: **The Muse, Remotive, Jobicy, Remote OK, Himalayas, Working Nomads, Arbeitnow e We Work Remotely**;\n- busca pública especializada: **LinkedIn (Candidatura Simplificada)**;
 - páginas públicas de empresas: **Stone, iFood, PicPay, Banco Original, Braskem, GM Financial, Dell Technologies, ArcelorMittal, Grupo Mateus, AutoZone, NOV, Arcor Brasil, Greenhouse Brasil, Lever e Ashby**.
 
 O painel permite combinar pesquisa livre com filtros de cidade, portal, modalidade, mercado, área, senioridade, data, vagas afirmativas para PcD e oportunidades encontradas em mais de um portal. O campo de cidade oferece sugestões a partir das localidades presentes na base e também aceita digitação livre. A exportação CSV respeita os filtros selecionados. O botão de tema no cabeçalho alterna entre os modos claro e escuro, salva a escolha no navegador e, na primeira visita, respeita a preferência do sistema.
+
+## LinkedIn — Candidatura Simplificada
+
+O workflow [`linkedin-jobs.yml`](.github/workflows/linkedin-jobs.yml) consulta diariamente as listagens públicas do LinkedIn, sem login, cookies ou credenciais de uma conta. A coleta usa os termos de suporte e tecnologia já definidos para o projeto, restringe o resultado a vagas com **Candidatura Simplificada (Easy Apply)** no Brasil e aplica uma janela de **30 dias**.
+
+O resultado é gravado em `docs/data/linkedin_vagas.json`, validado antes do commit e então incorporado ao mesmo pipeline do catálogo. O commit recebe o marcador `[linkedin-refresh]`; esse marcador faz o `pages.yml` executar a coleta completa, a deduplicação, as validações, o histórico, o snapshot `public-data` e o GitHub Pages. Assim, o LinkedIn não publica um arquivo paralelo que fique fora do portal.
+
+A fonte publica somente metadados e o link oficial da vaga. Descrições completas não entram no snapshot. Se o LinkedIn estiver indisponível, o snapshot estiver vazio ou ficar desatualizado, a etapa é interrompida sem substituir os dados válidos anteriores; as demais fontes continuam seguindo a agenda normal.
 
 ## Gupy via MCP público de candidatos
 
