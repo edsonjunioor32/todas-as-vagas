@@ -48,7 +48,7 @@ jobs:
       - name: Executar Coleta Isolada do LinkedIn
         run: |
           RESULTS="${{ inputs.results_per_term || '15' }}"
-          HOURS="${{ inputs.hours_old || '1440' }}"
+          HOURS="${{ inputs.hours_old || '720' }}"
           python tools/collect_linkedin.py \
             --results-per-term "$RESULTS" \
             --hours-old "$HOURS" \
