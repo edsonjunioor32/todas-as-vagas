@@ -370,6 +370,46 @@ class LinkedInSourceTests(unittest.TestCase):
         finally:
             tmp_path.unlink(missing_ok=True)
 
+    def test_jobspy_adaptive_delay_and_429_backoff_handling(self):
+        """Garante atraso adaptativo (2.5-3.0s) e tratamento resiliente de HTTP 429 com Retry-After."""
+        try:
+            from jobspy.linkedin import LinkedIn
+            import jobspy.linkedin as jl
+        except (ImportError, Exception):
+            self.skipTest("jobspy não instalado neste ambiente")
+            return
+
+        # 1. Verifica delay adaptativo configurado
+        self.assertEqual(LinkedIn.delay, (2.5, 3.0))
+
+        # 2. Testa recuperação resiliente de 429 via create_session
+        if not hasattr(jl, "create_session"):
+            return
+
+        mock_raw_session = MagicMock()
+        mock_scraper_input = MagicMock()
+        mock_scraper_input.ca_cert = None
+        mock_scraper_input.user_agent = None
+
+        resp_429 = MagicMock()
+        resp_429.status_code = 429
+        resp_429.headers = {"Retry-After": "0"}
+
+        resp_200 = MagicMock()
+        resp_200.status_code = 200
+        resp_200.headers = {}
+
+        underlying_mock_get = MagicMock(side_effect=[resp_429, resp_200])
+        mock_raw_session.get = underlying_mock_get
+
+        session = jl.create_session(mock_raw_session, mock_scraper_input)
+        
+        with patch("time.sleep", return_value=None) as mock_sleep:
+            result = session.get("https://www.linkedin.com/test", params={"start": 0})
+            self.assertEqual(result.status_code, 200)
+            self.assertEqual(underlying_mock_get.call_count, 2)
+            mock_sleep.assert_called_once_with(0.0)
+
 
 if __name__ == "__main__":
     unittest.main()

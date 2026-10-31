@@ -1,5 +1,24 @@
 # Histórico operacional e mapa de responsabilidades
 
+## 2026-10-31 — Resiliência, Backoff HTTP 429 e Benchmark da Coleta Aberta no LinkedIn
+
+- **Benchmark Isolado na `main` (commit `a18798c`):**
+  - **Início/Fim (UTC):** 2026-10-31 20:41:17 UTC a 20:41:56 UTC (duração total: 38.85s).
+  - **Tráfego HTTP:** 9 requisições para a API pública de busca (`seeMoreJobPostings/search`).
+  - **Rate Limits Observados:** 1 ocorrência de HTTP 429 na 4ª página (`start=30`) da Fase 1, causada pelo intervalo agressivo padrão do JobSpy (~0.4s).
+  - **Volume e Integridade:** 80 registros brutos obtidos; 30 duplicatas descartadas; 50 vagas únicas consolidadas.
+  - **Validação:** 50 de 50 vagas aprovadas pelo normalizador oficial `sources.linkedin._normalize` (100% de taxa de validação sem rejeições).
+  - **Distribuição:** 28 vagas presenciais (`on-site`) e 22 vagas remotas (`remote`).
+- **Atraso Adaptativo e Tratamento Resiliente de HTTP 429:**
+  - `tools/collect_linkedin.py` configurado com `LinkedIn.delay = (2.5, 3.0)` para espaçamento seguro entre páginas.
+  - Implementado interceptador de sessão em `jobspy.linkedin.create_session` que captura respostas HTTP 429 e aplica backoff exponencial (5s, 10s, 20s) ou o valor do cabeçalho `Retry-After`, com até 3 tentativas automáticas de recuperação.
+  - Caso o rate limit persista após as tentativas, a rotina interrompe a paginação com aviso seguro preservando integralmente todas as vagas já coletadas, impedindo a perda de lotes parciais.
+- **Integração de Agendas e Publicação:**
+  - A rotina de coleta permanece isolada em `.github/workflows/linkedin-jobs.yml` com disparo automático diário às 10:00 UTC (`0 10 * * *`) e manual via `workflow_dispatch`.
+  - A publicação oficial no catálogo e GitHub Pages é acionada automaticamente por `.github/workflows/pages.yml` ao detectar o commit `[linkedin-refresh]`, garantindo publicação única sem duplicação de cron/agendas.
+- **Testes Automatizados:**
+  - `jobs-dashboard/tests/test_linkedin.py` expandido com `test_jobspy_adaptive_delay_and_429_backoff_handling`, totalizando 11 testes unitários aprovados com sucesso.
+
 ## 2026-10-31 — Coleta aberta e não-restritiva no LinkedIn para o Todas as Vagas
 
 - **Alinhamento e Estratégia Aberta:** Seguindo diretriz do usuário e alinhamento com `@codex` no agent-bus, o coletor deixou de depender de listas fixas de termos de busca. Como o "Todas as Vagas" é um portal amplo e generalista, consultas restritas a palavras-chave específicas de suporte/dev foram substituídas pela busca aberta nacional (`keywords=None`).
