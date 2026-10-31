@@ -9,7 +9,7 @@ on:
       results_per_term:
         description: "Quantidade de vagas desejadas por termo pesquisado"
         required: false
-        default: "15"
+        default: "25"
         type: string
       hours_old:
         description: "Janela máxima de publicação em horas (720 = 30 dias)"
@@ -47,7 +47,7 @@ jobs:
 
       - name: Executar Coleta Isolada do LinkedIn
         run: |
-          RESULTS="${{ inputs.results_per_term || '15' }}"
+          RESULTS="${{ inputs.results_per_term || '25' }}"
           HOURS="${{ inputs.hours_old || '720' }}"
           python tools/collect_linkedin.py \
             --results-per-term "$RESULTS" \

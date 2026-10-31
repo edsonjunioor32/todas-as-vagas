@@ -21,7 +21,7 @@ DEFAULT_SNAPSHOT = (
 DEFAULT_MAX_AGE_DAYS = 30
 DEFAULT_SNAPSHOT_MAX_AGE_HOURS = 36
 JOB_URL_RE = re.compile(
-    r"^https://(?:www\.)?linkedin\.com/jobs/view/(\d+)(?:[/?#]|$)",
+    r"^https://(?:[a-z]{2,3}\.|www\.)?linkedin\.com/jobs/view/(\d+)(?:[/?#].*)?$",
     re.IGNORECASE,
 )
 
@@ -114,9 +114,35 @@ def _normalize(raw, today=None):
     if published_day > today or (today - published_day).days > max_age:
         return None
 
-    native_id = str(raw.get("native_id") or "").strip() or f"li-{match.group(1)}"
-    raw_model = str(raw.get("workplaceType") or raw.get("workplace_type") or "")
-    work_model = work_model_label(raw=raw_model)
+    job_id = match.group(1)
+    native_id = str(raw.get("native_id") or "").strip() or f"li-{job_id}"
+    if not native_id.startswith("li-"):
+        native_id = f"li-{native_id}"
+    canonical_url = f"https://www.linkedin.com/jobs/view/{job_id}"
+
+    raw_model = str(raw.get("workplaceType") or raw.get("workplace_type") or "").strip()
+    loc_clean = location.strip().lower()
+    is_remote_flag = bool(raw.get("is_remote") or raw.get("isRemote") or raw.get("remote"))
+
+    remote_keywords = (
+        "remote", "remoto", "home office", "home-office",
+        "teletrabalho", "wfh", "anywhere", "100% remoto"
+    )
+    hybrid_keywords = ("hybrid", "híbrido", "hibrido")
+
+    if any(h in raw_model.lower() or h in loc_clean or h in title.lower() for h in hybrid_keywords):
+        work_model = "hybrid"
+    elif (
+        is_remote_flag
+        or raw_model.lower() == "remote"
+        or loc_clean in ("brazil", "brasil")
+        or any(k in loc_clean or k in title.lower() or k in raw_model.lower() for k in remote_keywords)
+    ):
+        work_model = "remote"
+    else:
+        work_model = work_model_label(remote_flag=is_remote_flag, raw=raw_model)
+        if not work_model:
+            work_model = "on-site"
 
     salary_min = _amount(raw.get("salaryMin", raw.get("salary_min")))
     salary_max = _amount(raw.get("salaryMax", raw.get("salary_max")))
@@ -127,7 +153,7 @@ def _normalize(raw, today=None):
         native_id,
         title=title,
         company=company,
-        url=url,
+        url=canonical_url,
         work_model=work_model,
         city=location,
         country="BR",
