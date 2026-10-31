@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-30T23:32:44.873837+00:00",
+  "generated_at": "2026-10-31T11:32:43.382661+00:00",
   "candidate_count": 8331,
   "company_count": 199,
   "companies": [
@@ -512,7 +512,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 139
+      "brazil_jobs": 140
     },
     {
       "board": "interbrand",
