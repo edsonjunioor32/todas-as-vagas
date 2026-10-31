@@ -26,6 +26,7 @@ except ImportError:
 try:
     from jobspy import scrape_jobs
     from jobspy.linkedin import LinkedIn
+    import jobspy.linkedin as jl
 
     # Patch JobSpy's LinkedIn scraper to support remote workplace filtering (f_WT=2)
     # Permite busca remota dedicada sem cookies, login ou serviços pagos
@@ -38,6 +39,41 @@ try:
         return params
 
     LinkedIn._search_params = _patched_linkedin_search_params
+
+    # Configura atraso adaptativo entre páginas (2.5s a 3.0s) para evitar 429
+    LinkedIn.delay = (2.5, 3.0)
+
+    # Interceptador resiliente para tratar HTTP 429 com backoff exponencial e Retry-After
+    if hasattr(jl, "create_session"):
+        _orig_create_session = jl.create_session
+
+        def _resilient_create_session(session, scraper_input, headers=None):
+            sess = _orig_create_session(session, scraper_input, headers)
+            orig_get = sess.get
+
+            def _resilient_get(url, *args, **kwargs):
+                max_retries = 3
+                for attempt in range(max_retries):
+                    resp = orig_get(url, *args, **kwargs)
+                    if resp.status_code == 429:
+                        retry_after = resp.headers.get("Retry-After")
+                        if retry_after and retry_after.strip().isdigit():
+                            wait_time = float(retry_after.strip())
+                        else:
+                            wait_time = float(min(45.0, 5.0 * (2 ** attempt)))
+                        print(
+                            f"  [LinkedIn Throttling] HTTP 429 detectado no start={kwargs.get('params', {}).get('start', '?')}. "
+                            f"Aplicando backoff de {wait_time:.1f}s (tentativa {attempt + 1}/{max_retries})..."
+                        )
+                        time.sleep(wait_time)
+                        continue
+                    return resp
+                return resp
+
+            sess.get = _resilient_get
+            return sess
+
+        jl.create_session = _resilient_create_session
 except ImportError:
     scrape_jobs = None
     LinkedIn = None
