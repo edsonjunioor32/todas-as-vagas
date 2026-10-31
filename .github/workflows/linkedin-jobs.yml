@@ -12,9 +12,9 @@ on:
         default: "15"
         type: string
       hours_old:
-        description: "Janela máxima de publicação em horas (ex: 1440 = 60 dias, 720 = 30 dias)"
+        description: "Janela máxima de publicação em horas (720 = 30 dias)"
         required: false
-        default: "1440"
+        default: "720"
         type: string
 
 permissions:
@@ -54,6 +54,18 @@ jobs:
             --hours-old "$HOURS" \
             --output docs/data/linkedin_vagas.json
 
+      - name: Validar snapshot antes da publicação
+        env:
+          LINKEDIN_SNAPSHOT_MAX_AGE_HOURS: "36"
+          LINKEDIN_MAX_AGE_DAYS: "30"
+        run: |
+          PYTHONPATH=jobs-dashboard python - <<'PY'
+          from sources import linkedin
+
+          rows = linkedin.fetch()
+          print(f"Snapshot LinkedIn validado: {len(rows)} vagas brasileiras Easy Apply.")
+          PY
+
       - name: Preservar artefato para inspeção
         uses: actions/upload-artifact@v4
         with:
@@ -69,6 +81,6 @@ jobs:
           if git diff --staged --quiet; then
             echo "Nenhuma alteração nos dados do LinkedIn."
           else
-            git commit -m "chore(jobs): atualizar vagas do LinkedIn (candidatura simplificada)"
+            git commit -m "chore(jobs): atualizar vagas do LinkedIn (candidatura simplificada) [linkedin-refresh]"
             git push origin main
           fi
