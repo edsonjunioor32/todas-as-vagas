@@ -6,10 +6,10 @@ on:
     - cron: "0 10 * * *"
   workflow_dispatch:
     inputs:
-      results_per_term:
-        description: "Quantidade de vagas desejadas por termo pesquisado"
+      results_limit:
+        description: "Quantidade máxima de vagas da varredura geral aberta"
         required: false
-        default: "25"
+        default: "100"
         type: string
       hours_old:
         description: "Janela máxima de publicação em horas (720 = 30 dias)"
@@ -47,10 +47,10 @@ jobs:
 
       - name: Executar Coleta Isolada do LinkedIn
         run: |
-          RESULTS="${{ inputs.results_per_term || '25' }}"
+          RESULTS="${{ inputs.results_limit || '100' }}"
           HOURS="${{ inputs.hours_old || '720' }}"
           python tools/collect_linkedin.py \
-            --results-per-term "$RESULTS" \
+            --results-limit "$RESULTS" \
             --hours-old "$HOURS" \
             --output docs/data/linkedin_vagas.json
 

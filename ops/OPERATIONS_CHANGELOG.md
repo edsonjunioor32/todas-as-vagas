@@ -1,5 +1,15 @@
 # Histórico operacional e mapa de responsabilidades
 
+## 2026-10-31 — Coleta aberta e não-restritiva no LinkedIn para o Todas as Vagas
+
+- **Alinhamento e Estratégia Aberta:** Seguindo diretriz do usuário e alinhamento com `@codex` no agent-bus, o coletor deixou de depender de listas fixas de termos de busca. Como o "Todas as Vagas" é um portal amplo e generalista, consultas restritas a palavras-chave específicas de suporte/dev foram substituídas pela busca aberta nacional (`keywords=None`).
+- **Cobertura Completa (Presencial, Híbrida e Remota):**
+  - **Fase 1 (Varredura Aberta Geral):** Consulta ampla em todo o Brasil com Easy Apply ativo e janela de 30 dias, trazendo vagas presenciais de múltiplas cidades, vagas híbridas e vagas com escopo nacional em diversas áreas de atuação (Direito, Design, Operações, Engenharia, Finanças, etc.).
+  - **Fase 2 (Varredura Aberta Remota Dedicada):** Consulta ampla aplicando o filtro nativo `f_WT=2` (via patch JobSpy), garantindo a captura prioritária de oportunidades 100% remotas em âmbito nacional.
+  - Termos de busca (`--terms`) foram mantidos como filtro opcional via CLI apenas para testes direcionados ou execuções manuais.
+- **Workflow e Parâmetros:** O workflow `.github/workflows/linkedin-jobs.yml` foi atualizado para utilizar o parâmetro `results_limit` (padrão 100 vagas na busca geral).
+- **Testes de Regressão:** `jobs-dashboard/tests/test_linkedin.py` recebeu teste de integração verificando a coleta aberta sem termos fixos (`test_collect_linkedin_open_unrestricted_collection`), assegurando a categorização equilibrada de vagas nos três modelos (`on-site`, `hybrid` e `remote`).
+
 ## 2026-10-31 — Correção de vagas remotas Easy Apply no LinkedIn
 
 - **Causa raiz:** O coletor inicial consultava apenas seis termos estritos e mapeava vagas com localização "Brazil" como `on-site`, desconsiderando que o LinkedIn utiliza a localização em nível de país para posições 100% remotas em âmbito nacional. Além disso, a busca pública não aplicava o filtro nativo de vagas remotas (`f_WT=2`) do LinkedIn.

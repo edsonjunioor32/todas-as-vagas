@@ -291,5 +291,85 @@ class LinkedInSourceTests(unittest.TestCase):
         self.assertEqual(params.get("f_TPR"), "r2592000")
 
 
+    def test_collect_linkedin_open_unrestricted_collection(self):
+        """Garante que a coleta padrão do Todas as Vagas seja ampla (sem termos de busca fixos)
+        e capture vagas remotas, híbridas e presenciais de áreas diversas.
+        """
+        records_general = [
+            {
+                "id": "li-101",
+                "job_url": "https://www.linkedin.com/jobs/view/101",
+                "title": "Advogado Corporativo",
+                "company": "Escritório Brasil",
+                "location": "São Paulo, São Paulo, Brazil",
+                "date_posted": "2026-10-30",
+            },
+            {
+                "id": "li-102",
+                "job_url": "https://www.linkedin.com/jobs/view/102",
+                "title": "Product Designer Híbrido",
+                "company": "Design Lab",
+                "location": "Curitiba, Paraná, Brazil",
+                "date_posted": "2026-10-30",
+            },
+        ]
+        records_remote = [
+            {
+                "id": "li-103",
+                "job_url": "https://www.linkedin.com/jobs/view/103",
+                "title": "Operations Assistant",
+                "company": "Tryp.com",
+                "location": "Brazil",
+                "date_posted": "2026-10-30",
+            }
+        ]
+
+        calls = []
+
+        class MockDataFrame(list):
+            def __init__(self, data):
+                super().__init__(data)
+                self.empty = len(data) == 0
+
+            def to_dict(self, orient="records"):
+                return list(self)
+
+        def mock_scrape(*args, **kwargs):
+            calls.append(kwargs)
+            if kwargs.get("is_remote"):
+                return MockDataFrame(records_remote)
+            return MockDataFrame(records_general)
+
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tmp:
+            tmp_path = Path(tmp.name)
+
+        try:
+            with patch.object(collect_linkedin, "scrape_jobs", side_effect=mock_scrape):
+                results = collect_linkedin.collect_linkedin(
+                    terms=None,
+                    results_limit=10,
+                    remote_results_limit=5,
+                    out_path=str(tmp_path),
+                )
+
+            self.assertEqual(len(results), 3)
+            # Confirma que ambas as fases rodaram com search_term=None (sem filtro por cargo)
+            self.assertIsNone(calls[0]["search_term"])
+            self.assertFalse(calls[0].get("is_remote", False))
+            self.assertIsNone(calls[1]["search_term"])
+            self.assertTrue(calls[1].get("is_remote", False))
+
+            # Valida presença dos três modelos de trabalho: presencial, híbrido e remoto
+            types = {r["workplaceType"] for r in results}
+            self.assertEqual(types, {"on-site", "hybrid", "remote"})
+
+            with open(tmp_path, "r", encoding="utf-8") as f:
+                saved = json.load(f)
+            self.assertEqual(saved["count"], 3)
+            self.assertEqual(saved["filter"], "easy_apply")
+        finally:
+            tmp_path.unlink(missing_ok=True)
+
+
 if __name__ == "__main__":
     unittest.main()
