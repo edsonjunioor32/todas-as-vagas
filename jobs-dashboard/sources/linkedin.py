@@ -21,7 +21,7 @@ DEFAULT_SNAPSHOT = (
 DEFAULT_MAX_AGE_DAYS = 30
 DEFAULT_SNAPSHOT_MAX_AGE_HOURS = 36
 JOB_URL_RE = re.compile(
-    r"^https://(?:www\\.)?linkedin\\.com/jobs/view/(\\d+)(?:[/?#]|$)",
+    r"^https://(?:www\.)?linkedin\.com/jobs/view/(\d+)(?:[/?#]|$)",
     re.IGNORECASE,
 )
 
