@@ -12,14 +12,21 @@ import re
 import sys
 import time
 from datetime import datetime, timezone
-import pandas as pd
-from jobspy import scrape_jobs
 
-# Patch JobSpy's LinkedIn scraper to support remote workplace filtering (f_WT=2)
-# Permite busca remota dedicada sem cookies, login ou serviços pagos
+# Importações condicionais para permitir que módulos de validação/testes importem
+# funções utilitárias (ex: normalize_linkedin_job) mesmo em ambientes de CI leves
+# onde pandas e jobspy não estão instalados no catálogo principal.
 try:
+    import pandas as pd
+except ImportError:
+    pd = None
+
+try:
+    from jobspy import scrape_jobs
     from jobspy.linkedin import LinkedIn
 
+    # Patch JobSpy's LinkedIn scraper to support remote workplace filtering (f_WT=2)
+    # Permite busca remota dedicada sem cookies, login ou serviços pagos
     _orig_linkedin_search_params = LinkedIn._search_params
 
     def _patched_linkedin_search_params(self):
@@ -29,8 +36,9 @@ try:
         return params
 
     LinkedIn._search_params = _patched_linkedin_search_params
-except Exception as err:
-    print(f"[Aviso] Não foi possível aplicar patch de busca remota no JobSpy: {err}")
+except ImportError:
+    scrape_jobs = None
+    LinkedIn = None
 
 # Termos prioritários de busca no LinkedIn
 DEFAULT_SEARCH_TERMS = [
@@ -60,7 +68,9 @@ def clean_value(val):
     """Limpa nulos e tipos não serializáveis."""
     if val is None or (isinstance(val, float) and (math.isnan(val) or math.isinf(val))):
         return ""
-    if pd.isna(val):
+    if pd is not None and pd.isna(val):
+        return ""
+    if str(val) in ("NaT", "nan", "NaN"):
         return ""
     if hasattr(val, "isoformat"):
         return val.isoformat()
@@ -149,6 +159,9 @@ def collect_linkedin(
     out_path="docs/data/linkedin_vagas.json",
     include_remote_pass=True,
 ):
+    if scrape_jobs is None:
+        raise RuntimeError("A biblioteca 'python-jobspy' é necessária para executar collect_linkedin")
+
     terms = terms or DEFAULT_SEARCH_TERMS
     remote_terms = remote_terms or DEFAULT_REMOTE_TERMS
     print(f"=== [LinkedIn Jobs Collector] Iniciando Coleta ===")

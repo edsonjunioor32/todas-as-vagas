@@ -270,7 +270,11 @@ class LinkedInSourceTests(unittest.TestCase):
 
     def test_jobspy_patched_search_params_adds_remote_filter(self):
         """Garante que a busca remota dedicada do JobSpy injeta f_WT=2 no LinkedIn."""
-        from jobspy.linkedin import LinkedIn
+        try:
+            from jobspy.linkedin import LinkedIn
+        except (ImportError, Exception):
+            self.skipTest("jobspy não instalado neste ambiente de teste")
+            return
 
         mock_scraper = MagicMock()
         mock_scraper.scraper_input.search_term = "Suporte"
