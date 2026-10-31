@@ -2,6 +2,8 @@
 """
 Coleta isolada de vagas do LinkedIn com Candidatura Simplificada (Easy Apply).
 Projetado para rodar localmente ou via GitHub Actions para o projeto 'Todas as Vagas'.
+Estratégia aberta e não-restritiva: coleta ampla em todo o Brasil (presencial, híbrida
+e remota) sem depender de listas fixas de palavras-chave.
 """
 
 import argparse
@@ -40,29 +42,6 @@ except ImportError:
     scrape_jobs = None
     LinkedIn = None
 
-# Termos prioritários de busca no LinkedIn
-DEFAULT_SEARCH_TERMS = [
-    "Analista de Suporte",
-    "Suporte Técnico",
-    "Suporte N2",
-    "Tecnologia da Informação",
-    "Desenvolvedor",
-    "Analista de Atendimento",
-    "Operations Assistant",
-    "Assistente de Operações",
-    "Suporte de Aplicação",
-    "Help Desk",
-]
-
-# Termos prioritários para a varredura remota dedicada (f_WT=2)
-DEFAULT_REMOTE_TERMS = [
-    "Suporte",
-    "Desenvolvedor",
-    "Tecnologia",
-    "Atendimento",
-    "Operations",
-    "Analista",
-]
 
 def clean_value(val):
     """Limpa nulos e tipos não serializáveis."""
@@ -75,6 +54,7 @@ def clean_value(val):
     if hasattr(val, "isoformat"):
         return val.isoformat()
     return val
+
 
 def normalize_linkedin_job(raw_job, is_remote_search=False):
     """
@@ -98,7 +78,7 @@ def normalize_linkedin_job(raw_job, is_remote_search=False):
     title = clean_value(raw_job.get("title")) or "Vaga sem título"
     company = clean_value(raw_job.get("company")) or "Empresa não informada"
     location = clean_value(raw_job.get("location")) or "Brazil"
-    
+
     # Determina o modelo de trabalho (remote, hybrid, on-site)
     loc_lower = str(location).lower().strip()
     title_lower = str(title).lower().strip()
@@ -150,11 +130,12 @@ def normalize_linkedin_job(raw_job, is_remote_search=False):
         "description": clean_value(raw_job.get("description"))[:4000] if raw_job.get("description") else "",
     }
 
+
 def collect_linkedin(
     terms=None,
-    remote_terms=None,
     location="Brazil",
-    results_per_term=25,
+    results_limit=100,
+    remote_results_limit=50,
     hours_old=720,
     out_path="docs/data/linkedin_vagas.json",
     include_remote_pass=True,
@@ -162,70 +143,92 @@ def collect_linkedin(
     if scrape_jobs is None:
         raise RuntimeError("A biblioteca 'python-jobspy' é necessária para executar collect_linkedin")
 
-    terms = terms or DEFAULT_SEARCH_TERMS
-    remote_terms = remote_terms or DEFAULT_REMOTE_TERMS
-    print(f"=== [LinkedIn Jobs Collector] Iniciando Coleta ===")
+    print(f"=== [LinkedIn Jobs Collector] Iniciando Coleta Aberta ===")
     print(
-        f"Critérios: Termos={len(terms)}, Localização='{location}', "
-        f"Horas={hours_old} (~{hours_old//24} dias), EasyApply=True, Limite={results_per_term}/termo"
+        f"Critérios: Localização='{location}', Horas={hours_old} (~{hours_old//24} dias), "
+        f"EasyApply=True, Limite Geral={results_limit}, Limite Remoto={remote_results_limit if include_remote_pass else 0}"
     )
 
     all_jobs_dict = {}
 
-    # 1. Varredura padrão com termos prioritários
-    for i, term in enumerate(terms, 1):
-        print(f"\n[Geral {i}/{len(terms)}] Consultando LinkedIn para: '{term}'...")
-        try:
-            df = scrape_jobs(
-                site_name=["linkedin"],
-                search_term=term,
-                location=location,
-                results_wanted=results_per_term,
-                hours_old=hours_old,
-                easy_apply=True,
-                description_format="markdown",
-                fetch_description=False,
-                verbose=0,
-            )
-
-            if df is not None and not df.empty:
-                records = df.to_dict(orient="records")
-                print(f"  -> Encontradas {len(records)} vagas com candidatura simplificada.")
-                for raw in records:
-                    norm = normalize_linkedin_job(raw, is_remote_search=False)
-                    job_key = norm["url"] or f"{norm['title']}::{norm['company']}"
-                    if job_key not in all_jobs_dict:
-                        all_jobs_dict[job_key] = norm
-            else:
-                print(f"  -> Nenhuma vaga encontrada para '{term}'.")
-
-        except Exception as e:
-            print(f"  [Aviso] Falha ao consultar '{term}': {e}")
-
-        if i < len(terms):
-            time.sleep(2)
-
-    # 2. Varredura remota dedicada (f_WT=2 via JobSpy patch)
-    if include_remote_pass and remote_terms:
-        print(f"\n=== [LinkedIn Jobs Collector] Iniciando Busca Remota Dedicada (f_WT=2) ===")
-        for i, term in enumerate(remote_terms, 1):
-            print(f"\n[Remoto {i}/{len(remote_terms)}] Consultando LinkedIn Remoto: '{term}'...")
+    # Modo A: Se termos específicos forem passados (modo direcionado / testes manuais)
+    if terms:
+        print(f"[Modo Direcionado] Consultando termos específicos ({len(terms)}): {terms}")
+        for i, term in enumerate(terms, 1):
+            print(f"\n[{i}/{len(terms)}] Consultando LinkedIn para: '{term}'...")
             try:
                 df = scrape_jobs(
                     site_name=["linkedin"],
                     search_term=term,
                     location=location,
-                    is_remote=True,
-                    results_wanted=results_per_term,
+                    results_wanted=results_limit,
                     hours_old=hours_old,
                     easy_apply=True,
                     description_format="markdown",
                     fetch_description=False,
                     verbose=0,
                 )
-
                 if df is not None and not df.empty:
                     records = df.to_dict(orient="records")
+                    print(f"  -> Encontradas {len(records)} vagas para '{term}'.")
+                    for raw in records:
+                        norm = normalize_linkedin_job(raw, is_remote_search=False)
+                        job_key = norm["url"] or f"{norm['title']}::{norm['company']}"
+                        if job_key not in all_jobs_dict:
+                            all_jobs_dict[job_key] = norm
+            except Exception as e:
+                print(f"  [Aviso] Falha ao consultar '{term}': {e}")
+            time.sleep(2)
+
+    # Modo B: Padrão aberto e não-restritivo para o portal Todas as Vagas
+    else:
+        # 1. Varredura Aberta Geral (Presencial, Híbrida e Remota em todo o Brasil)
+        print(f"\n[Fase 1/2] Executando Varredura Aberta Geral (todo o Brasil, sem filtro de palavras-chave)...")
+        try:
+            df_general = scrape_jobs(
+                site_name=["linkedin"],
+                search_term=None,
+                location=location,
+                results_wanted=results_limit,
+                hours_old=hours_old,
+                easy_apply=True,
+                description_format="markdown",
+                fetch_description=False,
+                verbose=0,
+            )
+            if df_general is not None and not df_general.empty:
+                records = df_general.to_dict(orient="records")
+                print(f"  -> Encontradas {len(records)} vagas na varredura geral.")
+                for raw in records:
+                    norm = normalize_linkedin_job(raw, is_remote_search=False)
+                    job_key = norm["url"] or f"{norm['title']}::{norm['company']}"
+                    if job_key not in all_jobs_dict:
+                        all_jobs_dict[job_key] = norm
+            else:
+                print("  -> Nenhuma vaga encontrada na varredura geral.")
+        except Exception as e:
+            print(f"  [Aviso] Falha na varredura geral: {e}")
+
+        time.sleep(2)
+
+        # 2. Varredura Aberta Remota Dedicada (f_WT=2)
+        if include_remote_pass and remote_results_limit > 0:
+            print(f"\n[Fase 2/2] Executando Varredura Aberta Remota Dedicada (f_WT=2, 100% Brasil)...")
+            try:
+                df_remote = scrape_jobs(
+                    site_name=["linkedin"],
+                    search_term=None,
+                    location=location,
+                    is_remote=True,
+                    results_wanted=remote_results_limit,
+                    hours_old=hours_old,
+                    easy_apply=True,
+                    description_format="markdown",
+                    fetch_description=False,
+                    verbose=0,
+                )
+                if df_remote is not None and not df_remote.empty:
+                    records = df_remote.to_dict(orient="records")
                     print(f"  -> Encontradas {len(records)} vagas remotas Easy Apply.")
                     for raw in records:
                         norm = normalize_linkedin_job(raw, is_remote_search=True)
@@ -233,21 +236,21 @@ def collect_linkedin(
                         if job_key not in all_jobs_dict:
                             all_jobs_dict[job_key] = norm
                 else:
-                    print(f"  -> Nenhuma vaga remota encontrada para '{term}'.")
-
+                    print("  -> Nenhuma vaga encontrada na varredura remota.")
             except Exception as e:
-                print(f"  [Aviso] Falha ao consultar remoto '{term}': {e}")
-
-            if i < len(remote_terms):
-                time.sleep(2)
+                print(f"  [Aviso] Falha na varredura remota: {e}")
 
     collected_list = list(all_jobs_dict.values())
     if not collected_list:
         raise RuntimeError("Nenhuma vaga pública de candidatura simplificada foi coletada")
+
+    remotes_count = sum(1 for j in collected_list if j.get("workplaceType") == "remote")
+    hybrids_count = sum(1 for j in collected_list if j.get("workplaceType") == "hybrid")
+    onsites_count = sum(1 for j in collected_list if j.get("workplaceType") == "on-site")
+
     print(f"\n==========================================")
     print(f"[Sucesso] Total de vagas únicas coletadas: {len(collected_list)}")
-    remotes_count = sum(1 for j in collected_list if j.get("workplaceType") == "remote")
-    print(f"[Distribuição] Remotas: {remotes_count} | Híbridas/Presenciais: {len(collected_list) - remotes_count}")
+    print(f"[Distribuição] Remotas: {remotes_count} | Híbridas: {hybrids_count} | Presenciais: {onsites_count}")
     print(f"==========================================")
 
     # Ordena pelas mais recentes
@@ -272,10 +275,13 @@ def collect_linkedin(
     github_step_summary = os.getenv("GITHUB_STEP_SUMMARY")
     if github_step_summary and os.path.exists(github_step_summary):
         with open(github_step_summary, "a", encoding="utf-8") as g:
-            g.write(f"### 🚀 Coleta de Vagas LinkedIn (Candidatura Simplificada)\n\n")
+            g.write(f"### 🚀 Coleta Aberta de Vagas LinkedIn (Candidatura Simplificada)\n\n")
             g.write(f"- **Data/Hora:** `{datetime.now(timezone.utc).strftime('%d/%m/%Y %H:%M UTC')}`\n")
-            g.write(f"- **Vagas Únicas Coletadas:** `{len(collected_list)}` (Remotas: `{remotes_count}`)\n")
-            g.write(f"- **Filtros:** Brasil, últimas {hours_old//24} dias, Easy Apply ativo.\n\n")
+            g.write(
+                f"- **Vagas Únicas Coletadas:** `{len(collected_list)}` "
+                f"(Remotas: `{remotes_count}`, Híbridas: `{hybrids_count}`, Presenciais: `{onsites_count}`)\n"
+            )
+            g.write(f"- **Filtros:** Brasil, últimas {hours_old//24} dias, Easy Apply ativo (Busca Aberta).\n\n")
             g.write("| # | Vaga | Empresa | Local / Modelo | Data |\n")
             g.write("|---|---|---|---|---|\n")
             for idx, j in enumerate(collected_list[:25], 1):
@@ -287,12 +293,26 @@ def collect_linkedin(
 
     return collected_list
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Coletor isolado de vagas do LinkedIn")
-    parser.add_argument("--terms", nargs="+", default=DEFAULT_SEARCH_TERMS, help="Termos de busca geral")
-    parser.add_argument("--remote-terms", nargs="+", default=DEFAULT_REMOTE_TERMS, help="Termos para busca remota dedicada")
+    parser.add_argument("--terms", nargs="*", default=None, help="Termos específicos opcionais (padrão: busca aberta ampla)")
     parser.add_argument("--location", type=str, default="Brazil", help="País ou localização")
-    parser.add_argument("--results-per-term", type=int, default=25, help="Quantidade por termo")
+    parser.add_argument(
+        "--results-limit",
+        "--results-wanted",
+        "--results-per-term",
+        dest="results_limit",
+        type=int,
+        default=100,
+        help="Limite de vagas da varredura geral",
+    )
+    parser.add_argument(
+        "--remote-results-limit",
+        type=int,
+        default=50,
+        help="Limite de vagas da varredura remota dedicada",
+    )
     parser.add_argument("--hours-old", type=int, default=720, help="Horas desde a publicação (720 = 30 dias)")
     parser.add_argument("--output", type=str, default="docs/data/linkedin_vagas.json", help="Caminho do arquivo de saída")
     parser.add_argument("--skip-remote-pass", action="store_true", help="Pular a etapa dedicada de busca remota")
@@ -300,9 +320,9 @@ if __name__ == "__main__":
 
     collect_linkedin(
         terms=args.terms,
-        remote_terms=args.remote_terms,
         location=args.location,
-        results_per_term=args.results_per_term,
+        results_limit=args.results_limit,
+        remote_results_limit=args.remote_results_limit,
         hours_old=args.hours_old,
         out_path=args.output,
         include_remote_pass=not args.skip_remote_pass,
