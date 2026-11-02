@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-02T14:32:52.198480+00:00",
+  "generated_at": "2026-11-02T18:33:06.213734+00:00",
   "candidate_count": 8331,
   "company_count": 200,
   "companies": [
@@ -67,7 +67,7 @@
     {
       "board": "appnovation",
       "company": "Appnovation Technologies",
-      "brazil_jobs": 5
+      "brazil_jobs": 4
     },
     {
       "board": "appsflyer",
