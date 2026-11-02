@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-02T11:32:48.674174+00:00",
+  "generated_at": "2026-11-02T14:32:52.198480+00:00",
   "candidate_count": 8331,
-  "company_count": 198,
+  "company_count": 200,
   "companies": [
     {
       "board": "abinbev",
@@ -297,7 +297,7 @@
     {
       "board": "doordashinternational",
       "company": "DoorDash Brazil",
-      "brazil_jobs": 14
+      "brazil_jobs": 15
     },
     {
       "board": "dunnhumby",
@@ -750,6 +750,11 @@
       "brazil_jobs": 5
     },
     {
+      "board": "thoughtworksreferral",
+      "company": "Referrals Only",
+      "brazil_jobs": 1
+    },
+    {
       "board": "ripple",
       "company": "Ripple",
       "brazil_jobs": 3
@@ -923,6 +928,11 @@
       "board": "usergems",
       "company": "UserGems",
       "brazil_jobs": 1
+    },
+    {
+      "board": "valtech",
+      "company": "Valtech",
+      "brazil_jobs": 7
     },
     {
       "board": "veriff",
