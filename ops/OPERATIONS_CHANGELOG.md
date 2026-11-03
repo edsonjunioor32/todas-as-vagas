@@ -373,3 +373,54 @@ Todos os arquivos desta seção são testes automatizados; não são coletores n
 - O monitor e o workflow passaram a aceitar somente `[catalog-refresh:run]` para uma coleta acionada por push.
 - O texto genérico `[catalog-refresh]` não aciona mais coleta, evitando que mensagens de changelog ou commits de manutenção gerem uma execução extra.
 - Foi adicionado teste negativo para garantir que texto não marcado não seja classificado como coleta.
+
+
+## 2026-11-03 — Diagnóstico de portais indisponíveis e alerta após 24 horas
+
+### Evidência da execução
+
+A execução completa [41707136337](https://github.com/edsonjunioor32/todas-as-vagas/actions/runs/41707136337) concluiu a publicação do catálogo, mas registrou falha ou indisponibilidade nos portais abaixo. O catálogo não foi substituído por uma fotografia parcial: fontes saudáveis foram publicadas e os últimos dados válidos das fontes indisponíveis permaneceram protegidos pelas regras existentes.
+
+| Portal | Evidência observada | Classificação / consequência |
+|---|---|---|
+| ASA | O adaptador Selenium do Elevo+ terminou com mensagem vazia ('Message:'); ele não encontrou uma listagem pública utilizável no diagnóstico registrado. | Falha de renderização/diagnóstico insuficiente; dados anteriores preservados. |
+| Assefaz | Está em PAUSED_SOURCES; não foi chamado nesta execução. | Pausa operacional explícita; dados anteriores preservados. |
+| Atitude | Está em PAUSED_SOURCES; não foi chamado nesta execução. | Pausa operacional explícita; dados anteriores preservados. |
+| Azify | Está em PAUSED_SOURCES; não foi chamado nesta execução. | Pausa operacional explícita; dados anteriores preservados. |
+| By Moma Group | Tenant Quickin: nenhum link público de vaga após a renderização JavaScript (137,0 s). | Falha do catálogo público/renderizado; dados anteriores preservados. |
+| Cprocco | Está em PAUSED_SOURCES; não foi chamado nesta execução. | Pausa operacional explícita; dados anteriores preservados. |
+| Entera | Convagas retornou zero registros públicos (2,2 s). | Feed vazio/endpoint público sem registros; não tratado como catálogo saudável. |
+| Greenhouse | Três boards falharam, mas os boards 1910genetics, abarca e actpowerservices concluíram; 1.339 vagas Greenhouse foram mantidas. | Falha parcial isolada; resultado saudável preservado e parcial publicado. |
+| Grupo EPA | Tenant Quickin aguardou 91,4 s por uma vaga de navegador renderizado. | Contenção/timeout da capacidade compartilhada de Chromium. |
+| Harpia IT | Compleo teve 1 de 36 detalhes com HTTP 404; 23 vagas foram consolidadas. | Falha parcial de detalhe; listagem bem-sucedida mantida. |
+| Inlog | Retornou zero vagas; o pipeline marcou a fonte como falha e preservou o snapshot anterior. | Feed vazio ou contrato público alterado; não apagar histórico. |
+| Jobi-Hub | Tenant Quickin não expôs links públicos após JavaScript (123,5 s). | Falha do catálogo público/renderizado; dados anteriores preservados. |
+| Koria | Tenant Quickin aguardou 90,9 s por slot de navegador renderizado. | Contenção/timeout da capacidade compartilhada de Chromium. |
+| Metris DHO | Tenant Quickin não expôs links públicos após JavaScript (147,2 s). | Falha do catálogo público/renderizado; dados anteriores preservados. |
+| Prolog App | Tenant Quickin aguardou 91,7 s por slot de navegador renderizado. | Contenção/timeout da capacidade compartilhada de Chromium. |
+| R2 Ventures | Tenant Quickin não expôs links públicos após JavaScript (135,7 s). | Falha do catálogo público/renderizado; dados anteriores preservados. |
+| VOE RH | Tenant Quickin não expôs links públicos após JavaScript (136,7 s). | Falha do catálogo público/renderizado; dados anteriores preservados. |
+| Wellfound | O adaptador não encontrou vagas reconhecíveis (44,7 s). | Mudança/ausência do formato público reconhecido; dados anteriores preservados. |
+
+### Causa comum e limites da conclusão
+
+Os registros mostram quatro classes diferentes, e não uma falha única da VPS: (1) quatro fontes pausadas intencionalmente; (2) saturação/timeout do pool de Chromium; (3) páginas JavaScript que não entregaram links no DOM público esperado; e (4) feeds vazios ou respostas parciais. Portanto, aumentar retries indiscriminadamente não corrige todos os casos e pode piorar a contenção do navegador. Greenhouse e Harpia IT comprovam que o pipeline isola falhas de sub-board/detalhe sem descartar as vagas válidas.
+
+### Alteração do alerta de saúde
+
+Antes, docs/app.js mostrava a mensagem sempre que failed_sources não estava vazia. O campo fresh_days=3 não representava 72 horas de falha; ele pertencia à seleção de linhas recentes, e a exceção de fonte falha também protege o histórico até a janela normal de publicação.
+
+A partir desta alteração:
+
+- o banco histórico mantém source_health com last_success_at e failure_started_at;
+- o pipeline completo e a mesclagem parcial atualizam esse estado sem alterar a retenção das vagas;
+- o snapshot publica source_warning_after_hours=24 e os timestamps sanitizados por portal;
+- a interface só apresenta “Alguns portais não responderam...” para a fonte cuja última atualização bem-sucedida (ou início da falha, quando não há sucesso anterior) esteja há pelo menos 24 horas;
+- fontes pausadas também entram no mesmo relógio, sem serem reativadas automaticamente;
+- a frase sobre preservação por até três dias continua relacionada à tolerância de dados recentes; ela não é mais usada para decidir quando o alerta aparece.
+
+Essa separação evita alertas falsos imediatamente após uma falha transitória e evita esconder por vários dias uma fonte que permaneceu sem atualização. A mudança não altera a cadência da coleta, os limites do navegador, a janela de dois meses nem a política de preservação.
+
+### Validação obrigatória
+
+Foram adicionados testes para preservar o primeiro instante da falha, atualizar o sucesso e exportar os metadados de 24 horas. O teste de interface verifica que o alerta usa sourceWarningSources(data) e source_warning_after_hours, em vez de testar apenas a presença da lista de falhas.
