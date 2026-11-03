@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-02T18:33:06.213734+00:00",
+  "generated_at": "2026-11-02T23:32:57.821357+00:00",
   "candidate_count": 8331,
-  "company_count": 200,
+  "company_count": 199,
   "companies": [
     {
       "board": "abinbev",
@@ -222,7 +222,7 @@
     {
       "board": "caylent",
       "company": "Caylent",
-      "brazil_jobs": 17
+      "brazil_jobs": 16
     },
     {
       "board": "chainguard",
@@ -303,11 +303,6 @@
       "board": "dunnhumby",
       "company": "dunnhumby",
       "brazil_jobs": 2
-    },
-    {
-      "board": "dyopath",
-      "company": "DYOPATH",
-      "brazil_jobs": 1
     },
     {
       "board": "ebanx",
@@ -757,7 +752,7 @@
     {
       "board": "ripple",
       "company": "Ripple",
-      "brazil_jobs": 3
+      "brazil_jobs": 4
     },
     {
       "board": "roblox",
@@ -792,7 +787,7 @@
     {
       "board": "sezzle",
       "company": "Sezzle",
-      "brazil_jobs": 34
+      "brazil_jobs": 35
     },
     {
       "board": "shifttechnology",
@@ -807,7 +802,7 @@
     {
       "board": "smartlyio",
       "company": "Smartly",
-      "brazil_jobs": 2
+      "brazil_jobs": 1
     },
     {
       "board": "sohohouseco",
@@ -962,7 +957,7 @@
     {
       "board": "gympass",
       "company": "Wellhub",
-      "brazil_jobs": 47
+      "brazil_jobs": 48
     },
     {
       "board": "wildlifestudios",
