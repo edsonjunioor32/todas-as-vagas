@@ -39,6 +39,7 @@ class LinkedInSourceTests(unittest.TestCase):
             "url": "https://www.linkedin.com/jobs/view/123",
             "location": "São Paulo, São Paulo, Brazil",
             "workplaceType": "remote",
+            "workplaceVerified": True,
             "publishedAt": today,
             "easyApply": True,
             "salaryMin": 3000,

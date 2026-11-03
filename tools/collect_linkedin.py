@@ -33,6 +33,80 @@ try:
 except ImportError:
     pd = None
 
+def _workplace_type_from_text(value):
+    """Converte o selo de modalidade da página do LinkedIn para o modelo interno."""
+    text = re.sub(r"\s+", " ", str(value or "")).strip().casefold()
+    if not text:
+        return ""
+    if re.search(r"\b(remote|remoto|home office|work from home|wfh|teletrabalho)\b", text):
+        return "remote"
+    if re.search(r"\b(hybrid|híbrido|hibrido)\b", text):
+        return "hybrid"
+    if re.search(r"\b(on[\s-]?site|onsite|presencial|in office|no escritório|no escritorio)\b", text):
+        return "on-site"
+    return ""
+
+
+class _WorkplaceInsightParser(HTMLParser):
+    """Extrai texto apenas dos elementos de insight/modalidade do cartão da vaga."""
+    _MARKERS = ("job-insight", "workplace", "work-from-home")
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self._active_depth = 0
+        self._buffer = []
+        self.insights = []
+
+    def handle_starttag(self, tag, attrs):
+        attributes = {
+            str(name).casefold(): str(value or "")
+            for name, value in attrs
+        }
+        marker_text = " ".join(
+            attributes.get(name, "")
+            for name in ("class", "data-test-id", "data-testid", "aria-label")
+        ).casefold()
+        is_container = (
+            any(marker in marker_text for marker in self._MARKERS)
+            or bool(_workplace_type_from_text(attributes.get("aria-label")))
+        )
+        if self._active_depth:
+            self._active_depth += 1
+        elif is_container:
+            self._active_depth = 1
+            self._buffer = []
+
+    def handle_data(self, data):
+        if self._active_depth:
+            self._buffer.append(data)
+
+    def handle_endtag(self, tag):
+        if not self._active_depth:
+            return
+        self._active_depth -= 1
+        if self._active_depth == 0:
+            text = " ".join(self._buffer)
+            if text.strip():
+                self.insights.append(text)
+            self._buffer = []
+
+
+def _extract_workplace_type_from_html(html):
+    """Lê Remote/Hybrid/On-site no cartão público da vaga, sem usar a descrição."""
+    if not html:
+        return ""
+    parser = _WorkplaceInsightParser()
+    try:
+        parser.feed(str(html))
+        parser.close()
+    except Exception:
+        return ""
+    for insight in parser.insights:
+        workplace_type = _workplace_type_from_text(insight)
+        if workplace_type:
+            return workplace_type
+    return ""
+
 try:
     from jobspy import scrape_jobs
     from jobspy.linkedin import LinkedIn
@@ -52,82 +126,6 @@ try:
 
     # Configura atraso adaptativo entre páginas (2.5s a 3.0s) para evitar 429
     LinkedIn.delay = (2.5, 3.0)
-
-
-    def _workplace_type_from_text(value):
-        """Converte o selo de modalidade da página do LinkedIn para o modelo interno."""
-        text = re.sub(r"\s+", " ", str(value or "")).strip().casefold()
-        if not text:
-            return ""
-        if re.search(r"\b(remote|remoto|home office|work from home|wfh|teletrabalho)\b", text):
-            return "remote"
-        if re.search(r"\b(hybrid|híbrido|hibrido)\b", text):
-            return "hybrid"
-        if re.search(r"\b(on[\s-]?site|onsite|presencial|in office|no escritório|no escritorio)\b", text):
-            return "on-site"
-        return ""
-
-
-    class _WorkplaceInsightParser(HTMLParser):
-        """Extrai texto apenas dos elementos de insight/modalidade do cartão da vaga."""
-        _MARKERS = ("job-insight", "workplace", "work-from-home")
-
-        def __init__(self):
-            super().__init__(convert_charrefs=True)
-            self._active_depth = 0
-            self._buffer = []
-            self.insights = []
-
-        def handle_starttag(self, tag, attrs):
-            attributes = {
-                str(name).casefold(): str(value or "")
-                for name, value in attrs
-            }
-            marker_text = " ".join(
-                attributes.get(name, "")
-                for name in ("class", "data-test-id", "data-testid", "aria-label")
-            ).casefold()
-            is_container = (
-                any(marker in marker_text for marker in self._MARKERS)
-                or bool(_workplace_type_from_text(attributes.get("aria-label")))
-            )
-            if self._active_depth:
-                self._active_depth += 1
-            elif is_container:
-                self._active_depth = 1
-                self._buffer = []
-
-        def handle_data(self, data):
-            if self._active_depth:
-                self._buffer.append(data)
-
-        def handle_endtag(self, tag):
-            if not self._active_depth:
-                return
-            self._active_depth -= 1
-            if self._active_depth == 0:
-                text = " ".join(self._buffer)
-                if text.strip():
-                    self.insights.append(text)
-                self._buffer = []
-
-
-    def _extract_workplace_type_from_html(html):
-        """Lê Remote/Hybrid/On-site no cartão público da vaga, sem usar a descrição."""
-        if not html:
-            return ""
-        parser = _WorkplaceInsightParser()
-        try:
-            parser.feed(str(html))
-            parser.close()
-        except Exception:
-            return ""
-        for insight in parser.insights:
-            workplace_type = _workplace_type_from_text(insight)
-            if workplace_type:
-                return workplace_type
-        return ""
-
 
 
     # O JobSpy já abre a página de detalhes quando fetch_description=True.
