@@ -71,7 +71,7 @@ class ScheduleTests(unittest.TestCase):
         self.assertIn("  queue: single", workflow)
         pages = (ROOT / ".github/workflows/pages.yml").read_text(encoding="utf-8")
         self.assertIn("  repository_dispatch:", pages)
-        self.assertIn("types: [catalog_recovery]", pages)
+        self.assertIn("types: [catalog_recovery, linkedin_refresh]", pages)
         self.assertIn("resume_key:", pages)
         self.assertIn("Restaurar checkpoints da coleta", pages)
         self.assertIn("Salvar checkpoints da coleta", pages)
