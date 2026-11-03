@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-02T23:32:57.821357+00:00",
+  "generated_at": "2026-11-03T11:34:05.562888+00:00",
   "candidate_count": 8331,
   "company_count": 199,
   "companies": [
     {
       "board": "abinbev",
       "company": "AB InBev  | Growth Group",
-      "brazil_jobs": 43
+      "brazil_jobs": 42
     },
     {
       "board": "addepar1",
@@ -137,7 +137,7 @@
     {
       "board": "bees",
       "company": "BEES",
-      "brazil_jobs": 52
+      "brazil_jobs": 51
     },
     {
       "board": "blip-global",
@@ -507,7 +507,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 139
+      "brazil_jobs": 138
     },
     {
       "board": "interbrand",
@@ -532,7 +532,7 @@
     {
       "board": "knowbe4",
       "company": "KnowBe4",
-      "brazil_jobs": 13
+      "brazil_jobs": 12
     },
     {
       "board": "launch2",
@@ -782,7 +782,7 @@
     {
       "board": "sertradingsa",
       "company": "Sertrading",
-      "brazil_jobs": 4
+      "brazil_jobs": 3
     },
     {
       "board": "sezzle",
@@ -822,7 +822,7 @@
     {
       "board": "stonepatrocina",
       "company": "Stone - Indeed",
-      "brazil_jobs": 230
+      "brazil_jobs": 231
     },
     {
       "board": "stripe",
@@ -957,7 +957,7 @@
     {
       "board": "gympass",
       "company": "Wellhub",
-      "brazil_jobs": 48
+      "brazil_jobs": 47
     },
     {
       "board": "wildlifestudios",
@@ -992,7 +992,7 @@
     {
       "board": "xpengmotors",
       "company": "XPENG",
-      "brazil_jobs": 1
+      "brazil_jobs": 2
     },
     {
       "board": "ilia",
