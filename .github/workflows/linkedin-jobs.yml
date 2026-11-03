@@ -105,3 +105,14 @@ jobs:
             git commit -m "chore(jobs): atualizar vagas do LinkedIn (candidatura simplificada) [linkedin-refresh]"
             git push origin main
           fi
+
+          # GITHUB_TOKEN não inicia outro workflow por um simples git push.
+          # Enviamos um evento explícito para que o Pages recalcule o catálogo
+          # e publique o snapshot atualizado nesta mesma execução.
+          curl --fail-with-body --retry 3 --retry-delay 5 \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ github.token }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/dispatches" \
+            -d '{"event_type":"linkedin_refresh"}'

@@ -1,7 +1,7 @@
 name: Atualizar vagas multiportal e publicar GitHub Pages
 # Commits [linkedin-refresh] seguem deliberadamente a coleta completa do catálogo.
 run-name: >-
-  ${{ github.event_name == 'repository_dispatch' && github.event.action == 'catalog_recovery' && 'Recuperação automática do catálogo' || github.event_name == 'workflow_dispatch' && format('Execução manual do catálogo {0}', inputs.resume_key) || 'Atualização programada do catálogo' }}
+  ${{ github.event_name == 'repository_dispatch' && github.event.action == 'linkedin_refresh' && 'Publicação após coleta do LinkedIn' || github.event_name == 'repository_dispatch' && github.event.action == 'catalog_recovery' && 'Recuperação automática do catálogo' || github.event_name == 'workflow_dispatch' && format('Execução manual do catálogo {0}', inputs.resume_key) || 'Atualização programada do catálogo' }}
 
 on:
   push:
@@ -20,7 +20,7 @@ on:
         required: false
         type: string
   repository_dispatch:
-    types: [catalog_recovery]
+    types: [catalog_recovery, linkedin_refresh]
   schedule:
     # GitHub Actions usa UTC; Brasília/Fortaleza permanece em UTC-3.
     # Equivale a 08h07, 11h07, 15h07 e 20h07 em Brasília/Fortaleza.
@@ -109,7 +109,7 @@ jobs:
           artifact_name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
 
   atualizar-e-publicar:
-    if: github.ref == 'refs/heads/main' && (github.event_name != 'push' || ((contains(github.event.head_commit.message, '[refresh-fit]') || contains(github.event.head_commit.message, '[catalog-refresh:run]') || contains(github.event.head_commit.message, '[linkedin-refresh]')) && !contains(github.event.head_commit.message, '[isolated]')))
+    if: (github.ref == 'refs/heads/main' || github.event_name == 'repository_dispatch') && (github.event_name != 'push' || ((contains(github.event.head_commit.message, '[refresh-fit]') || contains(github.event.head_commit.message, '[catalog-refresh:run]') || contains(github.event.head_commit.message, '[linkedin-refresh]')) && !contains(github.event.head_commit.message, '[isolated]')))
     runs-on: [self-hosted, Linux, ARM64]
     timeout-minutes: 120
     environment:
