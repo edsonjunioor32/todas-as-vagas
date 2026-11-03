@@ -361,6 +361,54 @@ class StorageTests(unittest.TestCase):
             self.assertEqual(count, 1)
             conn.close()
 
+    def test_source_health_delays_warning_for_a_full_day_and_keeps_first_failure(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            conn = storage.connect(str(Path(temporary) / "jobs.db"))
+            row = sample_job("portal", "1")
+            row["published_date"] = "2026-11-02"
+            storage.upsert(conn, [row], today="2026-11-02")
+
+            first_failure = "2026-11-02T08:00:00+00:00"
+            storage.update_source_health(
+                conn,
+                attempted_sources={"portal"},
+                failed_sources={"portal"},
+                observed_at=first_failure,
+            )
+            storage.update_source_health(
+                conn,
+                attempted_sources={"portal"},
+                failed_sources={"portal"},
+                observed_at="2026-11-03T08:00:00+00:00",
+            )
+            health = storage.source_health_snapshot(conn)["portal"]
+            self.assertEqual(health["failure_started_at"], first_failure)
+
+            out = Path(temporary) / "vagas.json"
+            count, _ = storage.export_snapshot(
+                conn,
+                str(out),
+                today="2026-11-03",
+                failed_sources=["portal"],
+            )
+            payload = json.loads(out.read_text(encoding="utf-8"))
+            self.assertEqual(count, 1)
+            self.assertEqual(payload["source_warning_after_hours"], 24)
+            self.assertEqual(payload["source_failure_started_at"]["portal"], first_failure)
+            self.assertTrue(payload["source_last_success_at"]["portal"])
+
+            storage.update_source_health(
+                conn,
+                attempted_sources={"portal"},
+                failed_sources=set(),
+                observed_at="2026-11-03T09:00:00+00:00",
+            )
+            health = storage.source_health_snapshot(conn)["portal"]
+            self.assertEqual(health["last_success_at"], "2026-11-03T09:00:00+00:00")
+            self.assertEqual(health["failure_started_at"], "")
+            conn.close()
+
+
     def test_failed_gupy_is_never_exported_as_current(self):
         with tempfile.TemporaryDirectory() as temporary:
             conn = storage.connect(str(Path(temporary) / "jobs.db"))
