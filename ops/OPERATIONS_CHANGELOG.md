@@ -1,5 +1,13 @@
 # Histórico operacional e mapa de responsabilidades
 
+## 2026-11-03 — Catálogo integral sem restrição por termos
+
+- **Regra consolidada:** o portal Todas as Vagas deve reunir as vagas públicas retornadas pelos adaptadores registrados, mantendo somente validações de publicação, localização, prazo e janela de até dois meses. Termos de cargo não são critério de inclusão.
+- **Causa da regressão:** o índice amplo público da Gupy é limitado a aproximadamente 10.000 resultados; as buscas complementares por termos eram apenas uma expansão parcial e deixavam fora anúncios antigos ativos cujo título não correspondia aos termos.
+- **Correção:** a consulta ampla continua sendo a fonte autoritativa e nunca é filtrada por termos; as consultas complementares permanecem aditivas. A página pública `https://carreirasomie.gupy.io/` foi incluída na reconciliação por portal, cobrindo a vaga Gupy `12711932` e evitando depender apenas de termos.
+- **Outros portais:** a auditoria não encontrou filtro global de título no pipeline. Vagas.com remove `q=buscar` durante a paginação; filtros geográficos em SmartRecruiters/UnlockCareer e o modo padrão aberto do LinkedIn não são filtros de cargo.
+- **Proteções:** teste de regressão para Omie e para um título fora da lista de buscas complementares; documentação no README e no mapa do ecossistema. A publicação só deve ser considerada concluída após validar o novo `public-data/data/vagas.json` e o GitHub Pages.
+- **Limitação conhecida:** a Gupy ainda não oferece, por esse MCP público, uma exportação integral sem paginação/limite do provedor. Novas páginas públicas relevantes devem ser adicionadas ao manifesto monitorado até existir um enumerador oficial completo.
 ## 2026-10-31 — Resiliência, Backoff HTTP 429 e Benchmark da Coleta Aberta no LinkedIn
 
 - **Benchmark Isolado na `main` (commit `a18798c`):**
