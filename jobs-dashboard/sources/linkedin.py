@@ -18,7 +18,7 @@ SOURCE = "linkedin"
 DEFAULT_SNAPSHOT = (
     Path(__file__).resolve().parents[2] / "docs" / "data" / "linkedin_vagas.json"
 )
-DEFAULT_MAX_AGE_DAYS = 30
+DEFAULT_MAX_AGE_DAYS = 60
 DEFAULT_SNAPSHOT_MAX_AGE_HOURS = 36
 JOB_URL_RE = re.compile(
     r"^https://(?:[a-z]{2,3}\.|www\.)?linkedin\.com/jobs/view/(\d+)(?:[/?#].*)?$",

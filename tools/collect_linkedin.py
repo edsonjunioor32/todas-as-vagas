@@ -15,6 +15,15 @@ import sys
 import time
 from datetime import datetime, timezone
 
+
+# Limites operacionais da coleta aberta. JobSpy aceita offset para continuar
+# a busca; usamos lotes controlados para ultrapassar o primeiro resultado sem
+# criar uma consulta ilimitada ou concentrar todas as requisições em uma única chamada.
+DEFAULT_RESULTS_LIMIT = 600
+DEFAULT_REMOTE_RESULTS_LIMIT = 300
+DEFAULT_HOURS_OLD = 1440
+JOBSPY_BATCH_SIZE = 100
+
 # Importações condicionais para permitir que módulos de validação/testes importem
 # funções utilitárias (ex: normalize_linkedin_job) mesmo em ambientes de CI leves
 # onde pandas e jobspy não estão instalados no catálogo principal.
@@ -167,12 +176,65 @@ def normalize_linkedin_job(raw_job, is_remote_search=False):
     }
 
 
+
+def _scrape_jobs_in_pages(*, results_limit, **kwargs):
+    """Coleta um número limitado de resultados usando lotes e o offset público do JobSpy."""
+    target = max(0, int(results_limit))
+    if target == 0:
+        return []
+
+    batch_size = min(JOBSPY_BATCH_SIZE, target)
+    max_pages = math.ceil(target / batch_size)
+    records = []
+    seen_keys = set()
+
+    for page_number in range(max_pages):
+        offset = page_number * batch_size
+        page_kwargs = dict(kwargs)
+        page_kwargs["results_wanted"] = batch_size
+        page_kwargs["offset"] = offset
+        print(
+            f"  -> Lote {page_number + 1}/{max_pages} "
+            f"(offset={offset}, limite={batch_size})"
+        )
+        df = scrape_jobs(**page_kwargs)
+        if df is None or df.empty:
+            break
+
+        batch = df.to_dict(orient="records")
+        if not batch:
+            break
+
+        new_records = 0
+        for raw in batch:
+            key = (
+                clean_value(raw.get("job_url"))
+                or clean_value(raw.get("id"))
+                or f"{clean_value(raw.get('title'))}::{clean_value(raw.get('company'))}"
+            )
+            key = str(key).strip()
+            if key in seen_keys:
+                continue
+            seen_keys.add(key)
+            records.append(raw)
+            new_records += 1
+
+        # Menos registros que o lote solicitado sinaliza o fim da busca. Se o
+        # offset não for respeitado ou a página repetir os mesmos registros,
+        # interrompemos para evitar um loop sem progresso.
+        if len(batch) < batch_size or new_records == 0:
+            break
+        if page_number < max_pages - 1:
+            time.sleep(2)
+
+    return records[:target]
+
 def collect_linkedin(
     terms=None,
     location="Brazil",
-    results_limit=100,
-    remote_results_limit=50,
-    hours_old=720,
+    results_limit=DEFAULT_RESULTS_LIMIT,
+    remote_results_limit=DEFAULT_REMOTE_RESULTS_LIMIT,
+    hours_old=DEFAULT_HOURS_OLD,
     out_path="docs/data/linkedin_vagas.json",
     include_remote_pass=True,
 ):
@@ -193,19 +255,18 @@ def collect_linkedin(
         for i, term in enumerate(terms, 1):
             print(f"\n[{i}/{len(terms)}] Consultando LinkedIn para: '{term}'...")
             try:
-                df = scrape_jobs(
+                records = _scrape_jobs_in_pages(
+                    results_limit=results_limit,
                     site_name=["linkedin"],
                     search_term=term,
                     location=location,
-                    results_wanted=results_limit,
                     hours_old=hours_old,
                     easy_apply=True,
                     description_format="markdown",
                     fetch_description=False,
                     verbose=0,
                 )
-                if df is not None and not df.empty:
-                    records = df.to_dict(orient="records")
+                if records:
                     print(f"  -> Encontradas {len(records)} vagas para '{term}'.")
                     for raw in records:
                         norm = normalize_linkedin_job(raw, is_remote_search=False)
@@ -221,19 +282,18 @@ def collect_linkedin(
         # 1. Varredura Aberta Geral (Presencial, Híbrida e Remota em todo o Brasil)
         print(f"\n[Fase 1/2] Executando Varredura Aberta Geral (todo o Brasil, sem filtro de palavras-chave)...")
         try:
-            df_general = scrape_jobs(
+            records = _scrape_jobs_in_pages(
+                results_limit=results_limit,
                 site_name=["linkedin"],
                 search_term=None,
                 location=location,
-                results_wanted=results_limit,
                 hours_old=hours_old,
                 easy_apply=True,
                 description_format="markdown",
                 fetch_description=False,
                 verbose=0,
             )
-            if df_general is not None and not df_general.empty:
-                records = df_general.to_dict(orient="records")
+            if records:
                 print(f"  -> Encontradas {len(records)} vagas na varredura geral.")
                 for raw in records:
                     norm = normalize_linkedin_job(raw, is_remote_search=False)
@@ -251,20 +311,19 @@ def collect_linkedin(
         if include_remote_pass and remote_results_limit > 0:
             print(f"\n[Fase 2/2] Executando Varredura Aberta Remota Dedicada (f_WT=2, 100% Brasil)...")
             try:
-                df_remote = scrape_jobs(
+                records = _scrape_jobs_in_pages(
+                    results_limit=remote_results_limit,
                     site_name=["linkedin"],
                     search_term=None,
                     location=location,
                     is_remote=True,
-                    results_wanted=remote_results_limit,
                     hours_old=hours_old,
                     easy_apply=True,
                     description_format="markdown",
                     fetch_description=False,
                     verbose=0,
                 )
-                if df_remote is not None and not df_remote.empty:
-                    records = df_remote.to_dict(orient="records")
+                if records:
                     print(f"  -> Encontradas {len(records)} vagas remotas Easy Apply.")
                     for raw in records:
                         norm = normalize_linkedin_job(raw, is_remote_search=True)
@@ -340,16 +399,16 @@ if __name__ == "__main__":
         "--results-per-term",
         dest="results_limit",
         type=int,
-        default=100,
-        help="Limite de vagas da varredura geral",
+        default=DEFAULT_RESULTS_LIMIT,
+        help="Limite total da varredura geral (em lotes de até 100)",
     )
     parser.add_argument(
         "--remote-results-limit",
         type=int,
-        default=50,
-        help="Limite de vagas da varredura remota dedicada",
+        default=DEFAULT_REMOTE_RESULTS_LIMIT,
+        help="Limite total da varredura remota dedicada (em lotes de até 100)",
     )
-    parser.add_argument("--hours-old", type=int, default=720, help="Horas desde a publicação (720 = 30 dias)")
+    parser.add_argument("--hours-old", type=int, default=DEFAULT_HOURS_OLD, help="Horas desde a publicação (1440 = 60 dias)")
     parser.add_argument("--output", type=str, default="docs/data/linkedin_vagas.json", help="Caminho do arquivo de saída")
     parser.add_argument("--skip-remote-pass", action="store_true", help="Pular a etapa dedicada de busca remota")
     args = parser.parse_args()

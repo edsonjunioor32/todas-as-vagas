@@ -103,7 +103,7 @@ class LinkedInSourceTests(unittest.TestCase):
             linkedin._normalize(
                 self._payload()["jobs"][0]
                 | {
-                    "publishedAt": (today - timedelta(days=31)).isoformat()
+                    "publishedAt": (today - timedelta(days=61)).isoformat()
                 },
                 today=today,
             )
@@ -282,13 +282,13 @@ class LinkedInSourceTests(unittest.TestCase):
         mock_scraper.scraper_input.distance = 50
         mock_scraper.scraper_input.easy_apply = True
         mock_scraper.scraper_input.linkedin_company_ids = None
-        mock_scraper.scraper_input.hours_old = 720
+        mock_scraper.scraper_input.hours_old = 1440
         mock_scraper.scraper_input.is_remote = True
 
         params = LinkedIn._search_params(mock_scraper)
         self.assertEqual(params.get("f_WT"), "2")
         self.assertEqual(params.get("f_AL"), "true")
-        self.assertEqual(params.get("f_TPR"), "r2592000")
+        self.assertEqual(params.get("f_TPR"), "r5184000")
 
 
     def test_collect_linkedin_open_unrestricted_collection(self):
@@ -409,6 +409,68 @@ class LinkedInSourceTests(unittest.TestCase):
             self.assertEqual(result.status_code, 200)
             self.assertEqual(underlying_mock_get.call_count, 2)
             mock_sleep.assert_called_once_with(0.0)
+
+
+    def test_collect_linkedin_paginates_beyond_legacy_limit(self):
+        """A coleta usa offset em lotes e ultrapassa o limite legado de 100 resultados."""
+        records = [
+            {
+                "id": f"li-{index}",
+                "job_url": f"https://www.linkedin.com/jobs/view/{index}",
+                "title": f"Vaga {index}",
+                "company": "Empresa Teste",
+                "location": "São Paulo, São Paulo, Brazil",
+                "date_posted": "2026-11-03",
+            }
+            for index in range(205)
+        ]
+        calls = []
+
+        class MockDataFrame(list):
+            def __init__(self, data):
+                super().__init__(data)
+                self.empty = len(data) == 0
+
+            def to_dict(self, orient="records"):
+                return list(self)
+
+        def mock_scrape(*args, **kwargs):
+            calls.append(dict(kwargs))
+            start = kwargs["offset"]
+            size = kwargs["results_wanted"]
+            return MockDataFrame(records[start : start + size])
+
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tmp:
+            tmp_path = Path(tmp.name)
+
+        try:
+            with patch.object(collect_linkedin, "scrape_jobs", side_effect=mock_scrape):
+                results = collect_linkedin.collect_linkedin(
+                    terms=None,
+                    results_limit=205,
+                    remote_results_limit=0,
+                    hours_old=1440,
+                    out_path=str(tmp_path),
+                    include_remote_pass=False,
+                )
+
+            self.assertEqual(len(results), 205)
+            self.assertEqual([call["offset"] for call in calls], [0, 100, 200])
+            self.assertEqual(
+                [call["results_wanted"] for call in calls],
+                [100, 100, 100],
+            )
+        finally:
+            tmp_path.unlink(missing_ok=True)
+
+    def test_normalize_accepts_job_within_two_month_window(self):
+        today = date.today()
+        row = linkedin._normalize(
+            self._payload()["jobs"][0]
+            | {"publishedAt": (today - timedelta(days=60)).isoformat()},
+            today=today,
+        )
+        self.assertIsNotNone(row)
 
 
 if __name__ == "__main__":

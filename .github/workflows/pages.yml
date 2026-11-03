@@ -54,7 +54,8 @@ jobs:
       - name: Baixar o repositório
         uses: actions/checkout@v4
         with:
-          ref: main
+          # Usa exatamente o commit que disparou a execução; não a ponta móvel de main.
+          ref: ${{ github.sha }}
 
       - name: Restaurar snapshots públicos
         shell: bash
@@ -119,7 +120,7 @@ jobs:
       - name: Baixar o repositório
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ github.sha }}
           # Só usamos a ponta atual do código; o histórico completo inclui versões antigas de jobs.db e excede o disco do runner.
           fetch-depth: 1
       
@@ -382,6 +383,18 @@ jobs:
             git -C "$data_worktree" push origin HEAD:history-data
           fi
 
+      - name: Confirmar que o código da coleta ainda é o commit disparador
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --depth=1 --no-tags origin +refs/heads/main:refs/remotes/origin/main
+          current_main_sha="$(git rev-parse origin/main)"
+          if [ "$current_main_sha" != "$GITHUB_SHA" ]; then
+            echo "ERRO: main avançou durante a coleta; recusando publicar um snapshot baseado em código defasado." >&2
+            exit 1
+          fi
+          echo "OK: a coleta será publicada a partir de $GITHUB_SHA."
+
       - name: Publicar snapshots no ramo dedicado
         shell: bash
         run: |
@@ -442,7 +455,12 @@ jobs:
             echo "Nenhuma alteração para registrar."
           else
             git commit -m "Atualiza índice público de vagas [skip ci]"
-            git pull --rebase origin main
+            git fetch --depth=1 --no-tags origin +refs/heads/main:refs/remotes/origin/main
+            current_main_sha="$(git rev-parse origin/main)"
+            if [ "$current_main_sha" != "$GITHUB_SHA" ]; then
+              echo "ERRO: main avançou antes do commit de manutenção; não faremos rebase silencioso." >&2
+              exit 1
+            fi
             git push origin HEAD:main
           fi
 

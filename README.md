@@ -65,7 +65,7 @@ O painel permite combinar pesquisa livre com filtros de cidade, portal, modalida
 
 ## LinkedIn — Candidatura Simplificada
 
-O workflow [`linkedin-jobs.yml`](.github/workflows/linkedin-jobs.yml) consulta diariamente as listagens públicas do LinkedIn, sem login, cookies ou credenciais de uma conta. A coleta usa os termos de suporte e tecnologia já definidos para o projeto, restringe o resultado a vagas com **Candidatura Simplificada (Easy Apply)** no Brasil e aplica uma janela de **30 dias**.
+O workflow [`linkedin-jobs.yml`](.github/workflows/linkedin-jobs.yml) consulta duas vezes ao dia as listagens públicas do LinkedIn, sem login, cookies ou credenciais de uma conta. A coleta usa os termos de suporte e tecnologia já definidos para o projeto, restringe o resultado a vagas com **Candidatura Simplificada (Easy Apply)** no Brasil e aplica uma janela de **60 dias**. A busca aberta usa lotes paginados de até 600 resultados e a busca remota dedicada usa até 300, ambos com deduplicação e limite operacional.
 
 O resultado é gravado em `docs/data/linkedin_vagas.json`, validado antes do commit e então incorporado ao mesmo pipeline do catálogo. O commit recebe o marcador `[linkedin-refresh]`; esse marcador faz o `pages.yml` executar a coleta completa, a deduplicação, as validações, o histórico, o snapshot `public-data` e o GitHub Pages. Assim, o LinkedIn não publica um arquivo paralelo que fique fora do portal.
 
