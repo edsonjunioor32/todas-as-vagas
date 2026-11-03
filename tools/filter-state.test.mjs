@@ -27,6 +27,22 @@ assert.match(
   'Valores sem informação não devem virar opções de portal ou mercado.'
 );
 
+assert.match(
+  app,
+  /function sourceWarningSources\(data\)/,
+  'O alerta de portal deve ser calculado a partir da idade da falha, não apenas da lista de falhas.'
+);
+assert.match(
+  app,
+  /source_warning_after_hours/,
+  'O snapshot deve controlar o limite de 24 horas do alerta por portal.'
+);
+assert.match(
+  app,
+  /const warningSources = sourceWarningSources\(data\)/,
+  'A interface deve ocultar falhas ainda dentro da tolerância de 24 horas.'
+);
+
 console.log('Filtro sem seleção não gera chips fantasma.');
 
 const html = fs.readFileSync(path.join(root, 'docs', 'index.html'), 'utf8');
