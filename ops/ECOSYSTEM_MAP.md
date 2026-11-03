@@ -199,3 +199,9 @@ Revisão: 2026-10-17. Este documento complementa o inventário **arquivo a arqui
 3. Verificar última execução, próximo horário UTC, fila/checkpoint, data do snapshot e contagem por portal antes e depois. Para alterações de IDs/URLs/esquema, testar site, Telegram, WhatsApp e agente.
 4. Para desativar agenda ou fonte, demonstrar substituto ativo e definir rollback; não ativar publicadores legados em paralelo.
 5. Atualizar este arquivo e o inventário central quando árvores/contratos mudarem; comparar todas as árvores Git (`main` dos seis repositórios mais `public-data`/`history-data`) com as linhas do mapa. Não registrar secrets, dados pessoais nem conteúdo das descrições privadas.
+
+## Regra do catálogo público (2026-11-03)
+
+- O catálogo Todas as Vagas não usa termos de cargo como filtro global de inclusão. Cada adaptador deve retornar as vagas públicas elegíveis do próprio portal; a consolidação aplica apenas validação de publicação, localização, prazo, deduplicação e janela de até dois meses.
+- Consultas com termos, quando impostas por um provedor, são somente estratégias aditivas de cobertura e não podem descartar uma vaga retornada pela consulta ampla. Filtros geográficos, de modalidade e de tipo de anúncio devem permanecer explícitos e documentados.
+- Uma atualização é considerada publicada somente quando o snapshot novo de `public-data` e o GitHub Pages forem confirmados, não apenas quando o workflow terminar verde.
