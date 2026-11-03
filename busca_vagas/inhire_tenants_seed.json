@@ -1400,6 +1400,10 @@
     "tenantName": "Magna Executive Search"
   },
   {
+    "slug": "makasi",
+    "tenantName": "makasi"
+  },
+  {
     "slug": "mapahds",
     "tenantName": "Mapa HDS"
   },
