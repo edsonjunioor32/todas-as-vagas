@@ -154,6 +154,38 @@ class LinkedInSourceTests(unittest.TestCase):
         self.assertEqual(row["market"], "BR")
         self.assertEqual(row["country"], "BR")
 
+    def test_verified_workplace_overrides_legacy_location_heuristic(self):
+        today = date.today().isoformat()
+        row = self._payload(
+            job={
+                "native_id": "li-4486898930",
+                "title": "(1608) Forward Deployed Engineer",
+                "company": "Nortal",
+                "url": "https://www.linkedin.com/jobs/view/4486898930",
+                "location": "Greater Rio de Janeiro",
+                "workplaceType": "remote",
+                "workplaceVerified": True,
+                "publishedAt": today,
+            }
+        )["jobs"][0]
+        normalized = linkedin._normalize(row, today=date.today())
+        self.assertEqual(normalized["work_model"], "remote")
+
+        row = self._payload(
+            job={
+                "native_id": "li-4478138443",
+                "title": "Açougueiro(a) - Vila Mascote",
+                "company": "St Marche",
+                "url": "https://www.linkedin.com/jobs/view/4478138443",
+                "location": "São Paulo, São Paulo, Brazil",
+                "workplaceType": "on-site",
+                "workplaceVerified": True,
+                "publishedAt": today,
+            }
+        )["jobs"][0]
+        normalized = linkedin._normalize(row, today=date.today())
+        self.assertEqual(normalized["work_model"], "on-site")
+
     def test_normalize_regression_for_job_4483475105_remote_easy_apply(self):
         """Teste de regressão específico para a vaga ID 4483475105 (Tryp.com Operations Assistant)."""
         today = date.today().isoformat()
@@ -210,6 +242,35 @@ class LinkedInSourceTests(unittest.TestCase):
         self.assertEqual(row["url"], "https://www.linkedin.com/jobs/view/4483475105")
         self.assertEqual(row["native_id"], "li-4483475105")
 
+    def test_extracts_workplace_badge_from_linkedin_detail_html(self):
+        remote_html = """
+        <li class="job-details-jobs-unified-top-card__job-insight--highlight">
+            <span class="job-details-jobs-unified-top-card__job-insight-text-button">Remote</span>
+        </li>
+        """
+        onsite_html = """
+        <li class="job-details-jobs-unified-top-card__job-insight">
+            <span>Presencial</span>
+        </li>
+        """
+        hybrid_html = """
+        <li class="jobs-unified-top-card__job-insight">
+            <span>Hybrid</span>
+        </li>
+        """
+        self.assertEqual(
+            collect_linkedin._extract_workplace_type_from_html(remote_html),
+            "remote",
+        )
+        self.assertEqual(
+            collect_linkedin._extract_workplace_type_from_html(onsite_html),
+            "on-site",
+        )
+        self.assertEqual(
+            collect_linkedin._extract_workplace_type_from_html(hybrid_html),
+            "hybrid",
+        )
+
     def test_collect_linkedin_normalize_job_mappings(self):
         """Valida que normalize_linkedin_job categoriza corretamente remoto/híbrido/presencial."""
         # 1. Localização "Brazil" -> remote
@@ -262,11 +323,37 @@ class LinkedInSourceTests(unittest.TestCase):
             "title": "Analista de Suporte",
             "company": "Tech Corp",
             "location": "Belo Horizonte, Minas Gerais, Brazil",
+            "work_from_home_type": "remote",
         }
         norm_remote_pass = collect_linkedin.normalize_linkedin_job(
             job_remote_pass, is_remote_search=True
         )
         self.assertEqual(norm_remote_pass["workplaceType"], "remote")
+        self.assertTrue(norm_remote_pass["workplaceVerified"])
+
+        # O resultado de uma busca remota não prova a modalidade: o filtro
+        # público pode devolver uma vaga presencial por backfill.
+        job_backfilled = {
+            "job_url": "https://www.linkedin.com/jobs/view/4481005",
+            "title": "Analista de Suporte",
+            "company": "Tech Corp",
+            "location": "Belo Horizonte, Minas Gerais, Brazil",
+        }
+        norm_backfilled = collect_linkedin.normalize_linkedin_job(
+            job_backfilled, is_remote_search=True
+        )
+        self.assertEqual(norm_backfilled["workplaceType"], "on-site")
+
+        # O selo Remote corrige localizações regionais que não contêm a palavra remoto.
+        job_detail_remote = {
+            "job_url": "https://www.linkedin.com/jobs/view/4486898930",
+            "title": "(1608) Forward Deployed Engineer",
+            "company": "Nortal",
+            "location": "Greater Rio de Janeiro",
+            "work_from_home_type": "Remote",
+        }
+        norm_detail_remote = collect_linkedin.normalize_linkedin_job(job_detail_remote)
+        self.assertEqual(norm_detail_remote["workplaceType"], "remote")
 
     def test_jobspy_patched_search_params_adds_remote_filter(self):
         """Garante que a busca remota dedicada do JobSpy injeta f_WT=2 no LinkedIn."""

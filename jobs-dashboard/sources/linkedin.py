@@ -120,29 +120,40 @@ def _normalize(raw, today=None):
         native_id = f"li-{native_id}"
     canonical_url = f"https://www.linkedin.com/jobs/view/{job_id}"
 
-    raw_model = str(raw.get("workplaceType") or raw.get("workplace_type") or "").strip()
+    raw_model = str(
+        raw.get("workplaceType")
+        or raw.get("workplace_type")
+        or raw.get("work_from_home_type")
+        or raw.get("workplace")
+        or ""
+    ).strip()
     loc_clean = location.strip().lower()
     is_remote_flag = bool(raw.get("is_remote") or raw.get("isRemote") or raw.get("remote"))
+    workplace_verified = bool(
+        raw.get("workplaceVerified") or raw.get("workplace_verified")
+    )
+    verified_model = work_model_label(remote_flag=None, raw=raw_model)
 
     remote_keywords = (
         "remote", "remoto", "home office", "home-office",
-        "teletrabalho", "wfh", "anywhere", "100% remoto"
+        "work from home", "teletrabalho", "wfh", "anywhere", "100% remoto"
     )
     hybrid_keywords = ("hybrid", "híbrido", "hibrido")
 
-    if any(h in raw_model.lower() or h in loc_clean or h in title.lower() for h in hybrid_keywords):
+    if workplace_verified and verified_model:
+        # O selo da página individual prevalece inclusive sobre a heurística
+        # legada que tratava a localização "Brazil" como remota.
+        work_model = verified_model
+    elif any(h in loc_clean or h in title.lower() for h in hybrid_keywords):
         work_model = "hybrid"
     elif (
         is_remote_flag
-        or raw_model.lower() == "remote"
         or loc_clean in ("brazil", "brasil")
-        or any(k in loc_clean or k in title.lower() or k in raw_model.lower() for k in remote_keywords)
+        or any(k in loc_clean or k in title.lower() for k in remote_keywords)
     ):
         work_model = "remote"
     else:
-        work_model = work_model_label(remote_flag=is_remote_flag, raw=raw_model)
-        if not work_model:
-            work_model = "on-site"
+        work_model = "on-site"
 
     salary_min = _amount(raw.get("salaryMin", raw.get("salary_min")))
     salary_max = _amount(raw.get("salaryMax", raw.get("salary_max")))

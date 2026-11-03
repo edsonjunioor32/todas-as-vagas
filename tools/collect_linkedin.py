@@ -14,6 +14,7 @@ import re
 import sys
 import time
 from datetime import datetime, timezone
+from html.parser import HTMLParser
 
 
 # Limites operacionais da coleta aberta. JobSpy aceita offset para continuar
@@ -51,6 +52,112 @@ try:
 
     # Configura atraso adaptativo entre páginas (2.5s a 3.0s) para evitar 429
     LinkedIn.delay = (2.5, 3.0)
+
+
+    def _workplace_type_from_text(value):
+        """Converte o selo de modalidade da página do LinkedIn para o modelo interno."""
+        text = re.sub(r"\s+", " ", str(value or "")).strip().casefold()
+        if not text:
+            return ""
+        if re.search(r"\b(remote|remoto|home office|work from home|wfh|teletrabalho)\b", text):
+            return "remote"
+        if re.search(r"\b(hybrid|híbrido|hibrido)\b", text):
+            return "hybrid"
+        if re.search(r"\b(on[\s-]?site|onsite|presencial|in office|no escritório|no escritorio)\b", text):
+            return "on-site"
+        return ""
+
+
+    class _WorkplaceInsightParser(HTMLParser):
+        """Extrai texto apenas dos elementos de insight/modalidade do cartão da vaga."""
+        _MARKERS = ("job-insight", "workplace", "work-from-home")
+
+        def __init__(self):
+            super().__init__(convert_charrefs=True)
+            self._active_depth = 0
+            self._buffer = []
+            self.insights = []
+
+        def handle_starttag(self, tag, attrs):
+            attributes = {
+                str(name).casefold(): str(value or "")
+                for name, value in attrs
+            }
+            marker_text = " ".join(
+                attributes.get(name, "")
+                for name in ("class", "data-test-id", "data-testid", "aria-label")
+            ).casefold()
+            is_container = (
+                any(marker in marker_text for marker in self._MARKERS)
+                or bool(_workplace_type_from_text(attributes.get("aria-label")))
+            )
+            if self._active_depth:
+                self._active_depth += 1
+            elif is_container:
+                self._active_depth = 1
+                self._buffer = []
+
+        def handle_data(self, data):
+            if self._active_depth:
+                self._buffer.append(data)
+
+        def handle_endtag(self, tag):
+            if not self._active_depth:
+                return
+            self._active_depth -= 1
+            if self._active_depth == 0:
+                text = " ".join(self._buffer)
+                if text.strip():
+                    self.insights.append(text)
+                self._buffer = []
+
+
+    def _extract_workplace_type_from_html(html):
+        """Lê Remote/Hybrid/On-site no cartão público da vaga, sem usar a descrição."""
+        if not html:
+            return ""
+        parser = _WorkplaceInsightParser()
+        try:
+            parser.feed(str(html))
+            parser.close()
+        except Exception:
+            return ""
+        for insight in parser.insights:
+            workplace_type = _workplace_type_from_text(insight)
+            if workplace_type:
+                return workplace_type
+        return ""
+
+
+
+    # O JobSpy já abre a página de detalhes quando fetch_description=True.
+    # Capturamos o HTML dessa mesma requisição para ler o selo de modalidade,
+    # evitando uma segunda chamada à vaga e sem depender de login/cookies.
+    _orig_linkedin_fetch_details = LinkedIn._fetch_details
+
+    def _patched_linkedin_fetch_details(self, job_id):
+        captured = {}
+        original_get = self.session.get
+
+        def _capture_get(url, *args, **kwargs):
+            response = original_get(url, *args, **kwargs)
+            if str(url).rstrip("/").endswith(f"/jobs/view/{job_id}"):
+                captured["html"] = getattr(response, "text", "")
+            return response
+
+        self.session.get = _capture_get
+        try:
+            details = _orig_linkedin_fetch_details(self, job_id) or {}
+        finally:
+            self.session.get = original_get
+
+        workplace_type = _extract_workplace_type_from_html(captured.get("html", ""))
+        if workplace_type:
+            details = dict(details)
+            details["work_from_home_type"] = workplace_type
+        return details
+
+    LinkedIn._fetch_details = _patched_linkedin_fetch_details
 
     # Interceptador resiliente para tratar HTTP 429 com backoff exponencial e Retry-After
     if hasattr(jl, "create_session"):
@@ -124,24 +231,30 @@ def normalize_linkedin_job(raw_job, is_remote_search=False):
     company = clean_value(raw_job.get("company")) or "Empresa não informada"
     location = clean_value(raw_job.get("location")) or "Brazil"
 
-    # Determina o modelo de trabalho (remote, hybrid, on-site)
+    # Determina o modelo de trabalho (remote, hybrid, on-site).
+    # A modalidade capturada da página de detalhes é a única fonte autoritativa.
+    # is_remote_search indica apenas como a vaga foi encontrada: o LinkedIn pode
+    # preencher uma página filtrada por remoto com vagas presenciais.
     loc_lower = str(location).lower().strip()
     title_lower = str(title).lower().strip()
-    desc_lower = str(raw_job.get("description") or "").lower()
-    is_remote_flag = bool(raw_job.get("is_remote")) or is_remote_search
+    verified_model = _workplace_type_from_text(raw_job.get("work_from_home_type"))
+    is_remote_flag = bool(raw_job.get("is_remote"))
 
     remote_keywords = (
         "remoto", "remote", "home office", "home-office",
-        "teletrabalho", "wfh", "anywhere", "100% remoto", "totalmente remoto"
+        "work from home", "teletrabalho", "wfh", "anywhere",
+        "100% remoto", "totalmente remoto"
     )
     hybrid_keywords = ("híbrido", "hibrido", "hybrid")
 
-    if any(h in loc_lower or h in title_lower or h in desc_lower for h in hybrid_keywords):
+    if verified_model:
+        workplace_type = verified_model
+    elif any(h in loc_lower or h in title_lower for h in hybrid_keywords):
         workplace_type = "hybrid"
     elif (
         is_remote_flag
         or loc_lower in ("brazil", "brasil")
-        or any(k in loc_lower or k in title_lower or k in desc_lower for k in remote_keywords)
+        or any(k in loc_lower or k in title_lower for k in remote_keywords)
     ):
         workplace_type = "remote"
     else:
@@ -166,13 +279,15 @@ def normalize_linkedin_job(raw_job, is_remote_search=False):
         "url": url,
         "location": location,
         "workplaceType": workplace_type,
+        "workplaceVerified": bool(verified_model),
         "publishedAt": date_posted,
         "collectedAt": datetime.now(timezone.utc).isoformat(),
         "easyApply": True,
         "salaryMin": float(min_amount) if min_amount else None,
         "salaryMax": float(max_amount) if max_amount else None,
         "currency": currency if (min_amount or max_amount) else None,
-        "description": clean_value(raw_job.get("description"))[:4000] if raw_job.get("description") else "",
+        # A descrição não é publicada neste snapshot; é usada apenas para enriquecer o JobSpy.
+        "description": "",
     }
 
 
@@ -263,7 +378,7 @@ def collect_linkedin(
                     hours_old=hours_old,
                     easy_apply=True,
                     description_format="markdown",
-                    fetch_description=False,
+                    fetch_description=True,
                     verbose=0,
                 )
                 if records:
@@ -290,7 +405,7 @@ def collect_linkedin(
                 hours_old=hours_old,
                 easy_apply=True,
                 description_format="markdown",
-                fetch_description=False,
+                fetch_description=True,
                 verbose=0,
             )
             if records:
@@ -320,7 +435,7 @@ def collect_linkedin(
                     hours_old=hours_old,
                     easy_apply=True,
                     description_format="markdown",
-                    fetch_description=False,
+                    fetch_description=True,
                     verbose=0,
                 )
                 if records:

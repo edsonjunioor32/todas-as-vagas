@@ -1,5 +1,12 @@
 # Histórico operacional e mapa de responsabilidades
 
+## 2026-11-03 — Modalidade do LinkedIn validada na página individual
+
+- **Causa raiz:** a coleta usava o resultado da busca remota (f_WT=2) como classificação. O LinkedIn pode preencher páginas filtradas com anúncios que não atendem ao filtro; além disso, a busca pública exibe apenas a região no cartão, enquanto a modalidade real aparece no cartão individual da vaga.
+- **Correção:** o coletor agora abre a página de detalhes durante a coleta, lê o selo Remote, Hybrid, On-site/Presencial e marca a modalidade como verificada. O filtro remoto passou a ser apenas uma estratégia adicional de descoberta, nunca uma prova da modalidade.
+- **Proteção:** vagas sem selo verificado continuam usando apenas heurísticas conservadoras; a suíte inclui regressões para (1608) Forward Deployed Engineer/Nortal e Açougueiro(a) - Vila Mascote/St Marche, além do comportamento de backfill.
+- **Validação:** o snapshot continua sem publicar a descrição completa das vagas; somente o modelo de trabalho verificado é incorporado ao catálogo.
+
 ## 2026-11-03 — Catálogo integral sem restrição por termos
 
 - **Regra consolidada:** o portal Todas as Vagas deve reunir as vagas públicas retornadas pelos adaptadores registrados, mantendo somente validações de publicação, localização, prazo e janela de até dois meses. Termos de cargo não são critério de inclusão.
