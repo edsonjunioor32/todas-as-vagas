@@ -648,6 +648,15 @@ def main(before_persist=None):
     conn = storage.connect(str(DB_PATH))
     before = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
     storage.upsert(conn, rows)
+    # Health is tracked per source, separately from row retention. Paused
+    # sources are also marked as unavailable so the UI waits the same 24 full
+    # hours before showing a warning for them.
+    storage.update_source_health(
+        conn,
+        attempted_sources=set(selected_sources) | set(PAUSED_SOURCES),
+        failed_sources=set(failed) | set(PAUSED_SOURCES),
+        observed_at=storage.utc_now_iso(),
+    )
     recrutei_repaired = 0
     if "recrutei" in selected_sources and "recrutei" not in failed:
         candidates = conn.execute(

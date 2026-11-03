@@ -18,6 +18,12 @@ LOCAL_TIMEZONE = ZoneInfo("America/Fortaleza")
 EXTENDED_PUBLICATION_WEEKDAYS = frozenset({0, 4, 5, 6})  # Mon, Fri, Sat, Sun
 EXTENDED_PUBLICATION_DAYS = 63
 
+# The warning is intentionally independent from the preservation window. A
+# portal must be continuously unsuccessful for 24 full hours before the public
+# interface calls attention to it; previously valid rows keep the normal
+# publication-age rules.
+SOURCE_WARNING_AFTER_HOURS = 24
+
 # SmartRecruiters keeps DBC's public postings active while exposing their
 # original release date. This source-specific exception is shared by the
 # collector and the snapshot validator so the same active-feed rule is used
@@ -235,6 +241,11 @@ CREATE TABLE IF NOT EXISTS jobs (
 CREATE INDEX IF NOT EXISTS idx_jobs_dedupe ON jobs(dedupe_key);
 CREATE INDEX IF NOT EXISTS idx_jobs_seen ON jobs(last_seen_date);
 CREATE INDEX IF NOT EXISTS idx_jobs_source ON jobs(source);
+CREATE TABLE IF NOT EXISTS source_health (
+    source              TEXT PRIMARY KEY,
+    last_success_at     TEXT DEFAULT '',
+    failure_started_at  TEXT DEFAULT ''
+);
 """
 
 MIGRATION_COLUMNS = {
@@ -311,6 +322,99 @@ def connect(db_path):
             conn.execute(f"ALTER TABLE jobs ADD COLUMN {name} {definition}")
     conn.commit()
     return conn
+
+
+def utc_now_iso():
+    """Return an explicit UTC timestamp for source-health comparisons."""
+    return datetime.now(timezone.utc).isoformat()
+
+
+def backfill_source_health(conn):
+    """Seed health timestamps from existing job history after the migration."""
+    rows = conn.execute(
+        "SELECT source, MAX(last_seen_date) FROM jobs GROUP BY source"
+    ).fetchall()
+    for source, last_seen in rows:
+        source = str(source or "").strip()
+        last_seen = str(last_seen or "").strip()[:10]
+        if not source or not last_seen:
+            continue
+        fallback = f"{last_seen}T23:59:59+00:00"
+        conn.execute(
+            """
+            INSERT INTO source_health (source, last_success_at, failure_started_at)
+            VALUES (?, ?, '')
+            ON CONFLICT(source) DO UPDATE SET
+                last_success_at = CASE
+                    WHEN TRIM(COALESCE(source_health.last_success_at, '')) = ''
+                    THEN excluded.last_success_at
+                    ELSE source_health.last_success_at
+                END
+            """,
+            (source, fallback),
+        )
+    conn.commit()
+
+
+def update_source_health(conn, attempted_sources, failed_sources, observed_at=None):
+    """Persist the last success and the beginning of a continuous outage."""
+    backfill_source_health(conn)
+    attempted = {
+        str(source).strip() for source in (attempted_sources or [])
+        if str(source).strip()
+    }
+    failed = {
+        str(source).strip() for source in (failed_sources or [])
+        if str(source).strip()
+    }
+    observed_at = str(observed_at or utc_now_iso()).strip()
+    for source in sorted(attempted):
+        if source in failed:
+            conn.execute(
+                """
+                INSERT INTO source_health (source, last_success_at, failure_started_at)
+                VALUES (?, '', ?)
+                ON CONFLICT(source) DO UPDATE SET
+                    failure_started_at = CASE
+                        WHEN TRIM(COALESCE(source_health.failure_started_at, '')) = ''
+                        THEN excluded.failure_started_at
+                        ELSE source_health.failure_started_at
+                    END
+                """,
+                (source, observed_at),
+            )
+        else:
+            conn.execute(
+                """
+                INSERT INTO source_health (source, last_success_at, failure_started_at)
+                VALUES (?, ?, '')
+                ON CONFLICT(source) DO UPDATE SET
+                    last_success_at = excluded.last_success_at,
+                    failure_started_at = ''
+                """,
+                (source, observed_at),
+            )
+    conn.commit()
+
+
+def source_health_snapshot(conn):
+    """Return source health metadata safe for the public snapshot."""
+    backfill_source_health(conn)
+    rows = conn.execute(
+        """
+        SELECT source, last_success_at, failure_started_at
+        FROM source_health
+        WHERE TRIM(COALESCE(source, '')) <> ''
+        ORDER BY source
+        """
+    ).fetchall()
+    return {
+        str(source): {
+            "last_success_at": str(last_success or "").strip(),
+            "failure_started_at": str(failure_started or "").strip(),
+        }
+        for source, last_success, failure_started in rows
+    }
 
 
 def upsert(conn, jobs, today=None):
@@ -817,6 +921,17 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
         "source_counts": dict(sorted(snapshot_source_counts.items())),
         "collected_source_counts": source_counts,
         "failed_sources": failed_sources or [],
+        "source_warning_after_hours": SOURCE_WARNING_AFTER_HOURS,
+        "source_last_success_at": {
+            source: item["last_success_at"]
+            for source, item in source_health_snapshot(conn).items()
+            if item["last_success_at"]
+        },
+        "source_failure_started_at": {
+            source: item["failure_started_at"]
+            for source, item in source_health_snapshot(conn).items()
+            if item["failure_started_at"]
+        },
         "companies": len({row[2] for row in rows if row[2]}),
         "pcd_count": sum(1 for row in rows if row[20]),
         "dict": dictionaries,

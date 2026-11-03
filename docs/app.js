@@ -228,6 +228,21 @@
     return SOURCE_LABELS[raw] || SOURCE_LABELS[normalize(raw)] || raw || 'Portal não informado';
   }
 
+  function sourceWarningSources(data) {
+    const generatedAt = Date.parse(String(data.generated_at || ''));
+    const thresholdHours = Math.max(1, Number(data.source_warning_after_hours || 24));
+    const thresholdMs = thresholdHours * 60 * 60 * 1000;
+    const lastSuccessAt = data.source_last_success_at || {};
+    const failureStartedAt = data.source_failure_started_at || {};
+    if (!Number.isFinite(generatedAt)) return [];
+    return (data.failed_sources || []).filter(source => {
+      const lastSuccess = Date.parse(String(lastSuccessAt[source] || ''));
+      const failureStarted = Date.parse(String(failureStartedAt[source] || ''));
+      const reference = Number.isFinite(lastSuccess) ? lastSuccess : failureStarted;
+      return Number.isFinite(reference) && generatedAt - reference >= thresholdMs;
+    });
+  }
+
   function workplaceLabel(value) {
     const key = normalize(value);
     if (key === 'remote' || key === 'remoto') return 'Remoto';
@@ -1176,9 +1191,10 @@
       elements.updatedLabel.textContent = data.generated_at
         ? `Atualizado em ${dateTimeFormatter.format(new Date(data.generated_at))}`
         : 'Data da última atualização não informada';
-      if ((data.failed_sources || []).length) {
+      const warningSources = sourceWarningSources(data);
+      if (warningSources.length) {
         elements.sourceWarning.hidden = false;
-        elements.sourceWarning.textContent = `Alguns portais não responderam nesta atualização: ${data.failed_sources.map(sourceLabel).join(', ')}. Resultados vistos recentemente podem ser preservados por até ${data.fresh_days || 3} dias.`;
+        elements.sourceWarning.textContent = `Alguns portais não responderam nesta atualização: ${warningSources.map(sourceLabel).join(', ')}. Resultados vistos recentemente podem ser preservados por até ${data.fresh_days || 3} dias.`;
       } else {
         elements.sourceWarning.hidden = true;
       }
