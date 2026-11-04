@@ -304,6 +304,10 @@ class LinkedInSourceTests(unittest.TestCase):
                 "https://www.linkedin.com.evil.example/jobs/view/4486898930",
             ),
             ("/jobs/view/4486898930", "/jobs/view/4486898930"),
+            (
+                "https://www.linkedin.com/other/jobs/view/4486898930/extra",
+                "https://www.linkedin.com/other/jobs/view/4486898930/extra",
+            ),
         ):
             with self.subTest(url=request_url):
                 response = MagicMock()
@@ -352,6 +356,16 @@ class LinkedInSourceTests(unittest.TestCase):
         )
         self.assertNotIn("work_from_home_type", details)
 
+        response.url = ""
+        details = collect_linkedin._fetch_details_with_workplace_capture(
+            session,
+            job_id,
+            lambda: {"description": session.get(
+                "https://www.linkedin.com/jobs/view/4486898930"
+            ).text},
+        )
+        self.assertNotIn("work_from_home_type", details)
+
     def test_extracts_workplace_badge_from_linkedin_detail_html(self):
         remote_html = """
         <li class="job-details-jobs-unified-top-card__job-insight--highlight">
@@ -389,6 +403,13 @@ class LinkedInSourceTests(unittest.TestCase):
         <section><p>Descrição geral: trabalho remoto</p></section>
         """
         self.assertEqual(collect_linkedin._extract_workplace_type_from_html(html), "")
+        void_container = """
+        <img class="job-insight" aria-label="Remote">
+        <section><p>Presencial no escritório</p></section>
+        """
+        self.assertEqual(
+            collect_linkedin._extract_workplace_type_from_html(void_container), ""
+        )
 
     def test_collect_linkedin_normalize_job_mappings(self):
         """Só o selo da página individual classifica o modelo de trabalho."""
