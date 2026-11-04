@@ -564,9 +564,18 @@ def clear_linkedin_work_models(conn):
         WHERE source = 'linkedin'
           AND TRIM(COALESCE(work_model, '')) <> ''
     """)
-    if cursor.rowcount:
-        conn.commit()
     return cursor.rowcount
+
+
+def upsert_linkedin_snapshot(conn, jobs, today=None):
+    """Replace stored LinkedIn labels and upsert its snapshot atomically."""
+    try:
+        cleared = clear_linkedin_work_models(conn)
+        upsert(conn, jobs, today=today)
+    except Exception:
+        conn.rollback()
+        raise
+    return cleared
 
 
 def infer_missing_work_models(conn):
