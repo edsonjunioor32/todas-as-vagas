@@ -51,6 +51,10 @@ def _workplace_type_from_text(value):
 class _WorkplaceInsightParser(HTMLParser):
     """Extrai texto apenas dos elementos de insight/modalidade do cartão da vaga."""
     _MARKERS = ("job-insight", "workplace", "work-from-home")
+    _VOID_TAGS = {
+        "area", "base", "br", "col", "embed", "hr", "img", "input",
+        "link", "meta", "param", "source", "track", "wbr",
+    }
 
     def __init__(self):
         super().__init__(convert_charrefs=True)
@@ -71,7 +75,7 @@ class _WorkplaceInsightParser(HTMLParser):
             any(marker in marker_text for marker in self._MARKERS)
             or bool(_workplace_type_from_text(attributes.get("aria-label")))
         )
-        if self._active_depth:
+        if self._active_depth and str(tag).casefold() not in self._VOID_TAGS:
             self._active_depth += 1
         elif is_container:
             self._active_depth = 1
@@ -117,7 +121,9 @@ def _is_linkedin_job_detail_url(url, job_id):
         return False
 
     hostname = (parsed.hostname or "").casefold().rstrip(".")
-    if hostname and hostname != "linkedin.com" and not hostname.endswith(".linkedin.com"):
+    if parsed.scheme.casefold() not in {"http", "https"} or not hostname:
+        return False
+    if hostname != "linkedin.com" and not hostname.endswith(".linkedin.com"):
         return False
 
     match = re.search(r"/jobs/view/(\d+)(?:/|$)", parsed.path, re.IGNORECASE)
@@ -131,11 +137,8 @@ def _fetch_details_with_workplace_capture(session, job_id, fetch_details):
 
     def _capture_get(url, *args, **kwargs):
         response = original_get(url, *args, **kwargs)
-        response_url = getattr(response, "url", "")
-        if any(
-            _is_linkedin_job_detail_url(candidate, job_id)
-            for candidate in (url, response_url)
-        ):
+        response_url = getattr(response, "url", "") or url
+        if _is_linkedin_job_detail_url(response_url, job_id):
             captured["html"] = getattr(response, "text", "")
         return response
 
