@@ -127,9 +127,10 @@ def _normalize(raw, today=None):
         or raw.get("workplace")
         or ""
     ).strip()
-    workplace_verified = bool(
-        raw.get("workplaceVerified") or raw.get("workplace_verified")
-    )
+    workplace_verified_value = raw.get("workplaceVerified")
+    if workplace_verified_value is None:
+        workplace_verified_value = raw.get("workplace_verified")
+    workplace_verified = workplace_verified_value is True
     verified_model = work_model_label(remote_flag=None, raw=raw_model)
 
     # Sem um selo confirmado, não inventamos modalidade a partir de
