@@ -956,7 +956,7 @@ class LinkedInSourceTests(unittest.TestCase):
         self.assertEqual(coverage["requested_limit"], 1200)
         self.assertEqual(coverage["effective_limit"], 1000)
         self.assertTrue(coverage["clamped_by_query_limit"])
-        self.assertFalse(coverage["clamped_by_aggregate_limit"])
+        self.assertFalse(coverage["clamped_by_pass_budget"])
         self.assertEqual([call["offset"] for call in calls], list(range(0, 1000, 100)))
         self.assertTrue(all(call["results_wanted"] <= 100 for call in calls))
 
@@ -1007,9 +1007,10 @@ class LinkedInSourceTests(unittest.TestCase):
                 for call in log_print.call_args_list
                 if call.args
             )
-            self.assertIn("solicitado=1200, efetivo=1000", limit_log)
-            self.assertIn("solicitado=1200, efetivo=200", limit_log)
-            self.assertIn("teto agregado (1200)", limit_log)
+            self.assertEqual(
+                limit_log.count("solicitado=1200, efetivo=1000"), 2
+            )
+            self.assertNotIn("teto agregado (1200)", limit_log)
 
             payload = json.loads(snapshot_path.read_text(encoding="utf-8"))
             self.assertEqual(len(rows), 1200)
@@ -1019,10 +1020,18 @@ class LinkedInSourceTests(unittest.TestCase):
             self.assertEqual(
                 [(item["requested_limit"], item["effective_limit"])
                  for item in payload["coverage"]],
-                [(1200, 1000), (1200, 200)],
+                [(1200, 1000), (1200, 1000)],
             )
             self.assertTrue(payload["coverage"][0]["clamped_by_query_limit"])
-            self.assertTrue(payload["coverage"][1]["clamped_by_aggregate_limit"])
+            self.assertTrue(payload["coverage"][1]["clamped_by_query_limit"])
+            self.assertFalse(payload["coverage"][1]["clamped_by_pass_budget"])
+            self.assertEqual(
+                [item["added_unique"] for item in payload["coverage"]], [1000, 200]
+            )
+            self.assertEqual(
+                [item["skipped_after_unique_cap"] for item in payload["coverage"]],
+                [0, 800],
+            )
             self.assertEqual(
                 len({job["native_id"] for job in payload["jobs"]}), 1200
             )
@@ -1030,6 +1039,82 @@ class LinkedInSourceTests(unittest.TestCase):
             self.assertIn("Easy Apply 0", summary)
             self.assertIn("externa 0", summary)
             self.assertIn("desconhecida 1200", summary)
+
+    def test_remote_pass_budget_is_applied_after_cross_pass_deduplication(self):
+        class MockDataFrame(list):
+            @property
+            def empty(self):
+                return len(self) == 0
+
+            def to_dict(self, orient="records"):
+                return list(self)
+
+        def mock_scrape(**kwargs):
+            start = kwargs["offset"]
+            size = kwargs["results_wanted"]
+            if kwargs.get("is_remote"):
+                rows = []
+                for index in range(start, start + size):
+                    job_id = (
+                        4470000000 + index
+                        if index < 288
+                        else 4480000000 + index
+                    )
+                    rows.append({
+                        "id": str(job_id),
+                        "job_url": f"https://www.linkedin.com/jobs/view/{job_id}",
+                        "title": f"Vaga {job_id}",
+                        "company": "Empresa Teste",
+                        "location": "Brazil",
+                        "date_posted": date.today().isoformat(),
+                    })
+                return MockDataFrame(rows)
+
+            end = min(start + size, 290)
+            rows = [
+                {
+                    "id": str(4470000000 + index),
+                    "job_url": f"https://www.linkedin.com/jobs/view/{4470000000 + index}",
+                    "title": f"Vaga {4470000000 + index}",
+                    "company": "Empresa Teste",
+                    "location": "Brazil",
+                    "date_posted": date.today().isoformat(),
+                }
+                for index in range(start, end)
+            ]
+            return MockDataFrame(rows)
+
+        with tempfile.TemporaryDirectory() as temporary:
+            snapshot_path = Path(temporary) / "linkedin.json"
+            with patch.object(
+                collect_linkedin, "scrape_jobs", side_effect=mock_scrape
+            ), patch.object(collect_linkedin.time, "sleep"):
+                rows = collect_linkedin.collect_linkedin(
+                    results_limit=1200,
+                    remote_results_limit=1200,
+                    out_path=str(snapshot_path),
+                )
+
+            payload = json.loads(snapshot_path.read_text(encoding="utf-8"))
+            self.assertEqual(len(rows), 1002)
+            self.assertEqual(payload["count"], 1002)
+            self.assertEqual(
+                [item["returned"] for item in payload["coverage"]],
+                [290, 1000],
+            )
+            self.assertEqual(
+                [item["remaining_unique_before_pass"] for item in payload["coverage"]],
+                [1200, 910],
+            )
+            self.assertEqual(
+                [item["duplicates"] for item in payload["coverage"]],
+                [0, 288],
+            )
+            self.assertEqual(
+                [item["added_unique"] for item in payload["coverage"]],
+                [290, 712],
+            )
+            self.assertFalse(payload["coverage"][1]["unique_cap_reached"])
 
     def test_aggregate_cap_also_applies_across_search_terms_and_deduplicates(self):
         class MockDataFrame(list):
@@ -1074,7 +1159,7 @@ class LinkedInSourceTests(unittest.TestCase):
             self.assertEqual(payload["count"], 1200)
             self.assertEqual(
                 [item["effective_limit"] for item in payload["coverage"]],
-                [1000, 200, 200],
+                [1000, 1000, 1000],
             )
             self.assertEqual(
                 len({job["native_id"] for job in payload["jobs"]}), 1200
