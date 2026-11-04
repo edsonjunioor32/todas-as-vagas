@@ -342,6 +342,16 @@ class LinkedInSourceTests(unittest.TestCase):
 
         self.assertNotIn("work_from_home_type", details)
 
+        response.url = "https://www.linkedin.com/jobs/view/123456"
+        details = collect_linkedin._fetch_details_with_workplace_capture(
+            session,
+            job_id,
+            lambda: {"description": session.get(
+                "https://www.linkedin.com/jobs/view/4486898930"
+            ).text},
+        )
+        self.assertNotIn("work_from_home_type", details)
+
     def test_extracts_workplace_badge_from_linkedin_detail_html(self):
         remote_html = """
         <li class="job-details-jobs-unified-top-card__job-insight--highlight">
