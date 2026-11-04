@@ -684,6 +684,63 @@ class LinkedInSourceTests(unittest.TestCase):
         finally:
             tmp_path.unlink(missing_ok=True)
 
+    def test_incomplete_linkedin_pass_preserves_previous_snapshot(self):
+        for failed_pass in ("general", "remote"):
+            with self.subTest(failed_pass=failed_pass):
+                with tempfile.TemporaryDirectory() as temporary:
+                    snapshot_path = Path(temporary) / "linkedin.json"
+                    previous_snapshot = {
+                        "schema_version": 1,
+                        "source": "linkedin",
+                        "filter": "easy_apply",
+                        "generated_at": "2026-11-03T00:00:00+00:00",
+                        "count": 1,
+                        "jobs": [{"native_id": "li-previous"}],
+                    }
+                    snapshot_path.write_text(
+                        json.dumps(previous_snapshot), encoding="utf-8"
+                    )
+
+                    class MockDataFrame(list):
+                        @property
+                        def empty(self):
+                            return len(self) == 0
+
+                        def to_dict(self, orient="records"):
+                            return list(self)
+
+                    record = {
+                        "id": "li-123",
+                        "job_url": "https://www.linkedin.com/jobs/view/123",
+                        "title": "Pessoa Desenvolvedora",
+                        "company": "Empresa Teste",
+                        "location": "Brazil",
+                        "date_posted": date.today().isoformat(),
+                    }
+
+                    def mock_scrape(*args, **kwargs):
+                        current_pass = (
+                            "remote" if kwargs.get("is_remote") else "general"
+                        )
+                        if current_pass == failed_pass:
+                            raise RuntimeError("temporary LinkedIn failure")
+                        return MockDataFrame([record])
+
+                    with patch.object(
+                        collect_linkedin, "scrape_jobs", side_effect=mock_scrape
+                    ), patch.object(collect_linkedin.time, "sleep"):
+                        with self.assertRaisesRegex(RuntimeError, "incompleta"):
+                            collect_linkedin.collect_linkedin(
+                                results_limit=10,
+                                remote_results_limit=5,
+                                out_path=str(snapshot_path),
+                            )
+
+                    self.assertEqual(
+                        json.loads(snapshot_path.read_text(encoding="utf-8")),
+                        previous_snapshot,
+                    )
+
     def test_normalize_accepts_job_within_two_month_window(self):
         today = date.today()
         row = linkedin._normalize(
