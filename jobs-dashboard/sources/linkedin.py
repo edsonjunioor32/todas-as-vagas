@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Adapter for the public LinkedIn Easy Apply snapshot.
+"""Adapter for the public LinkedIn vacancy snapshot.
 
 The LinkedIn collector runs in its own GitHub-hosted job because the JobSpy
 dependency is not part of the ARM64 catalog runner. It writes a small,
@@ -15,6 +15,15 @@ import re
 from ._common import is_brazil_location, iso_date, job, work_model_label
 
 SOURCE = "linkedin"
+TRUSTED_WORKPLACE_EVIDENCE = {
+    "linkedin_badge",
+    "description_explicit",
+    "manual_override",
+}
+LEGACY_VERIFIED_WORKPLACE_OVERRIDES = {
+    "4486898930": "remote",
+    "4478138443": "on-site",
+}
 DEFAULT_SNAPSHOT = (
     Path(__file__).resolve().parents[2] / "docs" / "data" / "linkedin_vagas.json"
 )
@@ -86,9 +95,6 @@ def _list_of_strings(value):
 def _normalize(raw, today=None):
     if not isinstance(raw, dict):
         return None
-    if raw.get("easyApply") is not True and raw.get("easy_apply") is not True:
-        return None
-
     url = str(raw.get("url") or "").strip()
     match = JOB_URL_RE.fullmatch(url)
     if not match:
@@ -130,12 +136,21 @@ def _normalize(raw, today=None):
     workplace_verified_value = raw.get("workplaceVerified")
     if workplace_verified_value is None:
         workplace_verified_value = raw.get("workplace_verified")
-    workplace_verified = workplace_verified_value is True
+    workplace_evidence = str(
+        raw.get("workplaceEvidence") or raw.get("workplace_evidence") or ""
+    ).strip()
+    workplace_verified = (
+        workplace_verified_value is True
+        and workplace_evidence in TRUSTED_WORKPLACE_EVIDENCE
+    )
     verified_model = work_model_label(remote_flag=None, raw=raw_model)
 
-    # Sem um selo confirmado, não inventamos modalidade a partir de
-    # localização, título, flag da busca ou snapshot legado não verificado.
-    work_model = verified_model if workplace_verified else ""
+    # Campos genéricos do JobSpy e snapshots antigos sem proveniência não
+    # comprovam o selo. Mantemos apenas os dois casos documentados por ID.
+    if workplace_verified:
+        work_model = verified_model
+    else:
+        work_model = LEGACY_VERIFIED_WORKPLACE_OVERRIDES.get(job_id, "")
 
     salary_min = _amount(raw.get("salaryMin", raw.get("salary_min")))
     salary_max = _amount(raw.get("salaryMax", raw.get("salary_max")))
@@ -179,8 +194,9 @@ def fetch():
         raise RuntimeError("LinkedIn snapshot schema_version is unsupported")
     if str(payload.get("source") or "").strip().casefold() != SOURCE:
         raise RuntimeError("LinkedIn snapshot source is not LinkedIn")
-    if str(payload.get("filter") or "").strip().casefold() != "easy_apply":
-        raise RuntimeError("LinkedIn snapshot is not restricted to Easy Apply")
+    snapshot_filter = str(payload.get("filter") or "").strip().casefold()
+    if snapshot_filter not in {"public_brazil", "easy_apply"}:
+        raise RuntimeError("LinkedIn snapshot filter is unsupported")
 
     generated_at = _parse_timestamp(payload.get("generated_at"))
     if generated_at is None:
@@ -215,6 +231,6 @@ def fetch():
 
     if not rows:
         raise RuntimeError(
-            "LinkedIn snapshot contains no valid Brazilian Easy Apply vacancies"
+            "LinkedIn snapshot contains no valid Brazilian public vacancies"
         )
     return rows

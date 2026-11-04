@@ -58,19 +58,20 @@ Assim, o catálogo permanece em um único ponto de verdade: uma atualização be
 ## Portais incluídos
 
 - Brasil: **InHire, Empregare, Gupy, Sólides, Recrut.AI, Taggui RH, GeekHunter, Nerdin e InfoJobs**;
-- globais: **The Muse, Remotive, Jobicy, Remote OK, Himalayas, Working Nomads, Arbeitnow e We Work Remotely**;\n- busca pública especializada: **LinkedIn (Candidatura Simplificada)**;
+- globais: **The Muse, Remotive, Jobicy, Remote OK, Himalayas, Working Nomads, Arbeitnow e We Work Remotely**;\n- busca pública especializada: **LinkedIn**, incluindo vagas com todos os tipos públicos de candidatura;
 - páginas públicas de empresas: **Stone, iFood, PicPay, Banco Original, Braskem, GM Financial, Dell Technologies, ArcelorMittal, Grupo Mateus, AutoZone, NOV, Arcor Brasil, Greenhouse Brasil, Lever e Ashby**.
 
 O painel permite combinar pesquisa livre com filtros de cidade, portal, modalidade, mercado, área, senioridade, data, vagas afirmativas para PcD e oportunidades encontradas em mais de um portal. O campo de cidade oferece sugestões a partir das localidades presentes na base e também aceita digitação livre. A exportação CSV respeita os filtros selecionados. O botão de tema no cabeçalho alterna entre os modos claro e escuro, salva a escolha no navegador e, na primeira visita, respeita a preferência do sistema.
 
-## LinkedIn — Candidatura Simplificada
+## LinkedIn — vagas públicas
 
-O workflow [`linkedin-jobs.yml`](.github/workflows/linkedin-jobs.yml) consulta duas vezes ao dia as listagens públicas do LinkedIn, sem login, cookies ou credenciais de uma conta. A coleta usa os termos de suporte e tecnologia já definidos para o projeto, restringe o resultado a vagas com **Candidatura Simplificada (Easy Apply)** no Brasil e aplica uma janela de **60 dias**. A busca aberta usa lotes paginados de até 600 resultados e a busca remota dedicada usa até 300, ambos com deduplicação e limite operacional.
+O workflow [`linkedin-jobs.yml`](.github/workflows/linkedin-jobs.yml) consulta duas vezes ao dia as listagens públicas do LinkedIn, sem login, cookies ou credenciais de uma conta. A coleta busca vagas no Brasil sem restringir o tipo de candidatura, aplica uma janela de **60 dias** e mantém os limites paginados de até 600 resultados na busca geral e 300 na busca remota complementar. As duas passagens são deduplicadas; o resumo da execução avisa quando uma busca alcança seu limite, pois ainda pode haver resultados fora da janela.
+
+A modalidade é marcada somente quando há selo capturado na página individual do LinkedIn, uma declaração explícita e inequívoca na descrição ou um dos casos manuais documentados. Se não houver evidência suficiente, o portal mantém a vaga e mostra a modalidade como não informada. O filtro remoto serve apenas para ampliar a descoberta e não determina a modalidade.
 
 O resultado é gravado em `docs/data/linkedin_vagas.json`, validado antes do commit e então incorporado ao mesmo pipeline do catálogo. O commit recebe o marcador `[linkedin-refresh]`; esse marcador faz o `pages.yml` executar a coleta completa, a deduplicação, as validações, o histórico, o snapshot `public-data` e o GitHub Pages. Assim, o LinkedIn não publica um arquivo paralelo que fique fora do portal.
 
 A fonte publica somente metadados e o link oficial da vaga. Descrições completas não entram no snapshot. Se o LinkedIn estiver indisponível, o snapshot estiver vazio ou ficar desatualizado, a etapa é interrompida sem substituir os dados válidos anteriores; as demais fontes continuam seguindo a agenda normal.
-
 ## Gupy via MCP público de candidatos
 
 A coleta da Gupy usa o servidor MCP público de candidatos (`search_jobs` e, nas páginas monitoradas, `get_job_by_id`), sem credencial de recrutador. A consulta ampla percorre até 10.000 resultados por execução; buscas complementares por termos de diferentes áreas podem acrescentar até cinco páginas de 100 resultados por termo. Isso respeita o limite de paginação do MCP, mas não representa uma exportação integral das aproximadamente 82 mil oportunidades que o índice reporta. A coleta remove bancos de talentos e páginas confidenciais, exige data de publicação dentro de dois meses e descarta prazos já expirados. Como o MCP pode informar o total apenas como o tamanho da página, o coletor continua a paginação enquanto as páginas vierem completas. Em caso de rate limit ou indisponibilidade, somente a Gupy é marcada como falha e seu cache antigo não é exibido como atual; as outras fontes seguem normalmente.
