@@ -651,8 +651,9 @@ def main(before_persist=None):
     before = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
     linkedin_work_models_reset = 0
     if "linkedin" in selected_sources and "linkedin" not in failed:
-        linkedin_work_models_reset = storage.clear_linkedin_work_models(conn)
-    storage.upsert(conn, rows)
+        linkedin_work_models_reset = storage.upsert_linkedin_snapshot(conn, rows)
+    else:
+        storage.upsert(conn, rows)
     # Health is tracked per source, separately from row retention. Paused
     # sources are also marked as unavailable so the UI waits the same 24 full
     # hours before showing a warning for them.
