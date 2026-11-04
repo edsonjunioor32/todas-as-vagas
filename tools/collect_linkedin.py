@@ -602,24 +602,24 @@ def _raw_linkedin_job_key(raw):
 
 
 def _scrape_jobs_in_pages(
-    *, results_limit, max_results=MAX_UNIQUE_RESULTS_PER_RUN, coverage=None, **kwargs
+    *, results_limit, max_results=JOBSPY_MAX_RESULTS_PER_QUERY, coverage=None, **kwargs
 ):
-    """Paginate with JobSpy's per-query ceiling and this run's remaining budget."""
+    """Paginate within a per-search budget; enforce the unique-run cap after deduplication."""
     requested_target = max(0, int(results_limit))
-    aggregate_remaining = max(0, int(max_results))
+    pass_budget = max(0, int(max_results))
     query_target = min(requested_target, JOBSPY_MAX_RESULTS_PER_QUERY)
-    target = min(query_target, aggregate_remaining)
+    target = min(query_target, pass_budget)
     clamped_by_query_limit = requested_target > JOBSPY_MAX_RESULTS_PER_QUERY
-    clamped_by_aggregate_limit = query_target > aggregate_remaining
+    clamped_by_pass_budget = query_target > pass_budget
 
     if target == 0:
         if coverage is not None:
             coverage.update({
                 "requested_limit": requested_target,
                 "effective_limit": 0,
-                "aggregate_remaining": aggregate_remaining,
+                "pass_budget": pass_budget,
                 "clamped_by_query_limit": clamped_by_query_limit,
-                "clamped_by_aggregate_limit": clamped_by_aggregate_limit,
+                "clamped_by_pass_budget": clamped_by_pass_budget,
                 "returned": 0,
                 "pages": 0,
                 "source_exhausted": True,
@@ -691,9 +691,9 @@ def _scrape_jobs_in_pages(
         coverage.update({
             "requested_limit": requested_target,
             "effective_limit": target,
-            "aggregate_remaining": aggregate_remaining,
+            "pass_budget": pass_budget,
             "clamped_by_query_limit": clamped_by_query_limit,
-            "clamped_by_aggregate_limit": clamped_by_aggregate_limit,
+            "clamped_by_pass_budget": clamped_by_pass_budget,
             "returned": len(collected),
             "pages": page_count,
             "source_exhausted": source_exhausted,
@@ -737,14 +737,17 @@ def collect_linkedin(
 
     def scrape_pass(name, limit, **kwargs):
         coverage = {}
-        aggregate_remaining = MAX_UNIQUE_RESULTS_PER_RUN - len(all_jobs_dict)
+        remaining_unique_before_pass = (
+            MAX_UNIQUE_RESULTS_PER_RUN - len(all_jobs_dict)
+        )
         records = _scrape_jobs_in_pages(
             results_limit=limit,
-            max_results=aggregate_remaining,
+            max_results=JOBSPY_MAX_RESULTS_PER_QUERY,
             coverage=coverage,
             **kwargs,
         )
         coverage["name"] = name
+        coverage["remaining_unique_before_pass"] = remaining_unique_before_pass
         pass_coverage.append(coverage)
 
         if coverage["effective_limit"] < coverage["requested_limit"]:
@@ -753,9 +756,9 @@ def collect_linkedin(
                 reasons.append(
                     f"limite por consulta ({JOBSPY_MAX_RESULTS_PER_QUERY})"
                 )
-            if coverage["clamped_by_aggregate_limit"]:
+            if coverage["clamped_by_pass_budget"]:
                 reasons.append(
-                    f"teto agregado ({MAX_UNIQUE_RESULTS_PER_RUN})"
+                    f"orçamento da busca ({coverage['pass_budget']})"
                 )
             print(
                 f"  [Aviso] Busca '{name}': solicitado="
@@ -777,8 +780,10 @@ def collect_linkedin(
     def add_records(records, *, is_remote_search, pass_name):
         added = 0
         duplicates = 0
-        for raw in records:
+        skipped_after_unique_cap = 0
+        for index, raw in enumerate(records):
             if len(all_jobs_dict) >= MAX_UNIQUE_RESULTS_PER_RUN:
+                skipped_after_unique_cap = len(records) - index
                 break
             normalized = normalize_linkedin_job(
                 raw, is_remote_search=is_remote_search
@@ -793,6 +798,15 @@ def collect_linkedin(
                 continue
             all_jobs_dict[job_key] = normalized
             added += 1
+        coverage = pass_coverage[-1] if pass_coverage else None
+        if coverage is not None:
+            coverage.update({
+                "added_unique": added,
+                "duplicates": duplicates,
+                "skipped_after_unique_cap": skipped_after_unique_cap,
+                "unique_count_after": len(all_jobs_dict),
+                "unique_cap_reached": len(all_jobs_dict) >= MAX_UNIQUE_RESULTS_PER_RUN,
+            })
         print(
             f"  -> Busca '{pass_name}': {added} novos anúncios únicos; "
             f"{duplicates} duplicatas; total agregado={len(all_jobs_dict)}."
@@ -1006,7 +1020,7 @@ def collect_linkedin(
                     statuses.append(
                         f"corte por consulta em {JOBSPY_MAX_RESULTS_PER_QUERY}"
                     )
-                if item.get("clamped_by_aggregate_limit"):
+                if item.get("clamped_by_pass_budget"):
                     statuses.append(
                         f"corte pelo teto agregado {MAX_UNIQUE_RESULTS_PER_RUN}"
                     )
