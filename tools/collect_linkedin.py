@@ -23,6 +23,11 @@ from urllib.parse import urlsplit
 # criar uma consulta ilimitada ou concentrar todas as requisições em uma única chamada.
 DEFAULT_RESULTS_LIMIT = 600
 DEFAULT_REMOTE_RESULTS_LIMIT = 300
+# Verified against LinkedIn screenshots supplied on 2026-11-03.
+VERIFIED_WORKPLACE_OVERRIDES = {
+    "4486898930": "remote",
+    "4478138443": "on-site",
+}
 DEFAULT_HOURS_OLD = 1440
 JOBSPY_BATCH_SIZE = 100
 
@@ -268,7 +273,11 @@ def normalize_linkedin_job(raw_job, is_remote_search=False):
 
     # Só o selo da página individual confirma a modalidade. Localização,
     # título e filtro de busca não são evidência suficiente para classificar.
-    verified_model = _workplace_type_from_text(raw_job.get("work_from_home_type"))
+    verified_model = VERIFIED_WORKPLACE_OVERRIDES.get(str(job_id or ""))
+    if not verified_model:
+        verified_model = _workplace_type_from_text(
+            raw_job.get("work_from_home_type")
+        )
     workplace_type = verified_model
 
     # Data de publicação

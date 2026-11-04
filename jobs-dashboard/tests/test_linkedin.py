@@ -486,6 +486,34 @@ class LinkedInSourceTests(unittest.TestCase):
         self.assertEqual(norm_st_marche["workplaceType"], "on-site")
         self.assertTrue(norm_st_marche["workplaceVerified"])
 
+    def test_screenshot_verified_workplace_overrides_apply_without_page_badge(self):
+        examples = [
+            (
+                "4486898930",
+                "(1608) Forward Deployed Engineer",
+                "Nortal",
+                "Greater Rio de Janeiro",
+                "remote",
+            ),
+            (
+                "4478138443",
+                "Açougueiro(a) - Vila Mascote",
+                "St Marche",
+                "São Paulo, São Paulo, Brazil",
+                "on-site",
+            ),
+        ]
+        for job_id, title, company, location, expected in examples:
+            with self.subTest(job_id=job_id):
+                normalized = collect_linkedin.normalize_linkedin_job({
+                    "job_url": f"https://www.linkedin.com/jobs/view/{job_id}",
+                    "title": title,
+                    "company": company,
+                    "location": location,
+                })
+                self.assertEqual(normalized["workplaceType"], expected)
+                self.assertTrue(normalized["workplaceVerified"])
+
     def test_jobspy_patched_search_params_adds_remote_filter(self):
         """Garante que a busca remota dedicada do JobSpy injeta f_WT=2 no LinkedIn."""
         try:
