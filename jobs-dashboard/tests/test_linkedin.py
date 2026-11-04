@@ -410,6 +410,15 @@ class LinkedInSourceTests(unittest.TestCase):
         self.assertEqual(
             collect_linkedin._extract_workplace_type_from_html(void_container), ""
         )
+        self_closing_void = """
+        <li class="job-details-jobs-unified-top-card__job-insight">
+          <span>Tempo integral</span><br/><span>Remote</span>
+        </li>
+        """
+        self.assertEqual(
+            collect_linkedin._extract_workplace_type_from_html(self_closing_void),
+            "remote",
+        )
 
     def test_collect_linkedin_normalize_job_mappings(self):
         """Só o selo da página individual classifica o modelo de trabalho."""
