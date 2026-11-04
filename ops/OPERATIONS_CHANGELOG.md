@@ -1,5 +1,16 @@
 # Histórico operacional e mapa de responsabilidades
 
+## 2026-11-04 — Modalidade do LinkedIn somente com selo verificável
+
+- **Causa raiz:** a captura do HTML aceitava somente URLs terminadas exatamente em `/jobs/view/{id}`; parâmetros de rastreamento, barra final e redirecionamentos podiam impedir o reconhecimento da página. Quando o selo não era capturado, o coletor e o adaptador ainda inferiam a modalidade pelo título, localização, resultado da busca remota ou valores legados; vagas sem informação acabavam classificadas como presenciais ou remotas.
+- **Correção:** a captura valida o host e o caminho da vaga ignorando query string e barra final, e também verifica a URL final da resposta. Somente o selo da página individual define `workplaceType` e `workplaceVerified`. Sem selo reconhecido, a modalidade permanece vazia e não entra em filtros por modalidade.
+- **Casos cobertos:** Nortal / (1608) Forward Deployed Engineer deve ser remoto; St Marche / Açougueiro(a) - Vila Mascote deve ser presencial. Vagas sem selo não herdam modalidade do título, localização ou busca.
+- **Impacto:** a coleta LinkedIn e a publicação do catálogo continuam no fluxo existente. Vagas sem modalidade verificável permanecem no portal, mas sem rótulo de modalidade; filtros de modalidade não as tratam como remoto, híbrido ou presencial. Telegram e WhatsApp continuam consumindo o mesmo catálogo, sem mudança em seus publicadores.
+- **Validação local:** 18 testes do LinkedIn aprovados. CI e nova coleta/publicação ainda pendentes.
+- **Pós-implantação:** conferir `li-4486898930` como remoto e `li-4478138443` como presencial no snapshot do LinkedIn, no `public-data/data/vagas.json` e no GitHub Pages; confirmar que vagas não verificadas aparecem sem chip de modalidade.
+- **Reversão:** reverter o commit desta correção e executar novamente a coleta/publicação. Isso restaura a classificação anterior por heurística e pode reintroduzir rótulos incorretos.
+
+
 ## 2026-11-03 — Modalidade do LinkedIn validada na página individual
 
 - **Causa raiz:** a coleta usava o resultado da busca remota (f_WT=2) como classificação. O LinkedIn pode preencher páginas filtradas com anúncios que não atendem ao filtro; além disso, a busca pública exibe apenas a região no cartão, enquanto a modalidade real aparece no cartão individual da vaga.

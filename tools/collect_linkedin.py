@@ -15,6 +15,7 @@ import sys
 import time
 from datetime import datetime, timezone
 from html.parser import HTMLParser
+from urllib.parse import urlsplit
 
 
 # Limites operacionais da coleta aberta. JobSpy aceita offset para continuar
@@ -107,6 +108,50 @@ def _extract_workplace_type_from_html(html):
             return workplace_type
     return ""
 
+
+def _is_linkedin_job_detail_url(url, job_id):
+    """Recognize a LinkedIn job-detail URL regardless of query or trailing slash."""
+    try:
+        parsed = urlsplit(str(url or ""))
+    except ValueError:
+        return False
+
+    hostname = (parsed.hostname or "").casefold().rstrip(".")
+    if hostname and hostname != "linkedin.com" and not hostname.endswith(".linkedin.com"):
+        return False
+
+    match = re.search(r"/jobs/view/(\d+)(?:/|$)", parsed.path, re.IGNORECASE)
+    return bool(match and match.group(1) == str(job_id))
+
+
+def _fetch_details_with_workplace_capture(session, job_id, fetch_details):
+    """Capture and parse the detail response used by JobSpy itself."""
+    captured = {}
+    original_get = session.get
+
+    def _capture_get(url, *args, **kwargs):
+        response = original_get(url, *args, **kwargs)
+        response_url = getattr(response, "url", "")
+        if any(
+            _is_linkedin_job_detail_url(candidate, job_id)
+            for candidate in (url, response_url)
+        ):
+            captured["html"] = getattr(response, "text", "")
+        return response
+
+    session.get = _capture_get
+    try:
+        details = fetch_details() or {}
+    finally:
+        session.get = original_get
+
+    workplace_type = _extract_workplace_type_from_html(captured.get("html", ""))
+    if workplace_type:
+        details = dict(details)
+        details["work_from_home_type"] = workplace_type
+    return details
+
+
 try:
     from jobspy import scrape_jobs
     from jobspy.linkedin import LinkedIn
@@ -134,26 +179,11 @@ try:
     _orig_linkedin_fetch_details = LinkedIn._fetch_details
 
     def _patched_linkedin_fetch_details(self, job_id):
-        captured = {}
-        original_get = self.session.get
-
-        def _capture_get(url, *args, **kwargs):
-            response = original_get(url, *args, **kwargs)
-            if str(url).rstrip("/").endswith(f"/jobs/view/{job_id}"):
-                captured["html"] = getattr(response, "text", "")
-            return response
-
-        self.session.get = _capture_get
-        try:
-            details = _orig_linkedin_fetch_details(self, job_id) or {}
-        finally:
-            self.session.get = original_get
-
-        workplace_type = _extract_workplace_type_from_html(captured.get("html", ""))
-        if workplace_type:
-            details = dict(details)
-            details["work_from_home_type"] = workplace_type
-        return details
+        return _fetch_details_with_workplace_capture(
+            self.session,
+            job_id,
+            lambda: _orig_linkedin_fetch_details(self, job_id),
+        )
 
     LinkedIn._fetch_details = _patched_linkedin_fetch_details
 
@@ -229,34 +259,10 @@ def normalize_linkedin_job(raw_job, is_remote_search=False):
     company = clean_value(raw_job.get("company")) or "Empresa não informada"
     location = clean_value(raw_job.get("location")) or "Brazil"
 
-    # Determina o modelo de trabalho (remote, hybrid, on-site).
-    # A modalidade capturada da página de detalhes é a única fonte autoritativa.
-    # is_remote_search indica apenas como a vaga foi encontrada: o LinkedIn pode
-    # preencher uma página filtrada por remoto com vagas presenciais.
-    loc_lower = str(location).lower().strip()
-    title_lower = str(title).lower().strip()
+    # Só o selo da página individual confirma a modalidade. Localização,
+    # título e filtro de busca não são evidência suficiente para classificar.
     verified_model = _workplace_type_from_text(raw_job.get("work_from_home_type"))
-    is_remote_flag = bool(raw_job.get("is_remote"))
-
-    remote_keywords = (
-        "remoto", "remote", "home office", "home-office",
-        "work from home", "teletrabalho", "wfh", "anywhere",
-        "100% remoto", "totalmente remoto"
-    )
-    hybrid_keywords = ("híbrido", "hibrido", "hybrid")
-
-    if verified_model:
-        workplace_type = verified_model
-    elif any(h in loc_lower or h in title_lower for h in hybrid_keywords):
-        workplace_type = "hybrid"
-    elif (
-        is_remote_flag
-        or loc_lower in ("brazil", "brasil")
-        or any(k in loc_lower or k in title_lower for k in remote_keywords)
-    ):
-        workplace_type = "remote"
-    else:
-        workplace_type = "on-site"
+    workplace_type = verified_model
 
     # Data de publicação
     date_posted = clean_value(raw_job.get("date_posted")) or ""
