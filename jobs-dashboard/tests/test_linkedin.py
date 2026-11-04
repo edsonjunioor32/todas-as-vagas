@@ -598,9 +598,9 @@ class LinkedInSourceTests(unittest.TestCase):
         self.assertFalse(norm_generic["workplaceVerified"])
 
         explicit_remote = generic_remote | {
-            "job_url": "https://www.linkedin.com/jobs/view/4479109326",
-            "title": "Senior Application Support Analyst – Marine & Integrations #1021041",
-            "company": "Dexian Brasil",
+            "job_url": "https://www.linkedin.com/jobs/view/4481006",
+            "title": "Senior Application Support Analyst",
+            "company": "Tech Corp",
             "description": "No conforto da sua casa! Regime 100% Home Office.",
         }
         norm_explicit = collect_linkedin.normalize_linkedin_job(explicit_remote)
