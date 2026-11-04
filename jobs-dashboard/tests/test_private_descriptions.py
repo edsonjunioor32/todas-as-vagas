@@ -600,6 +600,98 @@ class PrivateDescriptionTests(unittest.TestCase):
         self.assertEqual(metrics["descriptions_fetched_with_obscura"], 1)
         self.assertEqual(metrics["http_failures"], 0)
 
+    def test_crawler_uses_local_browser_after_obscura_misses(self):
+        jobs = [{
+            "source": "portal", "native_id": "dynamic", "title": "Vaga dinâmica",
+            "company": "Empresa", "url": "https://example.com/jobs/dynamic",
+        }]
+        output = io.StringIO()
+        args = [
+            "description_crawler.py", "--db", str(self.path),
+            "--min-interval", "0", "--browser-use-python", "/opt/browser/bin/python",
+        ]
+        with (
+            patch.object(sys, "argv", args),
+            patch.object(description_crawler, "load_catalog", return_value=jobs),
+            patch.object(description_crawler, "fetch_page", return_value=(
+                b"<html><body>Resumo curto</body></html>", "text/html", 200,
+            )),
+            patch.object(description_crawler, "fetch_description_with_obscura",
+                         return_value=("", "", "sem descrição")),
+            patch.object(description_crawler.description_recovery, "browser_use_local",
+                         return_value=("Requisitos e responsabilidades. " * 8,
+                                       "browser_use_jsonld", "")),
+            patch.object(description_crawler.RobotsCache, "allowed", return_value=True),
+            contextlib.redirect_stdout(output),
+        ):
+            description_crawler.main()
+        row = self.connection.execute(
+            "SELECT status, content_kind FROM job_descriptions"
+        ).fetchone()
+        metrics = json.loads(output.getvalue().strip().split(" ", 1)[1])
+        self.assertEqual((row["status"], row["content_kind"]),
+                         ("fetched", "browser_use_jsonld"))
+        self.assertEqual(metrics["descriptions_fetched_with_browser_use"], 1)
+        self.assertEqual(metrics["descriptions_fetched_with_obscura"], 0)
+
+    def test_crawler_does_not_render_a_rate_limited_page(self):
+        jobs = [{
+            "source": "portal", "native_id": "limited", "title": "Vaga",
+            "company": "Empresa", "url": "https://example.com/jobs/limited",
+        }]
+        args = [
+            "description_crawler.py", "--db", str(self.path), "--min-interval", "0",
+            "--browser-use-python", "/opt/browser/bin/python",
+            "--firecrawl-url", "http://127.0.0.1:3002",
+        ]
+        with (
+            patch.object(sys, "argv", args),
+            patch.object(description_crawler, "load_catalog", return_value=jobs),
+            patch.object(description_crawler, "fetch_page", side_effect=
+                         description_crawler.FetchError("http_429", "HTTP 429", http_status=429)),
+            patch.object(description_crawler.RobotsCache, "allowed", return_value=True),
+            patch.object(description_crawler.description_recovery, "browser_use_local") as browser,
+            patch.object(description_crawler.description_recovery, "firecrawl_local") as firecrawl,
+            contextlib.redirect_stdout(io.StringIO()),
+        ):
+            description_crawler.main()
+        browser.assert_not_called()
+        firecrawl.assert_not_called()
+
+    def test_browser_recovery_respects_source_and_attempt_budget(self):
+        jobs = [
+            {"source": "outro", "native_id": "1", "title": "Vaga A",
+             "company": "Empresa", "url": "https://example.com/jobs/1"},
+            {"source": "inhire", "native_id": "2", "title": "Vaga B",
+             "company": "Empresa", "url": "https://example.com/jobs/2"},
+            {"source": "inhire", "native_id": "3", "title": "Vaga C",
+             "company": "Empresa", "url": "https://example.com/jobs/3"},
+        ]
+        args = [
+            "description_crawler.py", "--db", str(self.path), "--min-interval", "0",
+            "--browser-use-python", "/opt/browser/bin/python",
+            "--browser-use-sources", "inhire", "--browser-use-limit", "1",
+        ]
+        output = io.StringIO()
+        with (
+            patch.object(sys, "argv", args),
+            patch.object(description_crawler, "load_catalog", return_value=jobs),
+            patch.object(description_crawler, "fetch_page", return_value=(
+                b"<html><body>Resumo curto</body></html>", "text/html", 200,
+            )),
+            patch.object(description_crawler, "fetch_description_with_obscura",
+                         return_value=("", "", "sem descrição")),
+            patch.object(description_crawler.description_recovery, "browser_use_local",
+                         return_value=("", "", "sem descrição")) as browser,
+            patch.object(description_crawler.RobotsCache, "allowed", return_value=True),
+            contextlib.redirect_stdout(output),
+        ):
+            description_crawler.main()
+        metrics = json.loads(output.getvalue().strip().split(" ", 1)[1])
+        self.assertEqual(browser.call_count, 1)
+        self.assertEqual(browser.call_args.args[0]["source"], "inhire")
+        self.assertEqual(metrics["browser_use_attempts"], 1)
+
     def test_crawler_schedules_robots_recheck_with_bounded_backoff(self):
         jobs = [{
             "source": "portal",

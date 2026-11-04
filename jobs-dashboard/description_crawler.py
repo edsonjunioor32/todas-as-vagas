@@ -28,6 +28,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 
 import description_store
+import description_recovery
 
 
 DEFAULT_CATALOG_URL = (
@@ -551,6 +552,47 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="não renderizar páginas problemáticas com o Obscura",
     )
+    parser.add_argument(
+        "--browser-use-python",
+        default=os.environ.get("DESCRIPTION_BROWSER_USE_PYTHON", ""),
+        help="Python isolado com browser-use local; vazio desabilita",
+    )
+    parser.add_argument(
+        "--browser-use-timeout",
+        type=float,
+        default=float(os.environ.get("DESCRIPTION_BROWSER_USE_TIMEOUT", "45")),
+    )
+    parser.add_argument(
+        "--browser-use-chromium",
+        default=os.environ.get("DESCRIPTION_BROWSER_USE_CHROMIUM", "/snap/bin/chromium"),
+    )
+    parser.add_argument(
+        "--browser-use-sources",
+        default=os.environ.get("DESCRIPTION_BROWSER_USE_SOURCES", ""),
+        help="fontes permitidas para renderização local, separadas por vírgula; vazio permite todas",
+    )
+    parser.add_argument(
+        "--browser-use-limit",
+        type=int,
+        default=int(os.environ.get("DESCRIPTION_BROWSER_USE_LIMIT", "10")),
+        help="máximo de tentativas extras por execução; 0 desabilita",
+    )
+    parser.add_argument(
+        "--firecrawl-url",
+        default=os.environ.get("DESCRIPTION_FIRECRAWL_URL", ""),
+        help="API Firecrawl auto-hospedada em localhost; vazio desabilita",
+    )
+    parser.add_argument(
+        "--firecrawl-timeout",
+        type=float,
+        default=float(os.environ.get("DESCRIPTION_FIRECRAWL_TIMEOUT", "45")),
+    )
+    parser.add_argument(
+        "--firecrawl-limit",
+        type=int,
+        default=int(os.environ.get("DESCRIPTION_FIRECRAWL_LIMIT", "10")),
+        help="máximo de tentativas Firecrawl por execução; 0 desabilita",
+    )
     parser.add_argument("--force", action="store_true", help="reconsultar também descrições já coletadas")
     parser.add_argument("--ignore-robots", action="store_true", help="não recomendado; ignora robots.txt")
     parser.add_argument("--user-agent", default=DEFAULT_USER_AGENT)
@@ -596,6 +638,14 @@ def main() -> None:
     denied = 0
     obscura_fetched = 0
     obscura_failed = 0
+    browser_use_fetched = 0
+    firecrawl_fetched = 0
+    browser_use_attempts = 0
+    firecrawl_attempts = 0
+    browser_use_sources = {
+        source.strip().casefold()
+        for source in args.browser_use_sources.split(",") if source.strip()
+    }
     failures_by_status: Counter[str] = Counter()
 
     def obscura_fallback(job: dict) -> tuple[str, str]:
@@ -611,6 +661,40 @@ def main() -> None:
         if error:
             obscura_failed += 1
         return description, kind
+
+    def recovery_fallback(job: dict) -> tuple[str, str]:
+        nonlocal browser_use_fetched, firecrawl_fetched
+        nonlocal browser_use_attempts, firecrawl_attempts
+        description, kind = obscura_fallback(job)
+        if description:
+            return description, kind
+        recovery_job = dict(job)
+        if (args.browser_use_python and browser_use_attempts < max(0, args.browser_use_limit)
+                and (not browser_use_sources or
+                     str(recovery_job.get("source", "")).casefold() in browser_use_sources)):
+            browser_use_attempts += 1
+            description, kind, _ = description_recovery.browser_use_local(
+                recovery_job,
+                python=args.browser_use_python,
+                timeout=args.browser_use_timeout,
+                min_chars=max(1, args.min_description_chars),
+                chromium=args.browser_use_chromium,
+            )
+            if description:
+                browser_use_fetched += 1
+                return description, kind
+        if args.firecrawl_url and firecrawl_attempts < max(0, args.firecrawl_limit):
+            firecrawl_attempts += 1
+            description, kind, _ = description_recovery.firecrawl_local(
+                recovery_job,
+                endpoint=args.firecrawl_url,
+                timeout=args.firecrawl_timeout,
+                min_chars=max(1, args.min_description_chars),
+            )
+            if description:
+                firecrawl_fetched += 1
+                return description, kind
+        return "", ""
 
     for job in pending:
         if args.limit and processed >= args.limit:
@@ -641,7 +725,7 @@ def main() -> None:
                 body, content_type, min_chars=max(1, args.min_description_chars)
             )
             if not description:
-                description, kind = obscura_fallback(job)
+                description, kind = recovery_fallback(job)
                 if description:
                     description_store.record_success(
                         connection,
@@ -652,7 +736,8 @@ def main() -> None:
                         refresh_after_days=max(1, args.refresh_after_days),
                     )
                     fetched += 1
-                    obscura_fetched += 1
+                    if kind.startswith("obscura_"):
+                        obscura_fetched += 1
                 else:
                     description_store.record_failure(
                         connection,
@@ -679,7 +764,7 @@ def main() -> None:
             description = ""
             kind = ""
             if error.status in OBSCURA_FALLBACK_STATUSES:
-                description, kind = obscura_fallback(job)
+                description, kind = recovery_fallback(job)
             if description:
                 description_store.record_success(
                     connection,
@@ -690,7 +775,8 @@ def main() -> None:
                     refresh_after_days=max(1, args.refresh_after_days),
                 )
                 fetched += 1
-                obscura_fetched += 1
+                if kind.startswith("obscura_"):
+                    obscura_fetched += 1
             else:
                 description_store.record_failure(
                     connection,
@@ -744,6 +830,10 @@ def main() -> None:
         "failed_attempts": failed + denied,
         "descriptions_fetched_this_run": fetched,
         "descriptions_fetched_with_obscura": obscura_fetched,
+        "descriptions_fetched_with_browser_use": browser_use_fetched,
+        "descriptions_fetched_with_firecrawl": firecrawl_fetched,
+        "browser_use_attempts": browser_use_attempts,
+        "firecrawl_attempts": firecrawl_attempts,
         "obscura_failed_attempts": obscura_failed,
         "descriptions_stored_total": summary["with_description"],
         "http_failures": http_failures,
