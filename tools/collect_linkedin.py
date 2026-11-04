@@ -75,7 +75,9 @@ class _WorkplaceInsightParser(HTMLParser):
             any(marker in marker_text for marker in self._MARKERS)
             or bool(_workplace_type_from_text(attributes.get("aria-label")))
         )
-        if self._active_depth and str(tag).casefold() not in self._VOID_TAGS:
+        if str(tag).casefold() in self._VOID_TAGS:
+            return
+        if self._active_depth:
             self._active_depth += 1
         elif is_container:
             self._active_depth = 1
@@ -126,7 +128,7 @@ def _is_linkedin_job_detail_url(url, job_id):
     if hostname != "linkedin.com" and not hostname.endswith(".linkedin.com"):
         return False
 
-    match = re.search(r"/jobs/view/(\d+)(?:/|$)", parsed.path, re.IGNORECASE)
+    match = re.fullmatch(r"/jobs/view/(\d+)/?", parsed.path, re.IGNORECASE)
     return bool(match and match.group(1) == str(job_id))
 
 
@@ -137,8 +139,8 @@ def _fetch_details_with_workplace_capture(session, job_id, fetch_details):
 
     def _capture_get(url, *args, **kwargs):
         response = original_get(url, *args, **kwargs)
-        response_url = getattr(response, "url", "") or url
-        if _is_linkedin_job_detail_url(response_url, job_id):
+        response_url = getattr(response, "url", "")
+        if response_url and _is_linkedin_job_detail_url(response_url, job_id):
             captured["html"] = getattr(response, "text", "")
         return response
 
