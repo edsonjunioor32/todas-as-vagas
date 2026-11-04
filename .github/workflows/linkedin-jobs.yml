@@ -23,9 +23,9 @@ on:
         default: "1000"
         type: string
       remote_results_limit:
-        description: "Vagas solicitadas na busca remota; cada consulta é limitada a 1.000 e o total da execução a 1.200 anúncios únicos."
+        description: "A busca remota usa o saldo restante até o teto agregado de 1.200; cada consulta é limitada a 1.000."
         required: false
-        default: "200"
+        default: "1200"
         type: string
       hours_old:
         description: "Janela máxima de publicação em horas (1440 = 60 dias)"
@@ -67,7 +67,7 @@ jobs:
       - name: Executar coleta pública do LinkedIn
         run: |
           RESULTS="${{ inputs.results_limit || '1000' }}"
-          REMOTE_RESULTS="${{ inputs.remote_results_limit || '200' }}"
+          REMOTE_RESULTS="${{ inputs.remote_results_limit || '1200' }}"
           HOURS="${{ inputs.hours_old || '1440' }}"
           python tools/collect_linkedin.py \
             --results-limit "$RESULTS" \
