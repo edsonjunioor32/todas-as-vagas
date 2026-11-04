@@ -88,6 +88,8 @@ class _WorkplaceInsightParser(HTMLParser):
             self._buffer.append(data)
 
     def handle_endtag(self, tag):
+        if str(tag).casefold() in self._VOID_TAGS:
+            return
         if not self._active_depth:
             return
         self._active_depth -= 1
