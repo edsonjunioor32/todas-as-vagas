@@ -1,4 +1,4 @@
-name: Coleta Diária LinkedIn (Candidatura Simplificada)
+name: Coleta Diária LinkedIn (Vagas Públicas)
 
 on:
   # Um push que altera o coletor dispara uma execução imediata para que uma
@@ -45,7 +45,7 @@ concurrency:
 jobs:
   collect-linkedin:
     if: github.event_name != 'push' || !contains(github.event.head_commit.message, '[linkedin-refresh]')
-    name: Coletar vagas LinkedIn Easy Apply
+    name: Coletar vagas públicas LinkedIn
     runs-on: ubuntu-latest
     timeout-minutes: 45
 
@@ -64,7 +64,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install python-jobspy==1.4.1 pandas
 
-      - name: Executar Coleta Isolada do LinkedIn
+      - name: Executar coleta pública do LinkedIn
         run: |
           RESULTS="${{ inputs.results_limit || '600' }}"
           REMOTE_RESULTS="${{ inputs.remote_results_limit || '300' }}"
@@ -84,7 +84,7 @@ jobs:
           from sources import linkedin
 
           rows = linkedin.fetch()
-          print(f"Snapshot LinkedIn validado: {len(rows)} vagas brasileiras Easy Apply.")
+          print(f"Snapshot LinkedIn validado: {len(rows)} vagas brasileiras públicas.")
           PY
 
       - name: Preservar artefato para inspeção
@@ -102,7 +102,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "Nenhuma alteração nos dados do LinkedIn."
           else
-            git commit -m "chore(jobs): atualizar vagas do LinkedIn (candidatura simplificada) [linkedin-refresh]"
+            git commit -m "chore(linkedin): atualizar vagas públicas do LinkedIn [linkedin-refresh]"
             git push origin main
           fi
 

@@ -40,6 +40,7 @@ class LinkedInSourceTests(unittest.TestCase):
             "location": "São Paulo, São Paulo, Brazil",
             "workplaceType": "remote",
             "workplaceVerified": True,
+            "workplaceEvidence": "linkedin_badge",
             "publishedAt": today,
             "easyApply": True,
             "salaryMin": 3000,
@@ -50,14 +51,14 @@ class LinkedInSourceTests(unittest.TestCase):
         payload = {
             "schema_version": 1,
             "source": "linkedin",
-            "filter": "easy_apply",
+            "filter": "public_brazil",
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "jobs": [row],
         }
         payload.update(overrides)
         return payload
 
-    def test_fetch_normalizes_valid_public_easy_apply_snapshot(self):
+    def test_fetch_normalizes_valid_public_snapshot(self):
         path = self._write_snapshot(self._payload())
         try:
             with patch.dict(
@@ -80,16 +81,38 @@ class LinkedInSourceTests(unittest.TestCase):
         self.assertEqual(rows[0]["description"], "")
         self.assertEqual(rows[0]["salary_min"], 3000.0)
 
-    def test_fetch_rejects_non_easy_apply_snapshot(self):
+    def test_fetch_rejects_unsupported_snapshot_filter(self):
         path = self._write_snapshot(self._payload(filter="all"))
         try:
             with patch.dict(
                 os.environ, {"LINKEDIN_SNAPSHOT_PATH": str(path)}, clear=False
             ):
-                with self.assertRaisesRegex(RuntimeError, "Easy Apply"):
+                with self.assertRaisesRegex(RuntimeError, "filter is unsupported"):
                     linkedin.fetch()
         finally:
             path.unlink(missing_ok=True)
+
+    def test_fetch_accepts_public_and_legacy_non_easy_apply_snapshots(self):
+        for snapshot_filter in ("public_brazil", "easy_apply"):
+            with self.subTest(snapshot_filter=snapshot_filter):
+                path = self._write_snapshot(
+                    self._payload(
+                        filter=snapshot_filter,
+                        job={"easyApply": False},
+                    )
+                )
+                try:
+                    with patch.dict(
+                        os.environ,
+                        {"LINKEDIN_SNAPSHOT_PATH": str(path)},
+                        clear=False,
+                    ):
+                        rows = linkedin.fetch()
+                finally:
+                    path.unlink(missing_ok=True)
+
+                self.assertEqual(len(rows), 1)
+                self.assertEqual(rows[0]["work_model"], "remote")
 
     def test_normalize_excludes_non_brazil_and_old_jobs(self):
         today = date.today()
@@ -203,6 +226,8 @@ class LinkedInSourceTests(unittest.TestCase):
             "url": "https://www.linkedin.com/jobs/view/4483475105",
             "location": "Brazil",
             "workplaceType": "remote",
+            "workplaceVerified": True,
+            "workplaceEvidence": "description_explicit",
             "publishedAt": today,
             "easyApply": True,
             "salaryMin": 2500.0,
@@ -268,7 +293,10 @@ class LinkedInSourceTests(unittest.TestCase):
             lambda: {"description": session.get(request_url).text},
         )
 
-        self.assertEqual(details["work_from_home_type"], "remote")
+        self.assertEqual(
+            collect_linkedin.CAPTURED_LINKEDIN_WORKPLACE[job_id], "remote"
+        )
+        self.assertNotIn("work_from_home_type", details)
         self.assertEqual(session.get.call_count, 1)
 
     def test_fetch_details_capture_uses_final_linkedin_url_after_redirect(self):
@@ -291,7 +319,9 @@ class LinkedInSourceTests(unittest.TestCase):
             lambda: {"description": session.get("https://www.linkedin.com/login").text},
         )
 
-        self.assertEqual(details["work_from_home_type"], "on-site")
+        self.assertEqual(
+            collect_linkedin.CAPTURED_LINKEDIN_WORKPLACE[job_id], "on-site"
+        )
 
     def test_fetch_details_capture_ignores_another_job_and_non_linkedin_hosts(self):
         for request_url, response_url in (
@@ -323,7 +353,9 @@ class LinkedInSourceTests(unittest.TestCase):
                     "4486898930",
                     lambda: {"description": session.get(request_url).text},
                 )
-                self.assertEqual(details.get("work_from_home_type"), None)
+                self.assertNotIn(
+                    "4486898930", collect_linkedin.CAPTURED_LINKEDIN_WORKPLACE
+                )
 
     def test_fetch_details_capture_ignores_non_linkedin_redirect_destination(self):
         job_id = "4486898930"
@@ -344,7 +376,7 @@ class LinkedInSourceTests(unittest.TestCase):
             ).text},
         )
 
-        self.assertNotIn("work_from_home_type", details)
+        self.assertNotIn("4486898930", collect_linkedin.CAPTURED_LINKEDIN_WORKPLACE)
 
         response.url = "https://www.linkedin.com/jobs/view/123456"
         details = collect_linkedin._fetch_details_with_workplace_capture(
@@ -354,7 +386,7 @@ class LinkedInSourceTests(unittest.TestCase):
                 "https://www.linkedin.com/jobs/view/4486898930"
             ).text},
         )
-        self.assertNotIn("work_from_home_type", details)
+        self.assertNotIn("4486898930", collect_linkedin.CAPTURED_LINKEDIN_WORKPLACE)
 
         response.url = ""
         details = collect_linkedin._fetch_details_with_workplace_capture(
@@ -364,7 +396,7 @@ class LinkedInSourceTests(unittest.TestCase):
                 "https://www.linkedin.com/jobs/view/4486898930"
             ).text},
         )
-        self.assertNotIn("work_from_home_type", details)
+        self.assertNotIn("4486898930", collect_linkedin.CAPTURED_LINKEDIN_WORKPLACE)
 
     def test_extracts_workplace_badge_from_linkedin_detail_html(self):
         remote_html = """
@@ -421,70 +453,71 @@ class LinkedInSourceTests(unittest.TestCase):
         )
 
     def test_collect_linkedin_normalize_job_mappings(self):
-        """Só o selo da página individual classifica o modelo de trabalho."""
-        job_br_without_badge = {
-            "job_url": "https://www.linkedin.com/jobs/view/4483475105",
-            "title": "Operations Assistant",
-            "company": "Tryp.com",
-            "location": "Brazil",
-            "date_posted": "2026-10-30",
-            "description": "Trabalho 100% remoto.",
-            "is_remote": True,
-        }
-        norm_unverified = collect_linkedin.normalize_linkedin_job(job_br_without_badge)
-        self.assertEqual(norm_unverified["workplaceType"], "")
-        self.assertFalse(norm_unverified["workplaceVerified"])
-
-        job_remote_pass = {
+        """Só selo, declaração explícita e override documentado confirmam modalidade."""
+        collect_linkedin.CAPTURED_LINKEDIN_WORKPLACE.clear()
+        generic_remote = {
             "job_url": "https://www.linkedin.com/jobs/view/4481004",
             "title": "Analista de Suporte",
             "company": "Tech Corp",
-            "location": "Belo Horizonte, Minas Gerais, Brazil",
-            "work_from_home_type": "remote",
-        }
-        norm_remote_pass = collect_linkedin.normalize_linkedin_job(
-            job_remote_pass, is_remote_search=True
-        )
-        self.assertEqual(norm_remote_pass["workplaceType"], "remote")
-        self.assertTrue(norm_remote_pass["workplaceVerified"])
-
-        # A busca remota pode trazer backfill presencial; o filtro não classifica.
-        job_backfilled = {
-            "job_url": "https://www.linkedin.com/jobs/view/4481005",
-            "title": "Analista de Suporte",
-            "company": "Tech Corp",
             "location": "Brazil",
+            "date_posted": "2026-10-30",
+            "description": "Experiência com trabalho remoto será um diferencial.",
+            "work_from_home_type": "remote",
             "is_remote": True,
         }
-        norm_backfilled = collect_linkedin.normalize_linkedin_job(
-            job_backfilled, is_remote_search=True
+        norm_generic = collect_linkedin.normalize_linkedin_job(
+            generic_remote, is_remote_search=True
         )
-        self.assertEqual(norm_backfilled["workplaceType"], "")
-        self.assertFalse(norm_backfilled["workplaceVerified"])
+        self.assertEqual(norm_generic["workplaceType"], "")
+        self.assertFalse(norm_generic["workplaceVerified"])
 
-        # Regressão Nortal: o selo Remote prevalece sobre uma localização regional.
-        job_nortal = {
-            "job_url": "https://www.linkedin.com/jobs/view/4486898930",
-            "title": "(1608) Forward Deployed Engineer",
-            "company": "Nortal",
-            "location": "Greater Rio de Janeiro",
-            "work_from_home_type": "Remote",
+        explicit_remote = generic_remote | {
+            "job_url": "https://www.linkedin.com/jobs/view/4479109326",
+            "title": "Senior Application Support Analyst – Marine & Integrations #1021041",
+            "company": "Dexian Brasil",
+            "description": "No conforto da sua casa! Regime 100% Home Office.",
         }
-        norm_nortal = collect_linkedin.normalize_linkedin_job(job_nortal)
-        self.assertEqual(norm_nortal["workplaceType"], "remote")
-        self.assertTrue(norm_nortal["workplaceVerified"])
+        norm_explicit = collect_linkedin.normalize_linkedin_job(explicit_remote)
+        self.assertEqual(norm_explicit["workplaceType"], "remote")
+        self.assertEqual(norm_explicit["workplaceEvidence"], "description_explicit")
+        self.assertTrue(norm_explicit["workplaceVerified"])
 
-        # Regressão St Marche: o selo Presencial prevalece sobre qualquer heurística.
-        job_st_marche = {
-            "job_url": "https://www.linkedin.com/jobs/view/4478138443",
-            "title": "Açougueiro(a) - Vila Mascote",
-            "company": "St Marche",
-            "location": "São Paulo, São Paulo, Brazil",
-            "work_from_home_type": "Presencial",
+        ambiguous = explicit_remote | {
+            "description": "Modelo de trabalho remoto ou presencial, conforme a equipe."
         }
-        norm_st_marche = collect_linkedin.normalize_linkedin_job(job_st_marche)
-        self.assertEqual(norm_st_marche["workplaceType"], "on-site")
-        self.assertTrue(norm_st_marche["workplaceVerified"])
+        norm_ambiguous = collect_linkedin.normalize_linkedin_job(ambiguous)
+        self.assertEqual(norm_ambiguous["workplaceType"], "")
+        self.assertFalse(norm_ambiguous["workplaceVerified"])
+
+        # O selo da página individual prevalece sobre campos genéricos e descrição.
+        collect_linkedin.CAPTURED_LINKEDIN_WORKPLACE["4481007"] = "hybrid"
+        badge_job = generic_remote | {
+            "job_url": "https://www.linkedin.com/jobs/view/4481007",
+            "description": "Regime 100% Home Office.",
+            "work_from_home_type": "on-site",
+        }
+        norm_badge = collect_linkedin.normalize_linkedin_job(badge_job)
+        self.assertEqual(norm_badge["workplaceType"], "hybrid")
+        self.assertEqual(norm_badge["workplaceEvidence"], "linkedin_badge")
+        self.assertTrue(norm_badge["workplaceVerified"])
+        collect_linkedin.CAPTURED_LINKEDIN_WORKPLACE.clear()
+
+        # Exceções confirmadas por evidência fornecida pelo usuário.
+        examples = [
+            ("4486898930", "remote"),
+            ("4478138443", "on-site"),
+        ]
+        for job_id, expected in examples:
+            with self.subTest(job_id=job_id):
+                normalized = collect_linkedin.normalize_linkedin_job({
+                    "job_url": f"https://www.linkedin.com/jobs/view/{job_id}",
+                    "title": "Vaga de exemplo",
+                    "company": "Empresa",
+                    "location": "Brazil",
+                })
+                self.assertEqual(normalized["workplaceType"], expected)
+                self.assertEqual(normalized["workplaceEvidence"], "manual_override")
+                self.assertTrue(normalized["workplaceVerified"])
 
     def test_screenshot_verified_workplace_overrides_apply_without_page_badge(self):
         examples = [
@@ -526,14 +559,14 @@ class LinkedInSourceTests(unittest.TestCase):
         mock_scraper.scraper_input.search_term = "Suporte"
         mock_scraper.scraper_input.location = "Brazil"
         mock_scraper.scraper_input.distance = 50
-        mock_scraper.scraper_input.easy_apply = True
+        mock_scraper.scraper_input.easy_apply = False
         mock_scraper.scraper_input.linkedin_company_ids = None
         mock_scraper.scraper_input.hours_old = 1440
         mock_scraper.scraper_input.is_remote = True
 
         params = LinkedIn._search_params(mock_scraper)
         self.assertEqual(params.get("f_WT"), "2")
-        self.assertEqual(params.get("f_AL"), "true")
+        self.assertNotIn("f_AL", params)
         self.assertEqual(params.get("f_TPR"), "r5184000")
 
 
@@ -549,7 +582,7 @@ class LinkedInSourceTests(unittest.TestCase):
                 "company": "Escritório Brasil",
                 "location": "São Paulo, São Paulo, Brazil",
                 "date_posted": "2026-10-30",
-                "work_from_home_type": "on-site",
+                "description": "Modalidade de trabalho: presencial.",
             },
             {
                 "id": "li-102",
@@ -558,7 +591,7 @@ class LinkedInSourceTests(unittest.TestCase):
                 "company": "Design Lab",
                 "location": "Curitiba, Paraná, Brazil",
                 "date_posted": "2026-10-30",
-                "work_from_home_type": "hybrid",
+                "description": "Modelo de trabalho: híbrido.",
             },
         ]
         records_remote = [
@@ -569,7 +602,7 @@ class LinkedInSourceTests(unittest.TestCase):
                 "company": "Tryp.com",
                 "location": "Brazil",
                 "date_posted": "2026-10-30",
-                "work_from_home_type": "remote",
+                "description": "Regime 100% Home Office.",
             }
         ]
 
@@ -607,6 +640,7 @@ class LinkedInSourceTests(unittest.TestCase):
             self.assertFalse(calls[0].get("is_remote", False))
             self.assertIsNone(calls[1]["search_term"])
             self.assertTrue(calls[1].get("is_remote", False))
+            self.assertTrue(all("easy_apply" not in call for call in calls))
 
             # Valida presença dos três modelos de trabalho: presencial, híbrido e remoto
             types = {r["workplaceType"] for r in results}
@@ -615,7 +649,9 @@ class LinkedInSourceTests(unittest.TestCase):
             with open(tmp_path, "r", encoding="utf-8") as f:
                 saved = json.load(f)
             self.assertEqual(saved["count"], 3)
-            self.assertEqual(saved["filter"], "easy_apply")
+            self.assertEqual(saved["filter"], "public_brazil")
+            self.assertEqual(len(saved["coverage"]), 2)
+            self.assertFalse(any(item["limit_reached"] for item in saved["coverage"]))
         finally:
             tmp_path.unlink(missing_ok=True)
 
@@ -711,6 +747,41 @@ class LinkedInSourceTests(unittest.TestCase):
             )
         finally:
             tmp_path.unlink(missing_ok=True)
+
+    def test_pagination_reports_when_result_cap_is_reached(self):
+        class MockDataFrame(list):
+            @property
+            def empty(self):
+                return len(self) == 0
+
+            def to_dict(self, orient="records"):
+                return list(self)
+
+        records = [
+            {
+                "id": f"li-{index}",
+                "job_url": f"https://www.linkedin.com/jobs/view/{index}",
+                "title": f"Vaga {index}",
+                "company": "Empresa Teste",
+            }
+            for index in range(200)
+        ]
+
+        def mock_scrape(**kwargs):
+            start = kwargs["offset"]
+            size = kwargs["results_wanted"]
+            return MockDataFrame(records[start : start + size])
+
+        coverage = {}
+        with patch.object(collect_linkedin, "scrape_jobs", side_effect=mock_scrape):
+            rows = collect_linkedin._scrape_jobs_in_pages(
+                results_limit=200, coverage=coverage, site_name=["linkedin"]
+            )
+
+        self.assertEqual(len(rows), 200)
+        self.assertEqual(coverage["returned"], 200)
+        self.assertTrue(coverage["limit_reached"])
+        self.assertFalse(coverage["source_exhausted"])
 
     def test_incomplete_linkedin_pass_preserves_previous_snapshot(self):
         for failed_pass in ("general", "remote"):
