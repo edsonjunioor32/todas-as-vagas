@@ -605,7 +605,7 @@ class LinkedInSourceTests(unittest.TestCase):
         }
         norm_explicit = collect_linkedin.normalize_linkedin_job(explicit_remote)
         self.assertEqual(norm_explicit["workplaceType"], "remote")
-        self.assertEqual(norm_explicit["workplaceEvidence"], "description_explicit")
+        self.assertEqual(norm_explicit["workplaceEvidence"], "manual_override")
         self.assertTrue(norm_explicit["workplaceVerified"])
 
         ambiguous = explicit_remote | {
