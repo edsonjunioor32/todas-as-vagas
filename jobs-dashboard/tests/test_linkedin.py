@@ -538,6 +538,21 @@ class LinkedInSourceTests(unittest.TestCase):
             ("unknown", False, "conflicting_signals"),
         )
 
+    def test_dexian_screenshot_verifies_easy_apply_without_public_cta(self):
+        collect_linkedin.CAPTURED_LINKEDIN_APPLICATION.clear()
+        normalized = collect_linkedin.normalize_linkedin_job({
+            "job_url": "https://www.linkedin.com/jobs/view/4479109326",
+            "title": "Senior Application Support Analyst",
+            "company": "Dexian Brasil",
+            "location": "Brazil",
+        })
+        self.assertEqual(normalized["applicationType"], "easy_apply")
+        self.assertTrue(normalized["applicationVerified"])
+        self.assertEqual(
+            normalized["applicationEvidence"],
+            "user_screenshot_2026-11-03",
+        )
+
     def test_workplace_parser_does_not_read_past_void_tags(self):
         html = """
         <li class="job-details-jobs-unified-top-card__job-insight">
@@ -645,6 +660,13 @@ class LinkedInSourceTests(unittest.TestCase):
                 "St Marche",
                 "São Paulo, São Paulo, Brazil",
                 "on-site",
+            ),
+            (
+                "4479109326",
+                "Senior Application Support Analyst",
+                "Dexian Brasil",
+                "Brazil",
+                "remote",
             ),
         ]
         for job_id, title, company, location, expected in examples:

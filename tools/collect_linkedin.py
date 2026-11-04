@@ -30,6 +30,11 @@ MAX_UNIQUE_RESULTS_PER_RUN = 1200
 VERIFIED_WORKPLACE_OVERRIDES = {
     "4486898930": "remote",
     "4478138443": "on-site",
+    "4479109326": "remote",
+}
+VERIFIED_APPLICATION_OVERRIDES = {
+    # User screenshot on 2026-11-03 shows "Candidatura simplificada".
+    "4479109326": ("easy_apply", True, "user_screenshot_2026-11-03"),
 }
 CAPTURED_LINKEDIN_WORKPLACE = {}
 CAPTURED_LINKEDIN_APPLICATION = {}
@@ -530,6 +535,10 @@ def normalize_linkedin_job(raw_job, is_remote_search=False):
             str(job_id or ""), ("unknown", False, "no_public_evidence")
         )
     )
+    if str(job_id or "") in VERIFIED_APPLICATION_OVERRIDES:
+        application_type, application_verified, application_evidence = (
+            VERIFIED_APPLICATION_OVERRIDES[str(job_id)]
+        )
 
     # Data de publicação
     date_posted = clean_value(raw_job.get("date_posted")) or ""
