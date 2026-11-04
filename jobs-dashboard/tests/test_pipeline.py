@@ -2,6 +2,7 @@
 import inspect
 import json
 import os
+import sqlite3
 import sys
 import tempfile
 import time
@@ -311,6 +312,39 @@ class StorageTests(unittest.TestCase):
                 "SELECT work_model FROM jobs WHERE source = 'linkedin' ORDER BY job_uid"
             ).fetchall()
             self.assertEqual([row[0] for row in models], ["", ""])
+            conn.close()
+
+    def test_linkedin_snapshot_refresh_rolls_back_old_labels_on_upsert_failure(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            conn = storage.connect(str(Path(temporary) / "jobs.db"))
+            storage.upsert(
+                conn,
+                [sample_job("linkedin", "old", work_model="remote")],
+                today="2026-08-20",
+            )
+            conn.execute("""
+                CREATE TRIGGER reject_linkedin_test_row
+                BEFORE INSERT ON jobs
+                WHEN NEW.job_uid = 'linkedin:new'
+                BEGIN
+                    SELECT RAISE(ABORT, 'test failure');
+                END;
+            """)
+            conn.commit()
+
+            with self.assertRaises(sqlite3.IntegrityError):
+                storage.upsert_linkedin_snapshot(
+                    conn,
+                    [sample_job("linkedin", "new", work_model="")],
+                    today="2026-08-20",
+                )
+
+            self.assertEqual(
+                conn.execute(
+                    "SELECT work_model FROM jobs WHERE job_uid = 'linkedin:old'"
+                ).fetchone()[0],
+                "remote",
+            )
             conn.close()
 
     def test_rewrite_source_market_repairs_legacy_senior_rows(self):
