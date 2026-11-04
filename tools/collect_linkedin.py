@@ -374,6 +374,7 @@ def collect_linkedin(
     )
 
     all_jobs_dict = {}
+    collection_errors = []
 
     # Modo A: Se termos específicos forem passados (modo direcionado / testes manuais)
     if terms:
@@ -401,6 +402,7 @@ def collect_linkedin(
                             all_jobs_dict[job_key] = norm
             except Exception as e:
                 print(f"  [Aviso] Falha ao consultar '{term}': {e}")
+                collection_errors.append(f"termo '{term}': {e}")
             time.sleep(2)
 
     # Modo B: Padrão aberto e não-restritivo para o portal Todas as Vagas
@@ -430,6 +432,7 @@ def collect_linkedin(
                 print("  -> Nenhuma vaga encontrada na varredura geral.")
         except Exception as e:
             print(f"  [Aviso] Falha na varredura geral: {e}")
+            collection_errors.append(f"busca geral: {e}")
 
         time.sleep(2)
 
@@ -460,6 +463,14 @@ def collect_linkedin(
                     print("  -> Nenhuma vaga encontrada na varredura remota.")
             except Exception as e:
                 print(f"  [Aviso] Falha na varredura remota: {e}")
+                collection_errors.append(f"busca remota: {e}")
+
+    if collection_errors:
+        details = "; ".join(collection_errors)
+        raise RuntimeError(
+            "Coleta LinkedIn incompleta; o snapshot anterior foi preservado: "
+            + details
+        )
 
     collected_list = list(all_jobs_dict.values())
     if not collected_list:
