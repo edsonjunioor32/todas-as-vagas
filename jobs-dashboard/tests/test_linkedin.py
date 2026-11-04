@@ -114,6 +114,56 @@ class LinkedInSourceTests(unittest.TestCase):
                 self.assertEqual(len(rows), 1)
                 self.assertEqual(rows[0]["work_model"], "remote")
 
+    def test_unknown_application_type_remains_in_snapshot_and_catalog(self):
+        record = {
+            "id": "li-99001",
+            "job_url": "https://www.linkedin.com/jobs/view/99001",
+            "title": "Analista de Suporte",
+            "company": "Empresa Teste",
+            "location": "São Paulo, São Paulo, Brazil",
+            "date_posted": date.today().isoformat(),
+        }
+
+        class MockDataFrame(list):
+            @property
+            def empty(self):
+                return len(self) == 0
+
+            def to_dict(self, orient="records"):
+                return list(self)
+
+        with tempfile.TemporaryDirectory() as temporary:
+            snapshot_path = Path(temporary) / "linkedin.json"
+            summary_path = Path(temporary) / "summary.md"
+            summary_path.write_text("", encoding="utf-8")
+            with patch.dict(
+                os.environ,
+                {
+                    "LINKEDIN_SNAPSHOT_PATH": str(snapshot_path),
+                    "LINKEDIN_MAX_AGE_DAYS": "60",
+                    "LINKEDIN_SNAPSHOT_MAX_AGE_HOURS": "36",
+                    "GITHUB_STEP_SUMMARY": str(summary_path),
+                },
+                clear=False,
+            ), patch.object(
+                collect_linkedin, "scrape_jobs", return_value=MockDataFrame([record])
+            ), patch.object(collect_linkedin.time, "sleep"):
+                collect_linkedin.collect_linkedin(
+                    results_limit=1,
+                    remote_results_limit=0,
+                    include_remote_pass=False,
+                    out_path=str(snapshot_path),
+                )
+                payload = json.loads(snapshot_path.read_text(encoding="utf-8"))
+                snapshot_row = payload["jobs"][0]
+                self.assertEqual(snapshot_row["applicationType"], "unknown")
+                self.assertIs(snapshot_row["applicationVerified"], False)
+                self.assertEqual(
+                    snapshot_row["applicationEvidence"], "no_public_evidence"
+                )
+                self.assertIn("desconhecida 1", summary_path.read_text(encoding="utf-8"))
+                self.assertEqual(len(linkedin.fetch()), 1)
+
     def test_normalize_excludes_non_brazil_and_old_jobs(self):
         today = date.today()
         self.assertIsNone(
@@ -283,6 +333,7 @@ class LinkedInSourceTests(unittest.TestCase):
         response.text = (
             '<li class="job-details-jobs-unified-top-card__job-insight">'
             "<span>Remote</span></li>"
+            '<button class="jobs-apply-button">Easy Apply</button>'
         )
         session = MagicMock()
         session.get.return_value = response
@@ -295,6 +346,10 @@ class LinkedInSourceTests(unittest.TestCase):
 
         self.assertEqual(
             collect_linkedin.CAPTURED_LINKEDIN_WORKPLACE[job_id], "remote"
+        )
+        self.assertEqual(
+            collect_linkedin.CAPTURED_LINKEDIN_APPLICATION[job_id],
+            ("easy_apply", True, "easy_apply_badge"),
         )
         self.assertNotIn("work_from_home_type", details)
         self.assertEqual(session.get.call_count, 1)
@@ -427,6 +482,77 @@ class LinkedInSourceTests(unittest.TestCase):
             "hybrid",
         )
 
+    def test_extracts_explicit_easy_apply_cta(self):
+        for html in (
+            '<button aria-label="Easy Apply">Easy Apply</button>',
+            '<button>Candidatura simplificada</button>',
+        ):
+            with self.subTest(html=html):
+                self.assertEqual(
+                    collect_linkedin._extract_application_evidence_from_html(html),
+                    ("easy_apply", True, "easy_apply_badge"),
+                )
+
+    def test_external_application_requires_explicit_external_evidence(self):
+        html = '<a href="https://careers.example/jobs/1/apply">Candidatar-se</a>'
+        self.assertEqual(
+            collect_linkedin._extract_application_evidence_from_html(html),
+            ("external", True, "external_apply_link"),
+        )
+        marker = '<button>Apply on company website</button>'
+        self.assertEqual(
+            collect_linkedin._extract_application_evidence_from_html(marker),
+            ("external", True, "external_apply_marker"),
+        )
+        portuguese_marker = (
+            '<button>Candidatar-se no site da empresa</button>'
+        )
+        self.assertEqual(
+            collect_linkedin._extract_application_evidence_from_html(
+                portuguese_marker
+            ),
+            ("external", True, "external_apply_marker"),
+        )
+
+    def test_generic_apply_cta_without_external_target_is_unknown(self):
+        html = '<button class="jobs-apply-button">Apply</button>'
+        self.assertEqual(
+            collect_linkedin._extract_application_evidence_from_html(html),
+            ("unknown", False, "no_public_evidence"),
+        )
+        linkedin_url = (
+            '<a href="https://www.linkedin.com/jobs/view/123/apply">Apply</a>'
+        )
+        self.assertEqual(
+            collect_linkedin._extract_application_evidence_from_html(linkedin_url),
+            ("unknown", False, "no_public_evidence"),
+        )
+
+    def test_conflicting_easy_apply_and_external_ctas_are_unknown(self):
+        html = (
+            '<button>Easy Apply</button>'
+            '<a href="https://careers.example/jobs/1/apply">Apply</a>'
+        )
+        self.assertEqual(
+            collect_linkedin._extract_application_evidence_from_html(html),
+            ("unknown", False, "conflicting_signals"),
+        )
+
+    def test_dexian_screenshot_verifies_easy_apply_without_public_cta(self):
+        collect_linkedin.CAPTURED_LINKEDIN_APPLICATION.clear()
+        normalized = collect_linkedin.normalize_linkedin_job({
+            "job_url": "https://www.linkedin.com/jobs/view/4479109326",
+            "title": "Senior Application Support Analyst",
+            "company": "Dexian Brasil",
+            "location": "Brazil",
+        })
+        self.assertEqual(normalized["applicationType"], "easy_apply")
+        self.assertTrue(normalized["applicationVerified"])
+        self.assertEqual(
+            normalized["applicationEvidence"],
+            "user_screenshot_2026-11-03",
+        )
+
     def test_workplace_parser_does_not_read_past_void_tags(self):
         html = """
         <li class="job-details-jobs-unified-top-card__job-insight">
@@ -472,9 +598,9 @@ class LinkedInSourceTests(unittest.TestCase):
         self.assertFalse(norm_generic["workplaceVerified"])
 
         explicit_remote = generic_remote | {
-            "job_url": "https://www.linkedin.com/jobs/view/4479109326",
-            "title": "Senior Application Support Analyst – Marine & Integrations #1021041",
-            "company": "Dexian Brasil",
+            "job_url": "https://www.linkedin.com/jobs/view/4481006",
+            "title": "Senior Application Support Analyst",
+            "company": "Tech Corp",
             "description": "No conforto da sua casa! Regime 100% Home Office.",
         }
         norm_explicit = collect_linkedin.normalize_linkedin_job(explicit_remote)
@@ -483,6 +609,7 @@ class LinkedInSourceTests(unittest.TestCase):
         self.assertTrue(norm_explicit["workplaceVerified"])
 
         ambiguous = explicit_remote | {
+            "job_url": "https://www.linkedin.com/jobs/view/4481008",
             "description": "Modelo de trabalho remoto ou presencial, conforme a equipe."
         }
         norm_ambiguous = collect_linkedin.normalize_linkedin_job(ambiguous)
@@ -534,6 +661,13 @@ class LinkedInSourceTests(unittest.TestCase):
                 "St Marche",
                 "São Paulo, São Paulo, Brazil",
                 "on-site",
+            ),
+            (
+                "4479109326",
+                "Senior Application Support Analyst",
+                "Dexian Brasil",
+                "Brazil",
+                "remote",
             ),
         ]
         for job_id, title, company, location, expected in examples:
@@ -743,7 +877,7 @@ class LinkedInSourceTests(unittest.TestCase):
             self.assertEqual([call["offset"] for call in calls], [0, 100, 200])
             self.assertEqual(
                 [call["results_wanted"] for call in calls],
-                [100, 100, 100],
+                [100, 100, 5],
             )
         finally:
             tmp_path.unlink(missing_ok=True)
@@ -782,6 +916,169 @@ class LinkedInSourceTests(unittest.TestCase):
         self.assertEqual(coverage["returned"], 200)
         self.assertTrue(coverage["limit_reached"])
         self.assertFalse(coverage["source_exhausted"])
+
+    def test_query_limit_clamps_at_jobspy_max_and_reports_requested_effective(self):
+        records = [
+            {
+                "id": f"li-{index}",
+                "job_url": f"https://www.linkedin.com/jobs/view/{index}",
+                "title": f"Vaga {index}",
+                "company": "Empresa Teste",
+            }
+            for index in range(1000)
+        ]
+
+        class MockDataFrame(list):
+            @property
+            def empty(self):
+                return len(self) == 0
+
+            def to_dict(self, orient="records"):
+                return list(self)
+
+        calls = []
+
+        def mock_scrape(**kwargs):
+            calls.append(dict(kwargs))
+            start = kwargs["offset"]
+            size = kwargs["results_wanted"]
+            return MockDataFrame(records[start : start + size])
+
+        coverage = {}
+        with patch.object(
+            collect_linkedin, "scrape_jobs", side_effect=mock_scrape
+        ), patch.object(collect_linkedin.time, "sleep"):
+            rows = collect_linkedin._scrape_jobs_in_pages(
+                results_limit=1200, coverage=coverage, site_name=["linkedin"]
+            )
+
+        self.assertEqual(len(rows), 1000)
+        self.assertEqual(coverage["requested_limit"], 1200)
+        self.assertEqual(coverage["effective_limit"], 1000)
+        self.assertTrue(coverage["clamped_by_query_limit"])
+        self.assertFalse(coverage["clamped_by_aggregate_limit"])
+        self.assertEqual([call["offset"] for call in calls], list(range(0, 1000, 100)))
+        self.assertTrue(all(call["results_wanted"] <= 100 for call in calls))
+
+    def test_aggregate_cap_applies_to_open_general_and_remote_dispatch_limits(self):
+        class MockDataFrame(list):
+            @property
+            def empty(self):
+                return len(self) == 0
+
+            def to_dict(self, orient="records"):
+                return list(self)
+
+        def mock_scrape(**kwargs):
+            prefix = "R" if kwargs.get("is_remote") else "G"
+            start = kwargs["offset"]
+            size = kwargs["results_wanted"]
+            return MockDataFrame([
+                {
+                    "id": f"li-{prefix}{index}",
+                    "job_url": f"https://www.linkedin.com/jobs/view/{prefix}{index}",
+                    "title": f"Vaga {prefix}{index}",
+                    "company": "Empresa Teste",
+                    "location": "Brazil",
+                    "date_posted": date.today().isoformat(),
+                }
+                for index in range(start, start + size)
+            ])
+
+        with tempfile.TemporaryDirectory() as temporary:
+            snapshot_path = Path(temporary) / "linkedin.json"
+            summary_path = Path(temporary) / "summary.md"
+            summary_path.write_text("", encoding="utf-8")
+            with patch.dict(
+                os.environ, {"GITHUB_STEP_SUMMARY": str(summary_path)}, clear=False
+            ), patch.object(
+                collect_linkedin, "scrape_jobs", side_effect=mock_scrape
+            ), patch.object(collect_linkedin.time, "sleep"), patch(
+                "builtins.print"
+            ) as log_print:
+                rows = collect_linkedin.collect_linkedin(
+                    results_limit=1200,
+                    remote_results_limit=1200,
+                    out_path=str(snapshot_path),
+                )
+
+            limit_log = "\n".join(
+                str(call.args[0])
+                for call in log_print.call_args_list
+                if call.args
+            )
+            self.assertIn("solicitado=1200, efetivo=1000", limit_log)
+            self.assertIn("solicitado=1200, efetivo=200", limit_log)
+            self.assertIn("teto agregado (1200)", limit_log)
+
+            payload = json.loads(snapshot_path.read_text(encoding="utf-8"))
+            self.assertEqual(len(rows), 1200)
+            self.assertEqual(payload["count"], 1200)
+            self.assertEqual(payload["limits"]["max_results_per_query"], 1000)
+            self.assertEqual(payload["limits"]["max_unique_per_run"], 1200)
+            self.assertEqual(
+                [(item["requested_limit"], item["effective_limit"])
+                 for item in payload["coverage"]],
+                [(1200, 1000), (1200, 200)],
+            )
+            self.assertTrue(payload["coverage"][0]["clamped_by_query_limit"])
+            self.assertTrue(payload["coverage"][1]["clamped_by_aggregate_limit"])
+            self.assertEqual(
+                len({job["native_id"] for job in payload["jobs"]}), 1200
+            )
+            summary = summary_path.read_text(encoding="utf-8")
+            self.assertIn("Easy Apply 0", summary)
+            self.assertIn("externa 0", summary)
+            self.assertIn("desconhecida 1200", summary)
+
+    def test_aggregate_cap_also_applies_across_search_terms_and_deduplicates(self):
+        class MockDataFrame(list):
+            @property
+            def empty(self):
+                return len(self) == 0
+
+            def to_dict(self, orient="records"):
+                return list(self)
+
+        def mock_scrape(**kwargs):
+            term = kwargs["search_term"]
+            start = kwargs["offset"]
+            size = kwargs["results_wanted"]
+            base = 1000 if term == "last" else 0
+            return MockDataFrame([
+                {
+                    "id": f"li-{base + index}",
+                    "job_url": f"https://www.linkedin.com/jobs/view/{base + index}",
+                    "title": f"Vaga {base + index}",
+                    "company": "Empresa Teste",
+                    "location": "Brazil",
+                    "date_posted": date.today().isoformat(),
+                }
+                for index in range(start, start + size)
+            ])
+
+        with tempfile.TemporaryDirectory() as temporary:
+            snapshot_path = Path(temporary) / "linkedin.json"
+            with patch.object(
+                collect_linkedin, "scrape_jobs", side_effect=mock_scrape
+            ), patch.object(collect_linkedin.time, "sleep"):
+                rows = collect_linkedin.collect_linkedin(
+                    terms=["first", "duplicates", "last"],
+                    results_limit=1200,
+                    remote_results_limit=1200,
+                    out_path=str(snapshot_path),
+                )
+
+            payload = json.loads(snapshot_path.read_text(encoding="utf-8"))
+            self.assertEqual(len(rows), 1200)
+            self.assertEqual(payload["count"], 1200)
+            self.assertEqual(
+                [item["effective_limit"] for item in payload["coverage"]],
+                [1000, 200, 200],
+            )
+            self.assertEqual(
+                len({job["native_id"] for job in payload["jobs"]}), 1200
+            )
 
     def test_incomplete_linkedin_pass_preserves_previous_snapshot(self):
         for failed_pass in ("general", "remote"):

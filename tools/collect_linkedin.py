@@ -13,6 +13,7 @@ import os
 import re
 import sys
 import time
+import unicodedata
 from datetime import datetime, timezone
 from html.parser import HTMLParser
 from urllib.parse import urlsplit
@@ -21,14 +22,22 @@ from urllib.parse import urlsplit
 # Limites operacionais da coleta aberta. JobSpy aceita offset para continuar
 # a busca; usamos lotes controlados para ultrapassar o primeiro resultado sem
 # criar uma consulta ilimitada ou concentrar todas as requisições em uma única chamada.
-DEFAULT_RESULTS_LIMIT = 600
-DEFAULT_REMOTE_RESULTS_LIMIT = 300
+DEFAULT_RESULTS_LIMIT = 1000
+DEFAULT_REMOTE_RESULTS_LIMIT = 1200
+JOBSPY_MAX_RESULTS_PER_QUERY = 1000
+MAX_UNIQUE_RESULTS_PER_RUN = 1200
 # Verified against LinkedIn screenshots supplied on 2026-11-03.
 VERIFIED_WORKPLACE_OVERRIDES = {
     "4486898930": "remote",
     "4478138443": "on-site",
+    "4479109326": "remote",
+}
+VERIFIED_APPLICATION_OVERRIDES = {
+    # User screenshot on 2026-11-03 shows "Candidatura simplificada".
+    "4479109326": ("easy_apply", True, "user_screenshot_2026-11-03"),
 }
 CAPTURED_LINKEDIN_WORKPLACE = {}
+CAPTURED_LINKEDIN_APPLICATION = {}
 DEFAULT_HOURS_OLD = 1440
 JOBSPY_BATCH_SIZE = 100
 
@@ -123,6 +132,188 @@ def _extract_workplace_type_from_html(html):
     return ""
 
 
+_APPLICATION_EASY_APPLY_RE = re.compile(
+    r"\b(?:easy\s*apply|inapply|candidatura\s+simplificada|"
+    r"aplicacao\s+simplificada|candidature\s+simplifiee|solicitud\s+sencilla)\b"
+)
+_APPLICATION_CTA_RE = re.compile(
+    r"\b(?:apply|application|candidat\w*|candidate|inscrev\w*|submit)\b"
+)
+_APPLICATION_EXTERNAL_MARKERS = (
+    r"\b(?:external\s+application|apply\s+externally|"
+    r"apply\s+outside\s+(?:linkedin|the\s+platform))\b",
+    r"\bapply\s+(?:on|via|through)\s+(?:the\s+)?"
+    r"(?:company|employer)(?:'s)?\s+(?:website|site|portal)\b",
+    r"\b(?:candidatura\s+externa|candidatar\s+se\s+externamente|"
+    r"candidate\s+se\s+externamente)\b",
+    r"\b(?:candidatar\s+se|candidate\s+se|inscreva\s+se|inscrever\s+se)\s+"
+    r"(?:no|na|pelo|pela|atraves\s+(?:do|da))\s+"
+    r"(?:site|portal)\s+(?:da|do)\s+empresa\b",
+    r"\b(?:inscreva\s+se|candidate\s+se|candidatar\s+se)\s+diretamente\s+"
+    r"(?:no|na)\s+(?:site|portal)\s+(?:da|do)\s+empresa\b",
+)
+_APPLICATION_VOID_TAGS = {
+    "area", "base", "br", "col", "embed", "hr", "img", "input",
+    "link", "meta", "param", "source", "track", "wbr",
+}
+
+
+def _normalize_application_text(value):
+    text = unicodedata.normalize("NFKD", str(value or ""))
+    text = "".join(char for char in text if not unicodedata.combining(char))
+    text = text.casefold().replace("_", " ").replace("-", " ")
+    return re.sub(r"\s+", " ", text).strip()
+
+
+class _ApplicationCTAParser(HTMLParser):
+    """Captures text/attributes from apply controls, never from job prose."""
+
+    _CONTROL_TAGS = {"a", "button"}
+    _CONTROL_MARKERS = ("apply", "application", "candidate")
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self._elements = []
+        self._active_controls = []
+        self.controls = []
+
+    def handle_starttag(self, tag, attrs):
+        tag_name = str(tag).casefold()
+        attributes = {
+            str(name).casefold(): str(value or "")
+            for name, value in attrs
+        }
+        markers = " ".join(
+            attributes.get(name, "")
+            for name in (
+                "class", "data-control-name", "data-test-id", "data-testid",
+                "aria-label", "title", "role",
+            )
+        ).casefold()
+        is_control = (
+            tag_name in self._CONTROL_TAGS
+            or attributes.get("role", "").casefold() == "button"
+            or any(marker in markers for marker in self._CONTROL_MARKERS)
+        )
+        control = {
+            "tag": tag_name,
+            "attributes": attributes,
+            "text": [],
+        } if is_control else None
+        if control:
+            self._active_controls.append(control)
+        if tag_name not in _APPLICATION_VOID_TAGS:
+            self._elements.append({"tag": tag_name, "control": control})
+        elif control:
+            self._finish_control(control)
+
+    def handle_startendtag(self, tag, attrs):
+        self.handle_starttag(tag, attrs)
+        if str(tag).casefold() not in _APPLICATION_VOID_TAGS:
+            self.handle_endtag(tag)
+
+    def handle_data(self, data):
+        for control in self._active_controls:
+            control["text"].append(data)
+
+    def handle_endtag(self, tag):
+        tag_name = str(tag).casefold()
+        for index in range(len(self._elements) - 1, -1, -1):
+            if self._elements[index]["tag"] != tag_name:
+                continue
+            closing = self._elements[index:]
+            del self._elements[index:]
+            for element in reversed(closing):
+                control = element["control"]
+                if control:
+                    self._finish_control(control)
+            return
+
+    def _finish_control(self, control):
+        for index in range(len(self._active_controls) - 1, -1, -1):
+            if self._active_controls[index] is control:
+                del self._active_controls[index]
+                break
+        self.controls.append(control)
+
+
+def _is_verified_external_apply_url(value):
+    try:
+        url = str(value or "").strip()
+        parsed = urlsplit("https:" + url if url.startswith("//") else url)
+    except ValueError:
+        return False
+    host = (parsed.hostname or "").casefold().rstrip(".")
+    if parsed.scheme.casefold() not in {"http", "https"} or not host:
+        return False
+    # LinkedIn short links are not proof of the final employer destination.
+    linkedin_hosts = ("linkedin.com", "linkedin.cn", "lnkd.in")
+    if any(host == domain or host.endswith("." + domain) for domain in linkedin_hosts):
+        return False
+    return True
+
+
+def _extract_application_evidence_from_html(html):
+    """Classify a job only from explicit application controls in its detail HTML."""
+    unknown = ("unknown", False, "no_public_evidence")
+    if not html:
+        return unknown
+
+    parser = _ApplicationCTAParser()
+    try:
+        parser.feed(str(html))
+        parser.close()
+    except Exception:
+        return unknown
+
+    signals = set()
+    evidence = set()
+    for control in parser.controls:
+        attributes = control["attributes"]
+        label = _normalize_application_text(
+            " ".join(
+                control["text"]
+                + [
+                    attributes.get(name, "")
+                    for name in (
+                        "aria-label", "title", "data-control-name",
+                        "data-test-id", "data-testid", "class",
+                    )
+                ]
+            )
+        )
+        if _APPLICATION_EASY_APPLY_RE.search(label):
+            signals.add("easy_apply")
+            evidence.add("easy_apply_badge")
+
+        explicit_external = any(
+            re.search(pattern, label) for pattern in _APPLICATION_EXTERNAL_MARKERS
+        )
+        external_link = (
+            bool(_APPLICATION_CTA_RE.search(label))
+            and _is_verified_external_apply_url(attributes.get("href"))
+        )
+        if explicit_external:
+            signals.add("external")
+            evidence.add("external_apply_marker")
+        elif external_link:
+            signals.add("external")
+            evidence.add("external_apply_link")
+
+    if len(signals) > 1:
+        return ("unknown", False, "conflicting_signals")
+    if signals == {"easy_apply"}:
+        return ("easy_apply", True, "easy_apply_badge")
+    if signals == {"external"}:
+        evidence_type = (
+            "external_apply_marker"
+            if "external_apply_marker" in evidence
+            else "external_apply_link"
+        )
+        return ("external", True, evidence_type)
+    return unknown
+
+
 _EXPLICIT_WORKPLACE_PATTERNS = {
     "remote": (
         r"\b100\s*%\s*(?:remot[oa]|home[\s-]?office)\b",
@@ -190,6 +381,7 @@ def _fetch_details_with_workplace_capture(session, job_id, fetch_details):
     job_key = str(job_id or "").strip()
     if job_key:
         CAPTURED_LINKEDIN_WORKPLACE.pop(job_key, None)
+        CAPTURED_LINKEDIN_APPLICATION.pop(job_key, None)
     original_get = session.get
 
     def _capture_get(url, *args, **kwargs):
@@ -205,9 +397,14 @@ def _fetch_details_with_workplace_capture(session, job_id, fetch_details):
     finally:
         session.get = original_get
 
-    workplace_type = _extract_workplace_type_from_html(captured.get("html", ""))
+    html = captured.get("html", "")
+    workplace_type = _extract_workplace_type_from_html(html)
     if job_key and workplace_type:
         CAPTURED_LINKEDIN_WORKPLACE[job_key] = workplace_type
+    if job_key:
+        CAPTURED_LINKEDIN_APPLICATION[job_key] = (
+            _extract_application_evidence_from_html(html)
+        )
     return details
 
 
@@ -333,6 +530,16 @@ def normalize_linkedin_job(raw_job, is_remote_search=False):
         if workplace_type:
             workplace_evidence = "description_explicit"
 
+    application_type, application_verified, application_evidence = (
+        CAPTURED_LINKEDIN_APPLICATION.get(
+            str(job_id or ""), ("unknown", False, "no_public_evidence")
+        )
+    )
+    if str(job_id or "") in VERIFIED_APPLICATION_OVERRIDES:
+        application_type, application_verified, application_evidence = (
+            VERIFIED_APPLICATION_OVERRIDES[str(job_id)]
+        )
+
     # Data de publicação
     date_posted = clean_value(raw_job.get("date_posted")) or ""
     if date_posted and "T" not in str(date_posted):
@@ -354,6 +561,9 @@ def normalize_linkedin_job(raw_job, is_remote_search=False):
         "workplaceType": workplace_type,
         "workplaceVerified": bool(workplace_type),
         "workplaceEvidence": workplace_evidence,
+        "applicationType": application_type,
+        "applicationVerified": application_verified,
+        "applicationEvidence": application_evidence,
         "publishedAt": date_posted,
         "collectedAt": datetime.now(timezone.utc).isoformat(),
         "salaryMin": float(min_amount) if min_amount else None,
@@ -365,13 +575,51 @@ def normalize_linkedin_job(raw_job, is_remote_search=False):
 
 
 
-def _scrape_jobs_in_pages(*, results_limit, coverage=None, **kwargs):
-    """Coleta resultados paginados e registra se a fonte encerrou ou atingiu o limite."""
-    target = max(0, int(results_limit))
+def _raw_linkedin_job_key(raw):
+    """Build a tracking-independent key for one LinkedIn ad."""
+    native_id = str(clean_value(raw.get("id")) or "").strip()
+    if native_id:
+        return f"id:{native_id.casefold().removeprefix('li-')}"
+
+    raw_url = str(clean_value(raw.get("job_url")) or "").strip()
+    try:
+        parsed = urlsplit(raw_url)
+    except ValueError:
+        parsed = None
+    if parsed:
+        match = re.fullmatch(r"/jobs/view/(\d+)/?", parsed.path, re.IGNORECASE)
+        if match:
+            return f"id:{match.group(1)}"
+        if parsed.hostname:
+            return (
+                f"url:{parsed.hostname.casefold().rstrip('.')}:{parsed.path.rstrip('/')}"
+            )
+
+    title = str(clean_value(raw.get("title")) or "").strip().casefold()
+    company = str(clean_value(raw.get("company")) or "").strip().casefold()
+    location = str(clean_value(raw.get("location")) or "").strip().casefold()
+    return f"fallback:{title}::{company}::{location}"
+
+
+def _scrape_jobs_in_pages(
+    *, results_limit, max_results=MAX_UNIQUE_RESULTS_PER_RUN, coverage=None, **kwargs
+):
+    """Paginate with JobSpy's per-query ceiling and this run's remaining budget."""
+    requested_target = max(0, int(results_limit))
+    aggregate_remaining = max(0, int(max_results))
+    query_target = min(requested_target, JOBSPY_MAX_RESULTS_PER_QUERY)
+    target = min(query_target, aggregate_remaining)
+    clamped_by_query_limit = requested_target > JOBSPY_MAX_RESULTS_PER_QUERY
+    clamped_by_aggregate_limit = query_target > aggregate_remaining
+
     if target == 0:
         if coverage is not None:
             coverage.update({
-                "requested_limit": 0,
+                "requested_limit": requested_target,
+                "effective_limit": 0,
+                "aggregate_remaining": aggregate_remaining,
+                "clamped_by_query_limit": clamped_by_query_limit,
+                "clamped_by_aggregate_limit": clamped_by_aggregate_limit,
                 "returned": 0,
                 "pages": 0,
                 "source_exhausted": True,
@@ -391,11 +639,11 @@ def _scrape_jobs_in_pages(*, results_limit, coverage=None, **kwargs):
     for page_number in range(max_pages):
         offset = page_number * batch_size
         page_kwargs = dict(kwargs)
-        page_kwargs["results_wanted"] = batch_size
+        page_kwargs["results_wanted"] = min(batch_size, target - offset)
         page_kwargs["offset"] = offset
         print(
             f"  -> Lote {page_number + 1}/{max_pages} "
-            f"(offset={offset}, limite={batch_size})"
+            f"(offset={offset}, limite={page_kwargs['results_wanted']})"
         )
         df = scrape_jobs(**page_kwargs)
         page_count += 1
@@ -410,12 +658,7 @@ def _scrape_jobs_in_pages(*, results_limit, coverage=None, **kwargs):
 
         new_records = 0
         for raw in batch:
-            key = (
-                clean_value(raw.get("job_url"))
-                or clean_value(raw.get("id"))
-                or f"{clean_value(raw.get('title'))}::{clean_value(raw.get('company'))}"
-            )
-            key = str(key).strip()
+            key = _raw_linkedin_job_key(raw)
             if key in seen_keys:
                 continue
             seen_keys.add(key)
@@ -427,9 +670,7 @@ def _scrape_jobs_in_pages(*, results_limit, coverage=None, **kwargs):
             f"{new_records} novas; total único acumulado={len(records)}."
         )
 
-        # Uma página curta encerra a busca. Repetição sem novos IDs sinaliza
-        # falha de paginação; uma página cheia no último lote deixa a cobertura incerta.
-        if len(batch) < batch_size:
+        if len(batch) < page_kwargs["results_wanted"]:
             source_exhausted = True
             break
         if new_records == 0:
@@ -439,15 +680,20 @@ def _scrape_jobs_in_pages(*, results_limit, coverage=None, **kwargs):
             time.sleep(2)
 
     collected = records[:target]
+    # Atingir todas as páginas da janela pedida é um limite mesmo se
+    # deduplicação reduzir a quantidade única abaixo do alvo.
     limit_reached = (
-        len(collected) >= target
+        page_count >= max_pages
         and not source_exhausted
         and not stopped_without_progress
-        and page_count >= max_pages
     )
     if coverage is not None:
         coverage.update({
-            "requested_limit": target,
+            "requested_limit": requested_target,
+            "effective_limit": target,
+            "aggregate_remaining": aggregate_remaining,
+            "clamped_by_query_limit": clamped_by_query_limit,
+            "clamped_by_aggregate_limit": clamped_by_aggregate_limit,
             "returned": len(collected),
             "pages": page_count,
             "source_exhausted": source_exhausted,
@@ -455,6 +701,7 @@ def _scrape_jobs_in_pages(*, results_limit, coverage=None, **kwargs):
             "limit_reached": limit_reached,
         })
     return collected
+
 
 def collect_linkedin(
     terms=None,
@@ -468,12 +715,20 @@ def collect_linkedin(
     if scrape_jobs is None:
         raise RuntimeError("A biblioteca 'python-jobspy' é necessária para executar collect_linkedin")
 
+    requested_general_limit = max(0, int(results_limit))
+    requested_remote_limit = max(0, int(remote_results_limit))
     CAPTURED_LINKEDIN_WORKPLACE.clear()
+    CAPTURED_LINKEDIN_APPLICATION.clear()
     print("=== [LinkedIn Jobs Collector] Iniciando coleta pública aberta ===")
     print(
-        f"Critérios: Localização='{location}', Horas={hours_old} (~{hours_old//24} dias), "
-        f"sem filtro por candidatura, Limite Geral={results_limit}, "
-        f"Limite Remoto={remote_results_limit if include_remote_pass else 0}"
+        f"Critérios: Localização='{location}', Horas={hours_old} "
+        f"(~{hours_old//24} dias), sem filtro por candidatura."
+    )
+    print(
+        f"[Limites] Geral solicitado={requested_general_limit}; "
+        f"remota complementar solicitada={requested_remote_limit if include_remote_pass else 0}; "
+        f"máximo por consulta={JOBSPY_MAX_RESULTS_PER_QUERY}; "
+        f"teto agregado={MAX_UNIQUE_RESULTS_PER_RUN} vagas únicas."
     )
 
     all_jobs_dict = {}
@@ -482,17 +737,36 @@ def collect_linkedin(
 
     def scrape_pass(name, limit, **kwargs):
         coverage = {}
+        aggregate_remaining = MAX_UNIQUE_RESULTS_PER_RUN - len(all_jobs_dict)
         records = _scrape_jobs_in_pages(
             results_limit=limit,
+            max_results=aggregate_remaining,
             coverage=coverage,
             **kwargs,
         )
         coverage["name"] = name
         pass_coverage.append(coverage)
+
+        if coverage["effective_limit"] < coverage["requested_limit"]:
+            reasons = []
+            if coverage["clamped_by_query_limit"]:
+                reasons.append(
+                    f"limite por consulta ({JOBSPY_MAX_RESULTS_PER_QUERY})"
+                )
+            if coverage["clamped_by_aggregate_limit"]:
+                reasons.append(
+                    f"teto agregado ({MAX_UNIQUE_RESULTS_PER_RUN})"
+                )
+            print(
+                f"  [Aviso] Busca '{name}': solicitado="
+                f"{coverage['requested_limit']}, efetivo="
+                f"{coverage['effective_limit']} ({' e '.join(reasons)})."
+            )
         if coverage.get("limit_reached"):
             print(
-                f"  [Aviso] A busca '{name}' atingiu o limite de "
-                f"{coverage.get('requested_limit')} resultados; podem existir vagas além da janela."
+                f"  [Aviso] A busca '{name}' atingiu seu limite efetivo de "
+                f"{coverage['effective_limit']} resultados; podem existir "
+                f"vagas fora do lote consultado."
             )
         if coverage.get("stopped_without_progress"):
             print(
@@ -500,97 +774,129 @@ def collect_linkedin(
             )
         return records
 
-    # Modo A: Se termos específicos forem passados (modo direcionado / testes manuais)
+    def add_records(records, *, is_remote_search, pass_name):
+        added = 0
+        duplicates = 0
+        for raw in records:
+            if len(all_jobs_dict) >= MAX_UNIQUE_RESULTS_PER_RUN:
+                break
+            normalized = normalize_linkedin_job(
+                raw, is_remote_search=is_remote_search
+            )
+            job_key = (
+                normalized["native_id"]
+                or normalized["url"]
+                or f"{normalized['title']}::{normalized['company']}::{normalized['location']}"
+            ).casefold()
+            if job_key in all_jobs_dict:
+                duplicates += 1
+                continue
+            all_jobs_dict[job_key] = normalized
+            added += 1
+        print(
+            f"  -> Busca '{pass_name}': {added} novos anúncios únicos; "
+            f"{duplicates} duplicatas; total agregado={len(all_jobs_dict)}."
+        )
+
     if terms:
         print(f"[Modo Direcionado] Consultando termos específicos ({len(terms)}): {terms}")
         for i, term in enumerate(terms, 1):
+            if len(all_jobs_dict) >= MAX_UNIQUE_RESULTS_PER_RUN:
+                print(
+                    f"  [Aviso] Teto agregado de {MAX_UNIQUE_RESULTS_PER_RUN} "
+                    "vagas únicas atingido; termos restantes não consultados."
+                )
+                break
             print(f"\n[{i}/{len(terms)}] Consultando LinkedIn para: '{term}'...")
             try:
                 records = scrape_pass(
                     f"termo:{term}",
-                    results_limit,
+                    requested_general_limit,
                     site_name=["linkedin"],
                     search_term=term,
                     location=location,
                     hours_old=hours_old,
-
                     description_format="markdown",
                     fetch_description=True,
                     verbose=0,
                 )
                 if records:
-                    print(f"  -> Encontradas {len(records)} vagas para '{term}'.")
-                    for raw in records:
-                        norm = normalize_linkedin_job(raw, is_remote_search=False)
-                        job_key = norm["url"] or f"{norm['title']}::{norm['company']}"
-                        if job_key not in all_jobs_dict:
-                            all_jobs_dict[job_key] = norm
-            except Exception as e:
-                print(f"  [Aviso] Falha ao consultar '{term}': {e}")
-                collection_errors.append(f"termo '{term}': {e}")
-            time.sleep(2)
-
-    # Modo B: Padrão aberto e não-restritivo para o portal Todas as Vagas
+                    add_records(
+                        records, is_remote_search=False, pass_name=f"termo:{term}"
+                    )
+                else:
+                    print(f"  -> Nenhuma vaga encontrada para '{term}'.")
+            except Exception as error:
+                print(f"  [Aviso] Falha ao consultar '{term}': {error}")
+                collection_errors.append(f"termo '{term}': {error}")
+            if i < len(terms) and len(all_jobs_dict) < MAX_UNIQUE_RESULTS_PER_RUN:
+                time.sleep(2)
     else:
-        # 1. Varredura Aberta Geral (Presencial, Híbrida e Remota em todo o Brasil)
-        print(f"\n[Fase 1/2] Executando Varredura Aberta Geral (todo o Brasil, sem filtro de palavras-chave)...")
+        print(
+            "\n[Fase 1/2] Executando Varredura Aberta Geral "
+            "(todo o Brasil, sem filtro de palavras-chave)..."
+        )
         try:
             records = scrape_pass(
                 "general",
-                results_limit,
+                requested_general_limit,
                 site_name=["linkedin"],
                 search_term=None,
                 location=location,
                 hours_old=hours_old,
-
                 description_format="markdown",
                 fetch_description=True,
                 verbose=0,
             )
             if records:
-                print(f"  -> Encontradas {len(records)} vagas na varredura geral.")
-                for raw in records:
-                    norm = normalize_linkedin_job(raw, is_remote_search=False)
-                    job_key = norm["url"] or f"{norm['title']}::{norm['company']}"
-                    if job_key not in all_jobs_dict:
-                        all_jobs_dict[job_key] = norm
+                add_records(
+                    records, is_remote_search=False, pass_name="general"
+                )
             else:
                 print("  -> Nenhuma vaga encontrada na varredura geral.")
-        except Exception as e:
-            print(f"  [Aviso] Falha na varredura geral: {e}")
-            collection_errors.append(f"busca geral: {e}")
+        except Exception as error:
+            print(f"  [Aviso] Falha na varredura geral: {error}")
+            collection_errors.append(f"busca geral: {error}")
 
-        time.sleep(2)
+        if include_remote_pass and requested_remote_limit > 0:
+            time.sleep(2)
 
-        # 2. Varredura Aberta Remota Dedicada (f_WT=2)
-        if include_remote_pass and remote_results_limit > 0:
-            print(f"\n[Fase 2/2] Executando Varredura Aberta Remota Dedicada (f_WT=2, 100% Brasil)...")
+        if (
+            include_remote_pass
+            and requested_remote_limit > 0
+            and len(all_jobs_dict) < MAX_UNIQUE_RESULTS_PER_RUN
+        ):
+            print(
+                "\n[Fase 2/2] Executando Varredura Aberta Remota "
+                "(f_WT=2, Brasil; filtro usado apenas para descoberta)..."
+            )
             try:
                 records = scrape_pass(
                     "remote",
-                    remote_results_limit,
+                    requested_remote_limit,
                     site_name=["linkedin"],
                     search_term=None,
                     location=location,
                     is_remote=True,
                     hours_old=hours_old,
-
                     description_format="markdown",
                     fetch_description=True,
                     verbose=0,
                 )
                 if records:
-                    print(f"  -> Encontradas {len(records)} vagas na busca remota complementar.")
-                    for raw in records:
-                        norm = normalize_linkedin_job(raw, is_remote_search=True)
-                        job_key = norm["url"] or f"{norm['title']}::{norm['company']}"
-                        if job_key not in all_jobs_dict:
-                            all_jobs_dict[job_key] = norm
+                    add_records(
+                        records, is_remote_search=True, pass_name="remote"
+                    )
                 else:
                     print("  -> Nenhuma vaga encontrada na varredura remota.")
-            except Exception as e:
-                print(f"  [Aviso] Falha na varredura remota: {e}")
-                collection_errors.append(f"busca remota: {e}")
+            except Exception as error:
+                print(f"  [Aviso] Falha na varredura remota: {error}")
+                collection_errors.append(f"busca remota: {error}")
+        elif include_remote_pass and requested_remote_limit > 0:
+            print(
+                f"  [Aviso] Busca remota não executada: teto agregado de "
+                f"{MAX_UNIQUE_RESULTS_PER_RUN} vagas únicas já atingido."
+            )
 
     if collection_errors:
         details = "; ".join(collection_errors)
@@ -602,18 +908,41 @@ def collect_linkedin(
     collected_list = list(all_jobs_dict.values())
     if not collected_list:
         raise RuntimeError("Nenhuma vaga pública do LinkedIn foi coletada")
+    if len(collected_list) > MAX_UNIQUE_RESULTS_PER_RUN:
+        raise RuntimeError("Teto agregado de vagas únicas excedido")
 
-    remotes_count = sum(1 for j in collected_list if j.get("workplaceType") == "remote")
-    hybrids_count = sum(1 for j in collected_list if j.get("workplaceType") == "hybrid")
-    onsites_count = sum(1 for j in collected_list if j.get("workplaceType") == "on-site")
+    if len(collected_list) >= MAX_UNIQUE_RESULTS_PER_RUN:
+        print(
+            f"[Aviso] Teto agregado de {MAX_UNIQUE_RESULTS_PER_RUN} "
+            "vagas únicas atingido; podem existir anúncios não coletados."
+        )
 
-    print(f"\n==========================================")
+    remotes_count = sum(1 for job in collected_list if job.get("workplaceType") == "remote")
+    hybrids_count = sum(1 for job in collected_list if job.get("workplaceType") == "hybrid")
+    onsites_count = sum(1 for job in collected_list if job.get("workplaceType") == "on-site")
+    application_counts = {
+        application_type: sum(
+            1 for job in collected_list
+            if job.get("applicationType") == application_type
+        )
+        for application_type in ("easy_apply", "external", "unknown")
+    }
+
+    print("\n==========================================")
     print(f"[Sucesso] Total de vagas únicas coletadas: {len(collected_list)}")
-    print(f"[Distribuição] Remotas: {remotes_count} | Híbridas: {hybrids_count} | Presenciais: {onsites_count}")
-    print(f"==========================================")
+    print(
+        f"[Modalidade] Remotas: {remotes_count} | "
+        f"Híbridas: {hybrids_count} | Presenciais: {onsites_count}"
+    )
+    print(
+        "[Candidatura] Easy Apply: "
+        f"{application_counts['easy_apply']} | Externa: "
+        f"{application_counts['external']} | Desconhecida: "
+        f"{application_counts['unknown']}"
+    )
+    print("==========================================")
 
-    # Ordena pelas mais recentes
-    collected_list.sort(key=lambda x: x.get("publishedAt") or "", reverse=True)
+    collected_list.sort(key=lambda job: job.get("publishedAt") or "", reverse=True)
 
     payload = {
         "schema_version": 1,
@@ -621,52 +950,98 @@ def collect_linkedin(
         "filter": "public_brazil",
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "count": len(collected_list),
+        "limits": {
+            "max_results_per_query": JOBSPY_MAX_RESULTS_PER_QUERY,
+            "max_unique_per_run": MAX_UNIQUE_RESULTS_PER_RUN,
+            "requested_general": requested_general_limit,
+            "requested_remote": requested_remote_limit if include_remote_pass else 0,
+        },
         "coverage": pass_coverage,
         "jobs": collected_list,
     }
 
     os.makedirs(os.path.dirname(os.path.abspath(out_path)), exist_ok=True)
-    with open(out_path, "w", encoding="utf-8") as f:
-        json.dump(payload, f, ensure_ascii=False, indent=2)
+    with open(out_path, "w", encoding="utf-8") as snapshot_file:
+        json.dump(payload, snapshot_file, ensure_ascii=False, indent=2)
 
     print(f"[Arquivo] Snapshot salvo em: {out_path}")
 
-    # Se estiver rodando dentro do GitHub Actions, gera o resumo visual na página do run
     github_step_summary = os.getenv("GITHUB_STEP_SUMMARY")
     if github_step_summary and os.path.exists(github_step_summary):
-        with open(github_step_summary, "a", encoding="utf-8") as g:
-            g.write(f"### 🚀 Coleta Aberta de Vagas LinkedIn (Vagas Públicas)\n\n")
-            g.write(f"- **Data/Hora:** `{datetime.now(timezone.utc).strftime('%d/%m/%Y %H:%M UTC')}`\n")
-            g.write(
-                f"- **Vagas Únicas Coletadas:** `{len(collected_list)}` "
-                f"(Remotas: `{remotes_count}`, Híbridas: `{hybrids_count}`, Presenciais: `{onsites_count}`)\n"
+        with open(github_step_summary, "a", encoding="utf-8") as summary:
+            summary.write("### 🚀 Coleta Aberta de Vagas LinkedIn (Vagas Públicas)\n\n")
+            summary.write(
+                f"- **Data/Hora:** "
+                f"{datetime.now(timezone.utc).strftime('%d/%m/%Y %H:%M UTC')}\n"
             )
-            g.write(f"- **Filtros:** Brasil, últimas {hours_old//24} dias, sem filtro por tipo de candidatura (Busca Aberta).\n\n")
+            summary.write(
+                f"- **Vagas únicas coletadas:** {len(collected_list)} "
+                f"(máximo agregado: {MAX_UNIQUE_RESULTS_PER_RUN})\n"
+            )
+            summary.write(
+                f"- **Modalidade verificada:** Remotas {remotes_count}, "
+                f"híbridas {hybrids_count}, presenciais {onsites_count}.\n"
+            )
+            summary.write(
+                f"- **Tipo de candidatura:** Easy Apply "
+                f"{application_counts['easy_apply']}, externa "
+                f"{application_counts['external']}, desconhecida "
+                f"{application_counts['unknown']}. Itens desconhecidos "
+                "permanecem no snapshot.\n"
+            )
+            summary.write(
+                f"- **Limites informados:** geral solicitado "
+                f"{requested_general_limit}, remoto solicitado "
+                f"{requested_remote_limit if include_remote_pass else 0}; "
+                f"máximo por consulta {JOBSPY_MAX_RESULTS_PER_QUERY}; "
+                f"teto de únicos {MAX_UNIQUE_RESULTS_PER_RUN}.\n\n"
+            )
+            summary.write(
+                f"- **Filtros:** Brasil, últimas {hours_old//24} dias, "
+                "sem filtro por tipo de candidatura.\n\n"
+            )
             for item in pass_coverage:
-                status = (
-                    "limite atingido; podem existir mais resultados"
-                    if item.get("limit_reached")
-                    else "fonte encerrou antes do limite"
-                    if item.get("source_exhausted")
-                    else "paginação sem novos IDs; cobertura incerta"
-                    if item.get("stopped_without_progress")
-                    else "cobertura incerta"
+                statuses = []
+                if item.get("clamped_by_query_limit"):
+                    statuses.append(
+                        f"corte por consulta em {JOBSPY_MAX_RESULTS_PER_QUERY}"
+                    )
+                if item.get("clamped_by_aggregate_limit"):
+                    statuses.append(
+                        f"corte pelo teto agregado {MAX_UNIQUE_RESULTS_PER_RUN}"
+                    )
+                if item.get("source_exhausted"):
+                    statuses.append("fonte encerrou antes do limite")
+                elif item.get("stopped_without_progress"):
+                    statuses.append("paginação sem novos IDs; cobertura incerta")
+                elif item.get("limit_reached"):
+                    statuses.append("limite efetivo atingido; podem existir mais vagas")
+                else:
+                    statuses.append("consulta concluída")
+                summary.write(
+                    f"- Busca {item['name']}: solicitado "
+                    f"{item['requested_limit']}, efetivo "
+                    f"{item['effective_limit']}, retornado "
+                    f"{item['returned']} em {item['pages']} páginas — "
+                    f"{'; '.join(statuses)}.\n"
                 )
-                g.write(
-                    f"- Busca {item['name']}: {item['returned']}/{item['requested_limit']} "
-                    f"resultados em {item['pages']} páginas — {status}.\n"
+            summary.write("\n")
+            summary.write("| # | Vaga | Empresa | Local / Modelo | Data |\n")
+            summary.write("|---|---|---|---|---|\n")
+            for index, job in enumerate(collected_list[:25], 1):
+                title = f"[{job['title']}]({job['url']})" if job["url"] else job["title"]
+                date_str = job["publishedAt"].split("T")[0] if job["publishedAt"] else "Recente"
+                summary.write(
+                    f"| {index} | {title} | {job['company']} | "
+                    f"{job['location']} ({job['workplaceType']}) | {date_str} |\n"
                 )
-            g.write("\n")
-            g.write("| # | Vaga | Empresa | Local / Modelo | Data |\n")
-            g.write("|---|---|---|---|---|\n")
-            for idx, j in enumerate(collected_list[:25], 1):
-                title = f"[{j['title']}]({j['url']})" if j['url'] else j['title']
-                date_str = j['publishedAt'].split('T')[0] if j['publishedAt'] else 'Recente'
-                g.write(f"| {idx} | {title} | {j['company']} | {j['location']} ({j['workplaceType']}) | {date_str} |\n")
             if len(collected_list) > 25:
-                g.write(f"\n*... e mais {len(collected_list) - 25} vagas registradas no snapshot.*\n")
+                summary.write(
+                    f"\n*... e mais {len(collected_list) - 25} vagas registradas no snapshot.*\n"
+                )
 
     return collected_list
+
 
 
 if __name__ == "__main__":
@@ -680,13 +1055,13 @@ if __name__ == "__main__":
         dest="results_limit",
         type=int,
         default=DEFAULT_RESULTS_LIMIT,
-        help="Limite total da busca pública geral (em lotes de até 100)",
+        help="Limite solicitado; no máximo 1.000 por consulta e 1.200 únicos por execução",
     )
     parser.add_argument(
         "--remote-results-limit",
         type=int,
         default=DEFAULT_REMOTE_RESULTS_LIMIT,
-        help="Limite total da busca remota complementar (em lotes de até 100)",
+        help="Limite solicitado; máximo 1.000 por consulta e 1.200 únicos por execução",
     )
     parser.add_argument("--hours-old", type=int, default=DEFAULT_HOURS_OLD, help="Horas desde a publicação (1440 = 60 dias)")
     parser.add_argument("--output", type=str, default="docs/data/linkedin_vagas.json", help="Caminho do arquivo de saída")
