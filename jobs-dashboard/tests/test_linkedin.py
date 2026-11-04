@@ -135,27 +135,29 @@ class LinkedInSourceTests(unittest.TestCase):
     def test_unverified_workplace_is_not_inferred_from_legacy_fields(self):
         """Localização Brazil e modalidade legada não verificam o selo do LinkedIn."""
         today = date.today().isoformat()
-        row = linkedin._normalize(
-            {
-                "source": "linkedin",
-                "sourceLabel": "LinkedIn",
-                "native_id": "li-9999",
-                "title": "Analista de Suporte Técnico Remoto",
-                "company": "Empresa SaaS",
-                "url": "https://www.linkedin.com/jobs/view/9999",
-                "location": "Brazil",
-                "workplaceType": "remote",
-                "workplaceVerified": False,
-                "is_remote": True,
-                "publishedAt": today,
-                "easyApply": True,
-            }
-        )
+        raw = {
+            "source": "linkedin",
+            "sourceLabel": "LinkedIn",
+            "native_id": "li-9999",
+            "title": "Analista de Suporte Técnico Remoto",
+            "company": "Empresa SaaS",
+            "url": "https://www.linkedin.com/jobs/view/9999",
+            "location": "Brazil",
+            "workplaceType": "remote",
+            "workplaceVerified": False,
+            "is_remote": True,
+            "publishedAt": today,
+            "easyApply": True,
+        }
+        row = linkedin._normalize(raw)
         self.assertIsNotNone(row)
         self.assertEqual(row["work_model"], "")
         self.assertEqual(row["city"], "Brazil")
         self.assertEqual(row["market"], "BR")
         self.assertEqual(row["country"], "BR")
+
+        raw["workplaceVerified"] = "false"
+        self.assertEqual(linkedin._normalize(raw)["work_model"], "")
 
     def test_verified_workplace_overrides_legacy_location_heuristic(self):
         today = date.today().isoformat()
@@ -301,6 +303,7 @@ class LinkedInSourceTests(unittest.TestCase):
                 "https://www.linkedin.com.evil.example/jobs/view/4486898930",
                 "https://www.linkedin.com.evil.example/jobs/view/4486898930",
             ),
+            ("/jobs/view/4486898930", "/jobs/view/4486898930"),
         ):
             with self.subTest(url=request_url):
                 response = MagicMock()
@@ -317,6 +320,27 @@ class LinkedInSourceTests(unittest.TestCase):
                     lambda: {"description": session.get(request_url).text},
                 )
                 self.assertEqual(details.get("work_from_home_type"), None)
+
+    def test_fetch_details_capture_ignores_non_linkedin_redirect_destination(self):
+        job_id = "4486898930"
+        response = MagicMock()
+        response.url = "https://example.com/jobs/view/4486898930"
+        response.text = (
+            '<li class="job-details-jobs-unified-top-card__job-insight">'
+            "<span>Remote</span></li>"
+        )
+        session = MagicMock()
+        session.get.return_value = response
+
+        details = collect_linkedin._fetch_details_with_workplace_capture(
+            session,
+            job_id,
+            lambda: {"description": session.get(
+                "https://www.linkedin.com/jobs/view/4486898930"
+            ).text},
+        )
+
+        self.assertNotIn("work_from_home_type", details)
 
     def test_extracts_workplace_badge_from_linkedin_detail_html(self):
         remote_html = """
@@ -346,6 +370,15 @@ class LinkedInSourceTests(unittest.TestCase):
             collect_linkedin._extract_workplace_type_from_html(hybrid_html),
             "hybrid",
         )
+
+    def test_workplace_parser_does_not_read_past_void_tags(self):
+        html = """
+        <li class="job-details-jobs-unified-top-card__job-insight">
+          <span>Tempo integral</span><br>
+        </li>
+        <section><p>Descrição geral: trabalho remoto</p></section>
+        """
+        self.assertEqual(collect_linkedin._extract_workplace_type_from_html(html), "")
 
     def test_collect_linkedin_normalize_job_mappings(self):
         """Só o selo da página individual classifica o modelo de trabalho."""
