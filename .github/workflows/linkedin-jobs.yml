@@ -18,14 +18,14 @@ on:
   workflow_dispatch:
     inputs:
       results_limit:
-        description: "Quantidade máxima de vagas da varredura geral aberta"
+        description: "Vagas solicitadas na varredura geral; cada consulta é limitada a 1.000 e a execução a 1.200 anúncios únicos."
         required: false
-        default: "600"
+        default: "1000"
         type: string
       remote_results_limit:
-        description: "Quantidade máxima de vagas da varredura remota dedicada"
+        description: "Vagas solicitadas na busca remota; cada consulta é limitada a 1.000 e o total da execução a 1.200 anúncios únicos."
         required: false
-        default: "300"
+        default: "200"
         type: string
       hours_old:
         description: "Janela máxima de publicação em horas (1440 = 60 dias)"
@@ -66,8 +66,8 @@ jobs:
 
       - name: Executar coleta pública do LinkedIn
         run: |
-          RESULTS="${{ inputs.results_limit || '600' }}"
-          REMOTE_RESULTS="${{ inputs.remote_results_limit || '300' }}"
+          RESULTS="${{ inputs.results_limit || '1000' }}"
+          REMOTE_RESULTS="${{ inputs.remote_results_limit || '200' }}"
           HOURS="${{ inputs.hours_old || '1440' }}"
           python tools/collect_linkedin.py \
             --results-limit "$RESULTS" \
