@@ -127,33 +127,15 @@ def _normalize(raw, today=None):
         or raw.get("workplace")
         or ""
     ).strip()
-    loc_clean = location.strip().lower()
-    is_remote_flag = bool(raw.get("is_remote") or raw.get("isRemote") or raw.get("remote"))
-    workplace_verified = bool(
-        raw.get("workplaceVerified") or raw.get("workplace_verified")
-    )
+    workplace_verified_value = raw.get("workplaceVerified")
+    if workplace_verified_value is None:
+        workplace_verified_value = raw.get("workplace_verified")
+    workplace_verified = workplace_verified_value is True
     verified_model = work_model_label(remote_flag=None, raw=raw_model)
 
-    remote_keywords = (
-        "remote", "remoto", "home office", "home-office",
-        "work from home", "teletrabalho", "wfh", "anywhere", "100% remoto"
-    )
-    hybrid_keywords = ("hybrid", "híbrido", "hibrido")
-
-    if workplace_verified and verified_model:
-        # O selo da página individual prevalece inclusive sobre a heurística
-        # legada que tratava a localização "Brazil" como remota.
-        work_model = verified_model
-    elif any(h in loc_clean or h in title.lower() for h in hybrid_keywords):
-        work_model = "hybrid"
-    elif (
-        is_remote_flag
-        or loc_clean in ("brazil", "brasil")
-        or any(k in loc_clean or k in title.lower() for k in remote_keywords)
-    ):
-        work_model = "remote"
-    else:
-        work_model = "on-site"
+    # Sem um selo confirmado, não inventamos modalidade a partir de
+    # localização, título, flag da busca ou snapshot legado não verificado.
+    work_model = verified_model if workplace_verified else ""
 
     salary_min = _amount(raw.get("salaryMin", raw.get("salary_min")))
     salary_max = _amount(raw.get("salaryMax", raw.get("salary_max")))

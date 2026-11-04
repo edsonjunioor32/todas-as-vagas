@@ -1,5 +1,17 @@
 # Histórico operacional e mapa de responsabilidades
 
+## 2026-11-04 — Modalidade do LinkedIn somente com selo verificável
+
+- **Causa raiz:** parâmetros de rastreamento e barra final impediam a captura do HTML; uma URL original válida podia autorizar o uso do HTML de um redirecionamento para outra vaga/domínio ou de uma resposta sem URL final; caminho frouxo aceitava rotas adicionais; elementos HTML vazios podiam iniciar ou estender a leitura além do selo. Na falta do selo, a coleta, os inferidores do pipeline e os rótulos persistidos ainda podiam preencher ou conservar modalidades por localização, título, busca remota ou dados antigos.
+- **Correção:** só captura quando a URL final está presente e seu domínio e caminho completo correspondem à vaga; trata tags HTML vazias, inclusive autocontidas, sem permitir que iniciem/estendam o selo e aceita `workplaceVerified` apenas como booleano `true`. Modalidade desconhecida do LinkedIn não é inferida antes nem depois da gravação; em uma coleta LinkedIn bem-sucedida, rótulos antigos são limpos e o snapshot é reaplicado na mesma transação; falhas de gravação revertem a limpeza. Se a coleta falhar, os dados existentes são preservados.
+- **Casos cobertos:** Nortal / (1608) Forward Deployed Engineer deve ser remoto; St Marche / Açougueiro(a) - Vila Mascote deve ser presencial. Vagas sem URL final, redirecionadas para outro domínio/ID, em caminhos que não correspondem exatamente à página da vaga, com selo marcado em elemento HTML vazio ou tag autocontida, com modalidade ausente ou `workplaceVerified: "false"` não herdam modalidade do título, localização ou busca.
+- **Coleta incompleta:** falha em qualquer fase obrigatória cancela a execução antes de gravar o snapshot; assim, a falha não apaga rótulos verificados nem substitui os dados anteriores.
+- **Impacto:** a coleta LinkedIn e a publicação do catálogo continuam no fluxo existente. Vagas sem modalidade verificável permanecem no portal, mas sem rótulo de modalidade; filtros de modalidade não as tratam como remoto, híbrido ou presencial. Telegram e WhatsApp continuam consumindo o mesmo catálogo, sem mudança em seus publicadores.
+- **Validação local:** 21 testes do LinkedIn e 36 testes do pipeline aprovados. CI do commit atualizado e nova coleta/publicação ainda pendentes.
+- **Pós-implantação:** conferir `li-4486898930` como remoto e `li-4478138443` como presencial no snapshot do LinkedIn, no `public-data/data/vagas.json` e no GitHub Pages; confirmar que vagas não verificadas aparecem sem chip de modalidade.
+- **Reversão:** reverter o commit desta correção e executar novamente a coleta/publicação. Isso restaura a classificação anterior por heurística e pode reintroduzir rótulos incorretos.
+
+
 ## 2026-11-03 — Modalidade do LinkedIn validada na página individual
 
 - **Causa raiz:** a coleta usava o resultado da busca remota (f_WT=2) como classificação. O LinkedIn pode preencher páginas filtradas com anúncios que não atendem ao filtro; além disso, a busca pública exibe apenas a região no cartão, enquanto a modalidade real aparece no cartão individual da vaga.

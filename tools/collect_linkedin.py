@@ -15,6 +15,7 @@ import sys
 import time
 from datetime import datetime, timezone
 from html.parser import HTMLParser
+from urllib.parse import urlsplit
 
 
 # Limites operacionais da coleta aberta. JobSpy aceita offset para continuar
@@ -50,6 +51,10 @@ def _workplace_type_from_text(value):
 class _WorkplaceInsightParser(HTMLParser):
     """Extrai texto apenas dos elementos de insight/modalidade do cartão da vaga."""
     _MARKERS = ("job-insight", "workplace", "work-from-home")
+    _VOID_TAGS = {
+        "area", "base", "br", "col", "embed", "hr", "img", "input",
+        "link", "meta", "param", "source", "track", "wbr",
+    }
 
     def __init__(self):
         super().__init__(convert_charrefs=True)
@@ -70,6 +75,8 @@ class _WorkplaceInsightParser(HTMLParser):
             any(marker in marker_text for marker in self._MARKERS)
             or bool(_workplace_type_from_text(attributes.get("aria-label")))
         )
+        if str(tag).casefold() in self._VOID_TAGS:
+            return
         if self._active_depth:
             self._active_depth += 1
         elif is_container:
@@ -81,6 +88,8 @@ class _WorkplaceInsightParser(HTMLParser):
             self._buffer.append(data)
 
     def handle_endtag(self, tag):
+        if str(tag).casefold() in self._VOID_TAGS:
+            return
         if not self._active_depth:
             return
         self._active_depth -= 1
@@ -106,6 +115,49 @@ def _extract_workplace_type_from_html(html):
         if workplace_type:
             return workplace_type
     return ""
+
+
+def _is_linkedin_job_detail_url(url, job_id):
+    """Recognize a LinkedIn job-detail URL regardless of query or trailing slash."""
+    try:
+        parsed = urlsplit(str(url or ""))
+    except ValueError:
+        return False
+
+    hostname = (parsed.hostname or "").casefold().rstrip(".")
+    if parsed.scheme.casefold() not in {"http", "https"} or not hostname:
+        return False
+    if hostname != "linkedin.com" and not hostname.endswith(".linkedin.com"):
+        return False
+
+    match = re.fullmatch(r"/jobs/view/(\d+)/?", parsed.path, re.IGNORECASE)
+    return bool(match and match.group(1) == str(job_id))
+
+
+def _fetch_details_with_workplace_capture(session, job_id, fetch_details):
+    """Capture and parse the detail response used by JobSpy itself."""
+    captured = {}
+    original_get = session.get
+
+    def _capture_get(url, *args, **kwargs):
+        response = original_get(url, *args, **kwargs)
+        response_url = getattr(response, "url", "")
+        if response_url and _is_linkedin_job_detail_url(response_url, job_id):
+            captured["html"] = getattr(response, "text", "")
+        return response
+
+    session.get = _capture_get
+    try:
+        details = fetch_details() or {}
+    finally:
+        session.get = original_get
+
+    workplace_type = _extract_workplace_type_from_html(captured.get("html", ""))
+    if workplace_type:
+        details = dict(details)
+        details["work_from_home_type"] = workplace_type
+    return details
+
 
 try:
     from jobspy import scrape_jobs
@@ -134,26 +186,11 @@ try:
     _orig_linkedin_fetch_details = LinkedIn._fetch_details
 
     def _patched_linkedin_fetch_details(self, job_id):
-        captured = {}
-        original_get = self.session.get
-
-        def _capture_get(url, *args, **kwargs):
-            response = original_get(url, *args, **kwargs)
-            if str(url).rstrip("/").endswith(f"/jobs/view/{job_id}"):
-                captured["html"] = getattr(response, "text", "")
-            return response
-
-        self.session.get = _capture_get
-        try:
-            details = _orig_linkedin_fetch_details(self, job_id) or {}
-        finally:
-            self.session.get = original_get
-
-        workplace_type = _extract_workplace_type_from_html(captured.get("html", ""))
-        if workplace_type:
-            details = dict(details)
-            details["work_from_home_type"] = workplace_type
-        return details
+        return _fetch_details_with_workplace_capture(
+            self.session,
+            job_id,
+            lambda: _orig_linkedin_fetch_details(self, job_id),
+        )
 
     LinkedIn._fetch_details = _patched_linkedin_fetch_details
 
@@ -229,34 +266,10 @@ def normalize_linkedin_job(raw_job, is_remote_search=False):
     company = clean_value(raw_job.get("company")) or "Empresa não informada"
     location = clean_value(raw_job.get("location")) or "Brazil"
 
-    # Determina o modelo de trabalho (remote, hybrid, on-site).
-    # A modalidade capturada da página de detalhes é a única fonte autoritativa.
-    # is_remote_search indica apenas como a vaga foi encontrada: o LinkedIn pode
-    # preencher uma página filtrada por remoto com vagas presenciais.
-    loc_lower = str(location).lower().strip()
-    title_lower = str(title).lower().strip()
+    # Só o selo da página individual confirma a modalidade. Localização,
+    # título e filtro de busca não são evidência suficiente para classificar.
     verified_model = _workplace_type_from_text(raw_job.get("work_from_home_type"))
-    is_remote_flag = bool(raw_job.get("is_remote"))
-
-    remote_keywords = (
-        "remoto", "remote", "home office", "home-office",
-        "work from home", "teletrabalho", "wfh", "anywhere",
-        "100% remoto", "totalmente remoto"
-    )
-    hybrid_keywords = ("híbrido", "hibrido", "hybrid")
-
-    if verified_model:
-        workplace_type = verified_model
-    elif any(h in loc_lower or h in title_lower for h in hybrid_keywords):
-        workplace_type = "hybrid"
-    elif (
-        is_remote_flag
-        or loc_lower in ("brazil", "brasil")
-        or any(k in loc_lower or k in title_lower for k in remote_keywords)
-    ):
-        workplace_type = "remote"
-    else:
-        workplace_type = "on-site"
+    workplace_type = verified_model
 
     # Data de publicação
     date_posted = clean_value(raw_job.get("date_posted")) or ""
@@ -361,6 +374,7 @@ def collect_linkedin(
     )
 
     all_jobs_dict = {}
+    collection_errors = []
 
     # Modo A: Se termos específicos forem passados (modo direcionado / testes manuais)
     if terms:
@@ -388,6 +402,7 @@ def collect_linkedin(
                             all_jobs_dict[job_key] = norm
             except Exception as e:
                 print(f"  [Aviso] Falha ao consultar '{term}': {e}")
+                collection_errors.append(f"termo '{term}': {e}")
             time.sleep(2)
 
     # Modo B: Padrão aberto e não-restritivo para o portal Todas as Vagas
@@ -417,6 +432,7 @@ def collect_linkedin(
                 print("  -> Nenhuma vaga encontrada na varredura geral.")
         except Exception as e:
             print(f"  [Aviso] Falha na varredura geral: {e}")
+            collection_errors.append(f"busca geral: {e}")
 
         time.sleep(2)
 
@@ -447,6 +463,14 @@ def collect_linkedin(
                     print("  -> Nenhuma vaga encontrada na varredura remota.")
             except Exception as e:
                 print(f"  [Aviso] Falha na varredura remota: {e}")
+                collection_errors.append(f"busca remota: {e}")
+
+    if collection_errors:
+        details = "; ".join(collection_errors)
+        raise RuntimeError(
+            "Coleta LinkedIn incompleta; o snapshot anterior foi preservado: "
+            + details
+        )
 
     collected_list = list(all_jobs_dict.values())
     if not collected_list:

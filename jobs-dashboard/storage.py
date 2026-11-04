@@ -556,6 +556,28 @@ def rewrite_source_market_all(conn, source, replacement):
     return cursor.rowcount
 
 
+def clear_linkedin_work_models(conn):
+    """Clear stale LinkedIn labels before applying the latest verified snapshot."""
+    cursor = conn.execute("""
+        UPDATE jobs
+        SET work_model = ''
+        WHERE source = 'linkedin'
+          AND TRIM(COALESCE(work_model, '')) <> ''
+    """)
+    return cursor.rowcount
+
+
+def upsert_linkedin_snapshot(conn, jobs, today=None):
+    """Replace stored LinkedIn labels and upsert its snapshot atomically."""
+    try:
+        cleared = clear_linkedin_work_models(conn)
+        upsert(conn, jobs, today=today)
+    except Exception:
+        conn.rollback()
+        raise
+    return cleared
+
+
 def infer_missing_work_models(conn):
     """Infer the modality only when the portal did not provide it.
 
@@ -567,6 +589,7 @@ def infer_missing_work_models(conn):
         UPDATE jobs
         SET work_model = 'remote'
         WHERE TRIM(COALESCE(work_model, '')) = ''
+          AND source <> 'linkedin'
           AND (
               LOWER(TRIM(COALESCE(country, ''))) IN ('br', 'brasil', 'brazil')
               OR LOWER(TRIM(COALESCE(market, ''))) = 'br'
@@ -585,6 +608,7 @@ def infer_missing_work_models(conn):
         UPDATE jobs
         SET work_model = 'on-site'
         WHERE TRIM(COALESCE(work_model, '')) = ''
+          AND source <> 'linkedin'
           AND TRIM(COALESCE(city, '')) <> ''
           AND (
               LOWER(TRIM(COALESCE(country, ''))) IN ('br', 'brasil', 'brazil')

@@ -2,6 +2,7 @@
 import inspect
 import json
 import os
+import sqlite3
 import sys
 import tempfile
 import time
@@ -186,6 +187,7 @@ class GreenhouseLocationTests(unittest.TestCase):
             sample_job("c", "3", work_model="hybrid", city="Recife"),
             sample_job("d", "4", city="", country="US"),
             sample_job("e", "5", city="", country="BR"),
+            sample_job("linkedin", "6", city="São Paulo"),
         ]
         self.assertEqual(pipeline.infer_work_models(rows), 2)
         self.assertEqual(rows[0]["work_model"], "remote")
@@ -193,6 +195,7 @@ class GreenhouseLocationTests(unittest.TestCase):
         self.assertEqual(rows[2]["work_model"], "hybrid")
         self.assertEqual(rows[3]["work_model"], "")
         self.assertEqual(rows[4]["work_model"], "")
+        self.assertEqual(rows[5]["work_model"], "")
 
     def test_future_publication_dates_are_cleared_without_dropping_rows(self):
         rows = [
@@ -292,6 +295,55 @@ class StorageTests(unittest.TestCase):
             self.assertEqual(
                 conn.execute("SELECT work_model FROM jobs WHERE job_uid = 'portal:2'").fetchone()[0],
                 "on-site",
+            )
+
+            storage.upsert(conn, [
+                sample_job("linkedin", "3", work_model="remote"),
+                sample_job("linkedin", "4", work_model="on-site"),
+            ], today="2026-08-20")
+            self.assertEqual(storage.clear_linkedin_work_models(conn), 2)
+            storage.upsert(
+                conn,
+                [sample_job("linkedin", "3", work_model="")],
+                today="2026-08-20",
+            )
+            self.assertEqual(storage.infer_missing_work_models(conn), 0)
+            models = conn.execute(
+                "SELECT work_model FROM jobs WHERE source = 'linkedin' ORDER BY job_uid"
+            ).fetchall()
+            self.assertEqual([row[0] for row in models], ["", ""])
+            conn.close()
+
+    def test_linkedin_snapshot_refresh_rolls_back_old_labels_on_upsert_failure(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            conn = storage.connect(str(Path(temporary) / "jobs.db"))
+            storage.upsert(
+                conn,
+                [sample_job("linkedin", "old", work_model="remote")],
+                today="2026-08-20",
+            )
+            conn.execute("""
+                CREATE TRIGGER reject_linkedin_test_row
+                BEFORE INSERT ON jobs
+                WHEN NEW.job_uid = 'linkedin:new'
+                BEGIN
+                    SELECT RAISE(ABORT, 'test failure');
+                END;
+            """)
+            conn.commit()
+
+            with self.assertRaises(sqlite3.IntegrityError):
+                storage.upsert_linkedin_snapshot(
+                    conn,
+                    [sample_job("linkedin", "new", work_model="")],
+                    today="2026-08-20",
+                )
+
+            self.assertEqual(
+                conn.execute(
+                    "SELECT work_model FROM jobs WHERE job_uid = 'linkedin:old'"
+                ).fetchone()[0],
+                "remote",
             )
             conn.close()
 
