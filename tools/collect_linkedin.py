@@ -604,7 +604,7 @@ def _raw_linkedin_job_key(raw):
 def _scrape_jobs_in_pages(
     *, results_limit, max_results=JOBSPY_MAX_RESULTS_PER_QUERY, coverage=None, **kwargs
 ):
-    """Paginate within a per-search budget; enforce the unique-run cap after deduplication."""
+    """Paginate within one query budget; enforce the unique-run cap after deduplication."""
     requested_target = max(0, int(results_limit))
     pass_budget = max(0, int(max_results))
     query_target = min(requested_target, JOBSPY_MAX_RESULTS_PER_QUERY)
