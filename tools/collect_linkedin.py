@@ -23,7 +23,7 @@ from urllib.parse import urlsplit
 # a busca; usamos lotes controlados para ultrapassar o primeiro resultado sem
 # criar uma consulta ilimitada ou concentrar todas as requisições em uma única chamada.
 DEFAULT_RESULTS_LIMIT = 1000
-DEFAULT_REMOTE_RESULTS_LIMIT = 200
+DEFAULT_REMOTE_RESULTS_LIMIT = 1200
 JOBSPY_MAX_RESULTS_PER_QUERY = 1000
 MAX_UNIQUE_RESULTS_PER_RUN = 1200
 # Verified against LinkedIn screenshots supplied on 2026-11-03.
