@@ -92,6 +92,10 @@
     "tenantName": "Adyen"
   },
   {
+    "slug": "aeromotcorporate",
+    "tenantName": "aeromotcorporate"
+  },
+  {
     "slug": "agrosearch",
     "tenantName": "AGROSearch"
   },
