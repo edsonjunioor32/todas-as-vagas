@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-04T14:44:32.872258+00:00",
+  "generated_at": "2026-11-04T23:34:33.233180+00:00",
   "candidate_count": 8331,
-  "company_count": 195,
+  "company_count": 198,
   "companies": [
     {
       "board": "abinbev",
       "company": "AB InBev  | Growth Group",
-      "brazil_jobs": 42
+      "brazil_jobs": 43
     },
     {
       "board": "abnormalsecurity",
@@ -32,7 +32,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 97
+      "brazil_jobs": 102
     },
     {
       "board": "agilize",
@@ -137,7 +137,7 @@
     {
       "board": "bees",
       "company": "BEES",
-      "brazil_jobs": 51
+      "brazil_jobs": 52
     },
     {
       "board": "blip-global",
@@ -192,7 +192,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 158
+      "brazil_jobs": 157
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -202,7 +202,7 @@
     {
       "board": "capco",
       "company": "Capco",
-      "brazil_jobs": 123
+      "brazil_jobs": 120
     },
     {
       "board": "careaccess",
@@ -227,7 +227,7 @@
     {
       "board": "caylent",
       "company": "Caylent",
-      "brazil_jobs": 16
+      "brazil_jobs": 17
     },
     {
       "board": "chainguard",
@@ -242,7 +242,7 @@
     {
       "board": "clara",
       "company": "Clara",
-      "brazil_jobs": 81
+      "brazil_jobs": 82
     },
     {
       "board": "classpass",
@@ -312,7 +312,7 @@
     {
       "board": "ebanx",
       "company": "EBANX",
-      "brazil_jobs": 25
+      "brazil_jobs": 24
     },
     {
       "board": "ebury",
@@ -355,6 +355,11 @@
       "brazil_jobs": 1
     },
     {
+      "board": "purestorage",
+      "company": "Everpure",
+      "brazil_jobs": 1
+    },
+    {
       "board": "externaljobboards",
       "company": "Exadel",
       "brazil_jobs": 19
@@ -392,7 +397,7 @@
     {
       "board": "firstglobalmanagementservicesinc",
       "company": "First Global Management Services, Inc.",
-      "brazil_jobs": 3
+      "brazil_jobs": 2
     },
     {
       "board": "flexport",
@@ -447,7 +452,7 @@
     {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 77
+      "brazil_jobs": 75
     },
     {
       "board": "harnessinc",
@@ -457,7 +462,7 @@
     {
       "board": "hotmartcareersbr",
       "company": "Hotmart",
-      "brazil_jobs": 20
+      "brazil_jobs": 19
     },
     {
       "board": "housebuyersofamerica",
@@ -507,7 +512,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 128
+      "brazil_jobs": 126
     },
     {
       "board": "interbrand",
@@ -522,7 +527,7 @@
     {
       "board": "jusbrasil",
       "company": "Jusbrasil",
-      "brazil_jobs": 5
+      "brazil_jobs": 6
     },
     {
       "board": "knowbe4",
@@ -537,7 +542,7 @@
     {
       "board": "artefactlinkedin",
       "company": "LinkedIn Job Wrapping",
-      "brazil_jobs": 29
+      "brazil_jobs": 26
     },
     {
       "board": "lumimeds",
@@ -712,12 +717,12 @@
     {
       "board": "pfm",
       "company": "Precision for Medicine",
-      "brazil_jobs": 10
+      "brazil_jobs": 9
     },
     {
       "board": "precisionmedicinegroup",
       "company": "Precision Medicine Group",
-      "brazil_jobs": 9
+      "brazil_jobs": 8
     },
     {
       "board": "estagio_agibank_2026",
@@ -727,7 +732,7 @@
     {
       "board": "rdstation",
       "company": "RD Station",
-      "brazil_jobs": 11
+      "brazil_jobs": 9
     },
     {
       "board": "rdsourcing",
@@ -738,6 +743,11 @@
       "board": "ripple",
       "company": "Ripple",
       "brazil_jobs": 4
+    },
+    {
+      "board": "riskified",
+      "company": "Riskified",
+      "brazil_jobs": 1
     },
     {
       "board": "roblox",
@@ -772,7 +782,7 @@
     {
       "board": "sezzle",
       "company": "Sezzle",
-      "brazil_jobs": 37
+      "brazil_jobs": 38
     },
     {
       "board": "shifttechnology",
@@ -797,7 +807,7 @@
     {
       "board": "spacexglobal",
       "company": "SpaceX_Global",
-      "brazil_jobs": 6
+      "brazil_jobs": 5
     },
     {
       "board": "sterlingtonpllc",
@@ -807,7 +817,7 @@
     {
       "board": "stonepatrocina",
       "company": "Stone - Indeed",
-      "brazil_jobs": 225
+      "brazil_jobs": 217
     },
     {
       "board": "stripe",
@@ -847,7 +857,7 @@
     {
       "board": "telnyx54",
       "company": "Telnyx",
-      "brazil_jobs": 5
+      "brazil_jobs": 4
     },
     {
       "board": "thanx",
@@ -915,19 +925,24 @@
       "brazil_jobs": 5
     },
     {
+      "board": "verve",
+      "company": "Verve",
+      "brazil_jobs": 1
+    },
+    {
       "board": "vitta",
       "company": "Vitta",
-      "brazil_jobs": 1
+      "brazil_jobs": 2
     },
     {
       "board": "wundermanthompson",
       "company": "VML",
-      "brazil_jobs": 25
+      "brazil_jobs": 23
     },
     {
       "board": "vmlenterprisesolutions",
       "company": "VML/WPP Enterprise Solutions",
-      "brazil_jobs": 33
+      "brazil_jobs": 32
     },
     {
       "board": "vtex",
@@ -967,7 +982,7 @@
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 110
+      "brazil_jobs": 112
     },
     {
       "board": "xpengmotors",
@@ -977,7 +992,7 @@
     {
       "board": "ilia",
       "company": "ília",
-      "brazil_jobs": 18
+      "brazil_jobs": 16
     }
   ]
 }
