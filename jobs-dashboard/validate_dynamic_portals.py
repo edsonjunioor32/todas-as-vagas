@@ -35,6 +35,8 @@ from sources import (  # noqa: E402
     sankhya_senior,
     spassu,
     journy,
+    skeelo,
+    heineken,
     wellfound,
     workable,
     workable_brazil,
@@ -57,6 +59,8 @@ SOURCES = (("levva", levva.fetch),) + requested_portals_29082026.TARGETS + (
     ("spassu", spassu.fetch),
     ("infovagas", quickin.fetch),
     ("journy", journy.fetch),
+    ("skeelo", skeelo.fetch),
+    ("heineken", heineken.fetch),
 ) + requested_portals_27082026.TARGETS + requested_portals_03092026.TARGETS + (
     ("wellfound", wellfound.fetch),
     ("recargapay", workable.fetch),

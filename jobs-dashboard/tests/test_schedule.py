@@ -23,9 +23,12 @@ from catalog_catchup import (
 )
 from github_scheduler import (
     BRASILIA,
+    LINKEDIN_COLLECTION_HOURS_UTC,
     decide,
     dispatch_collection as scheduler_dispatch_collection,
+    dispatch_linkedin,
     fetch_runs,
+    is_collection_run,
     latest_slot,
     resume_key_for_attempt,
     resume_key_for_slot as scheduler_resume_key_for_slot,
@@ -46,6 +49,12 @@ class ScheduleTests(unittest.TestCase):
         self.assertIn(
             "7 11,14,18,23 * * *",
             cron_entries(".github/workflows/pages.yml"),
+        )
+
+    def test_linkedin_collection_schedule_matches_vps_recovery_slots(self):
+        self.assertIn(
+            "0 10,22 * * *",
+            cron_entries(".github/workflows/linkedin-jobs.yml"),
         )
 
     def test_greenhouse_discovery_condition_matches_its_sunday_schedule(self):
@@ -200,6 +209,66 @@ class ScheduleTests(unittest.TestCase):
         slot = latest_slot(datetime(2026, 9, 11, 14, 10, tzinfo=timezone.utc))
         self.assertEqual(slot, datetime(2026, 9, 11, 14, 0, tzinfo=timezone.utc))
         self.assertEqual(slot.astimezone(BRASILIA).strftime("%H:%M"), "11:00")
+
+    def test_vps_scheduler_has_a_separate_linkedin_schedule_and_filter(self):
+        slot = latest_slot(
+            datetime(2026, 9, 11, 14, 10, tzinfo=timezone.utc),
+            LINKEDIN_COLLECTION_HOURS_UTC,
+        )
+        self.assertEqual(slot, datetime(2026, 9, 11, 10, 0, tzinfo=timezone.utc))
+
+        successful_linkedin = {
+            "event": "schedule",
+            "status": "completed",
+            "conclusion": "success",
+            "created_at": "2026-09-11T10:02:00Z",
+        }
+        self.assertEqual(
+            decide(
+                datetime(2026, 9, 11, 14, 10, tzinfo=timezone.utc),
+                [successful_linkedin],
+                {},
+                workflow="linkedin",
+                schedule_hours=LINKEDIN_COLLECTION_HOURS_UTC,
+                state_field="linkedin_dispatched_slots",
+            )["reason"],
+            "slot_succeeded",
+        )
+
+        refresh_push = {
+            "event": "push",
+            "head_commit": {
+                "message": "chore(linkedin): atualizar snapshot [linkedin-refresh]",
+            },
+        }
+        self.assertFalse(is_collection_run(refresh_push, workflow="linkedin"))
+
+    def test_vps_scheduler_keeps_linkedin_attempts_separate_from_catalog(self):
+        now = datetime(2026, 9, 11, 14, 45, tzinfo=timezone.utc)
+        slot_key = "2026-09-11T10:00:00+00:00"
+        state = {"dispatched_slots": {slot_key: "2026-09-11T10:40:00+00:00"}}
+        result = decide(
+            now,
+            [],
+            state,
+            workflow="linkedin",
+            schedule_hours=LINKEDIN_COLLECTION_HOURS_UTC,
+            state_field="linkedin_dispatched_slots",
+        )
+        self.assertEqual(result["action"], "dispatch")
+
+        state["linkedin_dispatched_slots"] = {slot_key: "2026-09-11T10:40:00+00:00"}
+        self.assertEqual(
+            decide(
+                now,
+                [],
+                state,
+                workflow="linkedin",
+                schedule_hours=LINKEDIN_COLLECTION_HOURS_UTC,
+                state_field="linkedin_dispatched_slots",
+            )["reason"],
+            "dispatch_unconfirmed",
+        )
 
     def test_vps_scheduler_waits_then_dispatches_only_missing_slot(self):
         now = datetime(2026, 9, 11, 14, 45, tzinfo=timezone.utc)
@@ -386,6 +455,41 @@ class ScheduleTests(unittest.TestCase):
             self.assertEqual(fetch_runs("edsonjunioor32/todas-as-vagas", "secret"), [{"id": 1}])
         request = urlopen.call_args.args[0]
         self.assertIn("actions/workflows/pages.yml/runs", request.full_url)
+        self.assertEqual(request.get_header("Authorization"), "Bearer secret")
+
+    def test_vps_scheduler_reads_linkedin_workflow_runs_when_requested(self):
+        class Response:
+            def __enter__(self):
+                return self
+            def __exit__(self, *args):
+                return None
+            def read(self):
+                return b'{"workflow_runs": [{"id": 1}]}'
+
+        with patch("github_scheduler.urllib.request.urlopen", return_value=Response()) as urlopen:
+            self.assertEqual(
+                fetch_runs(
+                    "edsonjunioor32/todas-as-vagas",
+                    "secret",
+                    workflow_file="linkedin-jobs.yml",
+                    schedule_hours=LINKEDIN_COLLECTION_HOURS_UTC,
+                    history_hours=24,
+                ),
+                [{"id": 1}],
+            )
+        request = urlopen.call_args.args[0]
+        self.assertIn("actions/workflows/linkedin-jobs.yml/runs", request.full_url)
+
+    def test_vps_scheduler_dispatches_linkedin_workflow(self):
+        with patch("github_scheduler.urllib.request.urlopen") as urlopen:
+            dispatch_linkedin("edsonjunioor32/todas-as-vagas", "secret")
+        request = urlopen.call_args.args[0]
+        self.assertEqual(request.get_method(), "POST")
+        self.assertIn(
+            "actions/workflows/linkedin-jobs.yml/dispatches",
+            request.full_url,
+        )
+        self.assertEqual(json.loads(request.data.decode("utf-8")), {"ref": "main"})
         self.assertEqual(request.get_header("Authorization"), "Bearer secret")
 
     def test_vps_scheduler_paginates_runs_before_deciding_to_dispatch(self):
