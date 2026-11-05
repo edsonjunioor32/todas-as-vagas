@@ -28,6 +28,8 @@ from sources import (  # noqa: E402
     levva,
     spassu,
     journy,
+    heineken,
+    skeelo,
     wellfound,
     workable,
     workable_brazil,
@@ -914,6 +916,145 @@ class NewSourceRegistryTests(unittest.TestCase):
         self.assertIn("boschgroup", pipeline.NONEMPTY_SOURCES)
         selected = pipeline.selected_registry("boschgroup")
         self.assertEqual([name for name, _fetch in selected], ["boschgroup"])
+
+
+class SkeeloTests(unittest.TestCase):
+    def test_fetch_reads_all_public_api_pages_and_normalizes_locations(self):
+        first_page = {
+            "items": [{
+                "id": "11111111-1111-4111-8111-111111111111",
+                "name": "Senior Data Engineer",
+                "url": "https://ats.rippling.com/skeelo/jobs/11111111-1111-4111-8111-111111111111",
+                "department": {"name": "Data"},
+                "locations": [{
+                    "name": "Remote (Brazil)",
+                    "country": "Brazil",
+                    "countryCode": "BR",
+                    "state": None,
+                    "stateCode": None,
+                    "city": None,
+                    "workplaceType": "REMOTE",
+                }],
+            }],
+            "page": 0,
+            "pageSize": 1,
+            "totalItems": 2,
+            "totalPages": 2,
+        }
+        second_page = {
+            "items": [{
+                "id": "22222222-2222-4222-8222-222222222222",
+                "name": "Brand Marketing Manager",
+                "url": "https://ats.rippling.com/skeelo/jobs/22222222-2222-4222-8222-222222222222",
+                "department": {"name": "Marketing"},
+                "locations": [{
+                    "name": "Ciudad de México, Mexico",
+                    "country": "Mexico",
+                    "countryCode": "MX",
+                    "state": "Ciudad de México",
+                    "stateCode": "CMX",
+                    "city": "Ciudad de México",
+                    "workplaceType": "ON_SITE",
+                }],
+            }],
+            "page": 1,
+            "pageSize": 1,
+            "totalItems": 2,
+            "totalPages": 2,
+        }
+        second_page["items"].insert(0, dict(first_page["items"][0]))
+        second_page["totalItems"] = 3
+
+        with patch.object(skeelo, "get_json", side_effect=[first_page, second_page]) as request:
+            rows = skeelo.fetch()
+
+        self.assertEqual([row["native_id"] for row in rows], [
+            "11111111-1111-4111-8111-111111111111",
+            "22222222-2222-4222-8222-222222222222",
+        ])
+        self.assertEqual(rows[0]["work_model"], "remote")
+        self.assertEqual(rows[0]["city"], "Brasil")
+        self.assertEqual(rows[0]["country"], "BR")
+        self.assertEqual(rows[0]["categories"], ["Data", "Skeelo"])
+        self.assertEqual(rows[1]["work_model"], "on-site")
+        self.assertEqual(rows[1]["city"], "Ciudad de México")
+        self.assertEqual(rows[1]["state"], "Ciudad de México")
+        self.assertEqual(rows[1]["country"], "MX")
+        self.assertEqual(request.call_count, 2)
+
+    def test_skeelo_is_registered_and_selectable(self):
+        names = {name for name, _fetch in pipeline.REGISTRY}
+        self.assertIn("skeelo", names)
+        self.assertIn("skeelo", pipeline.NONEMPTY_SOURCES)
+        self.assertEqual(
+            [name for name, _fetch in pipeline.selected_registry("skeelo")],
+            ["skeelo"],
+        )
+
+
+class HeinekenTests(unittest.TestCase):
+    def test_parser_handles_unclosed_void_tags_between_multiple_cards(self):
+        markup = """
+        <div class="job-list-item"><img src="logo.png">
+          <div class="job-title"><a href="/job/heineken-brazil/brazil/one" click-id="1">First role</a></div>
+          <div class="job-desc"><div class="job-operating-company"><p>HEINEKEN Brazil</p></div><div class="job-description"><p>Technology</p></div></div>
+          <div class="job-location"><div class="nation"><p>São Paulo, Brazil</p></div></div>
+        </div>
+        <div class="job-list-item"><img src="logo.png">
+          <div class="job-title"><a href="/job/heineken-brazil/brazil/two" click-id="2">Second role</a></div>
+          <div class="job-desc"><div class="job-operating-company"><p>HEINEKEN Brazil</p></div><div class="job-description"><p>People</p></div></div>
+          <div class="job-location"><div class="nation"><p>Remote, Brazil</p></div></div>
+        </div>
+        <a rel="next" href="?field_location_country_code_1%5B0%5D=BR&amp;operatings_company%5B0%5D=289&amp;page=0%2C0%2C1">Show more</a>
+        """
+
+        cards, next_href = heineken._parse(markup)
+
+        self.assertEqual([card["title"] for card in cards], ["First role", "Second role"])
+        self.assertEqual([card["click_id"] for card in cards], ["1", "2"])
+        self.assertIn("page=0%2C0%2C1", next_href)
+
+    def test_fetch_follows_brazilian_pagination_and_deduplicates_cards(self):
+        first_page = """
+        <div class="job-list-item">
+          <div class="job-title"><a href="/job/heineken-brazil/brazil/data-engineer" click-id="174917">Data Engineer</a></div>
+          <div class="job-desc"><div class="job-operating-company"><p>HEINEKEN Brazil</p></div><div class="job-description"><p>Digital &amp; Technology</p></div></div>
+          <div class="job-location"><div class="job-operating-company"><p>HEINEKEN Brazil</p></div><div class="nation"><p>São Paulo, Brazil</p></div></div>
+        </div>
+        <a rel="next" href="?field_location_country_code_1%5B0%5D=BR&amp;operatings_company%5B0%5D=289&amp;page=0%2C0%2C1">Show more</a>
+        """
+        second_page = """
+        <div class="job-list-item">
+          <div class="job-title"><a href="/job/heineken-brazil/brazil/data-engineer" click-id="174917">Data Engineer</a></div>
+          <div class="job-desc"><div class="job-operating-company"><p>HEINEKEN Brazil</p></div><div class="job-description"><p>Digital &amp; Technology</p></div></div>
+          <div class="job-location"><div class="nation"><p>São Paulo, Brazil</p></div></div>
+        </div>
+        <div class="job-list-item">
+          <div class="job-title"><a href="/job/heineken-brazil/brazil/people-analyst" click-id="174918">People Analyst</a></div>
+          <div class="job-desc"><div class="job-operating-company"><p>HEINEKEN Brazil</p></div><div class="job-description"><p>HR - Talent Acquisition</p></div></div>
+          <div class="job-location"><div class="nation"><p>Remote, Brazil</p></div></div>
+        </div>
+        """
+
+        with patch.object(heineken, "get_text", side_effect=[first_page, second_page]) as request:
+            rows = heineken.fetch()
+
+        self.assertEqual([row["native_id"] for row in rows], ["174917", "174918"])
+        self.assertEqual(rows[0]["company"], "HEINEKEN Brazil")
+        self.assertEqual(rows[0]["city"], "São Paulo")
+        self.assertEqual(rows[0]["country"], "BR")
+        self.assertEqual(rows[0]["categories"], ["Digital & Technology", "Heineken"])
+        self.assertEqual(rows[1]["work_model"], "remote")
+        self.assertEqual(request.call_count, 2)
+
+    def test_heineken_is_registered_and_selectable(self):
+        names = {name for name, _fetch in pipeline.REGISTRY}
+        self.assertIn("heineken", names)
+        self.assertIn("heineken", pipeline.NONEMPTY_SOURCES)
+        self.assertEqual(
+            [name for name, _fetch in pipeline.selected_registry("heineken")],
+            ["heineken"],
+        )
 
 
 

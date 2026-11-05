@@ -1,5 +1,21 @@
 # Histórico operacional e mapa de responsabilidades
 
+## 2026-11-04 — Inclusão do portal Heineken
+
+- **Fonte pública:** `https://careers.theheinekencompany.com/Job-Listing`, com os filtros oficiais de Brasil (`field_location_country_code_1=BR` e `operatings_company=289`). A coleta usa somente HTML público, sem Selenium.
+- **Paginação e integridade:** o adaptador segue o `rel=next`/`Show more` (`page=0%2C0%2CN`), com limite defensivo de 100 páginas, validação do host/caminho oficial, deduplicação por `click-id` e fallback para o slug da URL quando o identificador não está disponível. Catálogo vazio ou card incompleto interrompe a fonte para preservar o snapshot anterior.
+- **Dados normalizados:** título, empresa, departamento, URL oficial, cidade, país/mercado `BR`, modalidade identificada por título/localidade e categorias `[departamento, "Heineken"]` sem duplicatas. A listagem não fornece `datePosted` confiável; `published_date` permanece vazio.
+- **Validação e rollback:** os testes isolados da Heineken e do validador dinâmico foram aprovados; a validação live retornou **223 vagas únicas** (o portal informou 224 cards, com a deduplicação evitando uma publicação repetida). A fonte foi registrada no catálogo e no validador dinâmico; repetir com `python jobs-dashboard/validate_dynamic_portals.py --sources heineken`. Para reverter, remover o adaptador e seus registros de catálogo/validador ou reverter a alteração, sem apagar o snapshot anterior.
+
+## 2026-11-04 — Inclusão do portal Skeelo
+
+- **Fonte pública:** `https://skeelo.com/pt/carreiras/#vagas_abertas`, usando o endpoint JSON público `https://skeelo.com/api/ats/jobs?page=N`, sem autenticação.
+- **Paginação e integridade:** o adaptador percorre todas as páginas informadas por `totalPages`, com limite defensivo de 50 páginas, validação de `items` e deduplicação por UUID. Payload inválido, URL fora de `ats.rippling.com/skeelo/jobs/<UUID>` ou catálogo vazio interrompem a fonte para que o snapshot anterior seja preservado pelo fluxo existente.
+- **Dados normalizados:** título, departamento, URL ATS Rippling, cidade, estado, país/mercado, modalidade `remote`, `hybrid` ou `on-site` e categorias `[departamento, "Skeelo"]`. A modalidade remota brasileira sem cidade explícita usa `Brasil` como localidade agregada.
+- **Data de publicação:** a API pública não expõe data de publicação confiável; `published_date` permanece vazio e nenhuma data é inferida.
+- **Integração e validação:** a fonte foi registrada no catálogo e no validador dinâmico. Os testes cobrem paginação, normalização, deduplicação e seleção/registro da fonte; a validação ao vivo deve ser executada com `python jobs-dashboard/validate_dynamic_portals.py --sources skeelo`.
+- **Rollback:** remover o registro de `skeelo` e o adaptador dedicado, ou reverter o commit desta inclusão. Nenhum dado anterior deve ser apagado quando a fonte falhar.
+
 ## 2026-11-04 — Cobertura e evidências públicas do LinkedIn
 
 - **Correção do diagnóstico da Dexian:** a captura enviada pelo usuário confirma que a vaga 4479109326 é **Remota** e tem **Candidatura simplificada**. Esses dois dados agora têm overrides documentados para que a evidência fornecida não se perca quando a página pública anônima não expõe o mesmo CTA. O coletor que gerou o snapshot consultado já fazia busca aberta, sem easy_apply=True; portanto, candidatura externa não explica a ausência da vaga. Os IDs 4479867000, 4479109326 e 4484056862 não constavam no snapshot consultado; como não há respostas brutas antigas nem motivos de descarte por anúncio, a causa individual da ausência permanece inconclusiva.
