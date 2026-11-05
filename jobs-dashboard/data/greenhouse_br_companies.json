@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-04T23:34:33.233180+00:00",
+  "generated_at": "2026-11-05T11:34:25.718065+00:00",
   "candidate_count": 8331,
   "company_count": 198,
   "companies": [
@@ -242,7 +242,7 @@
     {
       "board": "clara",
       "company": "Clara",
-      "brazil_jobs": 82
+      "brazil_jobs": 81
     },
     {
       "board": "classpass",
@@ -512,7 +512,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 126
+      "brazil_jobs": 128
     },
     {
       "board": "interbrand",
@@ -842,7 +842,7 @@
     {
       "board": "taboola",
       "company": "Taboola",
-      "brazil_jobs": 5
+      "brazil_jobs": 4
     },
     {
       "board": "takealotcom",
@@ -977,7 +977,7 @@
     {
       "board": "wppmedia",
       "company": "WPP Media",
-      "brazil_jobs": 44
+      "brazil_jobs": 43
     },
     {
       "board": "xpinc",
@@ -992,7 +992,7 @@
     {
       "board": "ilia",
       "company": "ília",
-      "brazil_jobs": 16
+      "brazil_jobs": 17
     }
   ]
 }
