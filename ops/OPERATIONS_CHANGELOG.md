@@ -1,5 +1,13 @@
 # Histórico operacional e mapa de responsabilidades
 
+## 2026-11-05 — Recuperação independente da coleta do LinkedIn
+
+- **Causa raiz confirmada:** o timer `todas-as-vagas-github-scheduler.timer` da VPS estava ativo e executava a cada cinco minutos, mas `ops/github_scheduler.py` consultava exclusivamente `pages.yml`, cuja agenda é a do catálogo geral (`11, 14, 18 e 23 UTC`). O coletor separado `linkedin-jobs.yml`, agendado para `10 e 22 UTC`, não era observado nem recuperado. Por isso o log podia registrar `slot_succeeded` para o catálogo enquanto não existia uma execução do LinkedIn no slot esperado.
+- **Evidência da ocorrência:** na verificação de 05/11, o último run do LinkedIn era `41951930204` (sucesso, 02:30 UTC); não havia execução correspondente à janela de 10 UTC. O catálogo geral continuava saudável e o `public-data` publicado às 15:20 UTC ainda continha 1.679 vagas LinkedIn, incluindo as 1.000 do snapshot mais recente; o problema era a ausência de uma recuperação específica para a próxima janela, não a remoção dos registros já publicados.
+- **Correção implementada:** o recuperador agora monitora `pages.yml` e `linkedin-jobs.yml` separadamente. O LinkedIn usa os slots `10 e 22 UTC`, histórico de runs de 24 horas para tolerar atraso do GitHub, o endpoint correto de `workflow_dispatch` e o campo privado `linkedin_dispatched_slots`, sem compartilhar tentativas com o catálogo. Mantêm-se o backoff, a janela de visibilidade e o limite de tentativas; commits `[linkedin-refresh]` não são confundidos com uma nova coleta.
+- **Validação:** adicionados testes para o calendário/filtragem do LinkedIn, isolamento do estado, leitura do workflow correto e dispatch do workflow correto. O `py_compile` do scheduler passou; os testes direcionados passaram no Windows. A suíte completa local foi bloqueada por limitações do Python nativo do Windows (`fcntl` ausente e erro de `os.replace` no diretório temporário); a validação final deve ocorrer no runner Linux antes da instalação na VPS.
+- **Implantação e rollback:** após o merge, atualizar o checkout `/home/ubuntu/todas-as-vagas` na VPS e executar uma verificação somente leitura do serviço. Não disparar manualmente lotes extras se o scheduler já registrar a execução do slot. Para reverter, desfazer a alteração de `ops/github_scheduler.py`; o campo `linkedin_dispatched_slots` pode permanecer no estado privado sem afetar a versão anterior.
+
 ## 2026-11-04 — Inclusão do portal Heineken
 
 - **Fonte pública:** `https://careers.theheinekencompany.com/Job-Listing`, com os filtros oficiais de Brasil (`field_location_country_code_1=BR` e `operatings_company=289`). A coleta usa somente HTML público, sem Selenium.
