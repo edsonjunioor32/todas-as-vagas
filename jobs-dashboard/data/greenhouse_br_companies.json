@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-05T11:34:25.718065+00:00",
+  "generated_at": "2026-11-05T14:34:39.219403+00:00",
   "candidate_count": 8331,
   "company_count": 198,
   "companies": [
@@ -32,7 +32,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 102
+      "brazil_jobs": 107
     },
     {
       "board": "agilize",
@@ -192,7 +192,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 157
+      "brazil_jobs": 156
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -227,7 +227,7 @@
     {
       "board": "caylent",
       "company": "Caylent",
-      "brazil_jobs": 17
+      "brazil_jobs": 16
     },
     {
       "board": "chainguard",
@@ -312,7 +312,7 @@
     {
       "board": "ebanx",
       "company": "EBANX",
-      "brazil_jobs": 24
+      "brazil_jobs": 23
     },
     {
       "board": "ebury",
@@ -327,7 +327,7 @@
     {
       "board": "encora10",
       "company": "Encora",
-      "brazil_jobs": 24
+      "brazil_jobs": 23
     },
     {
       "board": "enforce",
@@ -362,12 +362,12 @@
     {
       "board": "externaljobboards",
       "company": "Exadel",
-      "brazil_jobs": 19
+      "brazil_jobs": 22
     },
     {
       "board": "exadelinc",
       "company": "Exadel Inc (Website)",
-      "brazil_jobs": 15
+      "brazil_jobs": 14
     },
     {
       "board": "fanaticscollectibles",
@@ -487,7 +487,7 @@
     {
       "board": "humansignal",
       "company": "HumanSignal",
-      "brazil_jobs": 1
+      "brazil_jobs": 2
     },
     {
       "board": "impinjexternal",
@@ -512,7 +512,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 128
+      "brazil_jobs": 127
     },
     {
       "board": "interbrand",
@@ -767,7 +767,7 @@
     {
       "board": "schonfeld",
       "company": "Schonfeld",
-      "brazil_jobs": 6
+      "brazil_jobs": 4
     },
     {
       "board": "sentinellabs",
@@ -817,7 +817,7 @@
     {
       "board": "stonepatrocina",
       "company": "Stone - Indeed",
-      "brazil_jobs": 217
+      "brazil_jobs": 218
     },
     {
       "board": "stripe",
@@ -952,7 +952,7 @@
     {
       "board": "gympass",
       "company": "Wellhub",
-      "brazil_jobs": 42
+      "brazil_jobs": 41
     },
     {
       "board": "wildlifestudios",
