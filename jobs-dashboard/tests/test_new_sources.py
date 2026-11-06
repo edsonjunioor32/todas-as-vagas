@@ -557,9 +557,10 @@ class CompanyBatchTests(unittest.TestCase):
     def test_requested_company_boards_are_unique_and_not_global_infovagas(self):
         names = [name for name, _fetch in requested_portals_03092026.TARGETS]
         self.assertEqual(len(names), len(set(names)))
-        self.assertEqual(len(names), 157)
+        self.assertEqual(len(names), 158)
         self.assertIn("meutudo", names)
         self.assertIn("minsait", names)
+        self.assertIn("positivosmais", names)
         self.assertIn("emphasys", names)
         for tenant in ("evoluetreinamento", "levelcinco", "lotusict", "postogalo", "xlevel"):
             self.assertIn(tenant, names)
@@ -597,6 +598,25 @@ class CompanyBatchTests(unittest.TestCase):
         self.assertEqual(row["state"], "RJ")
         self.assertEqual(row["work_model"], "on-site")
         self.assertEqual(row["market"], "BR")
+
+    def test_positivosmais_pandape_card_preserves_company_location_and_english_modality(self):
+        row = requested_portals_03092026._pandape_row({
+            "href": "https://positivosmais.pandape.infojobs.com.br/Detail/1234567",
+            "title": "Analista de Suporte Jr",
+            "text": (
+                "Analista de Suporte Jr\n"
+                "São Paulo - SP\nPresential\nFull time\n05 Nov"
+            ),
+        }, source="positivosmais", company="Positivo S+",
+            base_url=requested_portals_03092026.POSITIVOSMAIS_URL)
+        self.assertEqual(row["source"], "positivosmais")
+        self.assertEqual(row["company"], "Positivo S+")
+        self.assertEqual(row["url"], "https://positivosmais.pandape.infojobs.com.br/Detail/1234567")
+        self.assertEqual(row["city"], "São Paulo")
+        self.assertEqual(row["state"], "SP")
+        self.assertEqual(row["work_model"], "on-site")
+        self.assertIn("Positivo S+", row["categories"])
+        self.assertIn("positivosmais", storage.ACTIVE_PUBLIC_FEED_SOURCES)
 
 
 class JournyScheduleTests(unittest.TestCase):

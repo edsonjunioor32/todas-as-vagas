@@ -314,6 +314,13 @@ O registro de adaptadores fica em `jobs-dashboard/sources/__init__.py`. Cada mó
 - `jobs-dashboard/sources/workable_brazil.py` — busca Workable no Brasil.
 - `jobs-dashboard/sources/wwr.py` — vagas We Work Remotely.
 
+## 2026-11-05 — Inclusão do quadro Positivo S+ na Pandapé
+
+- O adaptador existente de quadros Pandapé em `jobs-dashboard/sources/requested_portals_03092026.py` foi generalizado para aceitar mais de uma URL, empresa e identificador de fonte.
+- O quadro público `https://positivosmais.pandape.infojobs.com.br/` foi registrado como `positivosmais`, com empresa `Positivo S+`, links oficiais `/Detail/<id>`, localidade e modalidade preservadas. O texto em inglês `Presential` é normalizado para presencial (`on-site`).
+- A fonte usa o mesmo navegador renderizado do coletor Pandapé/Minsait e fica isolada das falhas dos demais portais. Ela entra no registro regular e na mesclagem dinâmica, portanto uma falha desse quadro preserva o último estado válido sem bloquear os outros.
+- A fonte foi incluída na lista de quadros ativos e no rótulo das mensagens do Telegram; não houve mudança no esquema público nem nos consumidores site, Telegram, WhatsApp ou agente.
+
 ### Testes do coletor
 
 Todos os arquivos desta seção são testes automatizados; não são coletores nem devem ser agendados como fontes.

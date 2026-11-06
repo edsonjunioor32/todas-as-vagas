@@ -88,6 +88,8 @@ A GeekHunter é consultada pelas páginas públicas de vagas, que já entregam d
 
 O InfoJobs é consultado pela busca pública geral, ordenada pelas mais recentes. A integração percorre a paginação pública até o limite configurado, preserva as modalidades indicadas em cada anúncio e deixa o filtro global de dois meses remover vagas antigas. Como o portal exige JavaScript e protege requisições HTTP simples com WAF, a atualização usa o Chrome já disponível no executor do GitHub Actions, sem login e sem acessar dados de candidatos. Os limites podem ser ajustados por `INFOJOBS_MAX_JOBS` e `INFOJOBS_MAX_SCROLLS`.
 
+O quadro **Positivo S+** é coletado separadamente pelo board público da Pandapé (`positivosmais.pandape.infojobs.com.br`). Como a listagem é carregada por JavaScript, o adaptador usa o navegador renderizado do executor, percorre as vagas públicas exibidas pelo quadro e mantém a empresa como o portal `positivosmais`, sem misturá-la à busca geral do InfoJobs.
+
 ## Stone e iFood
 
 As páginas de carreiras da **Stone** e do **iFood** utilizam o Greenhouse. O pipeline consulta a API pública dos dois quadros e mantém cada empresa como uma origem própria no filtro de portal. São importados cargo, localidade, modalidade, data original de publicação, área, tipo de contrato quando informado e o link oficial da candidatura. A descrição é usada somente em memória para classificação e não é publicada no painel.
