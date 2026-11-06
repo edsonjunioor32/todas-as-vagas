@@ -120,6 +120,7 @@ ACTIVE_PUBLIC_FEED_SOURCES = {
     "metrisdho",
     "meutudo",
     "minsait",
+    "positivosmais",
     "modaxo",
     "mollicait",
     "moovgenteegestao",

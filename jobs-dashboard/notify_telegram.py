@@ -72,6 +72,7 @@ SOURCE_LABELS = {
     "abler": "Abler",
     "precisionrh": "Precision RH",
     "infojobs": "InfoJobs",
+    "positivosmais": "Positivo S+",
     "recrutei": "Recrutei",
     "accenture": "Accenture",
     "ey": "EY",
