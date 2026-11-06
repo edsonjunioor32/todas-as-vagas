@@ -65,7 +65,104 @@ def snapshot_with_preserved_jobs(count=2):
     }
 
 
+def snapshot_with_source_metadata(source, health_at):
+    snapshot = snapshot_with_preserved_jobs(count=1)
+    snapshot["dict"]["source"] = [source]
+    snapshot["source_counts"] = {source: 1}
+    snapshot["collected_source_counts"] = {source: 1}
+    snapshot["collected_count"] = 1
+    snapshot["preserved_count"] = 0
+    snapshot["source_last_success_at"] = {source: health_at}
+    snapshot["failed_sources"] = []
+    return snapshot
+
+
 class PreservedSnapshotTests(unittest.TestCase):
+    def test_source_present_before_cannot_disappear_without_confirmation(self):
+        previous = snapshot_with_source_metadata(
+            "gupy", "2026-09-25T12:00:00+00:00"
+        )
+        current = snapshot_with_source_metadata(
+            "linkedin", "2026-09-26T12:00:00+00:00"
+        )
+        current["source_last_success_at"]["gupy"] = previous[
+            "source_last_success_at"
+        ]["gupy"]
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "vagas.json"
+            previous_path = Path(directory) / "previous-vagas.json"
+            path.write_text(json.dumps(current), encoding="utf-8")
+            previous_path.write_text(json.dumps(previous), encoding="utf-8")
+            stdout, stderr = io.StringIO(), io.StringIO()
+            with patch.object(validate_snapshot, "SNAPSHOT", path), patch.dict(
+                os.environ,
+                {
+                    "MIN_PUBLIC_JOBS": "1",
+                    "PREVIOUS_SNAPSHOT_PATH": str(previous_path),
+                },
+                clear=False,
+            ), contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                with self.assertRaises(SystemExit):
+                    validate_snapshot.main()
+
+        self.assertIn("gupy", stderr.getvalue())
+        self.assertIn("sem confirmação", stderr.getvalue())
+
+    def test_source_disappearance_is_allowed_when_failure_is_explicit(self):
+        previous = snapshot_with_source_metadata(
+            "gupy", "2026-09-25T12:00:00+00:00"
+        )
+        current = snapshot_with_source_metadata(
+            "linkedin", "2026-09-26T12:00:00+00:00"
+        )
+        current["source_last_success_at"]["gupy"] = previous[
+            "source_last_success_at"
+        ]["gupy"]
+        current["failed_sources"] = ["gupy"]
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "vagas.json"
+            previous_path = Path(directory) / "previous-vagas.json"
+            path.write_text(json.dumps(current), encoding="utf-8")
+            previous_path.write_text(json.dumps(previous), encoding="utf-8")
+            stdout, stderr = io.StringIO(), io.StringIO()
+            with patch.object(validate_snapshot, "SNAPSHOT", path), patch.dict(
+                os.environ,
+                {
+                    "MIN_PUBLIC_JOBS": "1",
+                    "PREVIOUS_SNAPSHOT_PATH": str(previous_path),
+                },
+                clear=False,
+            ), contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                validate_snapshot.main()
+
+        self.assertIn("OK: 1 vagas", stdout.getvalue())
+
+    def test_source_disappearance_is_allowed_when_health_advanced(self):
+        previous = snapshot_with_source_metadata(
+            "gupy", "2026-09-25T12:00:00+00:00"
+        )
+        current = snapshot_with_source_metadata(
+            "linkedin", "2026-09-26T12:00:00+00:00"
+        )
+        current["source_last_success_at"]["gupy"] = "2026-09-26T12:05:00+00:00"
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "vagas.json"
+            previous_path = Path(directory) / "previous-vagas.json"
+            path.write_text(json.dumps(current), encoding="utf-8")
+            previous_path.write_text(json.dumps(previous), encoding="utf-8")
+            stdout, stderr = io.StringIO(), io.StringIO()
+            with patch.object(validate_snapshot, "SNAPSHOT", path), patch.dict(
+                os.environ,
+                {
+                    "MIN_PUBLIC_JOBS": "1",
+                    "PREVIOUS_SNAPSHOT_PATH": str(previous_path),
+                },
+                clear=False,
+            ), contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                validate_snapshot.main()
+
+        self.assertIn("OK: 1 vagas", stdout.getvalue())
+
     def test_high_preserved_ratio_warns_but_does_not_block_valid_snapshot(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "vagas.json"

@@ -4,7 +4,7 @@ import json
 import os
 import re
 import sys
-from datetime import date
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 import storage
@@ -41,6 +41,78 @@ def env_float(name, default):
         return default
 
 
+def _source_counts(snapshot):
+    counts = {}
+    for source, value in (snapshot.get("source_counts") or {}).items():
+        source = str(source).strip()
+        try:
+            count = int(value or 0)
+        except (TypeError, ValueError):
+            continue
+        if source and count > 0:
+            counts[source] = count
+    return counts
+
+
+def _parse_timestamp(value):
+    text = str(value or "").strip()
+    if not text:
+        return None
+    if text.endswith("Z"):
+        text = f"{text[:-1]}+00:00"
+    try:
+        parsed = datetime.fromisoformat(text)
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
+
+
+def validate_source_continuity(current, previous, failed_sources):
+    """Reject silent source loss between consecutive public snapshots.
+
+    A partial run can legitimately publish fewer rows, but it must not make a
+    previously present source disappear without either a current health
+    update or an explicit failure. This is what distinguishes an unattempted
+    LinkedIn-only run from a full run in which a portal returned no jobs.
+    """
+    previous_counts = _source_counts(previous)
+    if not previous_counts:
+        return
+    current_counts = _source_counts(current)
+    previous_health = previous.get("source_last_success_at") or {}
+    current_health = current.get("source_last_success_at") or {}
+    missing = [
+        source for source in previous_counts
+        if not current_counts.get(source)
+    ]
+    unconfirmed = []
+    for source in missing:
+        if source in failed_sources:
+            continue
+        before = _parse_timestamp(previous_health.get(source))
+        after = _parse_timestamp(current_health.get(source))
+        if after is not None and (before is None or after > before):
+            continue
+        unconfirmed.append(source)
+    if not unconfirmed:
+        return
+    scope = os.environ.get("CATALOG_COLLECTION_SCOPE", "unknown").strip() or "unknown"
+    collected = sorted(
+        str(source).strip()
+        for source in (current.get("collected_source_counts") or {})
+        if str(source).strip()
+    )
+    sample = ", ".join(sorted(unconfirmed)[:20])
+    suffix = f"; outras: {len(unconfirmed) - 20}" if len(unconfirmed) > 20 else ""
+    fail(
+        "fontes presentes no snapshot anterior desapareceram sem confirmação "
+        f"(escopo={scope}; coletadas agora={', '.join(collected) or 'nenhuma'}): "
+        f"{sample}{suffix}. A publicação foi bloqueada."
+    )
+
+
 def main():
     if not SNAPSHOT.exists():
         fail(f"arquivo ausente: {SNAPSHOT}")
@@ -50,6 +122,7 @@ def main():
     if count < minimum:
         fail(f"somente {count} vagas; mínimo esperado: {minimum}")
 
+    previous = None
     previous_path = os.environ.get("PREVIOUS_SNAPSHOT_PATH", "").strip()
     if previous_path:
         previous_file = Path(previous_path)
@@ -74,6 +147,8 @@ def main():
         str(source).strip() for source in (data.get("failed_sources") or [])
         if str(source).strip()
     })
+    if previous is not None:
+        validate_source_continuity(data, previous, set(failed_sources))
     max_failed_sources = env_int("MAX_FAILED_SOURCES", 50)
     if max_failed_sources >= 0 and len(failed_sources) > max_failed_sources:
         print(

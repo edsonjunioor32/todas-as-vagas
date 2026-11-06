@@ -1,3 +1,11 @@
+## 2026-11-06 — Bloqueio contra perda silenciosa de fontes em coleta parcial
+
+- **Causa protegida:** execuções parciais, como `LinkedIn-only`, conseguiam publicar um snapshot menor sem declarar que as fontes presentes anteriormente não haviam sido consultadas. Isso podia retirar milhares de vagas de Gupy e de outros portais sem um erro explícito.
+- **Validação implementada:** `validate_snapshot.py` agora compara `source_counts` com o snapshot anterior e bloqueia o publish quando uma fonte desaparece sem `failed_sources` explícito ou sem avanço do respectivo `source_last_success_at`.
+- **Escopo observável:** `pages.yml` registra `CATALOG_COLLECTION_SCOPE=full` em coleta integral e `partial:linkedin` na atualização restrita; o workflow de portais dinâmicos registra `partial:dynamic`.
+- **Regressão coberta:** testes verificam tanto o bloqueio da perda sem confirmação quanto a permissão para uma falha declarada.
+- **Operação:** a atualização pontual deve usar coleta integral; execuções parciais continuam permitidas somente quando a validação confirma a continuidade das demais fontes.
+
 ## 2026-11-06 — Correção da modalidade remota do LinkedIn
 
 - **Causa raiz confirmada:** a busca pública guest atual do LinkedIn ignora o filtro legado `f_WT=2`, e o JobSpy usado pelo coletor ignora `is_remote` para essa fonte. Portanto, aquela busca pode devolver vagas presenciais e híbridas. A implementação anterior tratou a consulta como prova de modalidade; em uma coleta, isso marcou falsamente **994 de 1.006** anúncios como remotos.
