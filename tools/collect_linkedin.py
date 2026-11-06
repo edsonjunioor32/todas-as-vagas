@@ -23,14 +23,19 @@ from urllib.parse import urlsplit
 # a busca; usamos lotes controlados para ultrapassar o primeiro resultado sem
 # criar uma consulta ilimitada ou concentrar todas as requisições em uma única chamada.
 DEFAULT_RESULTS_LIMIT = 1000
+# Candidate budget for a keyword-based pass; the query does not prove modality.
 DEFAULT_REMOTE_RESULTS_LIMIT = 1200
 JOBSPY_MAX_RESULTS_PER_QUERY = 1000
 MAX_UNIQUE_RESULTS_PER_RUN = 1200
-# Verified against LinkedIn screenshots supplied on 2026-11-03.
+# These keywords discover candidates only; modality still needs per-job evidence.
+REMOTE_SEARCH_TERM = 'remoto OR remota OR remote OR "home office" OR "work from home"'
+# Verified against public LinkedIn job descriptions or user-provided evidence.
 VERIFIED_WORKPLACE_OVERRIDES = {
     "4486898930": "remote",
     "4478138443": "on-site",
     "4479109326": "remote",
+    # Public job description explicitly states "Modalidade: Remota" (2026-11-06).
+    "4484868146": "remote",
 }
 VERIFIED_APPLICATION_OVERRIDES = {
     # User screenshot on 2026-11-03 shows "Candidatura simplificada".
@@ -41,7 +46,6 @@ CAPTURED_LINKEDIN_APPLICATION = {}
 WORKPLACE_EVIDENCE_PRIORITY = {
     "linkedin_badge": 40,
     "manual_override": 30,
-    "linkedin_remote_search_filter": 20,
     "description_explicit": 10,
 }
 DEFAULT_HOURS_OLD = 1440
@@ -324,6 +328,7 @@ _EXPLICIT_WORKPLACE_PATTERNS = {
     "remote": (
         r"\b100\s*%\s*(?:remot[oa]|home[\s-]?office)\b",
         r"\bfully[\s-]+remote\b",
+        r"\bwork[\s-]+from[\s-]+home\b",
         r"\b(?:regime|modalidade|modelo)(?:\s+de\s+trabalho)?\s*[:\-]?\s*(?:remot[oa]|home[\s-]?office)\b",
         r"\bworkplace type\s*[:\-]\s*remote\b",
     ),
@@ -347,7 +352,7 @@ def _explicit_workplace_type_from_description(description):
         return ""
 
     mentioned = set()
-    if re.search(r"\b(?:remot[oa]|home[\s-]?office|fully[\s-]+remote)\b", text):
+    if re.search(r"\b(?:remot[oa]|home[\s-]?office|fully[\s-]+remote|work[\s-]+from[\s-]+home)\b", text):
         mentioned.add("remote")
     if re.search(r"\b(?:h[ií]brid[oa]|hybrid)\b", text):
         mentioned.add("hybrid")
@@ -419,18 +424,6 @@ try:
     from jobspy.linkedin import LinkedIn
     import jobspy.linkedin as jl
 
-    # Patch JobSpy's LinkedIn scraper to support remote workplace filtering (f_WT=2)
-    # Permite busca remota dedicada sem cookies, login ou serviços pagos
-    _orig_linkedin_search_params = LinkedIn._search_params
-
-    def _patched_linkedin_search_params(self):
-        params = _orig_linkedin_search_params(self)
-        if getattr(self.scraper_input, "is_remote", False):
-            params["f_WT"] = "2"
-        return params
-
-    LinkedIn._search_params = _patched_linkedin_search_params
-
     # Configura atraso adaptativo entre páginas (2.5s a 3.0s) para evitar 429
     LinkedIn.delay = (2.5, 3.0)
 
@@ -498,7 +491,7 @@ def clean_value(val):
     return val
 
 
-def normalize_linkedin_job(raw_job, is_remote_search=False):
+def normalize_linkedin_job(raw_job):
     """
     Converte o registro bruto do JobSpy para a estrutura padronizada
     do projeto 'Todas as Vagas'.
@@ -521,20 +514,14 @@ def normalize_linkedin_job(raw_job, is_remote_search=False):
     company = clean_value(raw_job.get("company")) or "Empresa não informada"
     location = clean_value(raw_job.get("location")) or "Brazil"
 
-    # Só aceitamos o selo capturado na página individual, um caso manual
-    # documentado ou uma declaração explícita e inequívoca na descrição.
+    # Search terms and generic JobSpy fields are not workplace evidence.
+    # Accept only the detail-page badge, a verified override, or explicit text.
     workplace_type = CAPTURED_LINKEDIN_WORKPLACE.get(str(job_id or ""))
     workplace_evidence = "linkedin_badge" if workplace_type else ""
     if not workplace_type:
         workplace_type = VERIFIED_WORKPLACE_OVERRIDES.get(str(job_id or ""))
         if workplace_type:
             workplace_evidence = "manual_override"
-    # LinkedIn's dedicated f_WT=2 search is a source-provided remote-work
-    # classification. It outranks descriptive prose, but not the listing badge
-    # or an operator-verified override.
-    if not workplace_type and is_remote_search:
-        workplace_type = "remote"
-        workplace_evidence = "linkedin_remote_search_filter"
     if not workplace_type:
         workplace_type = _explicit_workplace_type_from_description(
             raw_job.get("description")
@@ -737,8 +724,9 @@ def collect_linkedin(
         f"(~{hours_old//24} dias), sem filtro por candidatura."
     )
     print(
-        f"[Limites] Geral solicitado={requested_general_limit}; "
-        f"remota complementar solicitada={requested_remote_limit if include_remote_pass else 0}; "
+        f"[Limites] Busca geral solicitada={requested_general_limit}; "
+        f"candidatos na busca por palavras de modalidade="
+        f"{requested_remote_limit if include_remote_pass else 0}; "
         f"máximo por consulta={JOBSPY_MAX_RESULTS_PER_QUERY}; "
         f"teto agregado={MAX_UNIQUE_RESULTS_PER_RUN} vagas únicas."
     )
@@ -789,15 +777,13 @@ def collect_linkedin(
             )
         return records
 
-    def add_records(records, *, is_remote_search, pass_name):
+    def add_records(records, *, pass_name):
         added = 0
         duplicates = 0
         workplace_enriched_duplicates = 0
         skipped_after_unique_cap = 0
         for raw in records:
-            normalized = normalize_linkedin_job(
-                raw, is_remote_search=is_remote_search
-            )
+            normalized = normalize_linkedin_job(raw)
             job_key = (
                 normalized["native_id"]
                 or normalized["url"]
@@ -875,9 +861,7 @@ def collect_linkedin(
                     verbose=0,
                 )
                 if records:
-                    add_records(
-                        records, is_remote_search=False, pass_name=f"termo:{term}"
-                    )
+                    add_records(records, pass_name=f"termo:{term}")
                 else:
                     print(f"  -> Nenhuma vaga encontrada para '{term}'.")
             except Exception as error:
@@ -903,9 +887,7 @@ def collect_linkedin(
                 verbose=0,
             )
             if records:
-                add_records(
-                    records, is_remote_search=False, pass_name="general"
-                )
+                add_records(records, pass_name="general")
             else:
                 print("  -> Nenhuma vaga encontrada na varredura geral.")
         except Exception as error:
@@ -921,31 +903,28 @@ def collect_linkedin(
             and len(all_jobs_dict) < MAX_UNIQUE_RESULTS_PER_RUN
         ):
             print(
-                "\n[Fase 2/2] Executando Varredura Aberta Remota "
-                "(f_WT=2, Brasil; filtro usado apenas para descoberta)..."
+                "\n[Fase 2/2] Buscando candidatos por palavras de modalidade "
+                "(remoto/remota/remote/home office; a consulta não prova a modalidade)..."
             )
             try:
                 records = scrape_pass(
-                    "remote",
+                    "remote_keyword_candidates",
                     requested_remote_limit,
                     site_name=["linkedin"],
-                    search_term=None,
+                    search_term=REMOTE_SEARCH_TERM,
                     location=location,
-                    is_remote=True,
                     hours_old=hours_old,
                     description_format="markdown",
                     fetch_description=True,
                     verbose=0,
                 )
                 if records:
-                    add_records(
-                        records, is_remote_search=True, pass_name="remote"
-                    )
+                    add_records(records, pass_name="remote_keyword_candidates")
                 else:
-                    print("  -> Nenhuma vaga encontrada na varredura remota.")
+                    print("  -> Nenhum candidato encontrado pela busca de palavras de modalidade.")
             except Exception as error:
-                print(f"  [Aviso] Falha na varredura remota: {error}")
-                collection_errors.append(f"busca remota: {error}")
+                print(f"  [Aviso] Falha na busca por palavras de modalidade: {error}")
+                collection_errors.append(f"busca de candidatos por modalidade: {error}")
         elif include_remote_pass and requested_remote_limit > 0:
             print(
                 f"  [Aviso] Busca remota não executada: teto agregado de "
@@ -1045,10 +1024,15 @@ def collect_linkedin(
             )
             summary.write(
                 f"- **Limites informados:** geral solicitado "
-                f"{requested_general_limit}, remoto solicitado "
+                f"{requested_general_limit}, candidatos da busca por modalidade solicitados "
                 f"{requested_remote_limit if include_remote_pass else 0}; "
                 f"máximo por consulta {JOBSPY_MAX_RESULTS_PER_QUERY}; "
                 f"teto de únicos {MAX_UNIQUE_RESULTS_PER_RUN}.\n\n"
+            )
+            summary.write(
+                "- **Classificação de modalidade:** somente selo real da vaga, "
+                "descrição explícita não ambígua ou override manual verificado; "
+                "a busca por palavras serve apenas para descobrir candidatos.\n\n"
             )
             summary.write(
                 f"- **Filtros:** Brasil, últimas {hours_old//24} dias, "
@@ -1115,11 +1099,11 @@ if __name__ == "__main__":
         "--remote-results-limit",
         type=int,
         default=DEFAULT_REMOTE_RESULTS_LIMIT,
-        help="Limite solicitado; máximo 1.000 por consulta e 1.200 únicos por execução",
+        help="Orçamento de candidatos da busca por palavras de modalidade; não classifica vagas; máximo 1.000 por consulta e 1.200 únicos por execução",
     )
     parser.add_argument("--hours-old", type=int, default=DEFAULT_HOURS_OLD, help="Horas desde a publicação (1440 = 60 dias)")
     parser.add_argument("--output", type=str, default="docs/data/linkedin_vagas.json", help="Caminho do arquivo de saída")
-    parser.add_argument("--skip-remote-pass", action="store_true", help="Pular a etapa dedicada de busca remota")
+    parser.add_argument("--skip-remote-pass", action="store_true", help="Pular a busca complementar por palavras de modalidade (descoberta de candidatos)")
     args = parser.parse_args()
 
     collect_linkedin(

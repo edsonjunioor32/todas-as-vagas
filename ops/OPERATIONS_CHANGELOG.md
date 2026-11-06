@@ -1,10 +1,12 @@
 ## 2026-11-06 — Correção da modalidade remota do LinkedIn
 
-- **Causa raiz:** a coleta executava uma busca remota do LinkedIn com o filtro `f_WT=2`, mas não usava esse sinal na normalização. Quando o mesmo anúncio aparecia primeiro na busca geral e depois na remota, a deduplicação descartava a segunda ocorrência sem enriquecer a modalidade da primeira. O snapshot de 05/11 registrou 999 resultados gerais e 996 remotos; 995 resultados remotos eram duplicatas, o snapshot final tinha 1.000 anúncios, 0 remotas, 8 presenciais e 992 sem modalidade, apesar da evidência remota presente na consulta.
-- **Correção:** o filtro remoto do próprio LinkedIn passa a ser registrado como evidência `linkedin_remote_search_filter` e aceito pelo adaptador. Para o mesmo ID ou URL, a deduplicação combina a classificação recebida quando ela tem precedência maior que a existente. Selo capturado e override confirmado pelo operador têm precedência sobre o filtro remoto; o filtro remoto prevalece sobre texto descritivo. O teto agregado continua contando anúncios únicos; duplicatas continuam sendo processadas para mesclar evidências mesmo quando o teto é atingido.
-- **Impacto:** atualiza a classificação LinkedIn no catálogo público e, por consequência, na interface que o consome. Outros portais não mudam; a limpeza de modalidade inferida por localização permanece. Telegram e WhatsApp continuam recebendo o mesmo snapshot compartilhado, agora com a modalidade remota disponível.
-- **Risco e rollback:** a classificação remota depende do parâmetro `f_WT=2` aplicado à consulta oficial do LinkedIn. Se a origem alterar o significado desse filtro, reverter as mudanças em `tools/collect_linkedin.py` e `jobs-dashboard/sources/linkedin.py`, depois executar novamente a coleta e a publicação. O snapshot anterior permanece até a nova coleta válida ser publicada.
-- **Validação de produção:** pendente de uma coleta nova e da confirmação do `public-data` e GitHub Pages após a publicação.
+- **Causa raiz confirmada:** a busca pública guest atual do LinkedIn ignora o filtro legado `f_WT=2`, e o JobSpy usado pelo coletor ignora `is_remote` para essa fonte. Portanto, aquela busca pode devolver vagas presenciais e híbridas. A implementação anterior tratou a consulta como prova de modalidade; em uma coleta, isso marcou falsamente **994 de 1.006** anúncios como remotos.
+- **Remediação:** removidos o monkeypatch que injetava `f_WT=2`, `is_remote` como sinal de classificação e `linkedin_remote_search_filter` da lista de evidências aceitas pelo adaptador. A busca complementar usa `remoto`, `remota`, `remote`, `home office` e `work from home` somente para descobrir candidatos. Cada vaga só recebe modalidade a partir do badge real capturado na página individual, de uma declaração explícita e não ambígua na descrição ou de override manual verificado. A deduplicação só enriquece o anúncio com essas evidências válidas.
+- **Override verificado:** LinkedIn `4484868146`, Desenvolvedor da Mirante Tecnologia, é remoto. A descrição pública da vaga declara “Modalidade: Remota”; o override existe no coletor e como fallback do adaptador para snapshots sem proveniência.
+- **Limitações e risco residual:** palavras-chave podem trazer falsos candidatos, omitir vagas que não usam esses termos e sofrer paginação/rate limit; elas nunca rotulam um anúncio. Quando não houver evidência individual acessível, modalidade fica desconhecida e a vaga continua elegível. Permanecem os limites de 1.000 resultados por consulta e 1.200 anúncios únicos por execução; logo, não há garantia de recuperar todas as remotas.
+- **Publicação de saneamento já confirmada:** o commit `fbccbc22` atualizou o snapshot e o run `42213003518` o publicou às 11:50 UTC. Entre 1.779 anúncios LinkedIn, o catálogo mostra 1 remota (Mirante), 8 presenciais e 1.770 sem modalidade. Dos falsos rótulos, 970 registros foram conciliados com o snapshot anterior (8 presenciais e 962 desconhecidos); 24 sem correspondência ficaram desconhecidos. O código corretivo ainda aguarda assinatura e integração; até lá, uma coleta agendada em `main` pode reintroduzir os rótulos falsos.
+- **Validação:** o snapshot saneado foi publicado e conferido no GitHub Pages. Os testes não foram alterados nem executados neste trabalho. A coleta com a nova regra e sua publicação ainda aguardam integração do código.
+- **Rollback:** antes de qualquer publicação, basta descartar/reverter o branch isolado. Se futuramente integrado, reverter o commit de código e repetir coleta/publicação controladas; não restaurar `f_WT=2` como evidência.
 
 # Histórico operacional e mapa de responsabilidades
 
@@ -61,9 +63,9 @@
 
 ## 2026-11-03 — Modalidade do LinkedIn validada na página individual
 
-- **Causa raiz:** a coleta usava o resultado da busca remota (f_WT=2) como classificação. O LinkedIn pode preencher páginas filtradas com anúncios que não atendem ao filtro; além disso, a busca pública exibe apenas a região no cartão, enquanto a modalidade real aparece no cartão individual da vaga.
-- **Correção:** o coletor agora abre a página de detalhes durante a coleta, lê o selo Remote, Hybrid, On-site/Presencial e marca a modalidade como verificada. O filtro remoto passou a ser apenas uma estratégia adicional de descoberta, nunca uma prova da modalidade.
-- **Proteção:** vagas sem selo verificado continuam usando apenas heurísticas conservadoras; a suíte inclui regressões para (1608) Forward Deployed Engineer/Nortal e Açougueiro(a) - Vila Mascote/St Marche, além do comportamento de backfill.
+- **Diagnóstico original, retificado em 2026-11-06:** o filtro remoto legado (`f_WT=2`) não é uma fonte confiável de candidatos remotos: a busca guest atual o ignora. O cartão de busca também não basta para classificar modalidade; o dado deve vir do selo real da página individual, de descrição explícita ou de override verificado.
+- **Correção então implementada e ainda válida:** o coletor abre a página de detalhes durante a coleta, lê o selo Remote, Hybrid ou On-site/Presencial e marca a evidência por anúncio. A estratégia de descoberta atualmente vigente é a busca por palavras de modalidade documentada no registro de 2026-11-06; nem os termos nem o filtro legado comprovam modalidade.
+- **Proteção:** buscas por palavras-chave servem apenas para descoberta; vagas sem selo ou descrição explícita permanecem sem modalidade, exceto overrides manuais verificados. A suíte mantém regressões para Nortal, St Marche e backfill.
 - **Validação:** o snapshot continua sem publicar a descrição completa das vagas; somente o modelo de trabalho verificado é incorporado ao catálogo.
 
 ## 2026-11-03 — Catálogo integral sem restrição por termos
@@ -93,22 +95,22 @@
 - **Testes Automatizados:**
   - `jobs-dashboard/tests/test_linkedin.py` expandido com `test_jobspy_adaptive_delay_and_429_backoff_handling`, totalizando 11 testes unitários aprovados com sucesso.
 
-## 2026-10-31 — Coleta aberta e não-restritiva no LinkedIn para o Todas as Vagas
+## 2026-10-31 — Coleta aberta e não-restritiva no LinkedIn para o Todas as Vagas (histórico retificado em 2026-11-06)
 
 - **Alinhamento e Estratégia Aberta:** Seguindo diretriz do usuário e alinhamento com `@codex` no agent-bus, o coletor deixou de depender de listas fixas de termos de busca. Como o "Todas as Vagas" é um portal amplo e generalista, consultas restritas a palavras-chave específicas de suporte/dev foram substituídas pela busca aberta nacional (`keywords=None`).
-- **Cobertura Completa (Presencial, Híbrida e Remota):**
+- **Estratégia histórica de coleta:**
   - **Fase 1 (Varredura Aberta Geral):** Consulta ampla em todo o Brasil com Easy Apply ativo e janela de 30 dias, trazendo vagas presenciais de múltiplas cidades, vagas híbridas e vagas com escopo nacional em diversas áreas de atuação (Direito, Design, Operações, Engenharia, Finanças, etc.).
-  - **Fase 2 (Varredura Aberta Remota Dedicada):** Consulta ampla aplicando o filtro nativo `f_WT=2` (via patch JobSpy), garantindo a captura prioritária de oportunidades 100% remotas em âmbito nacional.
+  - **Fase 2 original, invalidada:** aplicava `f_WT=2` via patch no JobSpy e tratava os resultados como busca remota. A verificação de 2026-11-06 confirmou que o endpoint guest ignora esse filtro; ele não garante resultados remotos nem é evidência de modalidade.
   - Termos de busca (`--terms`) foram mantidos como filtro opcional via CLI apenas para testes direcionados ou execuções manuais.
 - **Workflow e Parâmetros:** O workflow `.github/workflows/linkedin-jobs.yml` foi atualizado para utilizar o parâmetro `results_limit` (padrão 100 vagas na busca geral).
-- **Testes de Regressão:** `jobs-dashboard/tests/test_linkedin.py` recebeu teste de integração verificando a coleta aberta sem termos fixos (`test_collect_linkedin_open_unrestricted_collection`), assegurando a categorização equilibrada de vagas nos três modelos (`on-site`, `hybrid` e `remote`).
+- **Teste histórico substituído:** `test_collect_linkedin_open_unrestricted_collection` originalmente assumia que a busca com `is_remote=True` retornava apenas remotas. A revisão de 2026-11-06 troca essa premissa por busca de candidatos via palavras e exige evidência individual para classificar.
 
-## 2026-10-31 — Correção de vagas remotas Easy Apply no LinkedIn
+## 2026-10-31 — Estratégia antiga de modalidade remota do LinkedIn (invalidada em 2026-11-06)
 
-- **Causa raiz:** O coletor inicial consultava apenas seis termos estritos e mapeava vagas com localização "Brazil" como `on-site`, desconsiderando que o LinkedIn utiliza a localização em nível de país para posições 100% remotas em âmbito nacional. Além disso, a busca pública não aplicava o filtro nativo de vagas remotas (`f_WT=2`) do LinkedIn.
-- **Busca remota dedicada:** Foi implementado suporte direto via patch no JobSpy (`LinkedIn._search_params`) para enviar `f_WT=2` nas consultas remotas quando `is_remote=True`, permitindo varredura de vagas remotas sem cookies, credenciais ou serviços pagos.
+- **Diagnóstico e implementação originais, ambos retificados:** o pipeline interpretava localização nacional como sinal de modalidade e adicionava `f_WT=2` ao JobSpy. A busca guest atual ignora o filtro; a localização `Brazil`/`Brasil` também não prova que a vaga seja remota.
+- **Status:** o patch de `LinkedIn._search_params`, a classificação baseada em `is_remote=True` e a inferência por localização foram removidos. A política vigente está na entrada de 2026-11-06: palavras de modalidade servem apenas para descobrir candidatos e nunca autorizam `workplaceType`.
 - **Expansão de termos e limite seguro:** O limite seguro por termo foi ampliado para 25 no workflow e script. A lista de termos foi expandida para incluir papéis de suporte avançado, operações e atendimento ("Operations Assistant", "Assistente de Operações", "Suporte de Aplicação", "Help Desk").
-- **Mapeamento correto de modelo de trabalho:** Localizações indicando "Brazil" / "Brasil", indicadores explícitos no título/descrição/localização e vagas coletadas na etapa remota agora são mapeadas como `remote`. Posições com menção a modelo híbrido são classificadas como `hybrid`, e cidades sem indicadores remotos permanecem como `on-site`.
+- **Normalização então publicada, agora supersedida:** localizações `Brazil`/`Brasil` e a participação na etapa remota chegaram a ser usadas para marcar `remote`; essa regra era incorreta. Hoje esses registros ficam sem modalidade até haver evidência verificável por anúncio.
 - **Testes de regressão:** A suíte em `jobs-dashboard/tests/test_linkedin.py` foi expandida com 9 testes, incluindo validação específica para localização "Brazil", aceitação de URLs de subdomínio local (`br.linkedin.com`), normalização de modelo de trabalho e teste de regressão direto para a vaga ID `4483475105` (Tryp.com, Operations Assistant).
 - **Validação de snapshot:** O snapshot `docs/data/linkedin_vagas.json` foi atualizado e reprocessado: o adaptador `sources.linkedin.fetch()` validou 77 vagas aprovadas no filtro de 30 dias, incluindo 8 vagas remotas e a vaga ID `4483475105`.
 

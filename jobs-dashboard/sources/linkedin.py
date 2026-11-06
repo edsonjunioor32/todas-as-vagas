@@ -17,13 +17,15 @@ from ._common import is_brazil_location, iso_date, job, work_model_label
 SOURCE = "linkedin"
 TRUSTED_WORKPLACE_EVIDENCE = {
     "linkedin_badge",
-    "linkedin_remote_search_filter",
     "description_explicit",
     "manual_override",
 }
+# Verified manual overrides remain available for snapshots without evidence metadata.
 LEGACY_VERIFIED_WORKPLACE_OVERRIDES = {
     "4486898930": "remote",
     "4478138443": "on-site",
+    # Public Mirante description states "Modalidade: Remota" (2026-11-06).
+    "4484868146": "remote",
 }
 DEFAULT_SNAPSHOT = (
     Path(__file__).resolve().parents[2] / "docs" / "data" / "linkedin_vagas.json"
@@ -147,8 +149,8 @@ def _normalize(raw, today=None):
     verified_model = work_model_label(remote_flag=None, raw=raw_model)
 
     # Campos genéricos do JobSpy e snapshots antigos sem proveniência não
-    # comprovam o selo. Mantemos apenas os dois casos documentados por ID.
-    if workplace_verified:
+    # comprovam o selo. Mantemos apenas overrides manuais documentados por ID.
+    if workplace_verified and verified_model:
         work_model = verified_model
     else:
         work_model = LEGACY_VERIFIED_WORKPLACE_OVERRIDES.get(job_id, "")
