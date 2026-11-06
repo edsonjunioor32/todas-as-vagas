@@ -579,7 +579,7 @@ class LinkedInSourceTests(unittest.TestCase):
         )
 
     def test_collect_linkedin_normalize_job_mappings(self):
-        """Só selo, declaração explícita e override documentado confirmam modalidade."""
+        """Selo, filtro remoto, descrição explícita e override confirmam modalidade."""
         collect_linkedin.CAPTURED_LINKEDIN_WORKPLACE.clear()
         generic_remote = {
             "job_url": "https://www.linkedin.com/jobs/view/4481004",
@@ -594,8 +594,9 @@ class LinkedInSourceTests(unittest.TestCase):
         norm_generic = collect_linkedin.normalize_linkedin_job(
             generic_remote, is_remote_search=True
         )
-        self.assertEqual(norm_generic["workplaceType"], "")
-        self.assertFalse(norm_generic["workplaceVerified"])
+        self.assertEqual(norm_generic["workplaceType"], "remote")
+        self.assertEqual(norm_generic["workplaceEvidence"], "linkedin_remote_search_filter")
+        self.assertTrue(norm_generic["workplaceVerified"])
 
         explicit_remote = generic_remote | {
             "job_url": "https://www.linkedin.com/jobs/view/4481006",
