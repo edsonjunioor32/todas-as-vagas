@@ -333,7 +333,6 @@ jobs:
           INFOJOBS_MAX_JOBS: "2000"
           INFOJOBS_MAX_SCROLLS: "0"
           JOBS_COLLECTION_CHECKPOINT_DIR: "jobs-dashboard/data/collection_checkpoints"
-        env:
           LINKEDIN_ONLY: ${{ (github.event_name == 'repository_dispatch' && github.event.action == 'linkedin_refresh') || (github.event_name == 'workflow_dispatch' && inputs.publish_linkedin_only) }}
         run: |
           set -euo pipefail
