@@ -1,3 +1,11 @@
+## 2026-11-06 — Correção da modalidade remota do LinkedIn
+
+- **Causa raiz:** a coleta executava uma busca remota do LinkedIn com o filtro `f_WT=2`, mas não usava esse sinal na normalização. Quando o mesmo anúncio aparecia primeiro na busca geral e depois na remota, a deduplicação descartava a segunda ocorrência sem enriquecer a modalidade da primeira. O snapshot de 05/11 registrou 999 resultados gerais e 996 remotos; 995 resultados remotos eram duplicatas, o snapshot final tinha 1.000 anúncios, 0 remotas, 8 presenciais e 992 sem modalidade, apesar da evidência remota presente na consulta.
+- **Correção:** o filtro remoto do próprio LinkedIn passa a ser registrado como evidência `linkedin_remote_search_filter` e aceito pelo adaptador. Para o mesmo ID ou URL, a deduplicação combina a classificação recebida quando ela tem precedência maior que a existente. Selo capturado e override confirmado pelo operador têm precedência sobre o filtro remoto; o filtro remoto prevalece sobre texto descritivo. O teto agregado continua contando anúncios únicos; duplicatas continuam sendo processadas para mesclar evidências mesmo quando o teto é atingido.
+- **Impacto:** atualiza a classificação LinkedIn no catálogo público e, por consequência, na interface que o consome. Outros portais não mudam; a limpeza de modalidade inferida por localização permanece. Telegram e WhatsApp continuam recebendo o mesmo snapshot compartilhado, agora com a modalidade remota disponível.
+- **Risco e rollback:** a classificação remota depende do parâmetro `f_WT=2` aplicado à consulta oficial do LinkedIn. Se a origem alterar o significado desse filtro, reverter as mudanças em `tools/collect_linkedin.py` e `jobs-dashboard/sources/linkedin.py`, depois executar novamente a coleta e a publicação. O snapshot anterior permanece até a nova coleta válida ser publicada.
+- **Validação de produção:** pendente de uma coleta nova e da confirmação do `public-data` e GitHub Pages após a publicação.
+
 # Histórico operacional e mapa de responsabilidades
 
 ## 2026-11-05 — Recuperação independente da coleta do LinkedIn

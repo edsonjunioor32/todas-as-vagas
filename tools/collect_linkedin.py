@@ -38,6 +38,12 @@ VERIFIED_APPLICATION_OVERRIDES = {
 }
 CAPTURED_LINKEDIN_WORKPLACE = {}
 CAPTURED_LINKEDIN_APPLICATION = {}
+WORKPLACE_EVIDENCE_PRIORITY = {
+    "linkedin_badge": 40,
+    "manual_override": 30,
+    "linkedin_remote_search_filter": 20,
+    "description_explicit": 10,
+}
 DEFAULT_HOURS_OLD = 1440
 JOBSPY_BATCH_SIZE = 100
 
@@ -523,6 +529,12 @@ def normalize_linkedin_job(raw_job, is_remote_search=False):
         workplace_type = VERIFIED_WORKPLACE_OVERRIDES.get(str(job_id or ""))
         if workplace_type:
             workplace_evidence = "manual_override"
+    # LinkedIn's dedicated f_WT=2 search is a source-provided remote-work
+    # classification. It outranks descriptive prose, but not the listing badge
+    # or an operator-verified override.
+    if not workplace_type and is_remote_search:
+        workplace_type = "remote"
+        workplace_evidence = "linkedin_remote_search_filter"
     if not workplace_type:
         workplace_type = _explicit_workplace_type_from_description(
             raw_job.get("description")
@@ -780,11 +792,9 @@ def collect_linkedin(
     def add_records(records, *, is_remote_search, pass_name):
         added = 0
         duplicates = 0
+        workplace_enriched_duplicates = 0
         skipped_after_unique_cap = 0
-        for index, raw in enumerate(records):
-            if len(all_jobs_dict) >= MAX_UNIQUE_RESULTS_PER_RUN:
-                skipped_after_unique_cap = len(records) - index
-                break
+        for raw in records:
             normalized = normalize_linkedin_job(
                 raw, is_remote_search=is_remote_search
             )
@@ -793,8 +803,34 @@ def collect_linkedin(
                 or normalized["url"]
                 or f"{normalized['title']}::{normalized['company']}::{normalized['location']}"
             ).casefold()
-            if job_key in all_jobs_dict:
+            existing = all_jobs_dict.get(job_key)
+            if existing is not None:
                 duplicates += 1
+                same_listing = (
+                    bool(existing.get("native_id"))
+                    and existing.get("native_id") == normalized.get("native_id")
+                ) or (
+                    bool(existing.get("url"))
+                    and existing.get("url") == normalized.get("url")
+                )
+                old_evidence = str(existing.get("workplaceEvidence") or "")
+                new_evidence = str(normalized.get("workplaceEvidence") or "")
+                old_priority = WORKPLACE_EVIDENCE_PRIORITY.get(old_evidence, 0)
+                new_priority = WORKPLACE_EVIDENCE_PRIORITY.get(new_evidence, 0)
+                should_enrich_workplace = (
+                    same_listing
+                    and normalized.get("workplaceType")
+                    and normalized.get("workplaceVerified") is True
+                    and new_priority > old_priority
+                )
+                if should_enrich_workplace:
+                    existing["workplaceType"] = normalized["workplaceType"]
+                    existing["workplaceVerified"] = True
+                    existing["workplaceEvidence"] = new_evidence
+                    workplace_enriched_duplicates += 1
+                continue
+            if len(all_jobs_dict) >= MAX_UNIQUE_RESULTS_PER_RUN:
+                skipped_after_unique_cap += 1
                 continue
             all_jobs_dict[job_key] = normalized
             added += 1
@@ -803,13 +839,17 @@ def collect_linkedin(
             coverage.update({
                 "added_unique": added,
                 "duplicates": duplicates,
+                "workplace_enriched_duplicates": workplace_enriched_duplicates,
                 "skipped_after_unique_cap": skipped_after_unique_cap,
                 "unique_count_after": len(all_jobs_dict),
                 "unique_cap_reached": len(all_jobs_dict) >= MAX_UNIQUE_RESULTS_PER_RUN,
             })
         print(
             f"  -> Busca '{pass_name}': {added} novos anúncios únicos; "
-            f"{duplicates} duplicatas; total agregado={len(all_jobs_dict)}."
+            f"{duplicates} duplicatas; modalidades recuperadas em "
+            f"{workplace_enriched_duplicates} duplicatas; "
+            f"{skipped_after_unique_cap} novos registros além do teto; "
+            f"total agregado={len(all_jobs_dict)}."
         )
 
     if terms:

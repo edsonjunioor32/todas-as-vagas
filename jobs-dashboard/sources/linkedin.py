@@ -17,6 +17,7 @@ from ._common import is_brazil_location, iso_date, job, work_model_label
 SOURCE = "linkedin"
 TRUSTED_WORKPLACE_EVIDENCE = {
     "linkedin_badge",
+    "linkedin_remote_search_filter",
     "description_explicit",
     "manual_override",
 }

@@ -204,4 +204,5 @@ Revisão: 2026-11-05. Este documento complementa o inventário **arquivo a arqui
 
 - O catálogo Todas as Vagas não usa termos de cargo como filtro global de inclusão. Cada adaptador deve retornar as vagas públicas elegíveis do próprio portal; a consolidação aplica apenas validação de publicação, localização, prazo, deduplicação e janela de até dois meses.
 - Consultas com termos, quando impostas por um provedor, são somente estratégias aditivas de cobertura e não podem descartar uma vaga retornada pela consulta ampla. Filtros geográficos, de modalidade e de tipo de anúncio devem permanecer explícitos e documentados.
+- LinkedIn: a busca dedicada com `f_WT=2` é evidência da modalidade remota. Na deduplicação, ela pode atualizar a modalidade de um mesmo anúncio identificado por ID ou URL quando a evidência anterior for apenas descritiva ou ausente; não substitui um selo capturado na vaga nem um override confirmado pelo operador.
 - Uma atualização é considerada publicada somente quando o snapshot novo de `public-data` e o GitHub Pages forem confirmados, não apenas quando o workflow terminar verde.
