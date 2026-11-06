@@ -269,12 +269,12 @@ jobs:
         run: python jobs-dashboard/preflight_catalog.py --mode before-collection --snapshot .previous-vagas.json
 
       - name: Atualizar catálogo brasileiro da Greenhouse
-        if: github.event_name == 'workflow_dispatch' || github.event.schedule == '43 7 * * 0'
+        if: (github.event_name == 'workflow_dispatch' || github.event.schedule == '43 7 * * 0') && !((github.event_name == 'workflow_dispatch' && inputs.publish_linkedin_only) || (github.event_name == 'repository_dispatch' && github.event.action == 'linkedin_refresh'))
         continue-on-error: true
         run: python jobs-dashboard/discover_greenhouse_br.py --workers 6 --timeout 12
 
       - name: Descobrir novas empresas InHire
-        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[refresh-fit]'))
+        if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[refresh-fit]'))) && !((github.event_name == 'workflow_dispatch' && inputs.publish_linkedin_only) || (github.event_name == 'repository_dispatch' && github.event.action == 'linkedin_refresh'))
         continue-on-error: true
         env:
           INHIRE_URLSCAN_PAGES: "20"
@@ -290,6 +290,7 @@ jobs:
             inhire-details-v1-
 
       - name: Coletar a InHire
+        if: !((github.event_name == 'workflow_dispatch' && inputs.publish_linkedin_only) || (github.event_name == 'repository_dispatch' && github.event.action == 'linkedin_refresh'))
         continue-on-error: true
         env:
           INHIRE_DETAIL_TTL_HOURS: "24"
@@ -297,6 +298,7 @@ jobs:
         run: node busca_vagas/build_public_inhire.js
 
       - name: Validar a coleta da InHire
+        if: !((github.event_name == 'workflow_dispatch' && inputs.publish_linkedin_only) || (github.event_name == 'repository_dispatch' && github.event.action == 'linkedin_refresh'))
         continue-on-error: true
         shell: bash
         run: |
