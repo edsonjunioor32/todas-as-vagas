@@ -339,9 +339,11 @@ jobs:
         run: |
           set -euo pipefail
           if [ "$LINKEDIN_ONLY" = "true" ]; then
+            echo "CATALOG_COLLECTION_SCOPE=partial:linkedin" >> "$GITHUB_ENV"
             echo "Modo LinkedIn-only: consolidando o snapshot já coletado; os demais portais não serão consultados."
             python jobs-dashboard/pipeline_fit.py --sources linkedin --max-age-months 2
           else
+            echo "CATALOG_COLLECTION_SCOPE=full" >> "$GITHUB_ENV"
             python jobs-dashboard/pipeline_fit.py --max-age-months 2
           fi
 

@@ -86,6 +86,7 @@ jobs:
         env:
           MIN_PUBLIC_JOBS: "500"
           PREVIOUS_SNAPSHOT_PATH: ".previous-vagas.json"
+          CATALOG_COLLECTION_SCOPE: "partial:dynamic"
           MIN_GUARDED_PUBLIC_JOBS: "10000"
           MIN_ALLOWED_PUBLIC_RATIO: "0.5"
           MAX_FAILED_SOURCES: "50"
