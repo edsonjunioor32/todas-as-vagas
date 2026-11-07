@@ -1,3 +1,11 @@
+## 2026-11-06 — Recuperação do runner self-hosted do catálogo
+
+- **Causa raiz confirmada:** a partição `/` da VPS `serverall` chegou a 100% (45 GB usados, 0 bytes livres). O runner `actions.runner.edsonjunioor32-todas-as-vagas.serverall-vagas` entrou em reinício a cada cinco segundos e falhou com `No space left on device` ao criar o próprio diagnóstico; a etapa de dependências da atualização não chegou à coleta.
+- **Origem do crescimento:** o diretório `/home/ubuntu/actions-runner-todas-vagas/_diag` acumulou 285 arquivos `Runner_*.log` de aproximadamente 25 MB cada, cerca de 4,2 GB no total. Não foram removidos imagens, volumes, bancos, snapshots ou dados de vagas.
+- **Ação operacional:** o serviço do runner do catálogo foi parado somente durante a limpeza, os 285 logs de diagnóstico foram removidos por padrão de nome restrito e o serviço foi iniciado novamente. O filesystem passou a 92% de uso, com cerca de 3,9 GB livres; o processo `Runner.Listener` e um `Runner.Worker` permaneceram ativos após a recuperação.
+- **Validação:** a execução manual `42315018149` (`Execução manual do catálogo`, 23:55 UTC) avançou pelo preparo de dependências e Selenium, mas foi bloqueada pelo teste antigo do LinkedIn antes da coleta. A atualização só deve ser repetida depois da validação CI das correções de teste, sem publicar snapshot parcial.
+- **Risco residual:** a margem de disco ainda exige monitoramento; o runner não deve acumular novamente diagnósticos sem retenção. A limpeza foi limitada aos logs do runner quebrado e é reversível apenas por nova execução/geração de diagnóstico, não por restauração de dados de vagas.
+
 ## 2026-11-06 — Bloqueio contra perda silenciosa de fontes em coleta parcial
 
 - **Causa protegida:** execuções parciais, como `LinkedIn-only`, conseguiam publicar um snapshot menor sem declarar que as fontes presentes anteriormente não haviam sido consultadas. Isso podia retirar milhares de vagas de Gupy e de outros portais sem um erro explícito.

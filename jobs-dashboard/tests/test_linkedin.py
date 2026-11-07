@@ -579,7 +579,7 @@ class LinkedInSourceTests(unittest.TestCase):
         )
 
     def test_collect_linkedin_normalize_job_mappings(self):
-        """Selo, filtro remoto, descrição explícita e override confirmam modalidade."""
+        """Selo, descrição explícita e override confirmam modalidade."""
         collect_linkedin.CAPTURED_LINKEDIN_WORKPLACE.clear()
         generic_remote = {
             "job_url": "https://www.linkedin.com/jobs/view/4481004",
@@ -591,12 +591,10 @@ class LinkedInSourceTests(unittest.TestCase):
             "work_from_home_type": "remote",
             "is_remote": True,
         }
-        norm_generic = collect_linkedin.normalize_linkedin_job(
-            generic_remote, is_remote_search=True
-        )
-        self.assertEqual(norm_generic["workplaceType"], "remote")
-        self.assertEqual(norm_generic["workplaceEvidence"], "linkedin_remote_search_filter")
-        self.assertTrue(norm_generic["workplaceVerified"])
+        norm_generic = collect_linkedin.normalize_linkedin_job(generic_remote)
+        self.assertEqual(norm_generic["workplaceType"], "")
+        self.assertEqual(norm_generic["workplaceEvidence"], "")
+        self.assertFalse(norm_generic["workplaceVerified"])
 
         explicit_remote = generic_remote | {
             "job_url": "https://www.linkedin.com/jobs/view/4481006",
@@ -682,29 +680,6 @@ class LinkedInSourceTests(unittest.TestCase):
                 self.assertEqual(normalized["workplaceType"], expected)
                 self.assertTrue(normalized["workplaceVerified"])
 
-    def test_jobspy_patched_search_params_adds_remote_filter(self):
-        """Garante que a busca remota dedicada do JobSpy injeta f_WT=2 no LinkedIn."""
-        try:
-            from jobspy.linkedin import LinkedIn
-        except (ImportError, Exception):
-            self.skipTest("jobspy não instalado neste ambiente de teste")
-            return
-
-        mock_scraper = MagicMock()
-        mock_scraper.scraper_input.search_term = "Suporte"
-        mock_scraper.scraper_input.location = "Brazil"
-        mock_scraper.scraper_input.distance = 50
-        mock_scraper.scraper_input.easy_apply = False
-        mock_scraper.scraper_input.linkedin_company_ids = None
-        mock_scraper.scraper_input.hours_old = 1440
-        mock_scraper.scraper_input.is_remote = True
-
-        params = LinkedIn._search_params(mock_scraper)
-        self.assertEqual(params.get("f_WT"), "2")
-        self.assertNotIn("f_AL", params)
-        self.assertEqual(params.get("f_TPR"), "r5184000")
-
-
     def test_collect_linkedin_open_unrestricted_collection(self):
         """Garante que a coleta padrão do Todas as Vagas seja ampla (sem termos de busca fixos)
         e capture vagas remotas, híbridas e presenciais de áreas diversas.
@@ -753,7 +728,7 @@ class LinkedInSourceTests(unittest.TestCase):
 
         def mock_scrape(*args, **kwargs):
             calls.append(kwargs)
-            if kwargs.get("is_remote"):
+            if kwargs.get("search_term") == collect_linkedin.REMOTE_SEARCH_TERM:
                 return MockDataFrame(records_remote)
             return MockDataFrame(records_general)
 
@@ -772,9 +747,7 @@ class LinkedInSourceTests(unittest.TestCase):
             self.assertEqual(len(results), 3)
             # Confirma que ambas as fases rodaram com search_term=None (sem filtro por cargo)
             self.assertIsNone(calls[0]["search_term"])
-            self.assertFalse(calls[0].get("is_remote", False))
-            self.assertIsNone(calls[1]["search_term"])
-            self.assertTrue(calls[1].get("is_remote", False))
+            self.assertEqual(calls[1]["search_term"], collect_linkedin.REMOTE_SEARCH_TERM)
             self.assertTrue(all("easy_apply" not in call for call in calls))
 
             # Valida presença dos três modelos de trabalho: presencial, híbrido e remoto
@@ -971,7 +944,11 @@ class LinkedInSourceTests(unittest.TestCase):
                 return list(self)
 
         def mock_scrape(**kwargs):
-            prefix = "R" if kwargs.get("is_remote") else "G"
+            prefix = (
+                "R"
+                if kwargs.get("search_term") == collect_linkedin.REMOTE_SEARCH_TERM
+                else "G"
+            )
             start = kwargs["offset"]
             size = kwargs["results_wanted"]
             return MockDataFrame([
@@ -1053,7 +1030,7 @@ class LinkedInSourceTests(unittest.TestCase):
         def mock_scrape(**kwargs):
             start = kwargs["offset"]
             size = kwargs["results_wanted"]
-            if kwargs.get("is_remote"):
+            if kwargs.get("search_term") == collect_linkedin.REMOTE_SEARCH_TERM:
                 rows = []
                 for index in range(start, start + size):
                     job_id = (
@@ -1202,7 +1179,9 @@ class LinkedInSourceTests(unittest.TestCase):
 
                     def mock_scrape(*args, **kwargs):
                         current_pass = (
-                            "remote" if kwargs.get("is_remote") else "general"
+                            "remote"
+                            if kwargs.get("search_term") == collect_linkedin.REMOTE_SEARCH_TERM
+                            else "general"
                         )
                         if current_pass == failed_pass:
                             raise RuntimeError("temporary LinkedIn failure")
