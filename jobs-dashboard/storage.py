@@ -557,8 +557,58 @@ def rewrite_source_market_all(conn, source, replacement):
     return cursor.rowcount
 
 
-def clear_linkedin_work_models(conn):
-    """Clear stale LinkedIn labels before applying the latest verified snapshot."""
+def clear_linkedin_work_models(conn, jobs=None, target_uids=None):
+    """Clear stale LinkedIn labels before applying the latest verified snapshot.
+
+    If jobs or target_uids are provided, only rows being updated in the current
+    snapshot have their work_model reset, preserving the historical modality
+    of prior valid vacancies that did not appear in the latest snapshot.
+    """
+    if jobs is not None or target_uids is not None:
+        uids = set()
+        if target_uids:
+            for item in target_uids:
+                uid_str = str(item or "").strip()
+                if not uid_str:
+                    continue
+                if not uid_str.startswith("linkedin:"):
+                    uid_str = f"linkedin:{uid_str}"
+                uids.add(uid_str)
+        if jobs is not None:
+            for item in jobs:
+                if isinstance(item, dict):
+                    src = item.get("source", "")
+                    if src == "linkedin":
+                        native_or_url = item.get("native_id") or item.get("url")
+                        if native_or_url:
+                            uids.add(f"linkedin:{native_or_url}")
+                elif isinstance(item, str):
+                    s = item.strip()
+                    if s:
+                        if not s.startswith("linkedin:"):
+                            s = f"linkedin:{s}"
+                        uids.add(s)
+        if not uids:
+            return 0
+        cleared = 0
+        uid_list = list(uids)
+        chunk_size = 500
+        for i in range(0, len(uid_list), chunk_size):
+            chunk = uid_list[i : i + chunk_size]
+            placeholders = ",".join("?" for _ in chunk)
+            cursor = conn.execute(
+                f"""
+                UPDATE jobs
+                SET work_model = ''
+                WHERE source = 'linkedin'
+                  AND job_uid IN ({placeholders})
+                  AND TRIM(COALESCE(work_model, '')) <> ''
+                """,
+                chunk,
+            )
+            cleared += cursor.rowcount
+        return cleared
+
     cursor = conn.execute("""
         UPDATE jobs
         SET work_model = ''
@@ -571,7 +621,7 @@ def clear_linkedin_work_models(conn):
 def upsert_linkedin_snapshot(conn, jobs, today=None):
     """Replace stored LinkedIn labels and upsert its snapshot atomically."""
     try:
-        cleared = clear_linkedin_work_models(conn)
+        cleared = clear_linkedin_work_models(conn, jobs=jobs)
         upsert(conn, jobs, today=today)
     except Exception:
         conn.rollback()

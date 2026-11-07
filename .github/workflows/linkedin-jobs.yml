@@ -32,6 +32,11 @@ on:
         required: false
         default: "1440"
         type: string
+      easy_apply_only:
+        description: "Filtrar estritamente por Candidatura Simplificada (Easy Apply via f_AL=true)"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -70,10 +75,15 @@ jobs:
           RESULTS="${{ inputs.results_limit || '1000' }}"
           REMOTE_RESULTS="${{ inputs.remote_results_limit || '1200' }}"
           HOURS="${{ inputs.hours_old || '1440' }}"
+          EXTRA_FLAGS=""
+          if [ "${{ inputs.easy_apply_only }}" = "true" ]; then
+            EXTRA_FLAGS="--easy-apply"
+          fi
           python tools/collect_linkedin.py \
             --results-limit "$RESULTS" \
             --remote-results-limit "$REMOTE_RESULTS" \
             --hours-old "$HOURS" \
+            $EXTRA_FLAGS \
             --output docs/data/linkedin_vagas.json
 
       - name: Validar snapshot antes da publicação

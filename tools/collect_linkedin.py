@@ -48,8 +48,19 @@ WORKPLACE_EVIDENCE_PRIORITY = {
     "manual_override": 30,
     "description_explicit": 10,
 }
+APPLICATION_EVIDENCE_PRIORITY = {
+    "manual_override": 50,
+    "user_screenshot_2026-11-03": 50,
+    "easy_apply_badge": 40,
+    "external_apply_marker": 30,
+    "external_apply_link": 25,
+    "query_filter_f_AL": 20,
+    "conflicting_signals": 5,
+    "no_public_evidence": 0,
+}
 DEFAULT_HOURS_OLD = 1440
 JOBSPY_BATCH_SIZE = 100
+LINKEDIN_BRAZIL_GEO_ID = "106057199"
 
 # Importações condicionais para permitir que módulos de validação/testes importem
 # funções utilitárias (ex: normalize_linkedin_job) mesmo em ambientes de CI leves
@@ -175,8 +186,19 @@ def _normalize_application_text(value):
     return re.sub(r"\s+", " ", text).strip()
 
 
+_APPLICATION_IGNORED_MARKERS = (
+    "similar-jobs", "similar", "carousel", "recommended-jobs", "recommended", "related-jobs", "related"
+)
+_APPLICATION_TOP_CARD_MARKERS = (
+    "top-card-layout", "top-card", "topcard", "unified-top-card"
+)
+_APPLICATION_APPLY_BUTTON_MARKERS = (
+    "apply-button", "jobs-apply-button"
+)
+
+
 class _ApplicationCTAParser(HTMLParser):
-    """Captures text/attributes from apply controls, never from job prose."""
+    """Captures text/attributes from apply controls, never from job prose or similar cards."""
 
     _CONTROL_TAGS = {"a", "button"}
     _CONTROL_MARKERS = ("apply", "application", "candidate")
@@ -186,6 +208,8 @@ class _ApplicationCTAParser(HTMLParser):
         self._elements = []
         self._active_controls = []
         self.controls = []
+        self._ignored_depth = 0
+        self._top_card_depth = 0
 
     def handle_starttag(self, tag, attrs):
         tag_name = str(tag).casefold()
@@ -196,10 +220,33 @@ class _ApplicationCTAParser(HTMLParser):
         markers = " ".join(
             attributes.get(name, "")
             for name in (
-                "class", "data-control-name", "data-test-id", "data-testid",
+                "class", "id", "data-control-name", "data-test-id", "data-testid",
                 "aria-label", "title", "role",
             )
         ).casefold()
+        is_void = tag_name in _APPLICATION_VOID_TAGS
+
+        is_ignored_start = any(m in markers for m in _APPLICATION_IGNORED_MARKERS)
+        if is_ignored_start and not is_void:
+            self._ignored_depth += 1
+
+        is_top_card_start = any(m in markers for m in _APPLICATION_TOP_CARD_MARKERS)
+        if is_top_card_start and not is_void:
+            self._top_card_depth += 1
+
+        if self._ignored_depth > 0:
+            if not is_void:
+                self._elements.append({
+                    "tag": tag_name,
+                    "control": None,
+                    "ignored_start": is_ignored_start,
+                    "top_card_start": False,
+                })
+            return
+
+        is_apply_button = any(m in markers for m in _APPLICATION_APPLY_BUTTON_MARKERS)
+        in_top_card = self._top_card_depth > 0
+
         is_control = (
             tag_name in self._CONTROL_TAGS
             or attributes.get("role", "").casefold() == "button"
@@ -209,11 +256,19 @@ class _ApplicationCTAParser(HTMLParser):
             "tag": tag_name,
             "attributes": attributes,
             "text": [],
+            "in_top_card": in_top_card,
+            "is_apply_button": is_apply_button,
         } if is_control else None
+
         if control:
             self._active_controls.append(control)
-        if tag_name not in _APPLICATION_VOID_TAGS:
-            self._elements.append({"tag": tag_name, "control": control})
+        if not is_void:
+            self._elements.append({
+                "tag": tag_name,
+                "control": control,
+                "ignored_start": False,
+                "top_card_start": is_top_card_start,
+            })
         elif control:
             self._finish_control(control)
 
@@ -223,18 +278,26 @@ class _ApplicationCTAParser(HTMLParser):
             self.handle_endtag(tag)
 
     def handle_data(self, data):
+        if self._ignored_depth > 0:
+            return
         for control in self._active_controls:
             control["text"].append(data)
 
     def handle_endtag(self, tag):
         tag_name = str(tag).casefold()
+        if tag_name in _APPLICATION_VOID_TAGS:
+            return
         for index in range(len(self._elements) - 1, -1, -1):
             if self._elements[index]["tag"] != tag_name:
                 continue
             closing = self._elements[index:]
             del self._elements[index:]
             for element in reversed(closing):
-                control = element["control"]
+                if element.get("ignored_start"):
+                    self._ignored_depth = max(0, self._ignored_depth - 1)
+                if element.get("top_card_start"):
+                    self._top_card_depth = max(0, self._top_card_depth - 1)
+                control = element.get("control")
                 if control:
                     self._finish_control(control)
             return
@@ -276,9 +339,15 @@ def _extract_application_evidence_from_html(html):
     except Exception:
         return unknown
 
+    priority_controls = [
+        c for c in parser.controls
+        if c.get("in_top_card") or c.get("is_apply_button")
+    ]
+    candidate_controls = priority_controls if priority_controls else parser.controls
+
     signals = set()
     evidence = set()
-    for control in parser.controls:
+    for control in candidate_controls:
         attributes = control["attributes"]
         label = _normalize_application_text(
             " ".join(
@@ -287,7 +356,7 @@ def _extract_application_evidence_from_html(html):
                     attributes.get(name, "")
                     for name in (
                         "aria-label", "title", "data-control-name",
-                        "data-test-id", "data-testid", "class",
+                        "data-test-id", "data-testid", "class", "value", "name",
                     )
                 ]
             )
@@ -442,6 +511,19 @@ try:
 
     LinkedIn._fetch_details = _patched_linkedin_fetch_details
 
+    # Injeta geoId do Brasil (106057199) nas buscas públicas do LinkedIn
+    if hasattr(LinkedIn, "_search_params"):
+        _orig_linkedin_search_params = LinkedIn._search_params
+
+        def _patched_linkedin_search_params(self):
+            params = _orig_linkedin_search_params(self)
+            loc = str(getattr(self.scraper_input, "location", "") or "").casefold()
+            if "brazil" in loc or "brasil" in loc or not loc:
+                params["geoId"] = LINKEDIN_BRAZIL_GEO_ID
+            return params
+
+        LinkedIn._search_params = _patched_linkedin_search_params
+
     # Interceptador resiliente para tratar HTTP 429 com backoff exponencial e Retry-After
     if hasattr(jl, "create_session"):
         _orig_create_session = jl.create_session
@@ -451,6 +533,12 @@ try:
             orig_get = sess.get
 
             def _resilient_get(url, *args, **kwargs):
+                if "jobs-guest/jobs/api/seeMoreJobPostings/search" in str(url):
+                    params = kwargs.setdefault("params", {})
+                    if isinstance(params, dict):
+                        loc = str(params.get("location", "")).casefold()
+                        if "brazil" in loc or "brasil" in loc or not loc:
+                            params.setdefault("geoId", LINKEDIN_BRAZIL_GEO_ID)
                 max_retries = 3
                 for attempt in range(max_retries):
                     resp = orig_get(url, *args, **kwargs)
@@ -491,7 +579,7 @@ def clean_value(val):
     return val
 
 
-def normalize_linkedin_job(raw_job):
+def normalize_linkedin_job(raw_job, *, query_filter_easy_apply=False):
     """
     Converte o registro bruto do JobSpy para a estrutura padronizada
     do projeto 'Todas as Vagas'.
@@ -538,6 +626,10 @@ def normalize_linkedin_job(raw_job):
         application_type, application_verified, application_evidence = (
             VERIFIED_APPLICATION_OVERRIDES[str(job_id)]
         )
+    elif query_filter_easy_apply and application_type == "unknown":
+        application_type = "easy_apply"
+        application_verified = True
+        application_evidence = "query_filter_f_AL"
 
     # Data de publicação
     date_posted = clean_value(raw_job.get("date_posted")) or ""
@@ -710,6 +802,7 @@ def collect_linkedin(
     hours_old=DEFAULT_HOURS_OLD,
     out_path="docs/data/linkedin_vagas.json",
     include_remote_pass=True,
+    easy_apply=False,
 ):
     if scrape_jobs is None:
         raise RuntimeError("A biblioteca 'python-jobspy' é necessária para executar collect_linkedin")
@@ -718,10 +811,15 @@ def collect_linkedin(
     requested_remote_limit = max(0, int(remote_results_limit))
     CAPTURED_LINKEDIN_WORKPLACE.clear()
     CAPTURED_LINKEDIN_APPLICATION.clear()
+    filter_mode_label = (
+        "Candidatura Simplificada (Easy Apply via f_AL=true)"
+        if easy_apply
+        else "sem filtro por candidatura (aberta)"
+    )
     print("=== [LinkedIn Jobs Collector] Iniciando coleta pública aberta ===")
     print(
-        f"Critérios: Localização='{location}', Horas={hours_old} "
-        f"(~{hours_old//24} dias), sem filtro por candidatura."
+        f"Critérios: Localização='{location}' (geoId={LINKEDIN_BRAZIL_GEO_ID}), "
+        f"Horas={hours_old} (~{hours_old//24} dias), modo={filter_mode_label}."
     )
     print(
         f"[Limites] Busca geral solicitada={requested_general_limit}; "
@@ -735,14 +833,14 @@ def collect_linkedin(
     collection_errors = []
     pass_coverage = []
 
-    def scrape_pass(name, limit, **kwargs):
+    def scrape_pass(name, limit, max_results=JOBSPY_MAX_RESULTS_PER_QUERY, **kwargs):
         coverage = {}
         remaining_unique_before_pass = (
             MAX_UNIQUE_RESULTS_PER_RUN - len(all_jobs_dict)
         )
         records = _scrape_jobs_in_pages(
             results_limit=limit,
-            max_results=JOBSPY_MAX_RESULTS_PER_QUERY,
+            max_results=max_results,
             coverage=coverage,
             **kwargs,
         )
@@ -777,13 +875,15 @@ def collect_linkedin(
             )
         return records
 
-    def add_records(records, *, pass_name):
+    def add_records(records, *, pass_name, query_filter_easy_apply=False):
         added = 0
         duplicates = 0
         workplace_enriched_duplicates = 0
         skipped_after_unique_cap = 0
         for raw in records:
-            normalized = normalize_linkedin_job(raw)
+            normalized = normalize_linkedin_job(
+                raw, query_filter_easy_apply=query_filter_easy_apply
+            )
             job_key = (
                 normalized["native_id"]
                 or normalized["url"]
@@ -814,6 +914,21 @@ def collect_linkedin(
                     existing["workplaceVerified"] = True
                     existing["workplaceEvidence"] = new_evidence
                     workplace_enriched_duplicates += 1
+
+                old_app_evidence = str(existing.get("applicationEvidence") or "")
+                new_app_evidence = str(normalized.get("applicationEvidence") or "")
+                old_app_priority = APPLICATION_EVIDENCE_PRIORITY.get(old_app_evidence, 0)
+                new_app_priority = APPLICATION_EVIDENCE_PRIORITY.get(new_app_evidence, 0)
+                should_enrich_application = (
+                    same_listing
+                    and normalized.get("applicationType")
+                    and normalized.get("applicationVerified") is True
+                    and new_app_priority > old_app_priority
+                )
+                if should_enrich_application:
+                    existing["applicationType"] = normalized["applicationType"]
+                    existing["applicationVerified"] = True
+                    existing["applicationEvidence"] = new_app_evidence
                 continue
             if len(all_jobs_dict) >= MAX_UNIQUE_RESULTS_PER_RUN:
                 skipped_after_unique_cap += 1
@@ -838,6 +953,10 @@ def collect_linkedin(
             f"total agregado={len(all_jobs_dict)}."
         )
 
+    scrape_kwargs = {}
+    if easy_apply:
+        scrape_kwargs["easy_apply"] = True
+
     if terms:
         print(f"[Modo Direcionado] Consultando termos específicos ({len(terms)}): {terms}")
         for i, term in enumerate(terms, 1):
@@ -859,9 +978,14 @@ def collect_linkedin(
                     description_format="markdown",
                     fetch_description=True,
                     verbose=0,
+                    **scrape_kwargs,
                 )
                 if records:
-                    add_records(records, pass_name=f"termo:{term}")
+                    add_records(
+                        records,
+                        pass_name=f"termo:{term}",
+                        query_filter_easy_apply=easy_apply,
+                    )
                 else:
                     print(f"  -> Nenhuma vaga encontrada para '{term}'.")
             except Exception as error:
@@ -885,31 +1009,37 @@ def collect_linkedin(
                 description_format="markdown",
                 fetch_description=True,
                 verbose=0,
+                **scrape_kwargs,
             )
             if records:
-                add_records(records, pass_name="general")
+                add_records(
+                    records,
+                    pass_name="general",
+                    query_filter_easy_apply=easy_apply,
+                )
             else:
                 print("  -> Nenhuma vaga encontrada na varredura geral.")
         except Exception as error:
             print(f"  [Aviso] Falha na varredura geral: {error}")
             collection_errors.append(f"busca geral: {error}")
 
-        if include_remote_pass and requested_remote_limit > 0:
-            time.sleep(2)
-
+        remaining = MAX_UNIQUE_RESULTS_PER_RUN - len(all_jobs_dict)
         if (
             include_remote_pass
             and requested_remote_limit > 0
-            and len(all_jobs_dict) < MAX_UNIQUE_RESULTS_PER_RUN
+            and remaining > 0
         ):
+            time.sleep(2)
             print(
                 "\n[Fase 2/2] Buscando candidatos por palavras de modalidade "
                 "(remoto/remota/remote/home office; a consulta não prova a modalidade)..."
             )
+            phase2_limit = min(remaining, JOBSPY_MAX_RESULTS_PER_QUERY)
             try:
                 records = scrape_pass(
                     "remote_keyword_candidates",
                     requested_remote_limit,
+                    max_results=phase2_limit,
                     site_name=["linkedin"],
                     search_term=REMOTE_SEARCH_TERM,
                     location=location,
@@ -917,9 +1047,14 @@ def collect_linkedin(
                     description_format="markdown",
                     fetch_description=True,
                     verbose=0,
+                    **scrape_kwargs,
                 )
                 if records:
-                    add_records(records, pass_name="remote_keyword_candidates")
+                    add_records(
+                        records,
+                        pass_name="remote_keyword_candidates",
+                        query_filter_easy_apply=easy_apply,
+                    )
                 else:
                     print("  -> Nenhum candidato encontrado pela busca de palavras de modalidade.")
             except Exception as error:
@@ -980,7 +1115,7 @@ def collect_linkedin(
     payload = {
         "schema_version": 1,
         "source": "linkedin",
-        "filter": "public_brazil",
+        "filter": "easy_apply" if easy_apply else "public_brazil",
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "count": len(collected_list),
         "limits": {
@@ -988,6 +1123,7 @@ def collect_linkedin(
             "max_unique_per_run": MAX_UNIQUE_RESULTS_PER_RUN,
             "requested_general": requested_general_limit,
             "requested_remote": requested_remote_limit if include_remote_pass else 0,
+            "easy_apply": bool(easy_apply),
         },
         "coverage": pass_coverage,
         "jobs": collected_list,
@@ -1035,8 +1171,8 @@ def collect_linkedin(
                 "a busca por palavras serve apenas para descobrir candidatos.\n\n"
             )
             summary.write(
-                f"- **Filtros:** Brasil, últimas {hours_old//24} dias, "
-                "sem filtro por tipo de candidatura.\n\n"
+                f"- **Filtros:** Brasil (geoId={LINKEDIN_BRAZIL_GEO_ID}), "
+                f"últimas {hours_old//24} dias, {filter_mode_label}.\n\n"
             )
             for item in pass_coverage:
                 statuses = []
@@ -1104,6 +1240,11 @@ if __name__ == "__main__":
     parser.add_argument("--hours-old", type=int, default=DEFAULT_HOURS_OLD, help="Horas desde a publicação (1440 = 60 dias)")
     parser.add_argument("--output", type=str, default="docs/data/linkedin_vagas.json", help="Caminho do arquivo de saída")
     parser.add_argument("--skip-remote-pass", action="store_true", help="Pular a busca complementar por palavras de modalidade (descoberta de candidatos)")
+    parser.add_argument(
+        "--easy-apply",
+        action="store_true",
+        help="Filtrar por Candidatura Simplificada (Easy Apply via f_AL=true)",
+    )
     args = parser.parse_args()
 
     collect_linkedin(
@@ -1114,4 +1255,5 @@ if __name__ == "__main__":
         hours_old=args.hours_old,
         out_path=args.output,
         include_remote_pass=not args.skip_remote_pass,
+        easy_apply=args.easy_apply,
     )

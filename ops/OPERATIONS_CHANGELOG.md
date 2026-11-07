@@ -1,3 +1,19 @@
+## 2026-11-07 — Otimização e correções estruturais na coleta e persistência do LinkedIn
+
+- **Orçamento dinâmico na Fase 2 (`tools/collect_linkedin.py`):** cálculo de `remaining = MAX_UNIQUE_RESULTS_PER_RUN - len(all_jobs_dict)`. Se `remaining <= 0`, a Fase 2 é pulada sem requisições desnecessárias; se `remaining > 0`, a consulta é estritamente limitada a `min(remaining, JOBSPY_MAX_RESULTS_PER_QUERY)` como limite efetivo, eliminando o download inútil e descarte de centenas de vagas que inflavam a duração do workflow no CI.
+- **Isolamento do parser de candidatura (`_ApplicationCTAParser`):** detecção restrita ao cabeçalho/painel principal (`top-card-layout`, `top-card`, `topcard`) e controles prioritários (`apply-button`, `jobs-apply-button`), com suporte a atributos `value`/`name` para elementos de botão/input e ignorando explicitamente seções de vagas similares e carrosséis no rodapé (`similar-jobs`, `carousel`, `recommended-jobs`, `recommended`, `related-jobs`, `related`), prevenindo falsos positivos e sinais conflitantes.
+- **Injeção de `geoId=106057199` do Brasil:** parâmetros de consulta ao LinkedIn guest recebem obrigatoriamente `geoId="106057199"` em `LinkedIn._search_params` e na sessão resiliente, garantindo que 100% dos resultados pertençam ao Brasil e prevenindo vazamento geográfico internacional.
+- **Suporte e rastreabilidade de Candidatura Simplificada (`f_AL=true`):** adicionada flag `--easy-apply` no coletor e input `easy_apply_only` no workflow `linkedin-jobs.yml`. Quando ativo, JobSpy aplica o filtro nativo `f_AL=true` do LinkedIn e as vagas sem selo individual no HTML recebem proveniência explícita `query_filter_f_AL` e `filter: "easy_apply"` no snapshot, com enriquecimento hierárquico em duplicatas via `APPLICATION_EVIDENCE_PRIORITY`.
+- **Preservação de modalidade histórica (`jobs-dashboard/storage.py`):** `clear_linkedin_work_models(conn, jobs=jobs, target_uids=target_uids)` corrigido para redefinir a modalidade estritamente das vagas fornecidas mesmo quando chamado apenas com `target_uids` ou lista vazia, evitando a limpeza inadvertida de toda a tabela e preservando intactas as modalidades históricas de vagas anteriores válidas do LinkedIn armazenadas no banco.
+- **Validação:** 100% de aprovação na suíte de testes com 92 testes unitários (`test_linkedin.py`, `test_pipeline.py`, `test_preflight_catalog.py`, `test_validate_snapshot.py`).
+
+## 2026-11-07 — Atualização integral após recuperação do runner
+
+- **Execução confirmada:** o agendador da VPS repetiu de forma idempotente o slot pendente (`attempt=2`) após o merge do commit `07dab8c`; o workflow `42317073815` concluiu com sucesso.
+- **Validação do fluxo:** Greenhouse, descoberta/coleta do InHire, consolidação dos portais, validações de integridade, publicação dos snapshots, preservação do histórico e deploy do GitHub Pages passaram sem falha.
+- **Snapshot público conferido:** `generated_at=2026-11-07T01:07:31.591433+00:00`, `82.208` vagas, `64.052` coletadas na execução e `18.156` preservadas. Gupy voltou ao catálogo com `13.717` vagas; LinkedIn ficou com `2.043`, Skeelo com `14` e Heineken com `239`.
+- **Pós-execução:** o runner permaneceu `active/running`, com `6,9 GB` livres (85% de uso) e `_diag` em `139 MB`. O snapshot foi conferido no endpoint público antes de encerrar a recuperação.
+
 ## 2026-11-06 — Recuperação do runner self-hosted do catálogo
 
 - **Causa raiz confirmada:** a partição `/` da VPS `serverall` chegou a 100% (45 GB usados, 0 bytes livres). O runner `actions.runner.edsonjunioor32-todas-as-vagas.serverall-vagas` entrou em reinício a cada cinco segundos e falhou com `No space left on device` ao criar o próprio diagnóstico; a etapa de dependências da atualização não chegou à coleta.
