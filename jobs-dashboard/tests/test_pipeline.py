@@ -347,6 +347,101 @@ class StorageTests(unittest.TestCase):
             )
             conn.close()
 
+    def test_upsert_linkedin_snapshot_preserves_historical_work_models_not_in_current_batch(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            conn = storage.connect(str(Path(temporary) / "jobs.db"))
+            storage.upsert(
+                conn,
+                [
+                    sample_job("linkedin", "hist_1", work_model="remote"),
+                    sample_job("linkedin", "hist_2", work_model="hybrid"),
+                ],
+                today="2026-08-20",
+            )
+            cleared = storage.upsert_linkedin_snapshot(
+                conn,
+                [
+                    sample_job("linkedin", "hist_2", work_model=""),
+                    sample_job("linkedin", "new_3", work_model="on-site"),
+                ],
+                today="2026-08-21",
+            )
+            self.assertEqual(cleared, 1)
+            # hist_1 was not in the snapshot: historical work_model 'remote' is preserved!
+            self.assertEqual(
+                conn.execute(
+                    "SELECT work_model FROM jobs WHERE job_uid = 'linkedin:hist_1'"
+                ).fetchone()[0],
+                "remote",
+            )
+            # hist_2 was in the snapshot with empty work_model: updated to empty
+            self.assertEqual(
+                conn.execute(
+                    "SELECT work_model FROM jobs WHERE job_uid = 'linkedin:hist_2'"
+                ).fetchone()[0],
+                "",
+            )
+            # new_3 was inserted with on-site
+            self.assertEqual(
+                conn.execute(
+                    "SELECT work_model FROM jobs WHERE job_uid = 'linkedin:new_3'"
+                ).fetchone()[0],
+                "on-site",
+            )
+            conn.close()
+
+    def test_clear_linkedin_work_models_with_target_uids_only_preserves_unmentioned_rows(self):
+        """target_uids sem jobs deve limpar apenas os UIDs alvo e preservar as demais vagas."""
+        with tempfile.TemporaryDirectory() as temporary:
+            conn = storage.connect(str(Path(temporary) / "jobs.db"))
+            storage.upsert(
+                conn,
+                [
+                    sample_job("linkedin", "u1", work_model="remote"),
+                    sample_job("linkedin", "u2", work_model="hybrid"),
+                ],
+                today="2026-08-20",
+            )
+            # Limpa especificando apenas target_uids (com e sem prefixo 'linkedin:')
+            cleared = storage.clear_linkedin_work_models(
+                conn, target_uids=["u1"]
+            )
+            self.assertEqual(cleared, 1)
+            # u1 foi limpa
+            self.assertEqual(
+                conn.execute(
+                    "SELECT work_model FROM jobs WHERE job_uid = 'linkedin:u1'"
+                ).fetchone()[0],
+                "",
+            )
+            # u2 NÃO foi tocada e preserva 'hybrid'
+            self.assertEqual(
+                conn.execute(
+                    "SELECT work_model FROM jobs WHERE job_uid = 'linkedin:u2'"
+                ).fetchone()[0],
+                "hybrid",
+            )
+            conn.close()
+
+    def test_clear_linkedin_work_models_with_empty_jobs_list_does_not_wipe_rows(self):
+        """Passar jobs=[] não deve apagar modalidades de vagas existentes."""
+        with tempfile.TemporaryDirectory() as temporary:
+            conn = storage.connect(str(Path(temporary) / "jobs.db"))
+            storage.upsert(
+                conn,
+                [sample_job("linkedin", "u1", work_model="remote")],
+                today="2026-08-20",
+            )
+            cleared = storage.clear_linkedin_work_models(conn, jobs=[])
+            self.assertEqual(cleared, 0)
+            self.assertEqual(
+                conn.execute(
+                    "SELECT work_model FROM jobs WHERE job_uid = 'linkedin:u1'"
+                ).fetchone()[0],
+                "remote",
+            )
+            conn.close()
+
     def test_rewrite_source_market_repairs_legacy_senior_rows(self):
         with tempfile.TemporaryDirectory() as temporary:
             conn = storage.connect(str(Path(temporary) / "jobs.db"))

@@ -985,10 +985,9 @@ class LinkedInSourceTests(unittest.TestCase):
                 for call in log_print.call_args_list
                 if call.args
             )
-            self.assertEqual(
-                limit_log.count("solicitado=1200, efetivo=1000"), 2
-            )
-            self.assertNotIn("teto agregado (1200)", limit_log)
+            self.assertIn("Busca 'general': solicitado=1200, efetivo=1000", limit_log)
+            self.assertIn("Busca 'remote_keyword_candidates': solicitado=1200, efetivo=200", limit_log)
+            self.assertIn("orçamento da busca (200)", limit_log)
 
             payload = json.loads(snapshot_path.read_text(encoding="utf-8"))
             self.assertEqual(len(rows), 1200)
@@ -998,17 +997,17 @@ class LinkedInSourceTests(unittest.TestCase):
             self.assertEqual(
                 [(item["requested_limit"], item["effective_limit"])
                  for item in payload["coverage"]],
-                [(1200, 1000), (1200, 1000)],
+                [(1200, 1000), (1200, 200)],
             )
             self.assertTrue(payload["coverage"][0]["clamped_by_query_limit"])
-            self.assertTrue(payload["coverage"][1]["clamped_by_query_limit"])
-            self.assertFalse(payload["coverage"][1]["clamped_by_pass_budget"])
+            self.assertTrue(payload["coverage"][1]["clamped_by_pass_budget"])
             self.assertEqual(
                 [item["added_unique"] for item in payload["coverage"]], [1000, 200]
             )
+            # Elimination of wasted downloads: 0 records skipped beyond the aggregate cap!
             self.assertEqual(
                 [item["skipped_after_unique_cap"] for item in payload["coverage"]],
-                [0, 800],
+                [0, 0],
             )
             self.assertEqual(
                 len({job["native_id"] for job in payload["jobs"]}), 1200
@@ -1074,11 +1073,11 @@ class LinkedInSourceTests(unittest.TestCase):
                 )
 
             payload = json.loads(snapshot_path.read_text(encoding="utf-8"))
-            self.assertEqual(len(rows), 1002)
-            self.assertEqual(payload["count"], 1002)
+            self.assertEqual(len(rows), 912)
+            self.assertEqual(payload["count"], 912)
             self.assertEqual(
                 [item["returned"] for item in payload["coverage"]],
-                [290, 1000],
+                [290, 910],
             )
             self.assertEqual(
                 [item["remaining_unique_before_pass"] for item in payload["coverage"]],
@@ -1090,8 +1089,13 @@ class LinkedInSourceTests(unittest.TestCase):
             )
             self.assertEqual(
                 [item["added_unique"] for item in payload["coverage"]],
-                [290, 712],
+                [290, 622],
             )
+            self.assertEqual(
+                [item["effective_limit"] for item in payload["coverage"]],
+                [1000, 910],
+            )
+            self.assertTrue(payload["coverage"][1]["clamped_by_pass_budget"])
             self.assertFalse(payload["coverage"][1]["unique_cap_reached"])
 
     def test_aggregate_cap_also_applies_across_search_terms_and_deduplicates(self):
@@ -1210,6 +1214,203 @@ class LinkedInSourceTests(unittest.TestCase):
             today=today,
         )
         self.assertIsNotNone(row)
+
+    def test_phase2_skipped_when_phase1_hits_aggregate_cap(self):
+        """Se a Fase 1 já atinge o teto de únicos (remaining <= 0), a Fase 2 não é disparada."""
+        calls = []
+
+        class MockDataFrame(list):
+            @property
+            def empty(self):
+                return len(self) == 0
+
+            def to_dict(self, orient="records"):
+                return list(self)
+
+        def mock_scrape(**kwargs):
+            calls.append(dict(kwargs))
+            start = kwargs["offset"]
+            size = kwargs["results_wanted"]
+            return MockDataFrame([
+                {
+                    "id": f"li-{start + index}",
+                    "job_url": f"https://www.linkedin.com/jobs/view/{start + index}",
+                    "title": f"Vaga {start + index}",
+                    "company": "Empresa Teste",
+                    "location": "Brazil",
+                    "date_posted": date.today().isoformat(),
+                }
+                for index in range(size)
+            ])
+
+        with tempfile.TemporaryDirectory() as temporary:
+            snapshot_path = Path(temporary) / "linkedin.json"
+            with patch.object(
+                collect_linkedin, "MAX_UNIQUE_RESULTS_PER_RUN", 1000
+            ), patch.object(
+                collect_linkedin, "scrape_jobs", side_effect=mock_scrape
+            ), patch.object(collect_linkedin.time, "sleep"):
+                rows = collect_linkedin.collect_linkedin(
+                    results_limit=1000,
+                    remote_results_limit=1200,
+                    out_path=str(snapshot_path),
+                )
+
+            # Fase 1 coletou 1000 vagas, atingindo o teto de 1000. Fase 2 NÃO foi disparada.
+            self.assertEqual(len(rows), 1000)
+            self.assertTrue(all(call.get("search_term") is None for call in calls))
+
+    def test_application_parser_ignores_similar_jobs_and_carousels(self):
+        """Parser ignora botões/links em seções de vagas similares e rodapé, priorizando top card."""
+        html_with_similar = """
+        <div class="top-card-layout">
+            <h1 class="top-card-layout__title">Engenheiro de Software</h1>
+            <a class="apply-button" href="https://external-company.com/apply/123">Candidatar-se no site da empresa</a>
+        </div>
+        <div class="similar-jobs">
+            <div class="similar-jobs__item">
+                <button class="jobs-apply-button">Candidatura simplificada</button>
+            </div>
+        </div>
+        <div class="jobs-carousel">
+            <button>Easy Apply</button>
+        </div>
+        """
+        evidence = collect_linkedin._extract_application_evidence_from_html(html_with_similar)
+        self.assertEqual(evidence, ("external", True, "external_apply_marker"))
+
+        html_with_easy_apply_top_card = """
+        <section class="top-card-layout">
+            <button class="jobs-apply-button">Candidatura simplificada</button>
+        </section>
+        <section class="recommended-jobs">
+            <a href="https://other.com/apply">Apply externally</a>
+        </section>
+        """
+        evidence2 = collect_linkedin._extract_application_evidence_from_html(html_with_easy_apply_top_card)
+        self.assertEqual(evidence2, ("easy_apply", True, "easy_apply_badge"))
+
+        html_with_input_submit = """
+        <div class="top-card-layout">
+            <input type="submit" class="jobs-apply-button" value="Candidatura simplificada" />
+        </div>
+        """
+        evidence3 = collect_linkedin._extract_application_evidence_from_html(html_with_input_submit)
+        self.assertEqual(evidence3, ("easy_apply", True, "easy_apply_badge"))
+
+    def test_linkedin_injects_brazil_geo_id_in_search_params(self):
+        """LinkedIn scraper injeta geoId=106057199 para consultas no Brasil."""
+        try:
+            from jobspy.linkedin import LinkedIn
+        except ImportError:
+            self.skipTest("jobspy não instalado neste ambiente")
+            return
+
+        mock_input = MagicMock()
+        mock_input.search_term = "python"
+        mock_input.location = "Brazil"
+        mock_input.distance = 50
+        mock_input.easy_apply = True
+        mock_input.linkedin_company_ids = None
+        mock_input.hours_old = 24
+
+        scraper = LinkedIn()
+        scraper.scraper_input = mock_input
+        params = scraper._search_params()
+        self.assertEqual(params.get("geoId"), collect_linkedin.LINKEDIN_BRAZIL_GEO_ID)
+        self.assertEqual(params.get("geoId"), "106057199")
+        self.assertEqual(params.get("f_AL"), "true")
+
+    def test_easy_apply_f_al_sets_query_filter_provenance(self):
+        """Quando o filtro easy_apply está ativo, o snapshot recebe filter='easy_apply' e evidência query_filter_f_AL."""
+        record = {
+            "id": "li-8888",
+            "job_url": "https://www.linkedin.com/jobs/view/8888",
+            "title": "Analista de Dados",
+            "company": "Empresa",
+            "location": "São Paulo, São Paulo, Brazil",
+            "date_posted": date.today().isoformat(),
+        }
+
+        class MockDataFrame(list):
+            @property
+            def empty(self):
+                return len(self) == 0
+
+            def to_dict(self, orient="records"):
+                return list(self)
+
+        scrape_calls = []
+
+        def mock_scrape(**kwargs):
+            scrape_calls.append(dict(kwargs))
+            return MockDataFrame([record])
+
+        with tempfile.TemporaryDirectory() as temporary:
+            snapshot_path = Path(temporary) / "linkedin.json"
+            with patch.object(
+                collect_linkedin, "scrape_jobs", side_effect=mock_scrape
+            ), patch.object(collect_linkedin.time, "sleep"):
+                rows = collect_linkedin.collect_linkedin(
+                    results_limit=10,
+                    remote_results_limit=0,
+                    include_remote_pass=False,
+                    easy_apply=True,
+                    out_path=str(snapshot_path),
+                )
+
+            self.assertEqual(len(rows), 1)
+            self.assertTrue(scrape_calls[0].get("easy_apply"))
+
+            payload = json.loads(snapshot_path.read_text(encoding="utf-8"))
+            self.assertEqual(payload["filter"], "easy_apply")
+            self.assertTrue(payload["limits"]["easy_apply"])
+
+            target_job = payload["jobs"][0]
+            self.assertEqual(target_job["applicationType"], "easy_apply")
+            self.assertTrue(target_job["applicationVerified"])
+            self.assertEqual(target_job["applicationEvidence"], "query_filter_f_AL")
+
+    def test_duplicate_job_enriches_application_evidence_when_higher_priority(self):
+        """Varredura subsequente enriquece evidência de candidatura de vaga duplicada."""
+        record = {
+            "id": "li-9999",
+            "job_url": "https://www.linkedin.com/jobs/view/9999",
+            "title": "Analista",
+            "company": "Empresa",
+            "location": "Brazil",
+            "date_posted": date.today().isoformat(),
+        }
+
+        class MockDataFrame(list):
+            @property
+            def empty(self):
+                return len(self) == 0
+
+            def to_dict(self, orient="records"):
+                return list(self)
+
+        def mock_scrape(**kwargs):
+            return MockDataFrame([record])
+
+        with tempfile.TemporaryDirectory() as temporary:
+            snapshot_path = Path(temporary) / "linkedin.json"
+            with patch.object(
+                collect_linkedin, "scrape_jobs", side_effect=mock_scrape
+            ), patch.object(collect_linkedin.time, "sleep"):
+                rows = collect_linkedin.collect_linkedin(
+                    terms=["first", "second"],
+                    results_limit=10,
+                    remote_results_limit=0,
+                    include_remote_pass=False,
+                    easy_apply=True,
+                    out_path=str(snapshot_path),
+                )
+
+            self.assertEqual(len(rows), 1)
+            payload = json.loads(snapshot_path.read_text(encoding="utf-8"))
+            self.assertEqual(payload["jobs"][0]["applicationType"], "easy_apply")
+            self.assertEqual(payload["jobs"][0]["applicationEvidence"], "query_filter_f_AL")
 
 
 if __name__ == "__main__":
