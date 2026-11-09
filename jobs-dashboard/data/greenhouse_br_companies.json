@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-09T11:33:58.379540+00:00",
+  "generated_at": "2026-11-09T14:33:20.939332+00:00",
   "candidate_count": 8331,
   "company_count": 195,
   "companies": [
@@ -22,7 +22,7 @@
     {
       "board": "adyen",
       "company": "Adyen",
-      "brazil_jobs": 9
+      "brazil_jobs": 10
     },
     {
       "board": "aestudio",
@@ -32,7 +32,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 97
+      "brazil_jobs": 100
     },
     {
       "board": "agilize",
@@ -117,7 +117,7 @@
     {
       "board": "axicom",
       "company": "Axicom",
-      "brazil_jobs": 1
+      "brazil_jobs": 2
     },
     {
       "board": "axon",
@@ -132,7 +132,7 @@
     {
       "board": "bancopan",
       "company": "Banco PAN",
-      "brazil_jobs": 15
+      "brazil_jobs": 14
     },
     {
       "board": "bees",
@@ -437,7 +437,7 @@
     {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 76
+      "brazil_jobs": 74
     },
     {
       "board": "harnessinc",
@@ -587,7 +587,7 @@
     {
       "board": "napratica",
       "company": "Na Prática",
-      "brazil_jobs": 5
+      "brazil_jobs": 4
     },
     {
       "board": "tripactions",
@@ -817,7 +817,7 @@
     {
       "board": "sumup",
       "company": "SumUp",
-      "brazil_jobs": 40
+      "brazil_jobs": 39
     },
     {
       "board": "syndigo",
@@ -867,7 +867,7 @@
     {
       "board": "thoughtworks",
       "company": "Thoughtworks",
-      "brazil_jobs": 2
+      "brazil_jobs": 1
     },
     {
       "board": "thunes",
@@ -917,7 +917,7 @@
     {
       "board": "wundermanthompson",
       "company": "VML",
-      "brazil_jobs": 23
+      "brazil_jobs": 22
     },
     {
       "board": "vmlenterprisesolutions",
@@ -937,7 +937,7 @@
     {
       "board": "gympass",
       "company": "Wellhub",
-      "brazil_jobs": 34
+      "brazil_jobs": 32
     },
     {
       "board": "wildlifestudios",
@@ -962,7 +962,7 @@
     {
       "board": "wppmedia",
       "company": "WPP Media",
-      "brazil_jobs": 44
+      "brazil_jobs": 43
     },
     {
       "board": "xpinc",
@@ -977,7 +977,7 @@
     {
       "board": "ilia",
       "company": "ília",
-      "brazil_jobs": 15
+      "brazil_jobs": 12
     }
   ]
 }
