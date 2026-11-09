@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-08T18:34:00.556289+00:00",
+  "generated_at": "2026-11-08T23:34:24.318970+00:00",
   "candidate_count": 8331,
   "company_count": 195,
   "companies": [
@@ -567,7 +567,7 @@
     {
       "board": "monks",
       "company": "Monks",
-      "brazil_jobs": 46
+      "brazil_jobs": 44
     },
     {
       "board": "monumentsoftwareinc",
