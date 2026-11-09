@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-08T23:34:24.318970+00:00",
+  "generated_at": "2026-11-09T11:33:58.379540+00:00",
   "candidate_count": 8331,
   "company_count": 195,
   "companies": [
@@ -32,7 +32,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 98
+      "brazil_jobs": 97
     },
     {
       "board": "agilize",
@@ -137,7 +137,7 @@
     {
       "board": "bees",
       "company": "BEES",
-      "brazil_jobs": 53
+      "brazil_jobs": 52
     },
     {
       "board": "blip-global",
@@ -302,7 +302,7 @@
     {
       "board": "ebury",
       "company": "Ebury",
-      "brazil_jobs": 6
+      "brazil_jobs": 4
     },
     {
       "board": "elastic",
@@ -362,7 +362,7 @@
     {
       "board": "feverup",
       "company": "FeverUp",
-      "brazil_jobs": 21
+      "brazil_jobs": 20
     },
     {
       "board": "figma",
@@ -437,7 +437,7 @@
     {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 75
+      "brazil_jobs": 76
     },
     {
       "board": "harnessinc",
@@ -512,7 +512,7 @@
     {
       "board": "knowbe4",
       "company": "KnowBe4",
-      "brazil_jobs": 11
+      "brazil_jobs": 10
     },
     {
       "board": "launch2",
@@ -842,7 +842,7 @@
     {
       "board": "telnyx54",
       "company": "Telnyx",
-      "brazil_jobs": 3
+      "brazil_jobs": 2
     },
     {
       "board": "thanx",
