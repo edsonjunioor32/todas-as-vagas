@@ -28,7 +28,21 @@ DEFAULT_REMOTE_RESULTS_LIMIT = 1200
 JOBSPY_MAX_RESULTS_PER_QUERY = 1000
 MAX_UNIQUE_RESULTS_PER_RUN = 1200
 MAX_JOBS_PER_COMPANY = 25
-DEFAULT_PRIORITY_TERMS = ("Flash", "Tecnologia", "Software", "Produto", "Dados")
+# Tech clusters:
+# 1. Engenharia de Software/Backend/Fullstack ("Software")
+# 2. Frontend & Mobile ("Frontend")
+# 3. Dados & IA ("Dados")
+# 4. Produto & UX ("Produto")
+# 5. DevOps & Segurança ("DevOps")
+# 6. QA & Automação ("QA")
+DEFAULT_PRIORITY_TERMS = (
+    "Software",
+    "Frontend",
+    "Dados",
+    "Produto",
+    "DevOps",
+    "QA",
+)
 # These keywords discover candidates only; modality still needs per-job evidence.
 REMOTE_SEARCH_TERM = 'remoto OR remota OR remote OR "home office" OR "work from home"'
 # Verified against public LinkedIn job descriptions or user-provided evidence.
@@ -48,8 +62,11 @@ CAPTURED_LINKEDIN_APPLICATION = {}
 WORKPLACE_EVIDENCE_PRIORITY = {
     "linkedin_badge": 40,
     "manual_override": 30,
+    "query_filter_f_WT": 20,
     "description_explicit": 10,
 }
+_CURRENT_PASS_F_WT = None
+_CURRENT_EASY_APPLY = False
 APPLICATION_EVIDENCE_PRIORITY = {
     "manual_override": 50,
     "user_screenshot_2026-11-03": 50,
@@ -576,16 +593,28 @@ try:
 
     LinkedIn._fetch_details = _patched_linkedin_fetch_details
 
-    # Injeta geoId do Brasil (106057199) nas buscas públicas do LinkedIn
+    def _inject_linkedin_search_params(params, scraper_input=None):
+        if not isinstance(params, dict):
+            return params
+        loc = str((scraper_input and getattr(scraper_input, "location", None)) or params.get("location", "") or "").casefold()
+        if "brazil" in loc or "brasil" in loc or not loc:
+            params["geoId"] = LINKEDIN_BRAZIL_GEO_ID
+        params["f_E"] = "2,3,4"
+        params["f_TPR"] = "r604800"
+        params["sortBy"] = "DD"
+        if (scraper_input and getattr(scraper_input, "easy_apply", False)) or _CURRENT_EASY_APPLY:
+            params["f_AL"] = "true"
+        if _CURRENT_PASS_F_WT:
+            params["f_WT"] = str(_CURRENT_PASS_F_WT)
+        return params
+
+    # Injeta parâmetros otimizados nas buscas públicas do LinkedIn
     if hasattr(LinkedIn, "_search_params"):
         _orig_linkedin_search_params = LinkedIn._search_params
 
         def _patched_linkedin_search_params(self):
             params = _orig_linkedin_search_params(self)
-            loc = str(getattr(self.scraper_input, "location", "") or "").casefold()
-            if "brazil" in loc or "brasil" in loc or not loc:
-                params["geoId"] = LINKEDIN_BRAZIL_GEO_ID
-            return params
+            return _inject_linkedin_search_params(params, self.scraper_input)
 
         LinkedIn._search_params = _patched_linkedin_search_params
 
@@ -600,10 +629,7 @@ try:
             def _resilient_get(url, *args, **kwargs):
                 if "jobs-guest/jobs/api/seeMoreJobPostings/search" in str(url):
                     params = kwargs.setdefault("params", {})
-                    if isinstance(params, dict):
-                        loc = str(params.get("location", "")).casefold()
-                        if "brazil" in loc or "brasil" in loc or not loc:
-                            params.setdefault("geoId", LINKEDIN_BRAZIL_GEO_ID)
+                    _inject_linkedin_search_params(params, scraper_input)
                 max_retries = 3
                 for attempt in range(max_retries):
                     resp = orig_get(url, *args, **kwargs)
@@ -664,7 +690,12 @@ def _normalize_company_name(name):
     return re.sub(r"\s+", " ", clean).strip().casefold()
 
 
-def normalize_linkedin_job(raw_job, *, query_filter_easy_apply=False):
+def normalize_linkedin_job(
+    raw_job,
+    *,
+    query_filter_easy_apply=False,
+    query_filter_workplace_type=None,
+):
     """
     Converte o registro bruto do JobSpy para a estrutura padronizada
     do projeto 'Todas as Vagas'.
@@ -688,13 +719,16 @@ def normalize_linkedin_job(raw_job, *, query_filter_easy_apply=False):
     location = clean_value(raw_job.get("location")) or "Brazil"
 
     # Search terms and generic JobSpy fields are not workplace evidence.
-    # Accept only the detail-page badge, a verified override, or explicit text.
+    # Accept detail-page badge, verified override, native query filter (f_WT), or explicit text.
     workplace_type = CAPTURED_LINKEDIN_WORKPLACE.get(str(job_id or ""))
     workplace_evidence = "linkedin_badge" if workplace_type else ""
     if not workplace_type:
         workplace_type = VERIFIED_WORKPLACE_OVERRIDES.get(str(job_id or ""))
         if workplace_type:
             workplace_evidence = "manual_override"
+    if not workplace_type and query_filter_workplace_type:
+        workplace_type = query_filter_workplace_type
+        workplace_evidence = "query_filter_f_WT"
     if not workplace_type:
         workplace_type = _explicit_workplace_type_from_description(
             raw_job.get("description")
@@ -883,6 +917,22 @@ def _scrape_jobs_in_pages(
     return collected
 
 
+def build_linkedin_search_params(location="Brazil", easy_apply=False, f_wt=None):
+    """Gera parâmetros canônicos de busca pública do LinkedIn."""
+    params = {"location": location}
+    loc = str(location or "").casefold()
+    if "brazil" in loc or "brasil" in loc or not loc:
+        params["geoId"] = LINKEDIN_BRAZIL_GEO_ID
+    params["f_E"] = "2,3,4"
+    params["f_TPR"] = "r604800"
+    params["sortBy"] = "DD"
+    if easy_apply:
+        params["f_AL"] = "true"
+    if f_wt:
+        params["f_WT"] = str(f_wt)
+    return params
+
+
 def collect_linkedin(
     terms=None,
     location="Brazil",
@@ -891,6 +941,8 @@ def collect_linkedin(
     hours_old=DEFAULT_HOURS_OLD,
     out_path="docs/data/linkedin_vagas.json",
     include_remote_pass=True,
+    include_hybrid_pass=False,
+    hybrid_results_limit=None,
     easy_apply=False,
     max_jobs_per_company=MAX_JOBS_PER_COMPANY,
     priority_terms=None,
@@ -898,6 +950,8 @@ def collect_linkedin(
     if scrape_jobs is None:
         raise RuntimeError("A biblioteca 'python-jobspy' é necessária para executar collect_linkedin")
 
+    global _CURRENT_EASY_APPLY
+    _CURRENT_EASY_APPLY = bool(easy_apply)
     requested_general_limit = max(0, int(results_limit))
     requested_remote_limit = max(0, int(remote_results_limit))
     CAPTURED_LINKEDIN_WORKPLACE.clear()
@@ -926,49 +980,61 @@ def collect_linkedin(
     pass_coverage = []
     company_counts = {}
 
-    def scrape_pass(name, limit, max_results=JOBSPY_MAX_RESULTS_PER_QUERY, **kwargs):
-        coverage = {}
-        remaining_unique_before_pass = (
-            MAX_UNIQUE_RESULTS_PER_RUN - len(all_jobs_dict)
-        )
-        records = _scrape_jobs_in_pages(
-            results_limit=limit,
-            max_results=max_results,
-            coverage=coverage,
-            **kwargs,
-        )
-        coverage["name"] = name
-        coverage["remaining_unique_before_pass"] = remaining_unique_before_pass
-        pass_coverage.append(coverage)
+    def scrape_pass(name, limit, max_results=JOBSPY_MAX_RESULTS_PER_QUERY, f_wt=None, **kwargs):
+        global _CURRENT_PASS_F_WT
+        prev_f_wt = _CURRENT_PASS_F_WT
+        _CURRENT_PASS_F_WT = f_wt
+        try:
+            coverage = {}
+            remaining_unique_before_pass = (
+                MAX_UNIQUE_RESULTS_PER_RUN - len(all_jobs_dict)
+            )
+            records = _scrape_jobs_in_pages(
+                results_limit=limit,
+                max_results=max_results,
+                coverage=coverage,
+                **kwargs,
+            )
+            coverage["name"] = name
+            coverage["remaining_unique_before_pass"] = remaining_unique_before_pass
+            pass_coverage.append(coverage)
 
-        if coverage["effective_limit"] < coverage["requested_limit"]:
-            reasons = []
-            if coverage["clamped_by_query_limit"]:
-                reasons.append(
-                    f"limite por consulta ({JOBSPY_MAX_RESULTS_PER_QUERY})"
+            if coverage["effective_limit"] < coverage["requested_limit"]:
+                reasons = []
+                if coverage["clamped_by_query_limit"]:
+                    reasons.append(
+                        f"limite por consulta ({JOBSPY_MAX_RESULTS_PER_QUERY})"
+                    )
+                if coverage["clamped_by_pass_budget"]:
+                    reasons.append(
+                        f"orçamento da busca ({coverage['pass_budget']})"
+                    )
+                print(
+                    f"  [Aviso] Busca '{name}': solicitado="
+                    f"{coverage['requested_limit']}, efetivo="
+                    f"{coverage['effective_limit']} ({' e '.join(reasons)})."
                 )
-            if coverage["clamped_by_pass_budget"]:
-                reasons.append(
-                    f"orçamento da busca ({coverage['pass_budget']})"
+            if coverage.get("limit_reached"):
+                print(
+                    f"  [Aviso] A busca '{name}' atingiu seu limite efetivo de "
+                    f"{coverage['effective_limit']} resultados; podem existir "
+                    f"vagas fora do lote consultado."
                 )
-            print(
-                f"  [Aviso] Busca '{name}': solicitado="
-                f"{coverage['requested_limit']}, efetivo="
-                f"{coverage['effective_limit']} ({' e '.join(reasons)})."
-            )
-        if coverage.get("limit_reached"):
-            print(
-                f"  [Aviso] A busca '{name}' atingiu seu limite efetivo de "
-                f"{coverage['effective_limit']} resultados; podem existir "
-                f"vagas fora do lote consultado."
-            )
-        if coverage.get("stopped_without_progress"):
-            print(
-                f"  [Aviso] A busca '{name}' parou sem novos IDs; cobertura potencialmente incompleta."
-            )
-        return records
+            if coverage.get("stopped_without_progress"):
+                print(
+                    f"  [Aviso] A busca '{name}' parou sem novos IDs; cobertura potencialmente incompleta."
+                )
+            return records
+        finally:
+            _CURRENT_PASS_F_WT = prev_f_wt
 
-    def add_records(records, *, pass_name, query_filter_easy_apply=False):
+    def add_records(
+        records,
+        *,
+        pass_name,
+        query_filter_easy_apply=False,
+        query_filter_workplace_type=None,
+    ):
         added = 0
         duplicates = 0
         workplace_enriched_duplicates = 0
@@ -976,7 +1042,9 @@ def collect_linkedin(
         skipped_company_cap = 0
         for raw in records:
             normalized = normalize_linkedin_job(
-                raw, query_filter_easy_apply=query_filter_easy_apply
+                raw,
+                query_filter_easy_apply=query_filter_easy_apply,
+                query_filter_workplace_type=query_filter_workplace_type,
             )
             job_key = (
                 normalized["native_id"]
@@ -1192,7 +1260,7 @@ def collect_linkedin(
             time.sleep(2)
             print(
                 "\n[Fase Final] Buscando candidatos por palavras de modalidade "
-                "(remoto/remota/remote/home office; a consulta não prova a modalidade)..."
+                "(remoto/remota/remote/home office; f_WT=2)..."
             )
             phase2_limit = min(remaining, JOBSPY_MAX_RESULTS_PER_QUERY)
             try:
@@ -1207,6 +1275,7 @@ def collect_linkedin(
                     description_format="markdown",
                     fetch_description=True,
                     verbose=0,
+                    f_wt="2",
                     **scrape_kwargs,
                 )
                 if records:
@@ -1214,6 +1283,7 @@ def collect_linkedin(
                         records,
                         pass_name="remote_keyword_candidates",
                         query_filter_easy_apply=easy_apply,
+                        query_filter_workplace_type="remote",
                     )
                 else:
                     print("  -> Nenhum candidato encontrado pela busca de palavras de modalidade.")
@@ -1223,6 +1293,51 @@ def collect_linkedin(
         elif include_remote_pass and requested_remote_limit > 0:
             print(
                 f"  [Aviso] Busca remota não executada: teto agregado de "
+                f"{MAX_UNIQUE_RESULTS_PER_RUN} vagas únicas já atingido."
+            )
+
+        remaining = MAX_UNIQUE_RESULTS_PER_RUN - len(all_jobs_dict)
+        if (
+            include_hybrid_pass
+            and (hybrid_results_limit or requested_remote_limit) > 0
+            and remaining > 0
+        ):
+            time.sleep(2)
+            print(
+                "\n[Fase Híbrida] Buscando vagas híbridas via filtro nativo (f_WT=3)..."
+            )
+            hybrid_limit = hybrid_results_limit or requested_remote_limit
+            phase_hybrid_limit = min(remaining, JOBSPY_MAX_RESULTS_PER_QUERY)
+            try:
+                records = scrape_pass(
+                    "hybrid_pass",
+                    hybrid_limit,
+                    max_results=phase_hybrid_limit,
+                    site_name=["linkedin"],
+                    search_term=None,
+                    location=location,
+                    hours_old=hours_old,
+                    description_format="markdown",
+                    fetch_description=True,
+                    verbose=0,
+                    f_wt="3",
+                    **scrape_kwargs,
+                )
+                if records:
+                    add_records(
+                        records,
+                        pass_name="hybrid_pass",
+                        query_filter_easy_apply=easy_apply,
+                        query_filter_workplace_type="hybrid",
+                    )
+                else:
+                    print("  -> Nenhuma vaga híbrida encontrada.")
+            except Exception as error:
+                print(f"  [Aviso] Falha na busca híbrida: {error}")
+                collection_errors.append(f"busca híbrida: {error}")
+        elif include_hybrid_pass and (hybrid_results_limit or requested_remote_limit) > 0:
+            print(
+                f"  [Aviso] Busca híbrida não executada: teto agregado de "
                 f"{MAX_UNIQUE_RESULTS_PER_RUN} vagas únicas já atingido."
             )
 
@@ -1400,7 +1515,18 @@ if __name__ == "__main__":
     )
     parser.add_argument("--hours-old", type=int, default=DEFAULT_HOURS_OLD, help="Horas desde a publicação (1440 = 60 dias)")
     parser.add_argument("--output", type=str, default="docs/data/linkedin_vagas.json", help="Caminho do arquivo de saída")
-    parser.add_argument("--skip-remote-pass", action="store_true", help="Pular a busca complementar por palavras de modalidade (descoberta de candidatos)")
+    parser.add_argument("--skip-remote-pass", action="store_true", help="Pular a busca complementar por vagas remotas (f_WT=2)")
+    parser.add_argument(
+        "--include-hybrid-pass",
+        action="store_true",
+        help="Executar busca complementar por vagas híbridas (f_WT=3)",
+    )
+    parser.add_argument(
+        "--hybrid-results-limit",
+        type=int,
+        default=DEFAULT_REMOTE_RESULTS_LIMIT,
+        help="Orçamento para busca complementar de vagas híbridas (f_WT=3)",
+    )
     parser.add_argument(
         "--easy-apply",
         action="store_true",
@@ -1416,7 +1542,7 @@ if __name__ == "__main__":
         "--priority-terms",
         nargs="*",
         default=list(DEFAULT_PRIORITY_TERMS),
-        help="Termos ou empresas prioritárias para consulta direcionada (ex: Flash Tecnologia...)",
+        help="Clusters prioritários de tecnologia para consulta direcionada (ex: Software Frontend Dados Produto DevOps QA)",
     )
     parser.add_argument(
         "--skip-priority-terms",
@@ -1434,6 +1560,8 @@ if __name__ == "__main__":
         hours_old=args.hours_old,
         out_path=args.output,
         include_remote_pass=not args.skip_remote_pass,
+        include_hybrid_pass=args.include_hybrid_pass,
+        hybrid_results_limit=args.hybrid_results_limit,
         easy_apply=args.easy_apply,
         max_jobs_per_company=args.max_jobs_per_company,
         priority_terms=priority_terms,

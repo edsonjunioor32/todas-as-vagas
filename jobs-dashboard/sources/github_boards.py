@@ -5,6 +5,7 @@ Each repository below is a community board where an open issue represents an
 active vacancy. The GitHub REST endpoint is public and stable; failures in an
 individual board are isolated so the full collection remains available.
 """
+import os
 from ._common import iso_date, strip_html, work_model_label, job
 from ._http import get_json
 
@@ -22,9 +23,16 @@ REPOSITORIES = [
     "devfsa/vagas",
     "developersRJ/vagas",
     "devmatogrosso/vagas",
+    "soujava/vagas-java",
+    "datascience-br/vagas",
+    "androiddevbr/vagas",
+    "qa-brasil/vagas",
 ]
 API = "https://api.github.com/repos/{repo}/issues?state=open&sort=created&direction=desc&per_page=100"
 HEADERS = {"Accept": "application/vnd.github+json"}
+_token = os.environ.get("GITHUB_TOKEN")
+if _token and _token.strip():
+    HEADERS["Authorization"] = f"Bearer {_token.strip()}"
 
 
 def _location(labels):
@@ -33,10 +41,16 @@ def _location(labels):
 
 
 def fetch():
+    token = os.environ.get("GITHUB_TOKEN")
+    if token and token.strip():
+        HEADERS["Authorization"] = f"Bearer {token.strip()}"
+    else:
+        HEADERS.pop("Authorization", None)
+    headers = dict(HEADERS)
     rows = []
     for repository in REPOSITORIES:
         try:
-            issues = get_json(API.format(repo=repository), headers=HEADERS, timeout=30, retries=2)
+            issues = get_json(API.format(repo=repository), headers=headers, timeout=30, retries=2)
         except Exception as error:
             print(f"    [github:{repository}] {str(error)[:60]}")
             continue

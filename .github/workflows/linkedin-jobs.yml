@@ -43,9 +43,9 @@ on:
         default: "25"
         type: string
       priority_terms:
-        description: "Termos ou empresas prioritárias (ex: Flash Tecnologia Software Produto Dados)"
+        description: "Clusters prioritários de tecnologia (Software Frontend Dados Produto DevOps QA)"
         required: false
-        default: "Flash Tecnologia Software Produto Dados"
+        default: "Software Frontend Dados Produto DevOps QA"
         type: string
 
 permissions:
@@ -86,7 +86,7 @@ jobs:
           REMOTE_RESULTS="${{ inputs.remote_results_limit || '1200' }}"
           HOURS="${{ inputs.hours_old || '1440' }}"
           MAX_COMPANY="${{ inputs.max_jobs_per_company || '25' }}"
-          PRIORITY="${{ inputs.priority_terms || 'Flash Tecnologia Software Produto Dados' }}"
+          PRIORITY="${{ inputs.priority_terms || 'Software Frontend Dados Produto DevOps QA' }}"
           EXTRA_FLAGS=""
           if [ "${{ inputs.easy_apply_only }}" = "true" ]; then
             EXTRA_FLAGS="--easy-apply"

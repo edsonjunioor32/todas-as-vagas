@@ -19,6 +19,7 @@ TRUSTED_WORKPLACE_EVIDENCE = {
     "linkedin_badge",
     "description_explicit",
     "manual_override",
+    "query_filter_f_WT",
 }
 # Verified manual overrides remain available for snapshots without evidence metadata.
 LEGACY_VERIFIED_WORKPLACE_OVERRIDES = {

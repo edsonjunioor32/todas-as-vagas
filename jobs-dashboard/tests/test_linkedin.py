@@ -1495,12 +1495,12 @@ class LinkedInSourceTests(unittest.TestCase):
             }
             for i in range(40)
         ]
-        flash_records = [
+        acme_records = [
             {
-                "id": f"li-flash-{i}",
+                "id": f"li-acme-{i}",
                 "job_url": f"https://www.linkedin.com/jobs/view/2000{i}",
                 "title": f"Engenheiro de Software {i}",
-                "company": "Flash",
+                "company": "Acme",
                 "location": "São Paulo, Brazil",
                 "date_posted": date.today().isoformat(),
             }
@@ -1518,7 +1518,7 @@ class LinkedInSourceTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             snapshot_path = Path(temporary) / "linkedin.json"
             with patch.object(
-                collect_linkedin, "scrape_jobs", return_value=MockDataFrame(jobbol_records + flash_records)
+                collect_linkedin, "scrape_jobs", return_value=MockDataFrame(jobbol_records + acme_records)
             ), patch.object(collect_linkedin.time, "sleep"):
                 rows = collect_linkedin.collect_linkedin(
                     results_limit=100,
@@ -1528,12 +1528,12 @@ class LinkedInSourceTests(unittest.TestCase):
                     out_path=str(snapshot_path),
                 )
 
-            # 25 vagas da Jobbol (15 podadas pelo teto) + 10 da Flash = 35 vagas totais
+            # 25 vagas da Jobbol (15 podadas pelo teto) + 10 da Acme = 35 vagas totais
             self.assertEqual(len(rows), 35)
             jobbol_count = sum(1 for r in rows if r["company"] == "Jobbol")
-            flash_count = sum(1 for r in rows if r["company"] == "Flash")
+            acme_count = sum(1 for r in rows if r["company"] == "Acme")
             self.assertEqual(jobbol_count, 25)
-            self.assertEqual(flash_count, 10)
+            self.assertEqual(acme_count, 10)
 
             payload = json.loads(snapshot_path.read_text(encoding="utf-8"))
             self.assertEqual(payload["coverage"][0]["skipped_company_cap"], 15)
@@ -1598,7 +1598,7 @@ class LinkedInSourceTests(unittest.TestCase):
         def mock_scrape(**kwargs):
             scrape_calls.append(dict(kwargs))
             term = kwargs.get("search_term")
-            company = "Flash" if term == "Flash" else "Tech Corp"
+            company = "Tech Corp"
             return MockDataFrame([
                 {
                     "id": f"li-{term or 'general'}-1",
@@ -1617,23 +1617,23 @@ class LinkedInSourceTests(unittest.TestCase):
             ), patch.object(collect_linkedin.time, "sleep"):
                 rows = collect_linkedin.collect_linkedin(
                     terms=None,
-                    priority_terms=["Flash", "Tecnologia"],
+                    priority_terms=["Software", "Frontend"],
                     results_limit=10,
                     remote_results_limit=5,
                     out_path=str(snapshot_path),
                 )
 
             searched_terms = [call.get("search_term") for call in scrape_calls]
-            self.assertIn("Flash", searched_terms)
-            self.assertIn("Tecnologia", searched_terms)
+            self.assertIn("Software", searched_terms)
+            self.assertIn("Frontend", searched_terms)
             self.assertIn(None, searched_terms)
             self.assertIn(collect_linkedin.REMOTE_SEARCH_TERM, searched_terms)
 
             payload = json.loads(snapshot_path.read_text(encoding="utf-8"))
             pass_names = [cov["name"] for cov in payload["coverage"]]
             self.assertIn("general", pass_names)
-            self.assertIn("prioritario:Flash", pass_names)
-            self.assertIn("prioritario:Tecnologia", pass_names)
+            self.assertIn("prioritario:Software", pass_names)
+            self.assertIn("prioritario:Frontend", pass_names)
             self.assertIn("remote_keyword_candidates", pass_names)
 
     def test_priority_terms_run_before_general_sweep(self):
@@ -1669,15 +1669,15 @@ class LinkedInSourceTests(unittest.TestCase):
             ), patch.object(collect_linkedin.time, "sleep"):
                 rows = collect_linkedin.collect_linkedin(
                     terms=None,
-                    priority_terms=["Flash", "Tecnologia"],
+                    priority_terms=["Software", "Frontend"],
                     results_limit=10,
                     remote_results_limit=5,
                     out_path=str(snapshot_path),
                 )
 
-            # Os dois primeiros scrapes DEVEM ser os termos prioritários (Flash e Tecnologia)
-            self.assertEqual(scrape_calls[0].get("search_term"), "Flash")
-            self.assertEqual(scrape_calls[1].get("search_term"), "Tecnologia")
+            # Os dois primeiros scrapes DEVEM ser os termos prioritários (Software e Frontend)
+            self.assertEqual(scrape_calls[0].get("search_term"), "Software")
+            self.assertEqual(scrape_calls[1].get("search_term"), "Frontend")
             self.assertIsNone(scrape_calls[2].get("search_term"))  # general
             self.assertEqual(scrape_calls[3].get("search_term"), collect_linkedin.REMOTE_SEARCH_TERM)
 
@@ -1758,7 +1758,7 @@ class LinkedInSourceTests(unittest.TestCase):
         """Botão de apply explícito prevalece sobre links auxiliares do top-card, evitando sinais conflitantes."""
         html = (
             '<div class="top-card-layout">'
-            '  <a class="topcard__org-name-link" href="https://flashapp.com.br/apply">Visite nossa empresa</a>'
+            '  <a class="topcard__org-name-link" href="https://company.com.br/apply">Visite nossa empresa</a>'
             '  <button class="apply-button apply-button--default" data-tracking-control-name="public_jobs_apply-link-onsite">Candidatar-se</button>'
             '</div>'
         )
@@ -1766,6 +1766,151 @@ class LinkedInSourceTests(unittest.TestCase):
             collect_linkedin._extract_application_evidence_from_html(html),
             ("easy_apply", True, "easy_apply_badge"),
         )
+
+    def test_sources_linkedin_accepts_query_filter_f_wt_evidence(self):
+        """jobs-dashboard/sources/linkedin.py aceita query_filter_f_WT para remote e hybrid."""
+        for modality in ("remote", "hybrid"):
+            with self.subTest(modality=modality):
+                path = self._write_snapshot(
+                    self._payload(
+                        job={
+                            "workplaceType": modality,
+                            "workplaceVerified": True,
+                            "workplaceEvidence": "query_filter_f_WT",
+                        }
+                    )
+                )
+                try:
+                    with patch.dict(
+                        os.environ,
+                        {"LINKEDIN_SNAPSHOT_PATH": str(path)},
+                        clear=False,
+                    ):
+                        rows = linkedin.fetch()
+                finally:
+                    path.unlink(missing_ok=True)
+                self.assertEqual(len(rows), 1)
+                self.assertEqual(rows[0]["work_model"], modality)
+
+    def test_sources_linkedin_rejects_untrusted_workplace_evidence(self):
+        """Evidence desconhecida ou não confiável não valida a modalidade."""
+        path = self._write_snapshot(
+            self._payload(
+                job={
+                    "workplaceType": "remote",
+                    "workplaceVerified": True,
+                    "workplaceEvidence": "untrusted_keyword",
+                }
+            )
+        )
+        try:
+            with patch.dict(
+                os.environ,
+                {"LINKEDIN_SNAPSHOT_PATH": str(path)},
+                clear=False,
+            ):
+                rows = linkedin.fetch()
+        finally:
+            path.unlink(missing_ok=True)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["work_model"], "")
+
+    def test_collect_linkedin_normalize_with_query_filter_workplace(self):
+        """normalize_linkedin_job gera query_filter_f_WT e prioridade 20."""
+        record = {
+            "id": "li-8888",
+            "job_url": "https://www.linkedin.com/jobs/view/8888",
+            "title": "Desenvolvedor Backend",
+            "company": "Empresa Tech",
+            "location": "São Paulo, Brazil",
+            "date_posted": date.today().isoformat(),
+        }
+        collect_linkedin.CAPTURED_LINKEDIN_WORKPLACE.clear()
+        normalized = collect_linkedin.normalize_linkedin_job(
+            record, query_filter_workplace_type="remote"
+        )
+        self.assertEqual(normalized["workplaceType"], "remote")
+        self.assertTrue(normalized["workplaceVerified"])
+        self.assertEqual(normalized["workplaceEvidence"], "query_filter_f_WT")
+
+    def test_collect_linkedin_evidence_priority_hierarchy(self):
+        """Verifica que WORKPLACE_EVIDENCE_PRIORITY posiciona query_filter_f_WT (20) acima de description_explicit (10) e abaixo de manual_override (30)."""
+        self.assertEqual(collect_linkedin.WORKPLACE_EVIDENCE_PRIORITY["linkedin_badge"], 40)
+        self.assertEqual(collect_linkedin.WORKPLACE_EVIDENCE_PRIORITY["manual_override"], 30)
+        self.assertEqual(collect_linkedin.WORKPLACE_EVIDENCE_PRIORITY["query_filter_f_WT"], 20)
+        self.assertEqual(collect_linkedin.WORKPLACE_EVIDENCE_PRIORITY["description_explicit"], 10)
+
+    def test_collect_linkedin_search_params_injection(self):
+        """Parâmetros de busca injetam f_E, f_TPR, sortBy, f_AL e f_WT conforme especificado."""
+        params = collect_linkedin.build_linkedin_search_params(
+            location="Brazil", easy_apply=True, f_wt="2"
+        )
+        self.assertEqual(params.get("f_E"), "2,3,4")
+        self.assertEqual(params.get("f_TPR"), "r604800")
+        self.assertEqual(params.get("sortBy"), "DD")
+        self.assertEqual(params.get("f_AL"), "true")
+        self.assertEqual(params.get("f_WT"), "2")
+        self.assertEqual(params.get("geoId"), collect_linkedin.LINKEDIN_BRAZIL_GEO_ID)
+
+        # Teste híbrido f_WT=3
+        params_hybrid = collect_linkedin.build_linkedin_search_params(
+            location="Brazil", easy_apply=False, f_wt="3"
+        )
+        self.assertEqual(params_hybrid.get("f_WT"), "3")
+        self.assertNotIn("f_AL", params_hybrid)
+
+    def test_collect_linkedin_default_priority_terms_tech_clusters(self):
+        """DEFAULT_PRIORITY_TERMS não contém Flash e define clusters de tecnologia."""
+        self.assertNotIn("Flash", collect_linkedin.DEFAULT_PRIORITY_TERMS)
+        expected_clusters = ("Software", "Frontend", "Dados", "Produto", "DevOps", "QA")
+        for cluster in expected_clusters:
+            self.assertIn(cluster, collect_linkedin.DEFAULT_PRIORITY_TERMS)
+
+    def test_collect_linkedin_runs_hybrid_pass_when_enabled(self):
+        """Quando include_hybrid_pass=True, executa passe separado para híbrido com f_WT=3."""
+        scrape_calls = []
+
+        class MockDataFrame(list):
+            @property
+            def empty(self):
+                return len(self) == 0
+
+            def to_dict(self, orient="records"):
+                return list(self)
+
+        def mock_scrape(**kwargs):
+            scrape_calls.append(dict(kwargs))
+            return MockDataFrame([
+                {
+                    "id": f"li-{len(scrape_calls)}",
+                    "job_url": f"https://www.linkedin.com/jobs/view/{len(scrape_calls)}",
+                    "title": f"Vaga {len(scrape_calls)}",
+                    "company": "Tech Corp",
+                    "location": "Brazil",
+                    "date_posted": date.today().isoformat(),
+                }
+            ])
+
+        with tempfile.TemporaryDirectory() as temporary:
+            snapshot_path = Path(temporary) / "linkedin.json"
+            with patch.object(
+                collect_linkedin, "scrape_jobs", side_effect=mock_scrape
+            ), patch.object(collect_linkedin.time, "sleep"):
+                rows = collect_linkedin.collect_linkedin(
+                    terms=None,
+                    results_limit=10,
+                    remote_results_limit=5,
+                    include_remote_pass=True,
+                    include_hybrid_pass=True,
+                    hybrid_results_limit=5,
+                    out_path=str(snapshot_path),
+                )
+
+            payload = json.loads(snapshot_path.read_text(encoding="utf-8"))
+            pass_names = [cov["name"] for cov in payload["coverage"]]
+            self.assertIn("general", pass_names)
+            self.assertIn("remote_keyword_candidates", pass_names)
+            self.assertIn("hybrid_pass", pass_names)
 
 
 if __name__ == "__main__":
