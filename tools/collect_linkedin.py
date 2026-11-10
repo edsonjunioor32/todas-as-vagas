@@ -27,6 +27,8 @@ DEFAULT_RESULTS_LIMIT = 1000
 DEFAULT_REMOTE_RESULTS_LIMIT = 1200
 JOBSPY_MAX_RESULTS_PER_QUERY = 1000
 MAX_UNIQUE_RESULTS_PER_RUN = 1200
+MAX_JOBS_PER_COMPANY = 25
+DEFAULT_PRIORITY_TERMS = ("Flash", "Tecnologia", "Software", "Produto", "Dados")
 # These keywords discover candidates only; modality still needs per-job evidence.
 REMOTE_SEARCH_TERM = 'remoto OR remota OR remote OR "home office" OR "work from home"'
 # Verified against public LinkedIn job descriptions or user-provided evidence.
@@ -187,13 +189,27 @@ def _normalize_application_text(value):
 
 
 _APPLICATION_IGNORED_MARKERS = (
-    "similar-jobs", "similar", "carousel", "recommended-jobs", "recommended", "related-jobs", "related"
+    "similar-jobs", "similar", "carousel", "recommended-jobs", "recommended",
+    "related-jobs", "related", "contextual-sign-in", "sign-in-modal",
 )
 _APPLICATION_TOP_CARD_MARKERS = (
     "top-card-layout", "top-card", "topcard", "unified-top-card"
 )
 _APPLICATION_APPLY_BUTTON_MARKERS = (
-    "apply-button", "jobs-apply-button"
+    "apply-button", "jobs-apply-button", "apply-link"
+)
+
+_EASY_APPLY_TRACKING_RE = re.compile(
+    r"apply-link-(?:simple_)?onsite", re.IGNORECASE
+)
+_EXTERNAL_TRACKING_RE = re.compile(
+    r"apply-link-offsite", re.IGNORECASE
+)
+_EXTERNAL_MODAL_RE = re.compile(
+    r"job-details-topcard-apply-modal|apply-modal", re.IGNORECASE
+)
+_EXTERNAL_SVG_RE = re.compile(
+    r"apply-button__offsite-apply-icon-svg|offsite-apply", re.IGNORECASE
 )
 
 
@@ -220,8 +236,9 @@ class _ApplicationCTAParser(HTMLParser):
         markers = " ".join(
             attributes.get(name, "")
             for name in (
-                "class", "id", "data-control-name", "data-test-id", "data-testid",
-                "aria-label", "title", "role",
+                "class", "id", "data-control-name", "data-tracking-control-name",
+                "data-test-id", "data-testid", "data-modal", "data-svg-class-name",
+                "data-impression-id", "trk", "aria-label", "title", "role",
             )
         ).casefold()
         is_void = tag_name in _APPLICATION_VOID_TAGS
@@ -244,6 +261,10 @@ class _ApplicationCTAParser(HTMLParser):
                 })
             return
 
+        for active in self._active_controls:
+            for k, v in attributes.items():
+                active["all_attributes"].setdefault(k, []).append(v)
+
         is_apply_button = any(m in markers for m in _APPLICATION_APPLY_BUTTON_MARKERS)
         in_top_card = self._top_card_depth > 0
 
@@ -255,6 +276,7 @@ class _ApplicationCTAParser(HTMLParser):
         control = {
             "tag": tag_name,
             "attributes": attributes,
+            "all_attributes": {k: [v] for k, v in attributes.items()},
             "text": [],
             "in_top_card": in_top_card,
             "is_apply_button": is_apply_button,
@@ -349,6 +371,11 @@ def _extract_application_evidence_from_html(html):
     evidence = set()
     for control in candidate_controls:
         attributes = control["attributes"]
+        all_attr_values = []
+        for values in control.get("all_attributes", {}).values():
+            all_attr_values.extend(values)
+        all_attrs_combined = " ".join(all_attr_values).casefold()
+
         label = _normalize_application_text(
             " ".join(
                 control["text"]
@@ -356,15 +383,23 @@ def _extract_application_evidence_from_html(html):
                     attributes.get(name, "")
                     for name in (
                         "aria-label", "title", "data-control-name",
-                        "data-test-id", "data-testid", "class", "value", "name",
+                        "data-tracking-control-name", "data-test-id", "data-testid",
+                        "class", "value", "name",
                     )
                 ]
             )
         )
-        if _APPLICATION_EASY_APPLY_RE.search(label):
+        has_easy_apply_attr = bool(_EASY_APPLY_TRACKING_RE.search(all_attrs_combined))
+        has_easy_apply_text = bool(_APPLICATION_EASY_APPLY_RE.search(label))
+        if has_easy_apply_attr or has_easy_apply_text:
             signals.add("easy_apply")
             evidence.add("easy_apply_badge")
 
+        has_external_attr = (
+            bool(_EXTERNAL_TRACKING_RE.search(all_attrs_combined))
+            or bool(_EXTERNAL_MODAL_RE.search(all_attrs_combined))
+            or bool(_EXTERNAL_SVG_RE.search(all_attrs_combined))
+        )
         explicit_external = any(
             re.search(pattern, label) for pattern in _APPLICATION_EXTERNAL_MARKERS
         )
@@ -372,7 +407,7 @@ def _extract_application_evidence_from_html(html):
             bool(_APPLICATION_CTA_RE.search(label))
             and _is_verified_external_apply_url(attributes.get("href"))
         )
-        if explicit_external:
+        if has_external_attr or explicit_external:
             signals.add("external")
             evidence.add("external_apply_marker")
         elif external_link:
@@ -398,8 +433,14 @@ _EXPLICIT_WORKPLACE_PATTERNS = {
         r"\b100\s*%\s*(?:remot[oa]|home[\s-]?office)\b",
         r"\bfully[\s-]+remote\b",
         r"\bwork[\s-]+from[\s-]+home\b",
+        r"\bwork[\s-]+(?:from\s+)?anywhere\b",
+        r"\bremote\s+flexibility\b",
+        r"\bremote\s*,\s*full[\s-]?time\b",
+        r"\bfull[\s-]?time\s*,\s*remote\b",
+        r"\bremote\s*[\(\-,]\s*brazil\b",
         r"\b(?:regime|modalidade|modelo)(?:\s+de\s+trabalho)?\s*[:\-]?\s*(?:remot[oa]|home[\s-]?office)\b",
-        r"\bworkplace type\s*[:\-]\s*remote\b",
+        r"\b(?:workplace\s+type|workplace|location|local)\s*[:\-]\s*remote\b",
+        r"\baux[ií]lio\s+home[\s-]?office\b",
     ),
     "hybrid": (
         r"\b(?:regime|modalidade|modelo)(?:\s+de\s+trabalho)?\s*[:\-]?\s*h[ií]brid[oa]\b",
@@ -420,12 +461,33 @@ def _explicit_workplace_type_from_description(description):
     if not text:
         return ""
 
+    # Seções de benefícios (ex: vale-transporte), encontros ocasionais ou negações
+    # não devem anular a declaração de trabalho remoto.
+    text_for_onsite = text
+    text_for_onsite = re.sub(
+        r"\bvale[\s-]?transporte\b[^\.\n;]*", " ", text_for_onsite
+    )
+    text_for_onsite = re.sub(
+        r"\b(?:encontros?|eventos?|visitas?|reuni[oõ]es?|treinamentos?|integra[cç][aã]o)\s+presenciais?\b",
+        " ",
+        text_for_onsite,
+    )
+    text_for_onsite = re.sub(
+        r"\b(?:n[aã]o|dispensa|sem)\s+(?:[eé]|ser[aá]|necessidade|atua[cç][aã]o)?\s*presencial\b",
+        " ",
+        text_for_onsite,
+    )
+
     mentioned = set()
-    if re.search(r"\b(?:remot[oa]|home[\s-]?office|fully[\s-]+remote|work[\s-]+from[\s-]+home)\b", text):
+    if re.search(
+        r"\b(?:remot[oa]|home[\s-]?office|fully[\s-]+remote|work[\s-]+from[\s-]+home|"
+        r"work[\s-]+(?:from\s+)?anywhere|remote\s+flexibility|aux[ií]lio\s+home[\s-]?office)\b",
+        text,
+    ):
         mentioned.add("remote")
     if re.search(r"\b(?:h[ií]brid[oa]|hybrid)\b", text):
         mentioned.add("hybrid")
-    if re.search(r"\b(?:presencial|on[\s-]?site|onsite)\b", text):
+    if re.search(r"\b(?:presencial|on[\s-]?site|onsite)\b", text_for_onsite):
         mentioned.add("on-site")
     if len(mentioned) > 1:
         return ""
@@ -577,6 +639,13 @@ def clean_value(val):
     if hasattr(val, "isoformat"):
         return val.isoformat()
     return val
+
+
+def _normalize_company_name(name):
+    """Normaliza nome da empresa para cálculo do teto contra monopólio de agregadores."""
+    clean = unicodedata.normalize("NFKD", str(name or ""))
+    clean = "".join(c for c in clean if not unicodedata.combining(c))
+    return re.sub(r"\s+", " ", clean).strip().casefold()
 
 
 def normalize_linkedin_job(raw_job, *, query_filter_easy_apply=False):
@@ -807,6 +876,8 @@ def collect_linkedin(
     out_path="docs/data/linkedin_vagas.json",
     include_remote_pass=True,
     easy_apply=False,
+    max_jobs_per_company=MAX_JOBS_PER_COMPANY,
+    priority_terms=None,
 ):
     if scrape_jobs is None:
         raise RuntimeError("A biblioteca 'python-jobspy' é necessária para executar collect_linkedin")
@@ -830,12 +901,14 @@ def collect_linkedin(
         f"candidatos na busca por palavras de modalidade="
         f"{requested_remote_limit if include_remote_pass else 0}; "
         f"máximo por consulta={JOBSPY_MAX_RESULTS_PER_QUERY}; "
-        f"teto agregado={MAX_UNIQUE_RESULTS_PER_RUN} vagas únicas."
+        f"teto agregado={MAX_UNIQUE_RESULTS_PER_RUN} vagas únicas; "
+        f"teto por empresa={max_jobs_per_company or 'ilimitado'}."
     )
 
     all_jobs_dict = {}
     collection_errors = []
     pass_coverage = []
+    company_counts = {}
 
     def scrape_pass(name, limit, max_results=JOBSPY_MAX_RESULTS_PER_QUERY, **kwargs):
         coverage = {}
@@ -884,6 +957,7 @@ def collect_linkedin(
         duplicates = 0
         workplace_enriched_duplicates = 0
         skipped_after_unique_cap = 0
+        skipped_company_cap = 0
         for raw in records:
             normalized = normalize_linkedin_job(
                 raw, query_filter_easy_apply=query_filter_easy_apply
@@ -937,7 +1011,20 @@ def collect_linkedin(
             if len(all_jobs_dict) >= MAX_UNIQUE_RESULTS_PER_RUN:
                 skipped_after_unique_cap += 1
                 continue
+
+            company_key = _normalize_company_name(normalized.get("company"))
+            if (
+                max_jobs_per_company
+                and company_key
+                and company_key not in {"", "empresa nao informada", "empresa confidencial"}
+                and company_counts.get(company_key, 0) >= max_jobs_per_company
+            ):
+                skipped_company_cap += 1
+                continue
+
             all_jobs_dict[job_key] = normalized
+            if company_key:
+                company_counts[company_key] = company_counts.get(company_key, 0) + 1
             added += 1
         coverage = pass_coverage[-1] if pass_coverage else None
         if coverage is not None:
@@ -946,6 +1033,7 @@ def collect_linkedin(
                 "duplicates": duplicates,
                 "workplace_enriched_duplicates": workplace_enriched_duplicates,
                 "skipped_after_unique_cap": skipped_after_unique_cap,
+                "skipped_company_cap": skipped_company_cap,
                 "unique_count_after": len(all_jobs_dict),
                 "unique_cap_reached": len(all_jobs_dict) >= MAX_UNIQUE_RESULTS_PER_RUN,
             })
@@ -953,6 +1041,7 @@ def collect_linkedin(
             f"  -> Busca '{pass_name}': {added} novos anúncios únicos; "
             f"{duplicates} duplicatas; modalidades recuperadas em "
             f"{workplace_enriched_duplicates} duplicatas; "
+            f"{skipped_company_cap} além do teto por empresa; "
             f"{skipped_after_unique_cap} novos registros além do teto; "
             f"total agregado={len(all_jobs_dict)}."
         )
@@ -1027,6 +1116,47 @@ def collect_linkedin(
             print(f"  [Aviso] Falha na varredura geral: {error}")
             collection_errors.append(f"busca geral: {error}")
 
+        if priority_terms:
+            print(
+                f"\n[Fase Prioritária] Consultando termos prioritários "
+                f"({len(priority_terms)}): {priority_terms}"
+            )
+            for pterm in priority_terms:
+                if len(all_jobs_dict) >= MAX_UNIQUE_RESULTS_PER_RUN:
+                    print(
+                        f"  [Aviso] Teto agregado de {MAX_UNIQUE_RESULTS_PER_RUN} "
+                        "vagas únicas atingido; termos prioritários restantes não consultados."
+                    )
+                    break
+                remaining = MAX_UNIQUE_RESULTS_PER_RUN - len(all_jobs_dict)
+                pterm_budget = min(remaining, JOBSPY_BATCH_SIZE)
+                time.sleep(2)
+                try:
+                    records = scrape_pass(
+                        f"prioritario:{pterm}",
+                        pterm_budget,
+                        max_results=pterm_budget,
+                        site_name=["linkedin"],
+                        search_term=pterm,
+                        location=location,
+                        hours_old=hours_old,
+                        description_format="markdown",
+                        fetch_description=True,
+                        verbose=0,
+                        **scrape_kwargs,
+                    )
+                    if records:
+                        add_records(
+                            records,
+                            pass_name=f"prioritario:{pterm}",
+                            query_filter_easy_apply=easy_apply,
+                        )
+                    else:
+                        print(f"  -> Nenhuma vaga encontrada para termo prioritário '{pterm}'.")
+                except Exception as error:
+                    print(f"  [Aviso] Falha ao consultar termo prioritário '{pterm}': {error}")
+                    collection_errors.append(f"termo prioritário '{pterm}': {error}")
+
         remaining = MAX_UNIQUE_RESULTS_PER_RUN - len(all_jobs_dict)
         if (
             include_remote_pass
@@ -1035,7 +1165,7 @@ def collect_linkedin(
         ):
             time.sleep(2)
             print(
-                "\n[Fase 2/2] Buscando candidatos por palavras de modalidade "
+                "\n[Fase Final] Buscando candidatos por palavras de modalidade "
                 "(remoto/remota/remote/home office; a consulta não prova a modalidade)..."
             )
             phase2_limit = min(remaining, JOBSPY_MAX_RESULTS_PER_QUERY)
@@ -1125,6 +1255,7 @@ def collect_linkedin(
         "limits": {
             "max_results_per_query": JOBSPY_MAX_RESULTS_PER_QUERY,
             "max_unique_per_run": MAX_UNIQUE_RESULTS_PER_RUN,
+            "max_jobs_per_company": max_jobs_per_company,
             "requested_general": requested_general_limit,
             "requested_remote": requested_remote_limit if include_remote_pass else 0,
             "easy_apply": bool(easy_apply),
@@ -1249,8 +1380,26 @@ if __name__ == "__main__":
         action="store_true",
         help="Filtrar por Candidatura Simplificada (Easy Apply via f_AL=true)",
     )
+    parser.add_argument(
+        "--max-jobs-per-company",
+        type=int,
+        default=MAX_JOBS_PER_COMPANY,
+        help="Teto de vagas por empresa para evitar monopólio de agregadores",
+    )
+    parser.add_argument(
+        "--priority-terms",
+        nargs="*",
+        default=list(DEFAULT_PRIORITY_TERMS),
+        help="Termos ou empresas prioritárias para consulta direcionada (ex: Flash Tecnologia...)",
+    )
+    parser.add_argument(
+        "--skip-priority-terms",
+        action="store_true",
+        help="Pular a consulta aos termos prioritários padrão",
+    )
     args = parser.parse_args()
 
+    priority_terms = None if args.skip_priority_terms else args.priority_terms
     collect_linkedin(
         terms=args.terms,
         location=args.location,
@@ -1260,4 +1409,6 @@ if __name__ == "__main__":
         out_path=args.output,
         include_remote_pass=not args.skip_remote_pass,
         easy_apply=args.easy_apply,
+        max_jobs_per_company=args.max_jobs_per_company,
+        priority_terms=priority_terms,
     )

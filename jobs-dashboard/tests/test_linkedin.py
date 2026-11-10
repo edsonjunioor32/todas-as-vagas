@@ -811,7 +811,7 @@ class LinkedInSourceTests(unittest.TestCase):
                 "id": f"li-{index}",
                 "job_url": f"https://www.linkedin.com/jobs/view/{index}",
                 "title": f"Vaga {index}",
-                "company": "Empresa Teste",
+                "company": f"Empresa {index}",
                 "location": "São Paulo, São Paulo, Brazil",
                 "date_posted": "2026-11-03",
             }
@@ -995,7 +995,7 @@ class LinkedInSourceTests(unittest.TestCase):
                     "id": f"li-{prefix}{index}",
                     "job_url": f"https://www.linkedin.com/jobs/view/{prefix}{index}",
                     "title": f"Vaga {prefix}{index}",
-                    "company": "Empresa Teste",
+                    "company": f"Empresa {prefix}{index}",
                     "location": "Brazil",
                     "date_posted": date.today().isoformat(),
                 }
@@ -1080,7 +1080,7 @@ class LinkedInSourceTests(unittest.TestCase):
                         "id": str(job_id),
                         "job_url": f"https://www.linkedin.com/jobs/view/{job_id}",
                         "title": f"Vaga {job_id}",
-                        "company": "Empresa Teste",
+                        "company": f"Empresa {job_id}",
                         "location": "Brazil",
                         "date_posted": date.today().isoformat(),
                     })
@@ -1092,7 +1092,7 @@ class LinkedInSourceTests(unittest.TestCase):
                     "id": str(4470000000 + index),
                     "job_url": f"https://www.linkedin.com/jobs/view/{4470000000 + index}",
                     "title": f"Vaga {4470000000 + index}",
-                    "company": "Empresa Teste",
+                    "company": f"Empresa {4470000000 + index}",
                     "location": "Brazil",
                     "date_posted": date.today().isoformat(),
                 }
@@ -1156,7 +1156,7 @@ class LinkedInSourceTests(unittest.TestCase):
                     "id": f"li-{base + index}",
                     "job_url": f"https://www.linkedin.com/jobs/view/{base + index}",
                     "title": f"Vaga {base + index}",
-                    "company": "Empresa Teste",
+                    "company": f"Empresa {base + index}",
                     "location": "Brazil",
                     "date_posted": date.today().isoformat(),
                 }
@@ -1275,7 +1275,7 @@ class LinkedInSourceTests(unittest.TestCase):
                     "id": f"li-{start + index}",
                     "job_url": f"https://www.linkedin.com/jobs/view/{start + index}",
                     "title": f"Vaga {start + index}",
-                    "company": "Empresa Teste",
+                    "company": f"Empresa {start + index}",
                     "location": "Brazil",
                     "date_posted": date.today().isoformat(),
                 }
@@ -1450,6 +1450,191 @@ class LinkedInSourceTests(unittest.TestCase):
             payload = json.loads(snapshot_path.read_text(encoding="utf-8"))
             self.assertEqual(payload["jobs"][0]["applicationType"], "easy_apply")
             self.assertEqual(payload["jobs"][0]["applicationEvidence"], "query_filter_f_AL")
+
+    def test_extracts_easy_apply_from_guest_tracking_control_name(self):
+        """No HTML público guest, Easy Apply usa tracking-control-name onsite mesmo com label 'Candidatar-se'."""
+        snippets = (
+            '<a class="apply-button" data-tracking-control-name="public_jobs_apply-link-onsite" '
+            'href="https://www.linkedin.com/jobs/view/4484683364/?trk=public_jobs_apply-link-onsite">Candidatar-se</a>',
+            '<button class="apply-button" data-tracking-control-name="public_jobs_apply-link-simple_onsite">Apply</button>',
+            '<button data-control-name="public_jobs_apply-link-onsite">Candidatar-se</button>',
+        )
+        for html in snippets:
+            with self.subTest(html=html):
+                self.assertEqual(
+                    collect_linkedin._extract_application_evidence_from_html(html),
+                    ("easy_apply", True, "easy_apply_badge"),
+                )
+
+    def test_extracts_external_apply_from_guest_attributes(self):
+        """No HTML público guest, candidatura externa usa apply-link-offsite, data-modal ou icon SVG offsite."""
+        snippets = (
+            '<button class="apply-button" data-tracking-control-name="public_jobs_apply-link-offsite" '
+            'data-modal="job-details-topcard-apply-modal">Candidatar-se <icon data-svg-class-name="apply-button__offsite-apply-icon-svg"></icon></button>',
+            '<button data-modal="job-details-topcard-apply-modal">Candidatar-se</button>',
+            '<button class="apply-button">Candidatar-se <icon data-svg-class-name="apply-button__offsite-apply-icon-svg"></icon></button>',
+            '<a class="apply-button" data-tracking-control-name="public_jobs_apply-link-offsite" href="https://www.linkedin.com/jobs/view/123">Apply</a>',
+        )
+        for html in snippets:
+            with self.subTest(html=html):
+                self.assertEqual(
+                    collect_linkedin._extract_application_evidence_from_html(html),
+                    ("external", True, "external_apply_marker"),
+                )
+
+    def test_max_jobs_per_company_caps_aggregators(self):
+        """O limite de vagas por anunciante/empresa evita monopólio de agregadores."""
+        jobbol_records = [
+            {
+                "id": f"li-jobbol-{i}",
+                "job_url": f"https://www.linkedin.com/jobs/view/1000{i}",
+                "title": f"Operador de Logística {i}",
+                "company": "Jobbol",
+                "location": "São Paulo, Brazil",
+                "date_posted": date.today().isoformat(),
+            }
+            for i in range(40)
+        ]
+        flash_records = [
+            {
+                "id": f"li-flash-{i}",
+                "job_url": f"https://www.linkedin.com/jobs/view/2000{i}",
+                "title": f"Engenheiro de Software {i}",
+                "company": "Flash",
+                "location": "São Paulo, Brazil",
+                "date_posted": date.today().isoformat(),
+            }
+            for i in range(10)
+        ]
+
+        class MockDataFrame(list):
+            @property
+            def empty(self):
+                return len(self) == 0
+
+            def to_dict(self, orient="records"):
+                return list(self)
+
+        with tempfile.TemporaryDirectory() as temporary:
+            snapshot_path = Path(temporary) / "linkedin.json"
+            with patch.object(
+                collect_linkedin, "scrape_jobs", return_value=MockDataFrame(jobbol_records + flash_records)
+            ), patch.object(collect_linkedin.time, "sleep"):
+                rows = collect_linkedin.collect_linkedin(
+                    results_limit=100,
+                    remote_results_limit=0,
+                    include_remote_pass=False,
+                    max_jobs_per_company=25,
+                    out_path=str(snapshot_path),
+                )
+
+            # 25 vagas da Jobbol (15 podadas pelo teto) + 10 da Flash = 35 vagas totais
+            self.assertEqual(len(rows), 35)
+            jobbol_count = sum(1 for r in rows if r["company"] == "Jobbol")
+            flash_count = sum(1 for r in rows if r["company"] == "Flash")
+            self.assertEqual(jobbol_count, 25)
+            self.assertEqual(flash_count, 10)
+
+            payload = json.loads(snapshot_path.read_text(encoding="utf-8"))
+            self.assertEqual(payload["coverage"][0]["skipped_company_cap"], 15)
+            self.assertEqual(payload["limits"]["max_jobs_per_company"], 25)
+
+    def test_english_workplace_patterns_and_benefit_resilience(self):
+        """Padrões em inglês e benefícios (vale-transporte) não anulam trabalho remoto explícito."""
+        collect_linkedin.CAPTURED_LINKEDIN_WORKPLACE.clear()
+        base_job = {
+            "company": "CodeSpar",
+            "location": "Brazil",
+            "date_posted": date.today().isoformat(),
+        }
+
+        cases = [
+            (
+                "Deployment Engineer. Remote, full-time, Brazil. Join our team.",
+                "remote",
+            ),
+            (
+                "Senior Backend Engineer. Remote flexibility and competitive compensation.",
+                "remote",
+            ),
+            (
+                "Product Manager. Distributed team, work from anywhere in Brazil.",
+                "remote",
+            ),
+            (
+                "Engenheiro de Software. Regime 100% Home Office. "
+                "Benefícios: Vale-transporte para visitas ocasionais à sede, auxílio home office, plano de saúde.",
+                "remote",
+            ),
+            (
+                "Analista de Sistemas. Oferecemos auxílio home office integral para todos os colaboradores.",
+                "remote",
+            ),
+        ]
+
+        for desc, expected in cases:
+            with self.subTest(desc=desc[:40]):
+                norm = collect_linkedin.normalize_linkedin_job(base_job | {
+                    "job_url": "https://www.linkedin.com/jobs/view/99999",
+                    "title": "Vaga Teste",
+                    "description": desc,
+                })
+                self.assertEqual(norm["workplaceType"], expected)
+                self.assertTrue(norm["workplaceVerified"])
+                self.assertEqual(norm["workplaceEvidence"], "description_explicit")
+
+    def test_priority_terms_collection_pass(self):
+        """Execução com priority_terms realiza buscas direcionadas para empresas/termos prioritários."""
+        scrape_calls = []
+
+        class MockDataFrame(list):
+            @property
+            def empty(self):
+                return len(self) == 0
+
+            def to_dict(self, orient="records"):
+                return list(self)
+
+        def mock_scrape(**kwargs):
+            scrape_calls.append(dict(kwargs))
+            term = kwargs.get("search_term")
+            company = "Flash" if term == "Flash" else "Tech Corp"
+            return MockDataFrame([
+                {
+                    "id": f"li-{term or 'general'}-1",
+                    "job_url": f"https://www.linkedin.com/jobs/view/{len(scrape_calls)}",
+                    "title": f"Vaga {term or 'Geral'}",
+                    "company": company,
+                    "location": "Brazil",
+                    "date_posted": date.today().isoformat(),
+                }
+            ])
+
+        with tempfile.TemporaryDirectory() as temporary:
+            snapshot_path = Path(temporary) / "linkedin.json"
+            with patch.object(
+                collect_linkedin, "scrape_jobs", side_effect=mock_scrape
+            ), patch.object(collect_linkedin.time, "sleep"):
+                rows = collect_linkedin.collect_linkedin(
+                    terms=None,
+                    priority_terms=["Flash", "Tecnologia"],
+                    results_limit=10,
+                    remote_results_limit=5,
+                    out_path=str(snapshot_path),
+                )
+
+            searched_terms = [call.get("search_term") for call in scrape_calls]
+            self.assertIn("Flash", searched_terms)
+            self.assertIn("Tecnologia", searched_terms)
+            self.assertIn(None, searched_terms)
+            self.assertIn(collect_linkedin.REMOTE_SEARCH_TERM, searched_terms)
+
+            payload = json.loads(snapshot_path.read_text(encoding="utf-8"))
+            pass_names = [cov["name"] for cov in payload["coverage"]]
+            self.assertIn("general", pass_names)
+            self.assertIn("prioritario:Flash", pass_names)
+            self.assertIn("prioritario:Tecnologia", pass_names)
+            self.assertIn("remote_keyword_candidates", pass_names)
 
 
 if __name__ == "__main__":

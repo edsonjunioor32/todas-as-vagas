@@ -37,6 +37,16 @@ on:
         required: false
         default: false
         type: boolean
+      max_jobs_per_company:
+        description: "Teto de vagas por empresa (evita monopólio de agregadores)"
+        required: false
+        default: "25"
+        type: string
+      priority_terms:
+        description: "Termos ou empresas prioritárias (ex: Flash Tecnologia Software Produto Dados)"
+        required: false
+        default: "Flash Tecnologia Software Produto Dados"
+        type: string
 
 permissions:
   contents: write
@@ -75,6 +85,8 @@ jobs:
           RESULTS="${{ inputs.results_limit || '1000' }}"
           REMOTE_RESULTS="${{ inputs.remote_results_limit || '1200' }}"
           HOURS="${{ inputs.hours_old || '1440' }}"
+          MAX_COMPANY="${{ inputs.max_jobs_per_company || '25' }}"
+          PRIORITY="${{ inputs.priority_terms || 'Flash Tecnologia Software Produto Dados' }}"
           EXTRA_FLAGS=""
           if [ "${{ inputs.easy_apply_only }}" = "true" ]; then
             EXTRA_FLAGS="--easy-apply"
@@ -83,6 +95,8 @@ jobs:
             --results-limit "$RESULTS" \
             --remote-results-limit "$REMOTE_RESULTS" \
             --hours-old "$HOURS" \
+            --max-jobs-per-company "$MAX_COMPANY" \
+            --priority-terms $PRIORITY \
             $EXTRA_FLAGS \
             --output docs/data/linkedin_vagas.json
 
