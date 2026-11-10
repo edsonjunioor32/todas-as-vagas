@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-10T11:34:04.686077+00:00",
+  "generated_at": "2026-11-10T14:34:12.888883+00:00",
   "candidate_count": 8331,
-  "company_count": 192,
+  "company_count": 189,
   "companies": [
     {
       "board": "abinbev",
       "company": "AB InBev  | Growth Group",
-      "brazil_jobs": 43
+      "brazil_jobs": 44
     },
     {
       "board": "abnormalsecurity",
@@ -32,7 +32,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 98
+      "brazil_jobs": 103
     },
     {
       "board": "agilize",
@@ -115,11 +115,6 @@
       "brazil_jobs": 4
     },
     {
-      "board": "axicom",
-      "company": "Axicom",
-      "brazil_jobs": 2
-    },
-    {
       "board": "axon",
       "company": "Axon",
       "brazil_jobs": 3
@@ -137,7 +132,7 @@
     {
       "board": "bees",
       "company": "BEES",
-      "brazil_jobs": 52
+      "brazil_jobs": 53
     },
     {
       "board": "blip-global",
@@ -177,7 +172,7 @@
     {
       "board": "bursonglobalcareers",
       "company": "Burson",
-      "brazil_jobs": 6
+      "brazil_jobs": 7
     },
     {
       "board": "bvnk",
@@ -187,7 +182,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 158
+      "brazil_jobs": 157
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -197,7 +192,7 @@
     {
       "board": "capco",
       "company": "Capco",
-      "brazil_jobs": 141
+      "brazil_jobs": 140
     },
     {
       "board": "caronsale",
@@ -250,11 +245,6 @@
       "brazil_jobs": 4
     },
     {
-      "board": "cookunity",
-      "company": "CookUnity",
-      "brazil_jobs": 1
-    },
-    {
       "board": "counterpart",
       "company": "Counterpart",
       "brazil_jobs": 1
@@ -297,7 +287,7 @@
     {
       "board": "ebanx",
       "company": "EBANX",
-      "brazil_jobs": 22
+      "brazil_jobs": 21
     },
     {
       "board": "ebury",
@@ -342,12 +332,12 @@
     {
       "board": "externaljobboards",
       "company": "Exadel",
-      "brazil_jobs": 26
+      "brazil_jobs": 24
     },
     {
       "board": "exadelinc",
       "company": "Exadel Inc (Website)",
-      "brazil_jobs": 18
+      "brazil_jobs": 17
     },
     {
       "board": "fanaticscollectibles",
@@ -437,7 +427,7 @@
     {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 74
+      "brazil_jobs": 76
     },
     {
       "board": "harnessinc",
@@ -492,7 +482,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 122
+      "brazil_jobs": 120
     },
     {
       "board": "interbrand",
@@ -567,12 +557,7 @@
     {
       "board": "monks",
       "company": "Monks",
-      "brazil_jobs": 43
-    },
-    {
-      "board": "monumentsoftwareinc",
-      "company": "Monument Software, Inc.",
-      "brazil_jobs": 1
+      "brazil_jobs": 42
     },
     {
       "board": "mrbeastyoutube",
@@ -712,12 +697,12 @@
     {
       "board": "rdstation",
       "company": "RD Station",
-      "brazil_jobs": 5
+      "brazil_jobs": 3
     },
     {
       "board": "rdsourcing",
       "company": "RD Station - Sourcing",
-      "brazil_jobs": 5
+      "brazil_jobs": 4
     },
     {
       "board": "ripple",
@@ -797,7 +782,7 @@
     {
       "board": "stonepatrocina",
       "company": "Stone - Indeed",
-      "brazil_jobs": 218
+      "brazil_jobs": 222
     },
     {
       "board": "stripe",
@@ -902,12 +887,12 @@
     {
       "board": "vitta",
       "company": "Vitta",
-      "brazil_jobs": 2
+      "brazil_jobs": 3
     },
     {
       "board": "wundermanthompson",
       "company": "VML",
-      "brazil_jobs": 22
+      "brazil_jobs": 23
     },
     {
       "board": "vmlenterprisesolutions",
@@ -947,12 +932,12 @@
     {
       "board": "wppmedia",
       "company": "WPP Media",
-      "brazil_jobs": 44
+      "brazil_jobs": 45
     },
     {
       "board": "xpinc",
       "company": "XP Inc.",
-      "brazil_jobs": 114
+      "brazil_jobs": 115
     },
     {
       "board": "xpengmotors",
@@ -962,7 +947,7 @@
     {
       "board": "ilia",
       "company": "ília",
-      "brazil_jobs": 12
+      "brazil_jobs": 11
     }
   ]
 }
