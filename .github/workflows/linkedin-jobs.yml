@@ -47,6 +47,11 @@ on:
         required: false
         default: "Software Frontend Dados Produto DevOps QA"
         type: string
+      include_hybrid_pass:
+        description: "Executar busca complementar por vagas híbridas (f_WT=3)"
+        required: false
+        default: true
+        type: boolean
 
 permissions:
   contents: write
@@ -89,7 +94,10 @@ jobs:
           PRIORITY="${{ inputs.priority_terms || 'Software Frontend Dados Produto DevOps QA' }}"
           EXTRA_FLAGS=""
           if [ "${{ inputs.easy_apply_only }}" = "true" ]; then
-            EXTRA_FLAGS="--easy-apply"
+            EXTRA_FLAGS="$EXTRA_FLAGS --easy-apply"
+          fi
+          if [ "${{ inputs.include_hybrid_pass }}" != "false" ]; then
+            EXTRA_FLAGS="$EXTRA_FLAGS --include-hybrid-pass"
           fi
           python tools/collect_linkedin.py \
             --results-limit "$RESULTS" \

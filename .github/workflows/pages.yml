@@ -318,6 +318,7 @@ jobs:
 
       - name: Coletar, normalizar e consolidar todos os portais
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           JOBS_SOURCE_WORKERS: "5"
           # Limit only rendered Chromium sessions; HTTP source concurrency is unchanged.
           COLLECTOR_BROWSER_WORKERS: "2"

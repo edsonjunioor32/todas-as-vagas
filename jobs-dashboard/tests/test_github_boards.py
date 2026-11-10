@@ -101,6 +101,68 @@ class GitHubBoardsSourceTests(unittest.TestCase):
         self.assertTrue(len(rows) > 0)
         self.assertTrue(any("qa-brasil" in r["native_id"] for r in rows))
 
+    def test_token_injection_strips_surrounding_whitespace(self):
+        """GITHUB_TOKEN com espaços no início ou fim é sanitizado no cabeçalho."""
+        sent_headers = []
+
+        def mock_get_json(url, headers=None, timeout=30, retries=2):
+            sent_headers.append(dict(headers or {}))
+            return []
+
+        with patch.dict(os.environ, {"GITHUB_TOKEN": "  ghp_padded_token_999  "}, clear=False), \
+             patch.object(github_boards, "get_json", side_effect=mock_get_json):
+            github_boards.fetch()
+
+        self.assertTrue(len(sent_headers) > 0)
+        for headers in sent_headers:
+            self.assertEqual(headers.get("Authorization"), "Bearer ghp_padded_token_999")
+
+    def test_token_injection_ignores_blank_token(self):
+        """GITHUB_TOKEN contendo apenas espaços em branco não adiciona Authorization."""
+        sent_headers = []
+
+        def mock_get_json(url, headers=None, timeout=30, retries=2):
+            sent_headers.append(dict(headers or {}))
+            return []
+
+        with patch.dict(os.environ, {"GITHUB_TOKEN": "    "}, clear=False), \
+             patch.object(github_boards, "get_json", side_effect=mock_get_json):
+            github_boards.fetch()
+
+        self.assertTrue(len(sent_headers) > 0)
+        for headers in sent_headers:
+            self.assertNotIn("Authorization", headers)
+
+    def test_fetch_ignores_pull_requests_and_handles_missing_fields(self):
+        """Ignora pull requests e normaliza com segurança issues sem título ou labels."""
+        mock_issues = [
+            {
+                "id": 9001,
+                "pull_request": {"url": "https://api.github.com/repos/backend-br/vagas/pulls/1"},
+                "title": "PR ignorado",
+            },
+            {
+                "id": 9002,
+                "number": 105,
+                "title": "",
+                "labels": None,
+                "body": None,
+            },
+        ]
+
+        def mock_get_json(url, headers=None, timeout=30, retries=2):
+            if "backend-br/vagas" in url:
+                return mock_issues
+            return []
+
+        with patch.object(github_boards, "get_json", side_effect=mock_get_json):
+            rows = github_boards.fetch()
+
+        # Apenas a issue não-PR é incluída
+        matching = [r for r in rows if "9002" in r["native_id"] or "#105" in r["native_id"]]
+        self.assertEqual(len(matching), 1)
+        self.assertFalse(any("9001" in r["native_id"] for r in rows))
+
 
 if __name__ == "__main__":
     unittest.main()

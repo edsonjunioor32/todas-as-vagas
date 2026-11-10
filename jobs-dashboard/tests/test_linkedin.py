@@ -1911,6 +1911,112 @@ class LinkedInSourceTests(unittest.TestCase):
             self.assertIn("general", pass_names)
             self.assertIn("remote_keyword_candidates", pass_names)
             self.assertIn("hybrid_pass", pass_names)
+            self.assertEqual(payload["limits"]["requested_hybrid"], 5)
+
+    def test_inject_linkedin_search_params_cleans_inactive_filters(self):
+        """_inject_linkedin_search_params injeta filtros canônicos e remove chaves inativas."""
+        params = {"location": "Brazil", "f_WT": "99", "f_AL": "true"}
+        collect_linkedin._CURRENT_PASS_F_WT = None
+        collect_linkedin._CURRENT_EASY_APPLY = False
+        injected = collect_linkedin._inject_linkedin_search_params(dict(params))
+        self.assertEqual(injected["f_E"], "2,3,4")
+        self.assertEqual(injected["f_TPR"], "r604800")
+        self.assertEqual(injected["sortBy"], "DD")
+        self.assertEqual(injected["geoId"], collect_linkedin.LINKEDIN_BRAZIL_GEO_ID)
+        self.assertNotIn("f_WT", injected)
+        self.assertNotIn("f_AL", injected)
+
+        # Ativa f_WT=3 e f_AL
+        collect_linkedin._CURRENT_PASS_F_WT = "3"
+        collect_linkedin._CURRENT_EASY_APPLY = True
+        try:
+            injected_active = collect_linkedin._inject_linkedin_search_params(dict(params))
+            self.assertEqual(injected_active["f_WT"], "3")
+            self.assertEqual(injected_active["f_AL"], "true")
+        finally:
+            collect_linkedin._CURRENT_PASS_F_WT = None
+            collect_linkedin._CURRENT_EASY_APPLY = False
+
+    def test_collect_linkedin_hybrid_pass_produces_verified_hybrid_jobs(self):
+        """Passe híbrido produz vagas com modalidade 'hybrid' e evidência 'query_filter_f_WT'."""
+        class MockDataFrame(list):
+            @property
+            def empty(self):
+                return len(self) == 0
+
+            def to_dict(self, orient="records"):
+                return list(self)
+
+        raw_job = {
+            "id": "li-hybrid-777",
+            "job_url": "https://www.linkedin.com/jobs/view/777",
+            "title": "Engenheiro de Dados",
+            "company": "Data Corp",
+            "location": "São Paulo, Brazil",
+            "date_posted": date.today().isoformat(),
+        }
+
+        with tempfile.TemporaryDirectory() as temporary:
+            snapshot_path = Path(temporary) / "linkedin.json"
+            with patch.object(
+                collect_linkedin, "scrape_jobs", return_value=MockDataFrame([raw_job])
+            ), patch.object(collect_linkedin.time, "sleep"):
+                rows = collect_linkedin.collect_linkedin(
+                    terms=None,
+                    results_limit=0,
+                    remote_results_limit=0,
+                    include_remote_pass=False,
+                    include_hybrid_pass=True,
+                    hybrid_results_limit=10,
+                    out_path=str(snapshot_path),
+                )
+
+            self.assertEqual(len(rows), 1)
+            row = rows[0]
+            self.assertEqual(row["workplaceType"], "hybrid")
+            self.assertTrue(row["workplaceVerified"])
+            self.assertEqual(row["workplaceEvidence"], "query_filter_f_WT")
+
+    def test_collect_linkedin_duplicate_enrichment_from_hybrid_pass(self):
+        """Vaga sem modalidade na busca geral é enriquecida quando reencontrada no passe híbrido."""
+        class MockDataFrame(list):
+            @property
+            def empty(self):
+                return len(self) == 0
+
+            def to_dict(self, orient="records"):
+                return list(self)
+
+        raw_job = {
+            "id": "li-shared-555",
+            "job_url": "https://www.linkedin.com/jobs/view/555",
+            "title": "Desenvolvedor Frontend",
+            "company": "Front Corp",
+            "location": "Brazil",
+            "date_posted": date.today().isoformat(),
+        }
+
+        with tempfile.TemporaryDirectory() as temporary:
+            snapshot_path = Path(temporary) / "linkedin.json"
+            # O mock retorna a mesma vaga em ambas as fases (geral e híbrida)
+            with patch.object(
+                collect_linkedin, "scrape_jobs", return_value=MockDataFrame([raw_job])
+            ), patch.object(collect_linkedin.time, "sleep"):
+                rows = collect_linkedin.collect_linkedin(
+                    terms=None,
+                    results_limit=1,
+                    remote_results_limit=0,
+                    include_remote_pass=False,
+                    include_hybrid_pass=True,
+                    hybrid_results_limit=1,
+                    out_path=str(snapshot_path),
+                )
+
+            self.assertEqual(len(rows), 1)
+            enriched = rows[0]
+            self.assertEqual(enriched["workplaceType"], "hybrid")
+            self.assertTrue(enriched["workplaceVerified"])
+            self.assertEqual(enriched["workplaceEvidence"], "query_filter_f_WT")
 
 
 if __name__ == "__main__":

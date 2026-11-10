@@ -604,8 +604,12 @@ try:
         params["sortBy"] = "DD"
         if (scraper_input and getattr(scraper_input, "easy_apply", False)) or _CURRENT_EASY_APPLY:
             params["f_AL"] = "true"
+        else:
+            params.pop("f_AL", None)
         if _CURRENT_PASS_F_WT:
             params["f_WT"] = str(_CURRENT_PASS_F_WT)
+        else:
+            params.pop("f_WT", None)
         return params
 
     # Injeta parâmetros otimizados nas buscas públicas do LinkedIn
@@ -1399,6 +1403,7 @@ def collect_linkedin(
             "max_jobs_per_company": max_jobs_per_company,
             "requested_general": requested_general_limit,
             "requested_remote": requested_remote_limit if include_remote_pass else 0,
+            "requested_hybrid": (hybrid_results_limit or requested_remote_limit) if include_hybrid_pass else 0,
             "easy_apply": bool(easy_apply),
         },
         "coverage": pass_coverage,
@@ -1443,7 +1448,7 @@ def collect_linkedin(
             )
             summary.write(
                 "- **Classificação de modalidade:** somente selo real da vaga, "
-                "descrição explícita não ambígua ou override manual verificado; "
+                "descrição explícita não ambígua, filtro nativo de busca (f_WT) ou override manual verificado; "
                 "a busca por palavras serve apenas para descobrir candidatos.\n\n"
             )
             summary.write(
