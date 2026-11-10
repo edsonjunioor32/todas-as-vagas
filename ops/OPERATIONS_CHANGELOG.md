@@ -3,7 +3,8 @@
 - **Integração da PR #187 na `main`:** merged commit `e9ad241` trazendo a injeção mandatória de `geoId=106057199`, orçamento dinâmico na Fase 2 para mitigar timeouts de 45 min no CI e preservação atômica das modalidades históricas em `clear_linkedin_work_models`.
 - **Condição de parada na paginação do LinkedIn (`tools/collect_linkedin.py`):** ajustada a verificação de interrupção para parar apenas em `len(batch) == 0` (ou ausência de novos registros) em vez de abortar prematuramente quando `len(batch) < results_wanted`, garantindo a coleta de snapshots completos mesmo com retornos parciais (< 100) do endpoint guest do LinkedIn.
 - **Continuidade de fontes em coletas parciais (`jobs-dashboard/storage.py` e `pipeline.py`):** implementado suporte a `selected_sources` em `storage.prune` e `storage.export_snapshot`. Em execuções parciais (como `linkedin_refresh`), o corte da Gupy passa a respeitar o `cutoff` recente de 3 dias (em vez de exigir data estritamente de hoje), os feeds corporativos ativos (`ACTIVE_PUBLIC_FEED_SOURCES`) mantêm a isenção de publicação e falhas persistidas em `source_health` são mantidas em `failed_sources`, permitindo que `validate_snapshot.py` aprove o snapshot sem bloquear a publicação no GitHub Pages.
-- **Validação:** 100% de sucesso nos 337 testes unitários do catálogo e pipeline.
+- **Compatibilidade de testes multiplataforma (`ops/github_scheduler.py` e `test_schedule.py`):** isolamento do módulo Unix `fcntl` com fallback para `msvcrt.locking` no Windows e guarda de verificação de permissão POSIX, permitindo a execução de 100% dos 371 testes unitários (incluindo agendador) em qualquer ambiente (Windows e Linux).
+- **Validação:** 100% de sucesso nos 371 testes unitários do catálogo, agendador e pipeline.
 
 ## 2026-11-07 — Otimização e correções estruturais na coleta e persistência do LinkedIn
 

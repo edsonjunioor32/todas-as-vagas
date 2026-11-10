@@ -526,7 +526,8 @@ class ScheduleTests(unittest.TestCase):
             expected = {"dispatched_slots": {"2026-09-11T14:00:00+00:00": "2026-09-11T14:31:00+00:00"}}
             save_state(path, expected)
             self.assertEqual(load_state(path), expected)
-            self.assertEqual(stat.S_IMODE(os.stat(path).st_mode), 0o600)
+            if sys.platform != "win32":
+                self.assertEqual(stat.S_IMODE(os.stat(path).st_mode), 0o600)
 
     def test_vps_scheduler_lock_prevents_overlapping_processes(self):
         with tempfile.TemporaryDirectory() as directory:

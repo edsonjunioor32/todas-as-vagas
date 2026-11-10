@@ -10,7 +10,10 @@ main.
 from __future__ import annotations
 
 from datetime import datetime, time, timedelta, timezone
-import fcntl
+try:
+    import fcntl
+except ImportError:
+    fcntl = None
 import json
 import os
 from pathlib import Path
@@ -358,12 +361,22 @@ class SchedulerLock:
 
     def acquire(self) -> bool:
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        os.chmod(self.path.parent, 0o700)
-        self._handle = self.path.open("a+", encoding="utf-8")
-        os.chmod(self.path, 0o600)
         try:
-            fcntl.flock(self._handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except BlockingIOError:
+            os.chmod(self.path.parent, 0o700)
+        except OSError:
+            pass
+        self._handle = self.path.open("a+", encoding="utf-8")
+        try:
+            os.chmod(self.path, 0o600)
+        except OSError:
+            pass
+        try:
+            if fcntl is not None:
+                fcntl.flock(self._handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            else:
+                import msvcrt
+                msvcrt.locking(self._handle.fileno(), msvcrt.LK_NBLCK, 1)
+        except (BlockingIOError, OSError):
             self._handle.close()
             self._handle = None
             return False
@@ -372,7 +385,14 @@ class SchedulerLock:
     def release(self) -> None:
         if self._handle is None:
             return
-        fcntl.flock(self._handle.fileno(), fcntl.LOCK_UN)
+        try:
+            if fcntl is not None:
+                fcntl.flock(self._handle.fileno(), fcntl.LOCK_UN)
+            else:
+                import msvcrt
+                msvcrt.locking(self._handle.fileno(), msvcrt.LK_UNLCK, 1)
+        except OSError:
+            pass
         self._handle.close()
         self._handle = None
 
