@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-09T18:34:19.324095+00:00",
+  "generated_at": "2026-11-09T23:34:04.578506+00:00",
   "candidate_count": 8331,
-  "company_count": 194,
+  "company_count": 193,
   "companies": [
     {
       "board": "abinbev",
       "company": "AB InBev  | Growth Group",
-      "brazil_jobs": 45
+      "brazil_jobs": 43
     },
     {
       "board": "abnormalsecurity",
@@ -32,7 +32,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 99
+      "brazil_jobs": 98
     },
     {
       "board": "agilize",
@@ -77,7 +77,7 @@
     {
       "board": "arcoeducacao",
       "company": "Arco Educação",
-      "brazil_jobs": 41
+      "brazil_jobs": 40
     },
     {
       "board": "arctouch",
@@ -137,7 +137,7 @@
     {
       "board": "bees",
       "company": "BEES",
-      "brazil_jobs": 54
+      "brazil_jobs": 52
     },
     {
       "board": "blip-global",
@@ -157,7 +157,7 @@
     {
       "board": "brex",
       "company": "Brex",
-      "brazil_jobs": 15
+      "brazil_jobs": 16
     },
     {
       "board": "bryantparkconsulting",
@@ -192,7 +192,7 @@
     {
       "board": "candidaturasdirecionadasxpinc",
       "company": "Candidaturas Direcionadas",
-      "brazil_jobs": 15
+      "brazil_jobs": 14
     },
     {
       "board": "capco",
@@ -227,7 +227,7 @@
     {
       "board": "clara",
       "company": "Clara",
-      "brazil_jobs": 78
+      "brazil_jobs": 77
     },
     {
       "board": "classpass",
@@ -247,7 +247,7 @@
     {
       "board": "coinbase",
       "company": "Coinbase",
-      "brazil_jobs": 3
+      "brazil_jobs": 4
     },
     {
       "board": "cookunity",
@@ -292,7 +292,7 @@
     {
       "board": "dunnhumby",
       "company": "dunnhumby",
-      "brazil_jobs": 2
+      "brazil_jobs": 1
     },
     {
       "board": "ebanx",
@@ -342,7 +342,7 @@
     {
       "board": "externaljobboards",
       "company": "Exadel",
-      "brazil_jobs": 25
+      "brazil_jobs": 26
     },
     {
       "board": "exadelinc",
@@ -437,7 +437,7 @@
     {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 75
+      "brazil_jobs": 74
     },
     {
       "board": "harnessinc",
@@ -467,6 +467,11 @@
     {
       "board": "hudl",
       "company": "Hudl",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "indicacoesifoodinterno",
+      "company": "iFood Indicações",
       "brazil_jobs": 1
     },
     {
@@ -577,7 +582,7 @@
     {
       "board": "mrbeastyoutube",
       "company": "MrBeast",
-      "brazil_jobs": 1
+      "brazil_jobs": 2
     },
     {
       "board": "mutato",
@@ -697,7 +702,7 @@
     {
       "board": "powerdigitalmarketing",
       "company": "Power Digital",
-      "brazil_jobs": 46
+      "brazil_jobs": 44
     },
     {
       "board": "pfm",
@@ -710,11 +715,6 @@
       "brazil_jobs": 8
     },
     {
-      "board": "estagio_agibank_2026",
-      "company": "Programa de Estágio Agibank",
-      "brazil_jobs": 1
-    },
-    {
       "board": "rdstation",
       "company": "RD Station",
       "brazil_jobs": 5
@@ -722,7 +722,7 @@
     {
       "board": "rdsourcing",
       "company": "RD Station - Sourcing",
-      "brazil_jobs": 4
+      "brazil_jobs": 5
     },
     {
       "board": "ripple",
@@ -747,7 +747,7 @@
     {
       "board": "rtbhouse",
       "company": "RTB House",
-      "brazil_jobs": 4
+      "brazil_jobs": 5
     },
     {
       "board": "schonfeld",
@@ -802,7 +802,7 @@
     {
       "board": "stonepatrocina",
       "company": "Stone - Indeed",
-      "brazil_jobs": 219
+      "brazil_jobs": 218
     },
     {
       "board": "stripe",
@@ -832,11 +832,6 @@
     {
       "board": "takealotcom",
       "company": "takealot.com",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "teachablecareers",
-      "company": "Teachable",
       "brazil_jobs": 1
     },
     {
@@ -932,7 +927,7 @@
     {
       "board": "gympass",
       "company": "Wellhub",
-      "brazil_jobs": 32
+      "brazil_jobs": 34
     },
     {
       "board": "wildlifestudios",
@@ -957,7 +952,7 @@
     {
       "board": "wppmedia",
       "company": "WPP Media",
-      "brazil_jobs": 42
+      "brazil_jobs": 44
     },
     {
       "board": "xpinc",
