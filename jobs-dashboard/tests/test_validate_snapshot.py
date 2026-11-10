@@ -259,6 +259,44 @@ class PreservedSnapshotTests(unittest.TestCase):
 
         self.assertIn("OK: 1 vagas", stdout.getvalue())
 
+    def test_partial_execution_preserves_all_sources_and_passes_continuity(self):
+        previous = snapshot_with_preserved_jobs(count=2)
+        previous["dict"]["source"] = ["gupy", "linkedin"]
+        previous["source_counts"] = {"gupy": 1, "linkedin": 1}
+        previous["collected_source_counts"] = {"gupy": 1, "linkedin": 1}
+        previous["source_last_success_at"] = {
+            "gupy": "2026-09-25T12:00:00+00:00",
+            "linkedin": "2026-09-25T12:00:00+00:00",
+        }
+
+        current = snapshot_with_preserved_jobs(count=2)
+        current["dict"]["source"] = ["gupy", "linkedin"]
+        current["source_counts"] = {"gupy": 1, "linkedin": 1}
+        # Only linkedin was collected in this partial execution
+        current["collected_source_counts"] = {"linkedin": 1}
+        current["source_last_success_at"] = {
+            "gupy": "2026-09-25T12:00:00+00:00",
+            "linkedin": "2026-09-26T12:00:00+00:00",
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "vagas.json"
+            previous_path = Path(directory) / "previous-vagas.json"
+            path.write_text(json.dumps(current), encoding="utf-8")
+            previous_path.write_text(json.dumps(previous), encoding="utf-8")
+            stdout, stderr = io.StringIO(), io.StringIO()
+            with patch.object(validate_snapshot, "SNAPSHOT", path), patch.dict(
+                os.environ,
+                {
+                    "MIN_PUBLIC_JOBS": "1",
+                    "PREVIOUS_SNAPSHOT_PATH": str(previous_path),
+                    "CATALOG_COLLECTION_SCOPE": "partial:linkedin",
+                },
+                clear=False,
+            ), contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                validate_snapshot.main()
+
+        self.assertIn("OK: 2 vagas", stdout.getvalue())
+
 
 if __name__ == "__main__":
     unittest.main()

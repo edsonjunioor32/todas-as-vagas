@@ -726,9 +726,11 @@ def main(before_persist=None):
                 if row["source"] == "greenhouse"
             ],
         )
+    is_partial = bool(args.sources)
     active_feed_sources = {
         source for source in storage.ACTIVE_PUBLIC_FEED_SOURCES
-        if counts.get(source, 0) and source not in failed
+        if (counts.get(source, 0) and source not in failed)
+        or (is_partial and source not in selected_sources)
     }
     pruned = storage.prune(
         conn,
@@ -737,6 +739,7 @@ def main(before_persist=None):
         max_age_months=max(0, args.max_age_months),
         active_feed_sources=active_feed_sources,
         max_age_days=max_age_days,
+        selected_sources=selected_sources if is_partial else None,
     )
     after = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
     snapshot_failed_sources = sorted(set(preserved_sources) | set(failed))
@@ -749,6 +752,7 @@ def main(before_persist=None):
         max_age_days=max_age_days,
         source_counts=dict(sorted(counts.items())),
         failed_sources=snapshot_failed_sources,
+        selected_sources=selected_sources if is_partial else None,
     )
     conn.close()
     phases["Banco e fotografia pública"] = time.perf_counter() - stage_started

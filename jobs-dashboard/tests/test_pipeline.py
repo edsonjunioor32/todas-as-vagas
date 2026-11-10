@@ -347,6 +347,101 @@ class StorageTests(unittest.TestCase):
             )
             conn.close()
 
+    def test_upsert_linkedin_snapshot_preserves_historical_work_models_not_in_current_batch(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            conn = storage.connect(str(Path(temporary) / "jobs.db"))
+            storage.upsert(
+                conn,
+                [
+                    sample_job("linkedin", "hist_1", work_model="remote"),
+                    sample_job("linkedin", "hist_2", work_model="hybrid"),
+                ],
+                today="2026-08-20",
+            )
+            cleared = storage.upsert_linkedin_snapshot(
+                conn,
+                [
+                    sample_job("linkedin", "hist_2", work_model=""),
+                    sample_job("linkedin", "new_3", work_model="on-site"),
+                ],
+                today="2026-08-21",
+            )
+            self.assertEqual(cleared, 1)
+            # hist_1 was not in the snapshot: historical work_model 'remote' is preserved!
+            self.assertEqual(
+                conn.execute(
+                    "SELECT work_model FROM jobs WHERE job_uid = 'linkedin:hist_1'"
+                ).fetchone()[0],
+                "remote",
+            )
+            # hist_2 was in the snapshot with empty work_model: updated to empty
+            self.assertEqual(
+                conn.execute(
+                    "SELECT work_model FROM jobs WHERE job_uid = 'linkedin:hist_2'"
+                ).fetchone()[0],
+                "",
+            )
+            # new_3 was inserted with on-site
+            self.assertEqual(
+                conn.execute(
+                    "SELECT work_model FROM jobs WHERE job_uid = 'linkedin:new_3'"
+                ).fetchone()[0],
+                "on-site",
+            )
+            conn.close()
+
+    def test_clear_linkedin_work_models_with_target_uids_only_preserves_unmentioned_rows(self):
+        """target_uids sem jobs deve limpar apenas os UIDs alvo e preservar as demais vagas."""
+        with tempfile.TemporaryDirectory() as temporary:
+            conn = storage.connect(str(Path(temporary) / "jobs.db"))
+            storage.upsert(
+                conn,
+                [
+                    sample_job("linkedin", "u1", work_model="remote"),
+                    sample_job("linkedin", "u2", work_model="hybrid"),
+                ],
+                today="2026-08-20",
+            )
+            # Limpa especificando apenas target_uids (com e sem prefixo 'linkedin:')
+            cleared = storage.clear_linkedin_work_models(
+                conn, target_uids=["u1"]
+            )
+            self.assertEqual(cleared, 1)
+            # u1 foi limpa
+            self.assertEqual(
+                conn.execute(
+                    "SELECT work_model FROM jobs WHERE job_uid = 'linkedin:u1'"
+                ).fetchone()[0],
+                "",
+            )
+            # u2 NÃO foi tocada e preserva 'hybrid'
+            self.assertEqual(
+                conn.execute(
+                    "SELECT work_model FROM jobs WHERE job_uid = 'linkedin:u2'"
+                ).fetchone()[0],
+                "hybrid",
+            )
+            conn.close()
+
+    def test_clear_linkedin_work_models_with_empty_jobs_list_does_not_wipe_rows(self):
+        """Passar jobs=[] não deve apagar modalidades de vagas existentes."""
+        with tempfile.TemporaryDirectory() as temporary:
+            conn = storage.connect(str(Path(temporary) / "jobs.db"))
+            storage.upsert(
+                conn,
+                [sample_job("linkedin", "u1", work_model="remote")],
+                today="2026-08-20",
+            )
+            cleared = storage.clear_linkedin_work_models(conn, jobs=[])
+            self.assertEqual(cleared, 0)
+            self.assertEqual(
+                conn.execute(
+                    "SELECT work_model FROM jobs WHERE job_uid = 'linkedin:u1'"
+                ).fetchone()[0],
+                "remote",
+            )
+            conn.close()
+
     def test_rewrite_source_market_repairs_legacy_senior_rows(self):
         with tempfile.TemporaryDirectory() as temporary:
             conn = storage.connect(str(Path(temporary) / "jobs.db"))
@@ -806,6 +901,66 @@ class SolidesTests(unittest.TestCase):
         self.assertEqual(row["contract_types"], ["CLT"])
         self.assertEqual(row["description"], "Descrição da vaga")
         self.assertIn("/918136/analista-de-gestao-de-pessoas", row["url"])
+
+    def test_partial_export_preserves_gupy_and_feed_sources(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            conn = storage.connect(str(Path(temporary) / "jobs.db"))
+            try:
+                # 1. Gupy job seen yesterday
+                verified_gupy = sample_job("gupy", "gupy-1")
+                verified_gupy.update({
+                    "published_date": "2026-10-01",
+                    "expires_date": "2026-12-31",
+                    "source_status": "published",
+                    "source_type": "vacancy_type_effective",
+                    "source_publication_type": "external",
+                })
+                storage.upsert(conn, [verified_gupy], today="2026-10-02")
+
+                # 2. Feed source with old publication date
+                feed_job = sample_job("afonsofranca", "af-1")
+                feed_job.update({
+                    "published_date": "2024-01-01",
+                })
+                storage.upsert(conn, [feed_job], today="2026-10-02")
+
+                # 3. LinkedIn job collected today
+                linkedin_job = sample_job("linkedin", "li-1")
+                linkedin_job.update({
+                    "published_date": "2026-10-03",
+                })
+                storage.upsert(conn, [linkedin_job], today="2026-10-03")
+
+                out = Path(temporary) / "vagas.json"
+
+                # In a partial LinkedIn-only run on 2026-10-03:
+                count, _ = storage.export_snapshot(
+                    conn,
+                    str(out),
+                    fresh_days=3,
+                    today="2026-10-03",
+                    source_counts={"linkedin": 1},
+                    selected_sources={"linkedin"},
+                )
+                payload = json.loads(out.read_text(encoding="utf-8"))
+                # All 3 jobs must be exported
+                self.assertEqual(count, 3)
+                self.assertIn("gupy", payload["source_counts"])
+                self.assertIn("afonsofranca", payload["source_counts"])
+                self.assertIn("linkedin", payload["source_counts"])
+
+                # Test prune preserves unselected feed sources
+                pruned = storage.prune(
+                    conn,
+                    keep_days=120,
+                    today="2026-10-03",
+                    max_age_months=2,
+                    active_feed_sources=set(),
+                    selected_sources={"linkedin"},
+                )
+                self.assertEqual(pruned, 0)
+            finally:
+                conn.close()
 
 
 if __name__ == "__main__":
