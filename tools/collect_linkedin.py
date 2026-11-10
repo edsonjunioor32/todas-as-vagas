@@ -361,11 +361,13 @@ def _extract_application_evidence_from_html(html):
     except Exception:
         return unknown
 
-    priority_controls = [
-        c for c in parser.controls
-        if c.get("in_top_card") or c.get("is_apply_button")
-    ]
-    candidate_controls = priority_controls if priority_controls else parser.controls
+    apply_controls = [c for c in parser.controls if c.get("is_apply_button")]
+    if apply_controls:
+        top_apply = [c for c in apply_controls if c.get("in_top_card")]
+        candidate_controls = top_apply if top_apply else apply_controls
+    else:
+        top_card_controls = [c for c in parser.controls if c.get("in_top_card")]
+        candidate_controls = top_card_controls if top_card_controls else parser.controls
 
     signals = set()
     evidence = set()
@@ -430,27 +432,28 @@ def _extract_application_evidence_from_html(html):
 
 _EXPLICIT_WORKPLACE_PATTERNS = {
     "remote": (
-        r"\b100\s*%\s*(?:remot[oa]|home[\s-]?office)\b",
+        r"\b100\s*%\s*(?:remot[oae]|home[\s-]?office)\b",
         r"\bfully[\s-]+remote\b",
         r"\bwork[\s-]+from[\s-]+home\b",
         r"\bwork[\s-]+(?:from\s+)?anywhere\b",
         r"\bremote\s+flexibility\b",
         r"\bremote\s*,\s*full[\s-]?time\b",
         r"\bfull[\s-]?time\s*,\s*remote\b",
-        r"\bremote\s*[\(\-,]\s*brazil\b",
-        r"\b(?:regime|modalidade|modelo)(?:\s+de\s+trabalho)?\s*[:\-]?\s*(?:remot[oa]|home[\s-]?office)\b",
-        r"\b(?:workplace\s+type|workplace|location|local)\s*[:\-]\s*remote\b",
+        r"\bremote\s*(?:in|from|across|\-|\,|\||\()\s*brazil\b",
+        r"\bremote\s+(?:role|position|opportunity|job|work)\b",
+        r"\b(?:role|position|opportunity|job)\s*[:\-]?\s*100\s*%\s*remote\b",
+        r"\b(?:work\s+model|work\s+mode|workplace\s+type|workplace|location|local|job\s+type|regime|modalidade|modelo)(?:\s+de\s+trabalho)?\s*[:\-]?\s*(?:remot[oae]|home[\s-]?office)\b",
         r"\baux[ií]lio\s+home[\s-]?office\b",
     ),
     "hybrid": (
-        r"\b(?:regime|modalidade|modelo)(?:\s+de\s+trabalho)?\s*[:\-]?\s*h[ií]brid[oa]\b",
-        r"\bworkplace type\s*[:\-]\s*hybrid\b",
+        r"\b100\s*%\s*h[ií]brid[oa]\b",
+        r"\b(?:work\s+model|work\s+mode|workplace\s+type|workplace|location|local|job\s+type|regime|modalidade|modelo)(?:\s+de\s+trabalho)?\s*[:\-]?\s*(?:h[ií]brid[oa]|hybrid)\b",
+        r"\bhybrid\s+(?:role|position|opportunity|job|work|workplace|model)\b",
     ),
     "on-site": (
-        r"\b100\s*%\s*presencial\b",
-        r"\b(?:regime|modalidade|modelo)(?:\s+de\s+trabalho)?\s*[:\-]?\s*presencial\b",
-        r"\bworkplace type\s*[:\-]\s*on[\s-]?site\b",
-        r"\bon[\s-]?site\s+(?:role|position|work|workplace|model)\b",
+        r"\b100\s*%\s*(?:presencial|on[\s-]?site)\b",
+        r"\b(?:work\s+model|work\s+mode|workplace\s+type|workplace|location|local|job\s+type|regime|modalidade|modelo)(?:\s+de\s+trabalho)?\s*[:\-]?\s*(?:presencial|on[\s-]?site)\b",
+        r"\bon[\s-]?site\s+(?:role|position|opportunity|job|work|workplace|model)\b",
     ),
 }
 
@@ -480,7 +483,7 @@ def _explicit_workplace_type_from_description(description):
 
     mentioned = set()
     if re.search(
-        r"\b(?:remot[oa]|home[\s-]?office|fully[\s-]+remote|work[\s-]+from[\s-]+home|"
+        r"\b(?:remot[oae]|home[\s-]?office|fully[\s-]+remote|work[\s-]+from[\s-]+home|"
         r"work[\s-]+(?:from\s+)?anywhere|remote\s+flexibility|aux[ií]lio\s+home[\s-]?office)\b",
         text,
     ):
@@ -639,6 +642,19 @@ def clean_value(val):
     if hasattr(val, "isoformat"):
         return val.isoformat()
     return val
+
+
+_ANONYMOUS_COMPANY_NAMES = {
+    "",
+    "empresa nao informada",
+    "empresa confidencial",
+    "confidencial",
+    "nao informado",
+    "nao informada",
+    "empresa anonima",
+    "anonimo",
+    "anonima",
+}
 
 
 def _normalize_company_name(name):
@@ -1016,7 +1032,7 @@ def collect_linkedin(
             if (
                 max_jobs_per_company
                 and company_key
-                and company_key not in {"", "empresa nao informada", "empresa confidencial"}
+                and company_key not in _ANONYMOUS_COMPANY_NAMES
                 and company_counts.get(company_key, 0) >= max_jobs_per_company
             ):
                 skipped_company_cap += 1
@@ -1087,38 +1103,9 @@ def collect_linkedin(
             if i < len(terms) and len(all_jobs_dict) < MAX_UNIQUE_RESULTS_PER_RUN:
                 time.sleep(2)
     else:
-        print(
-            "\n[Fase 1/2] Executando Varredura Aberta Geral "
-            "(todo o Brasil, sem filtro de palavras-chave)..."
-        )
-        try:
-            records = scrape_pass(
-                "general",
-                requested_general_limit,
-                site_name=["linkedin"],
-                search_term=None,
-                location=location,
-                hours_old=hours_old,
-                description_format="markdown",
-                fetch_description=True,
-                verbose=0,
-                **scrape_kwargs,
-            )
-            if records:
-                add_records(
-                    records,
-                    pass_name="general",
-                    query_filter_easy_apply=easy_apply,
-                )
-            else:
-                print("  -> Nenhuma vaga encontrada na varredura geral.")
-        except Exception as error:
-            print(f"  [Aviso] Falha na varredura geral: {error}")
-            collection_errors.append(f"busca geral: {error}")
-
         if priority_terms:
             print(
-                f"\n[Fase Prioritária] Consultando termos prioritários "
+                f"\n[Fase 1] Consultando termos prioritários "
                 f"({len(priority_terms)}): {priority_terms}"
             )
             for pterm in priority_terms:
@@ -1156,6 +1143,45 @@ def collect_linkedin(
                 except Exception as error:
                     print(f"  [Aviso] Falha ao consultar termo prioritário '{pterm}': {error}")
                     collection_errors.append(f"termo prioritário '{pterm}': {error}")
+
+        remaining = MAX_UNIQUE_RESULTS_PER_RUN - len(all_jobs_dict)
+        if requested_general_limit > 0 and remaining > 0:
+            phase_label = "[Fase Geral]" if priority_terms else "[Fase 1/2]"
+            print(
+                f"\n{phase_label} Executando Varredura Aberta Geral "
+                "(todo o Brasil, sem filtro de palavras-chave)..."
+            )
+            general_budget = min(remaining, requested_general_limit)
+            try:
+                records = scrape_pass(
+                    "general",
+                    requested_general_limit,
+                    max_results=general_budget,
+                    site_name=["linkedin"],
+                    search_term=None,
+                    location=location,
+                    hours_old=hours_old,
+                    description_format="markdown",
+                    fetch_description=True,
+                    verbose=0,
+                    **scrape_kwargs,
+                )
+                if records:
+                    add_records(
+                        records,
+                        pass_name="general",
+                        query_filter_easy_apply=easy_apply,
+                    )
+                else:
+                    print("  -> Nenhuma vaga encontrada na varredura geral.")
+            except Exception as error:
+                print(f"  [Aviso] Falha na varredura geral: {error}")
+                collection_errors.append(f"busca geral: {error}")
+        elif requested_general_limit > 0:
+            print(
+                f"  [Aviso] Varredura geral não executada: teto agregado de "
+                f"{MAX_UNIQUE_RESULTS_PER_RUN} vagas únicas já atingido."
+            )
 
         remaining = MAX_UNIQUE_RESULTS_PER_RUN - len(all_jobs_dict)
         if (

@@ -1636,6 +1636,137 @@ class LinkedInSourceTests(unittest.TestCase):
             self.assertIn("prioritario:Tecnologia", pass_names)
             self.assertIn("remote_keyword_candidates", pass_names)
 
+    def test_priority_terms_run_before_general_sweep(self):
+        """Termos prioritários executam ANTES da varredura geral para evitar sufocamento de vagas qualificadas."""
+        scrape_calls = []
+
+        class MockDataFrame(list):
+            @property
+            def empty(self):
+                return len(self) == 0
+
+            def to_dict(self, orient="records"):
+                return list(self)
+
+        def mock_scrape(**kwargs):
+            scrape_calls.append(dict(kwargs))
+            term = kwargs.get("search_term")
+            return MockDataFrame([
+                {
+                    "id": f"li-{term or 'general'}-{len(scrape_calls)}",
+                    "job_url": f"https://www.linkedin.com/jobs/view/{len(scrape_calls)}",
+                    "title": f"Vaga {term or 'Geral'}",
+                    "company": f"Empresa {term or 'Geral'}",
+                    "location": "Brazil",
+                    "date_posted": date.today().isoformat(),
+                }
+            ])
+
+        with tempfile.TemporaryDirectory() as temporary:
+            snapshot_path = Path(temporary) / "linkedin.json"
+            with patch.object(
+                collect_linkedin, "scrape_jobs", side_effect=mock_scrape
+            ), patch.object(collect_linkedin.time, "sleep"):
+                rows = collect_linkedin.collect_linkedin(
+                    terms=None,
+                    priority_terms=["Flash", "Tecnologia"],
+                    results_limit=10,
+                    remote_results_limit=5,
+                    out_path=str(snapshot_path),
+                )
+
+            # Os dois primeiros scrapes DEVEM ser os termos prioritários (Flash e Tecnologia)
+            self.assertEqual(scrape_calls[0].get("search_term"), "Flash")
+            self.assertEqual(scrape_calls[1].get("search_term"), "Tecnologia")
+            self.assertIsNone(scrape_calls[2].get("search_term"))  # general
+            self.assertEqual(scrape_calls[3].get("search_term"), collect_linkedin.REMOTE_SEARCH_TERM)
+
+    def test_english_workplace_patterns_comprehensive(self):
+        """Classifica padrões em inglês como '100% remote', 'work model: remote', etc."""
+        collect_linkedin.CAPTURED_LINKEDIN_WORKPLACE.clear()
+        base_job = {
+            "company": "TechGlobal",
+            "location": "Brazil",
+            "date_posted": date.today().isoformat(),
+        }
+
+        cases = [
+            ("This is a 100% remote role for engineers in Brazil.", "remote"),
+            ("Work model: remote. We provide full equipment.", "remote"),
+            ("Work mode: remote.", "remote"),
+            ("We have a remote position in Brazil open immediately.", "remote"),
+            ("Remote opportunity for senior developers.", "remote"),
+            ("Job type: 100% remote.", "remote"),
+            ("Work model: hybrid. 2 days office, 3 days home.", "hybrid"),
+            ("100% híbrido com flexibilidade de horário.", "hybrid"),
+            ("Hybrid role based in São Paulo.", "hybrid"),
+            ("Work model: on-site. Presence required every day.", "on-site"),
+            ("100% on-site presence mandatory.", "on-site"),
+            ("On-site position in our headquarters.", "on-site"),
+        ]
+
+        for desc, expected in cases:
+            with self.subTest(desc=desc[:40]):
+                norm = collect_linkedin.normalize_linkedin_job(base_job | {
+                    "job_url": "https://www.linkedin.com/jobs/view/88888",
+                    "title": "Vaga Internacional",
+                    "description": desc,
+                })
+                self.assertEqual(norm["workplaceType"], expected)
+                self.assertTrue(norm["workplaceVerified"])
+                self.assertEqual(norm["workplaceEvidence"], "description_explicit")
+
+    def test_anonymous_company_exemptions_from_cap(self):
+        """Postagens com 'Confidencial', 'Empresa Confidencial' ou não informadas não são sufocadas pelo teto por empresa."""
+        anonymous_records = [
+            {
+                "id": f"li-anon-{i}",
+                "job_url": f"https://www.linkedin.com/jobs/view/3000{i}",
+                "title": f"Vaga Confidencial {i}",
+                "company": "Confidencial" if i % 2 == 0 else "Empresa Confidencial",
+                "location": "São Paulo, Brazil",
+                "date_posted": date.today().isoformat(),
+            }
+            for i in range(35)
+        ]
+
+        class MockDataFrame(list):
+            @property
+            def empty(self):
+                return len(self) == 0
+
+            def to_dict(self, orient="records"):
+                return list(self)
+
+        with tempfile.TemporaryDirectory() as temporary:
+            snapshot_path = Path(temporary) / "linkedin.json"
+            with patch.object(
+                collect_linkedin, "scrape_jobs", return_value=MockDataFrame(anonymous_records)
+            ), patch.object(collect_linkedin.time, "sleep"):
+                rows = collect_linkedin.collect_linkedin(
+                    results_limit=50,
+                    remote_results_limit=0,
+                    include_remote_pass=False,
+                    max_jobs_per_company=25,
+                    out_path=str(snapshot_path),
+                )
+
+            # Todas as 35 vagas devem ser aceitas porque 'Confidencial' é isento do teto
+            self.assertEqual(len(rows), 35)
+
+    def test_apply_button_precedence_over_other_top_card_links(self):
+        """Botão de apply explícito prevalece sobre links auxiliares do top-card, evitando sinais conflitantes."""
+        html = (
+            '<div class="top-card-layout">'
+            '  <a class="topcard__org-name-link" href="https://flashapp.com.br/apply">Visite nossa empresa</a>'
+            '  <button class="apply-button apply-button--default" data-tracking-control-name="public_jobs_apply-link-onsite">Candidatar-se</button>'
+            '</div>'
+        )
+        self.assertEqual(
+            collect_linkedin._extract_application_evidence_from_html(html),
+            ("easy_apply", True, "easy_apply_badge"),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
