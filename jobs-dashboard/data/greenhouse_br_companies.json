@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-09T23:34:04.578506+00:00",
+  "generated_at": "2026-11-10T11:34:04.686077+00:00",
   "candidate_count": 8331,
-  "company_count": 193,
+  "company_count": 192,
   "companies": [
     {
       "board": "abinbev",
@@ -152,12 +152,12 @@
     {
       "board": "braze",
       "company": "Braze",
-      "brazil_jobs": 13
+      "brazil_jobs": 14
     },
     {
       "board": "brex",
       "company": "Brex",
-      "brazil_jobs": 16
+      "brazil_jobs": 17
     },
     {
       "board": "bryantparkconsulting",
@@ -465,11 +465,6 @@
       "brazil_jobs": 2
     },
     {
-      "board": "hudl",
-      "company": "Hudl",
-      "brazil_jobs": 1
-    },
-    {
       "board": "indicacoesifoodinterno",
       "company": "iFood Indicações",
       "brazil_jobs": 1
@@ -767,7 +762,7 @@
     {
       "board": "sezzle",
       "company": "Sezzle",
-      "brazil_jobs": 39
+      "brazil_jobs": 38
     },
     {
       "board": "shifttechnology",
@@ -817,7 +812,7 @@
     {
       "board": "sumup",
       "company": "SumUp",
-      "brazil_jobs": 38
+      "brazil_jobs": 37
     },
     {
       "board": "syndigo",

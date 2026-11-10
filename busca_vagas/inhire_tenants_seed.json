@@ -1552,6 +1552,10 @@
     "tenantName": "Nexaas"
   },
   {
+    "slug": "nexforce-trial",
+    "tenantName": "nexforce-trial"
+  },
+  {
     "slug": "nibo",
     "tenantName": "Nibo"
   },
