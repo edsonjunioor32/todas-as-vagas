@@ -752,6 +752,10 @@
     "tenantName": "EQI"
   },
   {
+    "slug": "equanimus",
+    "tenantName": "equanimus"
+  },
+  {
     "slug": "erural",
     "tenantName": "erural"
   },
