@@ -192,12 +192,6 @@
       input_type: inputType,
       active_filter_count: activeFilterCount()
     });
-    if (target?.id === 'searchInput' && target.value.trim()) {
-      trackAnalyticsEvent('pesquisa_realizada', {
-        search_scope: 'keyword',
-        active_filter_count: activeFilterCount()
-      });
-    }
   }
 
   function normalize(value) {
@@ -1149,6 +1143,22 @@
   }
 
   let searchTimer;
+  let searchAnalyticsTimer;
+  let lastTrackedSearch = '';
+  function trackKeywordSearch() {
+    const value = elements.searchInput.value.trim();
+    if (!value) {
+      lastTrackedSearch = '';
+      return;
+    }
+    if (value === lastTrackedSearch) return;
+    lastTrackedSearch = value;
+    trackAnalyticsEvent('pesquisa_realizada', {
+      search_scope: 'keyword',
+      active_filter_count: activeFilterCount()
+    });
+  }
+
   function scheduleRender() {
     clearTimeout(searchTimer);
     searchTimer = setTimeout(() => { state.page = 1; render(); }, 180);
@@ -1172,7 +1182,11 @@
   }
 
   function bindEvents() {
-    elements.searchInput.addEventListener('input', scheduleRender);
+    elements.searchInput.addEventListener('input', () => {
+      scheduleRender();
+      clearTimeout(searchAnalyticsTimer);
+      searchAnalyticsTimer = setTimeout(trackKeywordSearch, 450);
+    });
     elements.excludeTerms.addEventListener('input', scheduleRender);
     elements.cityFilter.addEventListener('input', scheduleRender);
     elements.filtersForm.addEventListener('change', event => {
