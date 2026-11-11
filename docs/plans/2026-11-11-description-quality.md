@@ -13,6 +13,10 @@ A medição privada atual encontrou 87.321 registros. Os estados principais são
 
 Essa distribuição não será tratada como um único problema. 403/robots/429 exigem estratégia de acesso e ritmo; 404/410 exigem validação de URL ou vaga encerrada; no_description exige melhoria de extração; stale exige agenda; e textos curtos exigem classificação honesta, não preenchimento artificial.
 
+## Phase 1 delivery note
+
+A primeira onda foi implementada na branch feat/description-quality-20261111. O relatório foi executado contra o SQLite privado em modo somente leitura e produziu uma classificação integral do banco atual. A Fase 1 não altera schema, não executa coleta, não publica mensagens e não remove registros. A suíte direcionada passou com 31 testes; a suíte completa da cópia da VPS revelou somente os dois problemas pré-existentes do UnlockCareer registrados no changelog.
+
 ## Phase Overview
 
 | Phase | Name | Scope | Status |
@@ -30,7 +34,7 @@ Essa distribuição não será tratada como um único problema. 403/robots/429 e
 
 **Tasks:**
 
-- [ ] **1.1 Criar o classificador puro de qualidade**
+- [x] **1.1 Criar o classificador puro de qualidade**
   - **Context:** Hoje `fetched` não significa que a descrição esteja completa, e os totais misturam bloqueios, páginas curtas, páginas vazias e registros antigos.
   - **Implementation vision:** Criar `jobs-dashboard/description_quality.py` com classificação determinística e explicável:
     - `complete_candidate`: texto com pelo menos 1.000 caracteres e sinais de múltiplas seções, sem afirmar completude semântica;
@@ -45,24 +49,24 @@ Essa distribuição não será tratada como um único problema. 403/robots/429 e
   - **Verification:** Testes unitários cobrindo limites 0/1/199/200/999/1.000, estados 403/404/410/429, robots, stale, conteúdo de JSON-LD e conteúdo curto.
   - **Done when:** Cada combinação relevante recebe uma única categoria e um motivo legível; nenhum teste depende de rede ou da VPS.
 
-- [ ] **1.2 Criar relatório somente leitura por portal**
+- [x] **1.2 Criar relatório somente leitura por portal**
   - **Context:** A consulta atual permite contar estados globais, mas não entrega um diagnóstico operacional repetível por fonte.
   - **Implementation vision:** Criar `jobs-dashboard/description_report.py`, reutilizando o esquema de `job_descriptions`, para produzir JSON e Markdown com total por portal, qualidade, status, `content_kind`, última verificação, última coleta, tamanho total e filas vencidas. O relatório deve incluir amostras de URLs por motivo, com limite configurável, e retornar código de saída não zero somente para erro do relatório, não para a existência de bloqueios.
   - **Files:** `jobs-dashboard/description_report.py` (novo); `jobs-dashboard/tests/test_description_report.py` (novo); `jobs-dashboard/description_store.py` (alteração mínima apenas se forem necessários helpers de consulta).
   - **Verification:** Executar contra SQLite temporário com dados sintéticos e contra uma cópia somente leitura do banco privado; conferir que o relatório reproduz os totais baseline e não altera o arquivo.
   - **Done when:** Uma execução gera um relatório por portal que diferencia conteúdo utilizável, texto curto, vazio, bloqueado, stale e pendente, sem exigir o crawler.
 
-- [ ] **1.3 Integrar métricas de qualidade ao crawler sem quebrar o contrato existente**
+- [x] **1.3 Integrar métricas de qualidade ao crawler sem quebrar o contrato existente**
   - **Context:** O crawler já emite `DESCRIPTION_CRAWLER_METRICS`, e consumidores podem depender dos campos atuais.
   - **Implementation vision:** Manter todos os campos existentes e acrescentar contagens de qualidade, por fonte, status e motivo. A classificação deve ocorrer após a extração/fallback; falhas continuam registradas no store. Nenhum erro do relatório ou da classificação pode abortar o loop principal.
   - **Files:** `jobs-dashboard/description_crawler.py`; `jobs-dashboard/tests/test_description_crawler.py`; `jobs-dashboard/description_quality.py`.
   - **Verification:** Primeiro executar testes que falham para o novo contrato; depois implementar até passarem. Executar uma coleta limitada com timeout e confirmar que o snapshot público permanece inalterado quando o crawler privado falha.
   - **Done when:** Logs mostram as novas categorias, os campos antigos continuam presentes e uma falha individual continua isolada da execução geral.
 
-- [ ] **1.4 Documentar o contrato e os limites**
+- [x] **1.4 Documentar o contrato e os limites**
   - **Context:** Operadores precisam saber que “descrição completa” é uma classificação de qualidade, não uma garantia sobre o conteúdo original.
   - **Implementation vision:** Registrar critérios, exemplos, códigos de erro, limites de retry, relação com o portal público e procedimento para investigar uma fonte.
-  - **Files:** `docs/description-quality.md` (novo); `ops/ECOSYSTEM_MAP.md`; `ops/RISK_REGISTER.md`; `ops/OPERATIONS_CHANGELOG.md`.
+  - **Files:** `ops/ECOSYSTEM_MAP.md`; `ops/RISK_REGISTER.md` (novo); `ops/OPERATIONS_CHANGELOG.md`.
   - **Verification:** Revisão cruzada com o código, os testes e o esquema SQLite; confirmar que os riscos de 403, robots, 429, 404, stale e armazenamento aparecem com mitigação e impacto.
   - **Done when:** Um operador consegue interpretar o relatório e escolher a ação sem consultar o código-fonte.
 
