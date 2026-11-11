@@ -126,6 +126,44 @@ class DescriptionReportTests(unittest.TestCase):
         self.assertIn("complete_candidate", markdown)
         self.assertIn("https://example.com/blocked", markdown)
 
+    def test_report_preserves_http_reason_for_stale_description(self):
+        jobs = [{
+            "source": "portal-a",
+            "native_id": "stale-http",
+            "title": "Vaga com refresh bloqueado",
+            "company": "Empresa A",
+            "url": "https://example.com/stale-http",
+        }]
+        seen_at, _ = description_store.sync_manifest(self.connection, jobs)
+        job = description_store.pending_jobs(
+            self.connection, seen_at=seen_at
+        )[0]
+        description_store.record_success(
+            self.connection,
+            job,
+            "Descrição anterior " + "x" * 400,
+            content_kind="main",
+        )
+        self.connection.execute(
+            """
+            UPDATE job_descriptions
+            SET status = 'stale', http_status = 503, error = ?
+            WHERE job_uid = ?
+            """,
+            ("HTTP 503", job["job_uid"]),
+        )
+        self.connection.commit()
+
+        report = build_report(
+            self.connection,
+            seen_at=seen_at,
+            sample_limit=2,
+        )
+
+        self.assertEqual(report["quality"].get("blocked"), 1)
+        self.assertNotIn("stale", report["quality"])
+        self.assertEqual(report["samples"]["blocked"][0]["reason"], "http_503")
+
     def test_reader_is_query_only_and_does_not_change_database(self):
         self.connection.execute(
             "CREATE TABLE report_read_only_probe (value TEXT NOT NULL)"
