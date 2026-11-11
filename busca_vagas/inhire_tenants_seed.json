@@ -744,6 +744,10 @@
     "tenantName": "Enjoei"
   },
   {
+    "slug": "envolti",
+    "tenantName": "envolti"
+  },
+  {
     "slug": "enzrossi",
     "tenantName": "EnzRossi"
   },
@@ -994,6 +998,10 @@
   {
     "slug": "grupocomolatti",
     "tenantName": "Grupo Comolatti"
+  },
+  {
+    "slug": "grupodaycoval",
+    "tenantName": "grupodaycoval"
   },
   {
     "slug": "grupoeximio",
@@ -1750,6 +1758,10 @@
   {
     "slug": "prospertechtalents",
     "tenantName": "Prosper Tech Talents"
+  },
+  {
+    "slug": "pxcenter",
+    "tenantName": "pxcenter"
   },
   {
     "slug": "qeevo",
