@@ -1,3 +1,12 @@
+## 2026-11-11 — Contrato de qualidade das descrições privadas
+
+- Criados jobs-dashboard/description_quality.py e jobs-dashboard/description_report.py. A classificação é derivada, explicável e não chama texto curto de descrição completa.
+- O relatório é somente leitura: usa SQLite em modo ro e query_only, separa caracteres de bytes UTF-8 e agrupa qualidade, status, content_kind e portal.
+- O crawler mantém as métricas existentes e acrescenta quality_this_run, quality_by_source_this_run e quality_scope. Esses campos descrevem somente as vagas processadas no ciclo.
+- Baseline medido na VPS em 2026-11-11: 84.133 registros; 64.561 com texto; 33.378 candidatos extensos; 24.167 utilizáveis; 5.624 curtos; 5.957 vazios; 11.022 bloqueados; 1.392 stale; 2.593 pendentes.
+- Os testes direcionados da Fase 1 passaram (31 testes). A suíte completa da cópia da VPS teve 406 aprovações e duas falhas/erros pré-existentes do UnlockCareer causados pela ausência do pacote Selenium naquela máquina; isso permanece separado da Fase 1.
+- O relatório não executa sincronização de manifesto, limpeza, coleta, publicação ou fallback de navegador.
+
 ## 2026-11-11 — Descoberta InHire fora da rotina horária
 
 - **Verificação pós-mesclagem:** a próxima coleta completa será executada com a regra de descoberta semanal já publicada, evitando que a execução longa anterior seja usada como evidência do código antigo.
