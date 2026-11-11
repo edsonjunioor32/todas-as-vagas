@@ -47,8 +47,8 @@ def build_report(
     rows = connection.execute(
         f"""
         SELECT job_uid, source, native_id, title, company, url, description,
-               content_kind, status, checked_at, attempts, next_attempt_at,
-               fetched_at
+               content_kind, status, http_status, error, checked_at,
+               attempts, next_attempt_at, fetched_at
         FROM job_descriptions
         {where}
         ORDER BY source, job_uid
