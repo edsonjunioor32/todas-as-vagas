@@ -87,7 +87,7 @@ class ScheduleTests(unittest.TestCase):
         self.assertIn("Salvar checkpoints da coleta", pages)
         self.assertIn("JOBS_COLLECTION_CHECKPOINT_DIR", pages)
         self.assertIn(
-            "github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' ||",
+            "github.event_name == 'workflow_dispatch' || github.event.schedule == '43 7 * * 0'",
             pages,
         )
 
