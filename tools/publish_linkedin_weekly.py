@@ -233,10 +233,13 @@ def publish_weekly(dry_run: bool = False, webhook_url: str | None = None) -> int
 
     payload = {
         "text": post_text,
+        "content": post_text,
+        "image_url": DEFAULT_BANNER_URL,
+        "url": DEFAULT_BANNER_URL,
+        "image": DEFAULT_BANNER_URL,
         "date": today.isoformat(),
         "jobs_count": len(vacancies),
-        "type": "weekly_digest",
-        "image_url": DEFAULT_BANNER_URL
+        "type": "weekly_digest"
     }
 
     if dry_run:
