@@ -117,7 +117,27 @@ def assess_row(
     character_count = len(description)
     sections = _section_count(description)
 
+    http_status = _value(row, "http_status")
+    error = str(_value(row, "error")).strip()
     if status == "stale":
+        try:
+            numeric_http_status = int(http_status or 0)
+        except (TypeError, ValueError):
+            numeric_http_status = 0
+        if numeric_http_status >= 400:
+            return QualityAssessment(
+                "blocked",
+                f"http_{numeric_http_status}",
+                character_count,
+                sections,
+            )
+        if error:
+            return QualityAssessment(
+                "blocked",
+                "refresh_failed",
+                character_count,
+                sections,
+            )
         return QualityAssessment("stale", "stored_status_stale", character_count, sections)
 
     if _is_blocked(status):
