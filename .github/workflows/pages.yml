@@ -31,6 +31,7 @@ on:
     # Equivale a 08h07, 11h07, 15h07 e 20h07 em Brasília/Fortaleza.
     - cron: "7 11,14,18,23 * * *"
     # Atualização semanal do catálogo Greenhouse: domingo às 04h43 (UTC-3).
+    # Verificação pós-mesclagem [catalog-refresh:run]; manter este workflow dentro do gatilho de coleta.
     - cron: "43 7 * * 0"
 
 permissions:
