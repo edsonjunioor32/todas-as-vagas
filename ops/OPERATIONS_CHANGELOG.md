@@ -1,3 +1,12 @@
+## 2026-11-11 — Coleta pública independente da VPS e saúde dos canais
+
+- **Coleta resiliente:** `.github/workflows/pages.yml` e `merge-dynamic-portals.yml` passaram a usar `ubuntu-latest` para a coleta pública e para a consolidação de portais dinâmicos. A indisponibilidade do runner da VPS deixou de ser um ponto único para o catálogo; a VPS continua responsável pelos dados privados, OpenWA, fallback e serviços persistentes.
+- **Navegador otimizado:** `tools/ensure_chromium.sh` identifica ARM64 e x64, instala o par compatível de Chrome/ChromeDriver e usa cache do GitHub Actions. O limite de sessões renderizadas continua separado da concorrência HTTP (`COLLECTOR_BROWSER_WORKERS=2`) para reduzir saturação e timeouts.
+- **Gates separados:** a coleta não executa mais a suíte completa do analisador de aderência antes de consultar os portais. O smoke do fit e a validação do `fit.json` continuam sendo executados, mas falham de forma não bloqueante; quando necessário, `pipeline_fit.py` e o workflow preservam o último índice de aderência válido. A validação estrutural, privacidade e preflight do catálogo continuam bloqueando publicação insegura.
+- **Recuperação real:** `catalog-catchup.yml` agora despacha a recuperação para runner hospedado. O scheduler da VPS permanece como segunda via e mantém estado separado; a idempotência e os slots continuam obrigatórios para evitar duplicidade.
+- **Observabilidade externa:** foram preparados monitores diários independentes para Telegram ([PR #17](https://github.com/edsonjunioor32/edsonjunioor32-todas-as-vagas-telegram/pull/17)) e WhatsApp ([PR #29](https://github.com/edsonjunioor32/botwhats/pull/29)). Eles verificam catálogo, permissões, webhook, sessão e prontidão sem enviar mensagens de teste. O monitor do WhatsApp exige secrets SSH no ambiente `production`; a sessão OpenWA ainda precisa estar autenticada para o canal voltar a publicar.
+- **Validação local:** os testes direcionados de aderência/agendamento e os testes do recuperador passaram; a suíte completa e os checks dos PRs serão a validação final antes da mesclagem.
+
 ## 2026-11-10 — Correção da coleta contínua do LinkedIn e continuidade de catálogo em execuções parciais
 
 - **Integração da PR #187 na `main`:** merged commit `e9ad241` trazendo a injeção mandatória de `geoId=106057199`, orçamento dinâmico na Fase 2 para mitigar timeouts de 45 min no CI e preservação atômica das modalidades históricas em `clear_linkedin_work_models`.

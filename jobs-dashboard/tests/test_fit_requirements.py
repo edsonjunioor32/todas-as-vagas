@@ -188,6 +188,22 @@ class FitRequirementsTests(unittest.TestCase):
                 vf.main()
             self.assertIn("sem descrições/PII", validation_output.getvalue())
 
+    def test_pipeline_export_preserves_last_valid_fit_when_generation_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            target = root / "docs" / "data" / "fit.json"
+            fallback = root / "previous-fit.json"
+            previous = {"schema_version": 1, "count": 0, "terms": [], "jobs": {}}
+            fallback.write_text(json.dumps(previous), encoding="utf-8")
+            with patch.object(pf, "ROOT", root), patch.object(pf, "FIT_JSON", target), patch.dict(
+                os.environ, {"FIT_FALLBACK_PATH": str(fallback)}, clear=False
+            ), patch.object(
+                pf.fit_requirements, "export_fit_index", side_effect=RuntimeError("fixture failure")
+            ):
+                pf.export_fit_index([])
+
+            self.assertEqual(json.loads(target.read_text(encoding="utf-8")), previous)
+
     def test_quarantine_removes_only_invalid_fit_entry(self):
         valid_url = "https://example.com/job/valid"
         invalid_url = "https://example.com/job/invalid"
