@@ -278,6 +278,7 @@ COMPANY_LABELS = {
     "anerd": "A Nerd",
     "avanttibr": "Avantti",
     "bancobari": "Banco Bari",
+    "talentsclub": "Talents Club",
     "bemcriar": "Bem Criar",
     "beyondhr": "Beyond HR",
     "brsupply": "BR Supply",
@@ -569,7 +570,8 @@ QUICKIN_TENANTS = [
     "lotusict",
     "postogalo",
     "xlevel",
-    "bancobari"
+    "bancobari",
+    "talentsclub"
 ]
 
 
