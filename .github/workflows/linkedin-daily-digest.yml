@@ -1,0 +1,42 @@
+name: LinkedIn Daily Best Jobs Digest
+
+on:
+  schedule:
+    # Segunda a Quinta-feira às 21:00 UTC (18:00 BRT - Horário de Brasília)
+    # Nas sextas-feiras roda a edição semanal (linkedin-weekly-digest.yml)
+    - cron: '0 21 * * 1-4'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Simular postagem sem enviar para o Webhook do Make'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish-daily-digest:
+    name: Curar e Publicar Melhores Vagas do Dia no LinkedIn
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Executar Curadoria e Disparo da Edição Diária
+        env:
+          PYTHONPATH: tools
+          MAKE_LINKEDIN_WEBHOOK_URL: ${{ secrets.MAKE_LINKEDIN_WEBHOOK_URL || 'https://hook.us2.make.com/pmtttsu5fw61y2sjhyevac82zw74mwx0' }}
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            python tools/publish_linkedin_daily.py --dry-run
+          else
+            python tools/publish_linkedin_daily.py
+          fi
