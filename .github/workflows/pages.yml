@@ -291,7 +291,7 @@ jobs:
         run: python jobs-dashboard/discover_greenhouse_br.py --workers 6 --timeout 12
 
       - name: Descobrir novas empresas InHire
-        if: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[refresh-fit]'))) && !((github.event_name == 'workflow_dispatch' && inputs.publish_linkedin_only) || (github.event_name == 'repository_dispatch' && github.event.action == 'linkedin_refresh')) }}
+        if: ${{ (github.event_name == 'workflow_dispatch' || github.event.schedule == '43 7 * * 0') && !((github.event_name == 'workflow_dispatch' && inputs.publish_linkedin_only) || (github.event_name == 'repository_dispatch' && github.event.action == 'linkedin_refresh')) }}
         continue-on-error: true
         env:
           INHIRE_URLSCAN_PAGES: "20"
