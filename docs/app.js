@@ -171,6 +171,35 @@
     recentCompaniesMore: document.querySelector('#recentCompaniesMore'),
   };
 
+  function trackAnalyticsEvent(name, parameters = {}) {
+    if (typeof window.gtag !== 'function') return;
+    window.gtag('event', name, parameters);
+  }
+
+  function activeFilterCount() {
+    return activeFilterEntries().length;
+  }
+
+  function trackFilterUse(target) {
+    const filterName = target?.name || target?.id || 'unknown';
+    const inputType = target?.type === 'select-one'
+      ? 'select'
+      : target?.type === 'checkbox'
+        ? 'checkbox'
+        : 'text';
+    trackAnalyticsEvent('uso_filtro', {
+      filter_name: filterName,
+      input_type: inputType,
+      active_filter_count: activeFilterCount()
+    });
+    if (target?.id === 'searchInput' && target.value.trim()) {
+      trackAnalyticsEvent('pesquisa_realizada', {
+        search_scope: 'keyword',
+        active_filter_count: activeFilterCount()
+      });
+    }
+  }
+
   function normalize(value) {
     return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
   }
@@ -964,6 +993,14 @@
     link.rel = 'noopener noreferrer';
     link.textContent = 'Ver vaga original ↗';
     link.setAttribute('aria-label', `Ver vaga ${job.title} no portal ${job.sourceLabel}`);
+    link.addEventListener('click', () => {
+      trackAnalyticsEvent('clique_vaga_original', {
+        portal: job.sourceLabel,
+        modalidade: job.workplaceType,
+        mercado: job.market,
+        area: job.category
+      });
+    });
     footer.append(date, link);
 
     article.append(head, footer);
@@ -1007,6 +1044,15 @@
         state.page = 1;
         render();
         elements.searchInput.focus();
+        trackAnalyticsEvent('uso_filtro', {
+          filter_name: 'empresa_recente',
+          input_type: 'shortcut',
+          active_filter_count: 1
+        });
+        trackAnalyticsEvent('pesquisa_realizada', {
+          search_scope: 'company_shortcut',
+          active_filter_count: 1
+        });
         elements.resultsTitle.scrollIntoView({ block: 'start' });
       });
       const badge = document.createElement('span');
@@ -1108,11 +1154,32 @@
     searchTimer = setTimeout(() => { state.page = 1; render(); }, 180);
   }
 
+  function bindStaticAnalyticsEvents() {
+    document.querySelectorAll('a[href*="whatsapp.com"]').forEach(link => {
+      link.addEventListener('click', () => {
+        trackAnalyticsEvent('clique_whatsapp', {
+          placement: link.closest('.hero-access-grid') ? 'hero' : 'other'
+        });
+      });
+    });
+    document.querySelectorAll('a[data-fit-entry]').forEach(link => {
+      link.addEventListener('click', () => {
+        trackAnalyticsEvent('clique_analise_curriculo', {
+          placement: link.closest('.hero-access-grid') ? 'hero' : 'other'
+        });
+      });
+    });
+  }
+
   function bindEvents() {
     elements.searchInput.addEventListener('input', scheduleRender);
     elements.excludeTerms.addEventListener('input', scheduleRender);
     elements.cityFilter.addEventListener('input', scheduleRender);
-    elements.filtersForm.addEventListener('change', () => { state.page = 1; render(); });
+    elements.filtersForm.addEventListener('change', event => {
+      state.page = 1;
+      render();
+      trackFilterUse(event.target);
+    });
     elements.sortFilter.addEventListener('change', () => { state.page = 1; render(); });
     elements.clearFilters.addEventListener('click', resetFilters);
     elements.shareSearch?.addEventListener('click', shareSearch);
@@ -1224,5 +1291,6 @@
   }
 
   initTheme();
+  bindStaticAnalyticsEvents();
   init();
 })();
