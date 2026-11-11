@@ -81,6 +81,31 @@ DEFAULT_HOURS_OLD = 1440
 JOBSPY_BATCH_SIZE = 100
 LINKEDIN_BRAZIL_GEO_ID = "106057199"
 
+
+def _inject_linkedin_search_params(params, scraper_input=None):
+    """Aplica filtros públicos do LinkedIn sem depender da biblioteca JobSpy."""
+    if not isinstance(params, dict):
+        return params
+    loc = str(
+        (scraper_input and getattr(scraper_input, "location", None))
+        or params.get("location", "")
+        or ""
+    ).casefold()
+    if "brazil" in loc or "brasil" in loc or not loc:
+        params["geoId"] = LINKEDIN_BRAZIL_GEO_ID
+    params["f_E"] = "2,3,4"
+    params["f_TPR"] = "r604800"
+    params["sortBy"] = "DD"
+    if (scraper_input and getattr(scraper_input, "easy_apply", False)) or _CURRENT_EASY_APPLY:
+        params["f_AL"] = "true"
+    else:
+        params.pop("f_AL", None)
+    if _CURRENT_PASS_F_WT:
+        params["f_WT"] = str(_CURRENT_PASS_F_WT)
+    else:
+        params.pop("f_WT", None)
+    return params
+
 # Importações condicionais para permitir que módulos de validação/testes importem
 # funções utilitárias (ex: normalize_linkedin_job) mesmo em ambientes de CI leves
 # onde pandas e jobspy não estão instalados no catálogo principal.
@@ -592,25 +617,6 @@ try:
         )
 
     LinkedIn._fetch_details = _patched_linkedin_fetch_details
-
-    def _inject_linkedin_search_params(params, scraper_input=None):
-        if not isinstance(params, dict):
-            return params
-        loc = str((scraper_input and getattr(scraper_input, "location", None)) or params.get("location", "") or "").casefold()
-        if "brazil" in loc or "brasil" in loc or not loc:
-            params["geoId"] = LINKEDIN_BRAZIL_GEO_ID
-        params["f_E"] = "2,3,4"
-        params["f_TPR"] = "r604800"
-        params["sortBy"] = "DD"
-        if (scraper_input and getattr(scraper_input, "easy_apply", False)) or _CURRENT_EASY_APPLY:
-            params["f_AL"] = "true"
-        else:
-            params.pop("f_AL", None)
-        if _CURRENT_PASS_F_WT:
-            params["f_WT"] = str(_CURRENT_PASS_F_WT)
-        else:
-            params.pop("f_WT", None)
-        return params
 
     # Injeta parâmetros otimizados nas buscas públicas do LinkedIn
     if hasattr(LinkedIn, "_search_params"):
