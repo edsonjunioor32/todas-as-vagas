@@ -1,5 +1,7 @@
 ## 2026-11-11 — Descoberta InHire fora da rotina horária
 
+- **Verificação pós-mesclagem:** a próxima coleta completa será executada com a regra de descoberta semanal já publicada, evitando que a execução longa anterior seja usada como evidência do código antigo.
+
 - **Coleta otimizada:** a etapa exploratória de novos tenants InHire deixa de rodar em todas as janelas do catálogo e passa a rodar no domingo, no slot semanal de descoberta, ou sob demanda. A coleta de tenants já conhecidos continua em cada atualização regular.
 - **Motivo operacional:** Wayback, URLScan, crt.sh e Common Crawl são fontes exploratórias independentes e podem consumir vários minutos; separá-las reduz o tempo de cauda das atualizações frequentes sem perder a descoberta periódica de novas empresas.
 - **Risco controlado:** uma empresa InHire recém-publicada pode entrar no catálogo na próxima descoberta semanal, mas as empresas já cadastradas não sofrem atraso. A etapa continua com tolerância a falhas e não bloqueia os demais portais.
