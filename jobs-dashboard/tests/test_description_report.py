@@ -1,4 +1,5 @@
 import json
+import sqlite3
 import sys
 import tempfile
 import unittest
@@ -100,6 +101,8 @@ class DescriptionReportTests(unittest.TestCase):
 
         self.assertEqual(before, after)
         self.assertEqual(report["total"], 4)
+        self.assertGreater(report["description_chars"], 0)
+        self.assertGreater(report["description_bytes"], 0)
         self.assertEqual(
             report["quality"],
             {
@@ -122,6 +125,35 @@ class DescriptionReportTests(unittest.TestCase):
         self.assertIn("portal-a", markdown)
         self.assertIn("complete_candidate", markdown)
         self.assertIn("https://example.com/blocked", markdown)
+
+    def test_reader_is_query_only_and_does_not_change_database(self):
+        self.connection.execute(
+            "CREATE TABLE report_read_only_probe (value TEXT NOT NULL)"
+        )
+        self.connection.commit()
+        before_mtime = self.path.stat().st_mtime_ns
+
+        reader = __import__("description_report")._read_only_connection(self.path)
+        try:
+            self.assertEqual(
+                reader.execute("PRAGMA query_only").fetchone()[0],
+                1,
+            )
+            with self.assertRaises(sqlite3.OperationalError):
+                reader.execute(
+                    "CREATE TABLE should_not_exist (value TEXT NOT NULL)"
+                )
+        finally:
+            reader.close()
+
+        after_mtime = self.path.stat().st_mtime_ns
+        self.assertEqual(before_mtime, after_mtime)
+        self.assertIsNone(
+            self.connection.execute(
+                "SELECT name FROM sqlite_master WHERE name = ?",
+                ("should_not_exist",),
+            ).fetchone()
+        )
 
 
 if __name__ == "__main__":
