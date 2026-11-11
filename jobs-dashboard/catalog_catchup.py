@@ -288,8 +288,8 @@ def _incident_body(slot: datetime, reason: str, runs: list[dict], detail: str = 
         f"- Slot esperado (UTC): {slot.isoformat()}\n"
         f"- Motivo: {reason}"
         f"{run_line}{detail_line}\n\n"
-        "O monitor não coleta vagas diretamente. Se não houver escritor ativo, ele despacha "
-        "uma recuperação identificada por repository_dispatch; a publicação continua no runner self-hosted."
+        "O monitor não coleta vagas diretamente. Se não houver uma execução ativa, ele despacha "
+        "uma recuperação identificada por repository_dispatch; a publicação roda no runner hospedado."
     )
 
 

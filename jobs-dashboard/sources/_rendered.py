@@ -29,7 +29,7 @@ def _positive_int_env(name, default, minimum=1, maximum=8):
     return min(maximum, max(minimum, value))
 
 
-# A single ARM64 runner can exhaust the Chromium process/file-descriptor budget when
+# A single catalog runner can exhaust the Chromium process/file-descriptor budget when
 # several rendered portals start browsers at the same time. Keep source-level
 # HTTP concurrency unchanged, but serialize browser sessions to a small pool.
 _BROWSER_SLOTS = _positive_int_env("COLLECTOR_BROWSER_WORKERS", 2, maximum=4)
@@ -47,8 +47,9 @@ def _webdriver():
     """Create a bounded, retrying headless driver for rendered career pages.
 
     Selenium Manager may download or select a driver for the wrong architecture
-    on self-hosted ARM64 runners. Prefer explicitly configured/system binaries,
-    while retaining Selenium Manager as a fallback for hosted CI environments.
+    on mixed hosted/self-hosted runners. Prefer explicitly configured/system
+    binaries, while retaining Selenium Manager as a fallback for hosted CI
+    environments.
     Browser sessions are limited independently from source HTTP workers so one
     unstable portal cannot exhaust the runner and make other rendered portals
     fail with the same Chrome startup error.

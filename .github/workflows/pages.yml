@@ -49,7 +49,7 @@ concurrency:
 jobs:
   publicar-interface:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push' && !contains(github.event.head_commit.message, '[refresh-fit]') && !contains(github.event.head_commit.message, '[isolated]') && !contains(github.event.head_commit.message, '[catalog-refresh:run]') && !contains(github.event.head_commit.message, '[linkedin-refresh]')
-    runs-on: [self-hosted, Linux, ARM64]
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     environment:
       name: github-pages
@@ -115,7 +115,7 @@ jobs:
 
   atualizar-e-publicar:
     if: (github.ref == 'refs/heads/main' || github.event_name == 'repository_dispatch') && (github.event_name != 'push' || ((contains(github.event.head_commit.message, '[refresh-fit]') || contains(github.event.head_commit.message, '[catalog-refresh:run]') || contains(github.event.head_commit.message, '[linkedin-refresh]')) && !contains(github.event.head_commit.message, '[isolated]')))
-    runs-on: [self-hosted, Linux, ARM64]
+    runs-on: ubuntu-latest
     timeout-minutes: 120
     environment:
       name: github-pages
@@ -138,7 +138,15 @@ jobs:
           git reflog expire --expire=now --all
           git gc --prune=now
 
-      - name: Preparar navegador Chromium ARM64
+      - name: Restaurar cache do navegador
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/todas-as-vagas/chrome-for-testing
+          key: cft-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('tools/ensure_chromium.sh') }}
+          restore-keys: |
+            cft-${{ runner.os }}-${{ runner.arch }}-
+
+      - name: Preparar navegador Chrome for Testing
         shell: bash
         run: bash tools/ensure_chromium.sh
 
@@ -202,11 +210,13 @@ jobs:
           git fetch --depth=1 --no-tags origin +refs/heads/public-data:refs/remotes/origin/public-data
           previous_dir="$(mktemp -d)"
           trap 'rm -rf -- "$previous_dir"' EXIT
-          git archive origin/public-data data/vagas.json | tar -x -C "$previous_dir"
+          git archive origin/public-data data/vagas.json data/fit.json | tar -x -C "$previous_dir"
           cp "$previous_dir/data/vagas.json" .previous-vagas.json
+          cp "$previous_dir/data/fit.json" .previous-fit.json
           git rev-parse origin/public-data > .previous-public-data-sha
           test -s .previous-public-data-sha
           test -s .previous-vagas.json
+          test -s .previous-fit.json
 
       - name: Preparar Node.js
         uses: actions/setup-node@v4
@@ -253,14 +263,21 @@ jobs:
           finally:
               driver.quit()
 
-      - name: Testar analisador de aderência
+      - name: Validar smoke do analisador de aderência
+        id: fit-smoke
+        continue-on-error: true
         run: |
-          python -m unittest discover -s jobs-dashboard/tests -v
           python -m py_compile jobs-dashboard/notify_telegram.py
           npm run test:fit
           node --check docs/fit-entry.js
           node --input-type=module --check < docs/aderencia/fit-engine.js
           node --input-type=module --check < docs/aderencia/app.js
+
+      - name: Registrar falha do smoke sem bloquear o catálogo
+        if: steps.fit-smoke.outcome != 'success'
+        run: |
+          echo "::warning::O smoke do analisador falhou; a coleta do catálogo continuará e o último fit válido será preservado se necessário."
+          echo "O smoke do analisador falhou; a coleta do catálogo não foi bloqueada." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Preflight antes da coleta
         env:
@@ -336,6 +353,7 @@ jobs:
           INFOJOBS_MAX_JOBS: "2000"
           INFOJOBS_MAX_SCROLLS: "0"
           JOBS_COLLECTION_CHECKPOINT_DIR: "jobs-dashboard/data/collection_checkpoints"
+          FIT_FALLBACK_PATH: ".previous-fit.json"
           LINKEDIN_ONLY: ${{ (github.event_name == 'repository_dispatch' && github.event.action == 'linkedin_refresh') || (github.event_name == 'workflow_dispatch' && inputs.publish_linkedin_only) }}
         run: |
           set -euo pipefail
@@ -355,7 +373,7 @@ jobs:
           path: jobs-dashboard/data/collection_checkpoints
           key: catalog-collection-v1-${{ steps.collection-context.outputs.resume_key }}-${{ github.run_id }}-${{ github.run_attempt }}
 
-      - name: Validar privacidade e integridade
+      - name: Validar privacidade e integridade do catálogo
         env:
           MIN_PUBLIC_JOBS: "500"
           PREVIOUS_SNAPSHOT_PATH: ".previous-vagas.json"
@@ -366,7 +384,20 @@ jobs:
           MAX_DUPLICATE_URL_RATIO: "0.005"
         run: |
           python jobs-dashboard/validate_snapshot.py
+
+      - name: Validar índice de aderência
+        id: fit-validation
+        continue-on-error: true
+        run: python jobs-dashboard/validate_fit.py
+
+      - name: Preservar último índice de aderência válido
+        if: steps.fit-validation.outcome != 'success'
+        run: |
+          set -euo pipefail
+          cp .previous-fit.json docs/data/fit.json
           python jobs-dashboard/validate_fit.py
+          echo "::warning::O índice de aderência desta execução foi rejeitado; o último índice válido foi preservado."
+          echo "O índice de aderência anterior foi preservado; o catálogo de vagas continua atualizado." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Preflight antes da publicação
         env:

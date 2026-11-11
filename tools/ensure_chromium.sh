@@ -2,18 +2,34 @@
 set -euo pipefail
 trap 'status=$?; echo "ERRO: provisionamento do navegador falhou na linha ${LINENO} (exit ${status})." >&2' ERR
 
-# Rendered public portals run on the self-hosted ARM64 runner. The Ubuntu
-# Chromium Snap driver exits with status 1 in the headless systemd runner, so
-# use the matching official Chrome for Testing ARM64 browser and driver.
+# Rendered public portals can run on the VPS ARM64 runner or on a GitHub-hosted
+# x64 runner. The Ubuntu Chromium Snap driver exits with status 1 in the
+# headless systemd runner, so use the matching official Chrome for Testing
+# browser and driver for the detected architecture.
 if [ "${SKIP_CHROMIUM_PROVISION:-0}" = "1" ]; then
   echo "Provisionamento do navegador ignorado por SKIP_CHROMIUM_PROVISION=1."
   exit 0
 fi
 
-if [ "$(uname -m)" != "aarch64" ] && [ "$(uname -m)" != "arm64" ]; then
-  echo "ERRO: este passo exige runner ARM64; arquitetura detectada: $(uname -m)" >&2
-  exit 1
-fi
+machine_arch="$(uname -m)"
+case "$machine_arch" in
+  aarch64|arm64)
+    cft_platform="linux-arm64"
+    chrome_dir="chrome-linux-arm64"
+    driver_dir="chromedriver-linux-arm64"
+    architecture_label="ARM64"
+    ;;
+  x86_64|amd64)
+    cft_platform="linux64"
+    chrome_dir="chrome-linux64"
+    driver_dir="chromedriver-linux64"
+    architecture_label="x64"
+    ;;
+  *)
+    echo "ERRO: arquitetura sem pacote Chrome for Testing compatível: $machine_arch" >&2
+    exit 1
+    ;;
+esac
 
 for command_name in curl python3 timeout; do
   if ! command -v "$command_name" >/dev/null 2>&1; then
@@ -48,18 +64,21 @@ manifest_url="https://googlechromelabs.github.io/chrome-for-testing/last-known-g
 curl --fail --location --silent --show-error --retry 3 --connect-timeout 20 --max-time 90 \
   "$manifest_url" --output "$manifest_file"
 
-mapfile -t release_data < <(python3 - "$manifest_file" <<'PY'
+mapfile -t release_data < <(python3 - "$manifest_file" "$cft_platform" <<'PY'
 import json
 import sys
 
 with open(sys.argv[1], encoding="utf-8") as source:
     stable = json.load(source)["channels"]["Stable"]
+platform = sys.argv[2]
 
 def asset(name):
     for item in stable["downloads"][name]:
-        if item["platform"] == "linux-arm64":
+        if item["platform"] == platform:
             return item["url"]
-    raise SystemExit(f"Stable Chrome for Testing has no linux-arm64 {name} asset")
+    raise SystemExit(
+        f"Stable Chrome for Testing has no {platform} {name} asset"
+    )
 
 print(stable["version"])
 print(asset("chrome"))
@@ -68,15 +87,15 @@ PY
 )
 
 if [ "${#release_data[@]}" -ne 3 ]; then
-  echo "ERRO: metadados incompletos do Chrome for Testing ARM64." >&2
+  echo "ERRO: metadados incompletos do Chrome for Testing $architecture_label." >&2
   exit 1
 fi
 
 version="${release_data[0]}"
 chrome_url="${release_data[1]}"
 driver_url="${release_data[2]}"
-chrome_binary="$install_root/chrome-linux-arm64/chrome"
-driver_binary="$install_root/chromedriver-linux-arm64/chromedriver"
+chrome_binary="$install_root/$chrome_dir/chrome"
+driver_binary="$install_root/$driver_dir/chromedriver"
 
 if [ ! -x "$chrome_binary" ] || [ ! -x "$driver_binary" ] || \
    [ ! -f "$install_root/version" ] || [ "$(<"$install_root/version")" != "$version" ]; then
@@ -107,10 +126,10 @@ for archive in sys.argv[1:3]:
                 os.chmod(extracted, mode)
 PY
 
-  test -x "$stage/chrome-linux-arm64/chrome"
-  test -x "$stage/chromedriver-linux-arm64/chromedriver"
-  mv "$stage/chrome-linux-arm64" "$next_install/"
-  mv "$stage/chromedriver-linux-arm64" "$next_install/"
+  test -x "$stage/$chrome_dir/chrome"
+  test -x "$stage/$driver_dir/chromedriver"
+  mv "$stage/$chrome_dir" "$next_install/"
+  mv "$stage/$driver_dir" "$next_install/"
   printf '%s\n' "$version" > "$next_install/version"
 
   if [ -e "$install_root" ]; then
@@ -196,7 +215,7 @@ fi
 
 if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
   {
-    echo "### Chrome for Testing ARM64"
+    echo "### Chrome for Testing $architecture_label"
     echo
     echo "- Chromium: $browser_version"
     echo "- ChromeDriver: $driver_version"
@@ -204,4 +223,4 @@ if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
   } >> "$GITHUB_STEP_SUMMARY"
 fi
 
-echo "Chrome for Testing/ChromeDriver ARM64 instalados e verificados."
+echo "Chrome for Testing/ChromeDriver $architecture_label instalados e verificados."

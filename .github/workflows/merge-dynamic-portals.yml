@@ -20,7 +20,7 @@ jobs:
   merge:
     if: github.event_name == 'workflow_dispatch' || !contains(github.event.head_commit.message, '[refresh-fit]')
     name: Mesclar somente os portais validados
-    runs-on: [self-hosted, Linux, ARM64]
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     environment:
       name: github-pages
@@ -32,7 +32,15 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: Preparar navegador Chromium ARM64
+      - name: Restaurar cache do navegador
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/todas-as-vagas/chrome-for-testing
+          key: cft-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('tools/ensure_chromium.sh') }}
+          restore-keys: |
+            cft-${{ runner.os }}-${{ runner.arch }}-
+
+      - name: Preparar navegador Chrome for Testing
         shell: bash
         run: bash tools/ensure_chromium.sh
 
