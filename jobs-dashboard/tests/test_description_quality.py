@@ -79,6 +79,19 @@ class DescriptionQualityTests(unittest.TestCase):
         self.assertEqual(result.level, "complete_candidate")
         self.assertGreaterEqual(result.section_count, 2)
 
+    def test_stale_with_http_error_is_blocked(self):
+        result = assess_row(
+            self.row(
+                status="stale",
+                description="Descrição anterior " + "x" * 300,
+                http_status=503,
+                error="upstream unavailable",
+            ),
+            now=self.now,
+        )
+        self.assertEqual(result.level, "blocked")
+        self.assertEqual(result.reason, "http_503")
+
     def test_long_text_without_sections_remains_usable(self):
         result = assess_row(
             self.row(status="fetched", description="x" * 1500),
