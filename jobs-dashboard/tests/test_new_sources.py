@@ -19,6 +19,7 @@ from sources import (  # noqa: E402
     geekhunter,
     infojobs,
     quickin,
+    maitha,
     requested_careers,
     requested_portals_27082026,
     requested_portals_28082026,
@@ -557,11 +558,12 @@ class CompanyBatchTests(unittest.TestCase):
     def test_requested_company_boards_are_unique_and_not_global_infovagas(self):
         names = [name for name, _fetch in requested_portals_03092026.TARGETS]
         self.assertEqual(len(names), len(set(names)))
-        self.assertEqual(len(names), 158)
+        self.assertEqual(len(names), 159)
         self.assertIn("meutudo", names)
         self.assertIn("minsait", names)
         self.assertIn("positivosmais", names)
         self.assertIn("emphasys", names)
+        self.assertIn("talentsclub", names)
         for tenant in ("evoluetreinamento", "levelcinco", "lotusict", "postogalo", "xlevel"):
             self.assertIn(tenant, names)
         self.assertNotIn("infovagas", names)

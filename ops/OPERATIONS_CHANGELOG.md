@@ -1,3 +1,9 @@
+## 2026-11-11 — Inclusão dos portais Talents Club e Maitha Tech
+
+- **Talents Club:** o tenant Quickin `talentsclub` foi registrado para coletar o quadro corporativo completo; a URL de exemplo não limita a coleta a uma única vaga.
+- **Maitha Tech:** a fonte usa a API pública do portal para listar oportunidades e consultar os detalhes individuais, preservando título, descrição, localidade, modalidade, perfil, habilidades, contrato, data e link oficial.
+- **Isolamento:** as duas fontes entram como alvos independentes do registro do catálogo. Uma indisponibilidade em qualquer uma delas não bloqueia as demais nem substitui o último estado válido.
+- **Validação:** foram incluídos testes do adaptador Maitha e da inclusão do tenant Quickin; a execução da suíte será registrada no PR.
 ## 2026-11-11 — Descoberta InHire fora da rotina horária
 
 - **Verificação pós-mesclagem:** a próxima coleta completa será executada com a regra de descoberta semanal já publicada, evitando que a execução longa anterior seja usada como evidência do código antigo.
@@ -348,6 +354,7 @@ O registro de adaptadores fica em `jobs-dashboard/sources/__init__.py`. Cada mó
 - `jobs-dashboard/sources/levva.py` — vagas Levva.
 - `jobs-dashboard/sources/linkedin.py` — valida e adapta o snapshot público do LinkedIn para o pipeline principal.
 - `jobs-dashboard/sources/mercadolivre.py` — vagas Mercado Livre.
+- `jobs-dashboard/sources/maitha.py` — vagas Maitha Tech via API pública de oportunidades.
 - `jobs-dashboard/sources/nerdin.py` — vagas Nerdin.
 - `jobs-dashboard/sources/ngcash.py` — vagas NG.CASH.
 - `jobs-dashboard/sources/ntconsult.py` — vagas NTConsult/Compleo.

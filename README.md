@@ -57,6 +57,8 @@ Assim, o catálogo permanece em um único ponto de verdade: uma atualização be
 
 ## Portais incluídos
 
+- Quadros adicionais: **Talents Club** (Quickin) e **Maitha Tech** (API pública de oportunidades).
+
 - Brasil: **InHire, Empregare, Gupy, Sólides, Recrut.AI, Taggui RH, GeekHunter, Nerdin e InfoJobs**;
 - globais: **The Muse, Remotive, Jobicy, Remote OK, Himalayas, Working Nomads, Arbeitnow e We Work Remotely**;\n- busca pública especializada: **LinkedIn**, incluindo vagas com todos os tipos públicos de candidatura;
 - páginas públicas de empresas: **Stone, iFood, PicPay, Banco Original, Braskem, GM Financial, Dell Technologies, ArcelorMittal, Grupo Mateus, AutoZone, NOV, Arcor Brasil, Greenhouse Brasil, Lever e Ashby**.
