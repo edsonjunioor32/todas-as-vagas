@@ -1,3 +1,9 @@
+## 2026-11-11 — Descoberta InHire fora da rotina horária
+
+- **Coleta otimizada:** a etapa exploratória de novos tenants InHire deixa de rodar em todas as janelas do catálogo e passa a rodar no domingo, no slot semanal de descoberta, ou sob demanda. A coleta de tenants já conhecidos continua em cada atualização regular.
+- **Motivo operacional:** Wayback, URLScan, crt.sh e Common Crawl são fontes exploratórias independentes e podem consumir vários minutos; separá-las reduz o tempo de cauda das atualizações frequentes sem perder a descoberta periódica de novas empresas.
+- **Risco controlado:** uma empresa InHire recém-publicada pode entrar no catálogo na próxima descoberta semanal, mas as empresas já cadastradas não sofrem atraso. A etapa continua com tolerância a falhas e não bloqueia os demais portais.
+
 ## 2026-11-11 — Coleta pública independente da VPS e saúde dos canais
 
 - **Coleta resiliente:** `.github/workflows/pages.yml` e `merge-dynamic-portals.yml` passaram a usar `ubuntu-latest` para a coleta pública e para a consolidação de portais dinâmicos. A indisponibilidade do runner da VPS deixou de ser um ponto único para o catálogo; a VPS continua responsável pelos dados privados, OpenWA, fallback e serviços persistentes.
