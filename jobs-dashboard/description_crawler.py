@@ -28,6 +28,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 
 import description_store
+from description_quality import assess_row
 
 
 DEFAULT_CATALOG_URL = (
@@ -492,6 +493,36 @@ def load_catalog(path: str, url: str, *, timeout: float, user_agent: str) -> lis
     return rows
 
 
+def quality_metrics_for_jobs(connection, job_uids: list[str]) -> dict[str, dict]:
+    """Classify only rows processed by the current crawler execution."""
+    unique_uids = list(dict.fromkeys(str(uid) for uid in job_uids if uid))
+    if not unique_uids:
+        return {"quality": {}, "by_source": {}}
+    placeholders = ",".join("?" for _ in unique_uids)
+    rows = connection.execute(
+        f"""
+        SELECT job_uid, source, description, status, checked_at
+        FROM job_descriptions
+        WHERE job_uid IN ({placeholders})
+        """,
+        unique_uids,
+    ).fetchall()
+    quality = Counter()
+    by_source: dict[str, Counter] = {}
+    for row in rows:
+        assessment = assess_row(row)
+        quality[assessment.level] += 1
+        source = str(row["source"] or "unknown")
+        by_source.setdefault(source, Counter())[assessment.level] += 1
+    return {
+        "quality": dict(sorted(quality.items())),
+        "by_source": {
+            source: dict(sorted(counts.items()))
+            for source, counts in sorted(by_source.items())
+        },
+    }
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -597,6 +628,7 @@ def main() -> None:
     obscura_fetched = 0
     obscura_failed = 0
     failures_by_status: Counter[str] = Counter()
+    processed_job_uids: list[str] = []
 
     def obscura_fallback(job: dict) -> tuple[str, str]:
         nonlocal obscura_failed
@@ -630,6 +662,7 @@ def main() -> None:
             )
             denied += 1
             failures_by_status["robots_denied"] += 1
+            processed_job_uids.append(job["job_uid"])
             processed += 1
             continue
         try:
@@ -713,6 +746,7 @@ def main() -> None:
             )
             failed += 1
             failures_by_status["parse_error"] += 1
+        processed_job_uids.append(job["job_uid"])
         processed += 1
 
     summary = description_store.stats(
@@ -720,6 +754,7 @@ def main() -> None:
         seen_at=seen_at,
         refresh_after_days=max(0, args.refresh_after_days),
     )
+    quality_metrics = quality_metrics_for_jobs(connection, processed_job_uids)
     connection.close()
     elapsed = time.monotonic() - started
     http_failures = sum(
@@ -741,6 +776,9 @@ def main() -> None:
             sorted(Counter(job["status"] for job in pending).items())
         ),
         "processed": processed,
+        "quality_this_run": quality_metrics["quality"],
+        "quality_by_source_this_run": quality_metrics["by_source"],
+        "quality_scope": "processed_rows_only",
         "failed_attempts": failed + denied,
         "descriptions_fetched_this_run": fetched,
         "descriptions_fetched_with_obscura": obscura_fetched,
