@@ -9,26 +9,26 @@
 
 ## Baseline confirmado
 
-A medição privada atual encontrou 87.321 registros. Os estados principais são: 68.862 fetched, 6.027 no_description, 3.824 HTTP 403, 3.579 HTTP 404, 2.568 robots_denied, 1.365 stale e 417 HTTP 429. Há 17.094 registros sem texto, 5.638 textos de 1–199 caracteres, 10.315 de 200–999, 13.344 de 1.000–1.999 e 40.930 com pelo menos 2.000 caracteres.
+A medição somente leitura executada na VPS em 2026-11-11 encontrou 84.133 registros. O classificador derivou: 33.378 complete_candidate, 24.167 usable, 5.624 short, 5.957 empty, 11.022 blocked, 1.392 stale e 2.593 pending. Há 64.561 registros com texto. Esse baseline é reproduzível pelo description_report.py e pode mudar quando o manifesto público for atualizado.
 
 Essa distribuição não será tratada como um único problema. 403/robots/429 exigem estratégia de acesso e ritmo; 404/410 exigem validação de URL ou vaga encerrada; no_description exige melhoria de extração; stale exige agenda; e textos curtos exigem classificação honesta, não preenchimento artificial.
 
 ## Phase 1 delivery note
 
-A primeira onda foi implementada na branch feat/description-quality-20261111. O relatório foi executado contra o SQLite privado em modo somente leitura e produziu uma classificação integral do banco atual. A Fase 1 não altera schema, não executa coleta, não publica mensagens e não remove registros. A suíte direcionada passou com 31 testes; a suíte completa da cópia da VPS revelou somente os dois problemas pré-existentes do UnlockCareer registrados no changelog.
+A primeira onda foi implementada na branch feat/description-quality-20261111. O relatório foi executado contra o SQLite privado em modo somente leitura e produziu uma classificação integral do banco atual. A Fase 1 não altera schema, não executa coleta, não publica mensagens e não remove registros. Os testes direcionados passaram com 31 casos; a suíte completa da cópia da VPS teve 406 aprovações e os dois problemas pré-existentes do UnlockCareer registrados no changelog.
 
 ## Phase Overview
 
 | Phase | Name | Scope | Status |
 |---|---|---|---|
-| 1 | Contrato de qualidade e observabilidade | Classificação derivada, relatório por portal, métricas compatíveis e testes | Pending |
+| 1 | Contrato de qualidade e observabilidade | Classificação derivada, relatório por portal, métricas compatíveis e testes | Complete — pending review |
 | 2 | Estratégias específicas por portal | Resolver URLs canônicas, APIs públicas, HTML, JSON-LD e fallback de navegador por família | Pending |
 | 3 | Backfill resiliente e operação | Fila priorizada, limites, retomada, alertas de armazenamento e execução diária | Pending |
 | 4 | Validação de produção | Reprocessamento controlado, comparação antes/depois e documentação operacional | Pending |
 
 ### Epic: Phase 1 — Contrato de qualidade e observabilidade
 
-**Status:** Pending
+**Status:** Complete — pending review
 
 **Objective:** Tornar o levantamento verificável e orientar decisões por portal sem modificar o catálogo público.
 
@@ -74,7 +74,7 @@ A primeira onda foi implementada na branch feat/description-quality-20261111. O 
 - A atualização do catálogo público não depende da execução bem-sucedida do enriquecimento privado.
 - 100% das linhas analisadas aparecem em exatamente uma categoria de qualidade.
 - O relatório identifica o portal e o motivo, não apenas um total global.
-- Os testes existentes passam e os novos testes cobrem o contrato de classificação.
+- Os testes direcionados e os testes existentes do crawler/SQLite passam; a suíte completa da cópia da VPS mantém apenas os dois problemas pré-existentes do UnlockCareer, registrados como risco separado.
 - Nenhuma descrição é marcada como “completa” apenas por ter sido baixada.
 - O relatório é executável sem rede, sem Obscura e sem credenciais.
 
