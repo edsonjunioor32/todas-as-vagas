@@ -68,6 +68,7 @@ def build_report(
     sources: dict[str, dict[str, Any]] = {}
     samples: dict[str, list[dict[str, Any]]] = defaultdict(list)
     bytes_total = 0
+    character_total = 0
     with_description = 0
 
     for row in rows:
@@ -81,6 +82,7 @@ def build_report(
         content_kinds[str(row["content_kind"])] += 1
         description = str(row["description"] or "")
         bytes_total += len(description.encode("utf-8"))
+        character_total += len(description)
         if description:
             with_description += 1
 
@@ -91,6 +93,7 @@ def build_report(
                 "total": 0,
                 "with_description": 0,
                 "description_bytes": 0,
+                "description_chars": 0,
                 "quality": Counter(),
                 "statuses": Counter(),
                 "content_kinds": Counter(),
@@ -99,6 +102,7 @@ def build_report(
         source_report["total"] += 1
         source_report["with_description"] += bool(description)
         source_report["description_bytes"] += len(description.encode("utf-8"))
+        source_report["description_chars"] += len(description)
         source_report["quality"][assessment.level] += 1
         source_report["statuses"][str(row["status"])] += 1
         source_report["content_kinds"][str(row["content_kind"])] += 1
@@ -112,6 +116,7 @@ def build_report(
             "total": int(value["total"]),
             "with_description": int(value["with_description"]),
             "description_bytes": int(value["description_bytes"]),
+            "description_chars": int(value["description_chars"]),
             "quality": _sorted_counts(value["quality"]),
             "statuses": _sorted_counts(value["statuses"]),
             "content_kinds": _sorted_counts(value["content_kinds"]),
@@ -124,6 +129,7 @@ def build_report(
         "total": len(rows),
         "with_description": with_description,
         "description_bytes": bytes_total,
+        "description_chars": character_total,
         "quality": _sorted_counts(quality),
         "statuses": _sorted_counts(statuses),
         "content_kinds": _sorted_counts(content_kinds),
@@ -143,7 +149,8 @@ def render_markdown(report: dict[str, Any]) -> str:
         f"- Gerado em: {report['generated_at']}",
         f"- Total analisado: {report['total']}",
         f"- Com texto: {report['with_description']}",
-        f"- Bytes de descrição: {report['description_bytes']}",
+        f"- Bytes UTF-8 das descrições: {report['description_bytes']}",
+        f"- Caracteres das descrições: {report['description_chars']}",
         "",
         "## Qualidade",
         "",
@@ -187,6 +194,7 @@ def render_markdown(report: dict[str, Any]) -> str:
 def _read_only_connection(path: str | Path) -> sqlite3.Connection:
     target = Path(path).expanduser().resolve()
     connection = sqlite3.connect(f"file:{target}?mode=ro", uri=True)
+    connection.execute("PRAGMA query_only = ON")
     connection.row_factory = sqlite3.Row
     return connection
 
