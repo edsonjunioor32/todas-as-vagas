@@ -2,6 +2,12 @@ name: Atualizar cache público do Glassdoor
 
 on:
   workflow_dispatch:
+    inputs:
+      force_refresh:
+        description: "Refazer a consulta oficial agora, ignorando o carimbo diário"
+        required: false
+        default: false
+        type: boolean
   schedule:
     # GitHub Actions uses UTC; Brasília/Fortaleza is UTC-3.
     - cron: "23 6 * * *"
@@ -90,11 +96,16 @@ jobs:
           OMKAR_GLASSDOOR_ENABLED: "true"
           OMKAR_GLASSDOOR_ENDPOINT: "http://127.0.0.1:18081"
         run: |
+          extra_args=()
+          if [[ "${{ inputs.force_refresh }}" == "true" ]]; then
+            extra_args+=(--force)
+          fi
           python jobs-dashboard/glassdoor.py \
             --timeout 15 \
             --retries 2 \
             --backoff 2 \
-            --profile-delay 1
+            --profile-delay 1 \
+            "${extra_args[@]}"
 
       - name: Validar snapshot enriquecido
         env:
