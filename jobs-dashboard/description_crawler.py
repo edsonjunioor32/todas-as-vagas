@@ -28,6 +28,8 @@ from html.parser import HTMLParser
 from pathlib import Path
 
 import description_store
+import inhire_descriptions
+from description_quality import assess_row
 
 
 DEFAULT_CATALOG_URL = (
@@ -492,6 +494,36 @@ def load_catalog(path: str, url: str, *, timeout: float, user_agent: str) -> lis
     return rows
 
 
+def quality_metrics_for_jobs(connection, job_uids: list[str]) -> dict[str, dict]:
+    """Classify only rows processed by the current crawler execution."""
+    unique_uids = list(dict.fromkeys(str(uid) for uid in job_uids if uid))
+    if not unique_uids:
+        return {"quality": {}, "by_source": {}}
+    placeholders = ",".join("?" for _ in unique_uids)
+    rows = connection.execute(
+        f"""
+        SELECT job_uid, source, description, status, checked_at
+        FROM job_descriptions
+        WHERE job_uid IN ({placeholders})
+        """,
+        unique_uids,
+    ).fetchall()
+    quality = Counter()
+    by_source: dict[str, Counter] = {}
+    for row in rows:
+        assessment = assess_row(row)
+        quality[assessment.level] += 1
+        source = str(row["source"] or "unknown")
+        by_source.setdefault(source, Counter())[assessment.level] += 1
+    return {
+        "quality": dict(sorted(quality.items())),
+        "by_source": {
+            source: dict(sorted(counts.items()))
+            for source, counts in sorted(by_source.items())
+        },
+    }
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -596,7 +628,11 @@ def main() -> None:
     denied = 0
     obscura_fetched = 0
     obscura_failed = 0
+    inhire_fetched = 0
+    inhire_gone = 0
+    inhire_failed = 0
     failures_by_status: Counter[str] = Counter()
+    processed_job_uids: list[str] = []
 
     def obscura_fallback(job: dict) -> tuple[str, str]:
         nonlocal obscura_failed
@@ -611,6 +647,66 @@ def main() -> None:
         if error:
             obscura_failed += 1
         return description, kind
+
+    def inhire_fallback(
+        job: dict,
+    ) -> inhire_descriptions.InhireDescriptionResult | None:
+        if not inhire_descriptions.is_inhire_url(job["url"]):
+            return None
+        return inhire_descriptions.fetch_description(
+            job["url"],
+            timeout=args.timeout,
+            user_agent=args.user_agent,
+            min_chars=max(1, args.min_description_chars),
+        )
+
+    def store_inhire_result(
+        job: dict,
+        result: inhire_descriptions.InhireDescriptionResult | None,
+    ) -> bool:
+        """Persist a decisive InHire API result and report whether it was handled."""
+        nonlocal failed, inhire_failed, inhire_fetched, inhire_gone
+        if result is None:
+            return False
+        if result.status == "fetched":
+            description_store.record_success(
+                connection,
+                job,
+                result.description,
+                content_kind=result.content_kind,
+                http_status=result.http_status or 200,
+                refresh_after_days=max(1, args.refresh_after_days),
+            )
+            inhire_fetched += 1
+            return True
+        if result.status == "gone":
+            description_store.record_failure(
+                connection,
+                job,
+                status="gone",
+                error=result.error or "anúncio InHire não encontrado",
+                http_status=result.http_status,
+                retry_after_seconds=30 * 86400,
+                permanent=True,
+            )
+            inhire_gone += 1
+            failed += 1
+            failures_by_status["gone"] += 1
+            return True
+        if result.status == "no_description":
+            description_store.record_failure(
+                connection,
+                job,
+                status="no_description",
+                error=result.error,
+                http_status=result.http_status,
+                retry_after_seconds=7 * 86400,
+            )
+            failed += 1
+            failures_by_status["no_description"] += 1
+            return True
+        inhire_failed += 1
+        return False
 
     for job in pending:
         if args.limit and processed >= args.limit:
@@ -630,6 +726,7 @@ def main() -> None:
             )
             denied += 1
             failures_by_status["robots_denied"] += 1
+            processed_job_uids.append(job["job_uid"])
             processed += 1
             continue
         try:
@@ -641,29 +738,43 @@ def main() -> None:
                 body, content_type, min_chars=max(1, args.min_description_chars)
             )
             if not description:
-                description, kind = obscura_fallback(job)
-                if description:
-                    description_store.record_success(
-                        connection,
-                        job,
-                        description,
-                        content_kind=kind,
-                        http_status=http_status,
-                        refresh_after_days=max(1, args.refresh_after_days),
+                inhire_result = inhire_fallback(job)
+                if store_inhire_result(job, inhire_result):
+                    fetched += int(
+                        bool(inhire_result and inhire_result.status == "fetched")
                     )
-                    fetched += 1
-                    obscura_fetched += 1
                 else:
-                    description_store.record_failure(
-                        connection,
-                        job,
-                        status="no_description",
-                        error="página sem descrição extraível após renderização",
-                        http_status=http_status,
-                        retry_after_seconds=7 * 86400,
-                    )
-                    failed += 1
-                    failures_by_status["no_description"] += 1
+                    description, kind = obscura_fallback(job)
+                    if description:
+                        description_store.record_success(
+                            connection,
+                            job,
+                            description,
+                            content_kind=kind,
+                            http_status=http_status,
+                            refresh_after_days=max(1, args.refresh_after_days),
+                        )
+                        fetched += 1
+                        obscura_fetched += 1
+                    else:
+                        description_store.record_failure(
+                            connection,
+                            job,
+                            status="no_description",
+                            error=(
+                                inhire_result.error
+                                if inhire_result and inhire_result.error
+                                else "página sem descrição extraível após renderização"
+                            ),
+                            http_status=(
+                                inhire_result.http_status
+                                if inhire_result
+                                else http_status
+                            ),
+                            retry_after_seconds=7 * 86400,
+                        )
+                        failed += 1
+                        failures_by_status["no_description"] += 1
             else:
                 description_store.record_success(
                     connection,
@@ -678,9 +789,17 @@ def main() -> None:
             last_request = time.monotonic()
             description = ""
             kind = ""
-            if error.status in OBSCURA_FALLBACK_STATUSES:
+            inhire_result = inhire_fallback(job)
+            handled_by_inhire = store_inhire_result(job, inhire_result)
+            if handled_by_inhire:
+                fetched += int(
+                    bool(inhire_result and inhire_result.status == "fetched")
+                )
+            elif error.status in OBSCURA_FALLBACK_STATUSES:
                 description, kind = obscura_fallback(job)
-            if description:
+            if handled_by_inhire:
+                pass
+            elif description:
                 description_store.record_success(
                     connection,
                     job,
@@ -713,6 +832,7 @@ def main() -> None:
             )
             failed += 1
             failures_by_status["parse_error"] += 1
+        processed_job_uids.append(job["job_uid"])
         processed += 1
 
     summary = description_store.stats(
@@ -720,6 +840,7 @@ def main() -> None:
         seen_at=seen_at,
         refresh_after_days=max(0, args.refresh_after_days),
     )
+    quality_metrics = quality_metrics_for_jobs(connection, processed_job_uids)
     connection.close()
     elapsed = time.monotonic() - started
     http_failures = sum(
@@ -731,7 +852,7 @@ def main() -> None:
         amount
         for status, amount in failures_by_status.items()
         if not status.startswith("http_")
-        and status not in {"no_description", "robots_denied"}
+        and status not in {"no_description", "robots_denied", "gone"}
     )
     metrics = {
         "manifest_jobs": manifest_count,
@@ -741,10 +862,16 @@ def main() -> None:
             sorted(Counter(job["status"] for job in pending).items())
         ),
         "processed": processed,
+        "quality_this_run": quality_metrics["quality"],
+        "quality_by_source_this_run": quality_metrics["by_source"],
+        "quality_scope": "processed_rows_only",
         "failed_attempts": failed + denied,
         "descriptions_fetched_this_run": fetched,
         "descriptions_fetched_with_obscura": obscura_fetched,
         "obscura_failed_attempts": obscura_failed,
+        "descriptions_fetched_with_inhire_api": inhire_fetched,
+        "inhire_gone": inhire_gone,
+        "inhire_api_failed_attempts": inhire_failed,
         "descriptions_stored_total": summary["with_description"],
         "http_failures": http_failures,
         "no_description_failures": failures_by_status["no_description"],

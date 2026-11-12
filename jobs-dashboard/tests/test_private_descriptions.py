@@ -14,6 +14,7 @@ sys.path.insert(0, str(ROOT / "jobs-dashboard"))
 
 import description_crawler
 import description_store
+import inhire_descriptions
 
 
 class PrivateDescriptionTests(unittest.TestCase):
@@ -599,6 +600,148 @@ class PrivateDescriptionTests(unittest.TestCase):
         self.assertIn("Descrição da vaga pesada", stored["description"])
         self.assertEqual(metrics["descriptions_fetched_with_obscura"], 1)
         self.assertEqual(metrics["http_failures"], 0)
+
+    def test_crawler_uses_inhire_public_api_before_obscura(self):
+        jobs = [{
+            "source": "inhire",
+            "native_id": "inhire-api",
+            "title": "Vaga InHire",
+            "company": "Empresa",
+            "url": "https://objective.inhire.app/vagas/7cbf7a94-2248-48d4-948f-3c310772c65f/vemserobj-banco-de-talentos",
+        }]
+        rendered_description = "Descrição extraída pela API pública do InHire. " * 12
+        result = inhire_descriptions.InhireDescriptionResult(
+            description=rendered_description,
+            content_kind="inhire_api",
+            status="fetched",
+            http_status=200,
+        )
+        args = [
+            "description_crawler.py",
+            "--db", str(self.path),
+            "--min-interval", "0",
+            "--min-description-chars", "20",
+        ]
+        with (
+            patch.object(sys, "argv", args),
+            patch.object(description_crawler, "load_catalog", return_value=jobs),
+            patch.object(
+                description_crawler,
+                "fetch_page",
+                return_value=(b"<html><body>Resumo curto</body></html>", "text/html", 200),
+            ),
+            patch.object(
+                description_crawler.inhire_descriptions,
+                "fetch_description",
+                return_value=result,
+            ) as fetch_inhire,
+            patch.object(
+                description_crawler,
+                "fetch_description_with_obscura",
+                side_effect=AssertionError("InHire não deveria cair no Obscura"),
+            ),
+            patch.object(description_crawler.RobotsCache, "allowed", return_value=True),
+            contextlib.redirect_stdout(io.StringIO()),
+        ):
+            description_crawler.main()
+
+        stored = self.connection.execute(
+            "SELECT description, content_kind, status FROM job_descriptions"
+        ).fetchone()
+        fetch_inhire.assert_called_once()
+        self.assertEqual(stored["content_kind"], "inhire_api")
+        self.assertEqual(stored["status"], "fetched")
+        self.assertIn("API pública", stored["description"])
+
+    def test_crawler_marks_removed_inhire_job_as_gone(self):
+        jobs = [{
+            "source": "inhire",
+            "native_id": "inhire-gone",
+            "title": "Vaga encerrada",
+            "company": "Empresa",
+            "url": "https://objective.inhire.app/vagas/7cbf7a94-2248-48d4-948f-3c310772c65f/vemserobj-banco-de-talentos",
+        }]
+        result = inhire_descriptions.InhireDescriptionResult(
+            status="gone",
+            http_status=404,
+            error="HTTP Error 404",
+        )
+        args = [
+            "description_crawler.py",
+            "--db", str(self.path),
+            "--min-interval", "0",
+        ]
+        with (
+            patch.object(sys, "argv", args),
+            patch.object(description_crawler, "load_catalog", return_value=jobs),
+            patch.object(
+                description_crawler,
+                "fetch_page",
+                return_value=(b"<html><body>Resumo curto</body></html>", "text/html", 200),
+            ),
+            patch.object(
+                description_crawler.inhire_descriptions,
+                "fetch_description",
+                return_value=result,
+            ),
+            patch.object(
+                description_crawler,
+                "fetch_description_with_obscura",
+                side_effect=AssertionError("vaga removida não deveria usar navegador"),
+            ),
+            patch.object(description_crawler.RobotsCache, "allowed", return_value=True),
+            contextlib.redirect_stdout(io.StringIO()),
+        ):
+            description_crawler.main()
+
+        stored = self.connection.execute(
+            "SELECT status, http_status, attempts FROM job_descriptions"
+        ).fetchone()
+        self.assertEqual(stored["status"], "gone")
+        self.assertEqual(stored["http_status"], 404)
+        self.assertEqual(stored["attempts"], 1)
+
+    def test_gone_with_saved_description_waits_for_terminal_backoff(self):
+        job = {
+            "source": "inhire",
+            "native_id": "gone-with-history",
+            "title": "Vaga encerrada",
+            "company": "Empresa",
+            "url": "https://objective.inhire.app/vagas/7cbf7a94-2248-48d4-948f-3c310772c65f/vemserobj-banco-de-talentos",
+        }
+        seen_at, _ = description_store.sync_manifest(self.connection, [job])
+        current = description_store.pending_jobs(self.connection, seen_at=seen_at)[0]
+        description_store.record_success(
+            self.connection,
+            current,
+            "Descrição histórica preservada.",
+            content_kind="inhire_api",
+        )
+        self.connection.execute(
+            "UPDATE job_descriptions SET checked_at = ? WHERE job_uid = ?",
+            ("2000-01-01T00:00:00+00:00", current["job_uid"]),
+        )
+        self.connection.commit()
+        current = description_store.pending_jobs(self.connection, seen_at=seen_at)[0]
+        description_store.record_failure(
+            self.connection,
+            current,
+            status="gone",
+            error="HTTP 404",
+            http_status=404,
+            retry_after_seconds=30 * 86400,
+            permanent=True,
+        )
+        self.connection.execute(
+            "UPDATE job_descriptions SET checked_at = ? WHERE job_uid = ?",
+            ("2000-01-01T00:00:00+00:00", current["job_uid"]),
+        )
+        self.connection.commit()
+
+        self.assertEqual(
+            description_store.pending_jobs(self.connection, seen_at=seen_at),
+            [],
+        )
 
     def test_crawler_schedules_robots_recheck_with_bounded_backoff(self):
         jobs = [{

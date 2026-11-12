@@ -206,3 +206,32 @@ Revisão: 2026-11-11. Este documento complementa o inventário **arquivo a arqui
 - Consultas com termos, quando impostas por um provedor, são somente estratégias aditivas de cobertura e não podem descartar uma vaga retornada pela consulta ampla. Filtros geográficos, de modalidade e de tipo de anúncio devem permanecer explícitos e documentados.
 - LinkedIn: `.github/workflows/linkedin-jobs.yml` executa `tools/collect_linkedin.py`, grava o snapshot `docs/data/linkedin_vagas.json` e aciona a publicação existente do catálogo. A consulta ampla é complementada por uma busca com `remoto`, `remota`, `remote`, `home office` e `work from home` somente para descobrir candidatos. Nem esses termos, nem `f_WT=2`, nem campos genéricos `is_remote`/JobSpy classificam uma vaga. O coletor só registra modalidade comprovada por selo da página individual, descrição explícita e não ambígua ou override manual verificado; `jobs-dashboard/sources/linkedin.py` rejeita evidência antiga `linkedin_remote_search_filter`, e registros sem evidência permanecem sem modalidade, mas elegíveis. Overrides verificados incluem Nortal `4486898930` (remota), St Marche `4478138443` (presencial), Dexian `4479109326` (remota) e Mirante Tecnologia `4484868146` (remota, descrição pública declara “Modalidade: Remota”). Consultas por palavras têm limite de cobertura e não garantem localizar todas as vagas remotas; o limite de candidatos não é uma contagem de remotas classificadas.
 - Uma atualização é considerada publicada somente quando o snapshot novo de `public-data` e o GitHub Pages forem confirmados, não apenas quando o workflow terminar verde.
+
+## Private description enrichment — 2026-11-11
+
+The private enrichment path is auxiliary and must never be a prerequisite for the public snapshot, Telegram, WhatsApp or the resume-fit index.
+
+| File / resource | Responsibility and impact |
+| --- | --- |
+| jobs-dashboard/description_crawler.py | Reads the validated public catalogue, fetches descriptions, applies robots/rate/timeout policy, checkpoints every attempt and emits execution metrics. It can fail without invalidating the public catalogue. |
+| jobs-dashboard/description_store.py | Private SQLite persistence, manifest checkpoint, retry/backoff, FTS optimization and search. Its stats API remains backward-compatible. |
+| jobs-dashboard/inhire_descriptions.py | Resolves the public InHire tenant and fetches the public job description API before browser fallback. It uses no credentials and classifies HTTP 404/410 as removed candidates. |
+| jobs-dashboard/description_quality.py | Pure, network-free classifier. It distinguishes complete_candidate, usable, short, empty, blocked, gone, stale and pending from stored evidence. complete_candidate is a quality candidate, not a semantic guarantee. |
+| jobs-dashboard/description_report.py | Read-only report over all rows, grouped by portal, quality, status and content kind. It opens SQLite with mode=ro and query_only; it must not call connect(), sync_manifest() or prune_missing(). |
+| /home/ubuntu/todas-as-vagas-private/descriptions.sqlite3 | Private database on the VPS. It must not enter the public repository or public snapshot. |
+| Obscura fallback | Optional rendered-page fallback, bounded by timeout and response limits. It is not a universal bypass for robots, authentication, CAPTCHA or rate limits. InHire API extraction runs first for supported public job URLs because the initial InHire HTML is an SPA shell. |
+
+### Quality contract
+
+The report classifies every selected row exactly once. A successful HTTP request is not enough for complete_candidate. The report keeps these concepts separate:
+
+- content quality: complete_candidate, usable, short or empty;
+- access state: blocked or gone (a confirmed HTTP 404/410 or terminal removed status);
+- freshness: stale;
+- processing state: pending.
+
+The crawler metrics ending in _this_run describe only rows processed in that execution. The full database view is produced by description_report.py. The existing DESCRIPTION_CRAWLER_METRICS fields remain compatible. A confirmed `gone` row keeps any historical description, receives a long retry backoff and is excluded from ordinary stale refreshes; it is not treated as a robots block or a temporary network failure.
+
+### Current private-store evidence
+
+The 2026-11-11 read-only measurement found 84,133 rows, 64,561 with non-empty text, 33,378 complete candidates, 24,167 usable, 5,624 short, 5,957 empty, 11,022 blocked, 1,392 stale and 2,593 pending. This is a baseline for comparison, not a promise that all source pages are accessible.
