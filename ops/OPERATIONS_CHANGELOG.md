@@ -1,3 +1,10 @@
+## 2026-11-12 — Reprocessamento de descrições vazias após evolução do parser
+
+- A fila privada agora reprocessa imediatamente registros sem descrição cujo `parser_version` ficou atrás do parser atual. O backoff continua valendo depois que a tentativa já passou pelo parser vigente.
+- Registros que já possuem descrição não entram nesse reprocessamento automático; a rotina mantém a janela normal de atualização para evitar tráfego e custo desnecessários.
+- Vagas InHire vazias são priorizadas dentro do lote porque a API pública específica já foi validada como capaz de recuperar anúncios ativos que a página inicial renderiza apenas como shell. Anúncios que retornarem HTTP 404/410 continuam sendo classificados como `gone`.
+- Foram adicionados testes de regressão para a migração de parser, prioridade do InHire e preservação do backoff.
+
 ## 2026-11-12 — Coleta diária da média geral pelo scraper de classificações
 
 - O teste isolado do `omkarcloud/glassdoor-scraper` confirmou a rota `/companies/ratings` e retornou a média oficial da Heineken Brasil como `4,0`, sem necessidade de ler o conteúdo textual das avaliações.

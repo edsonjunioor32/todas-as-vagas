@@ -208,6 +208,53 @@ class PrivateDescriptionTests(unittest.TestCase):
         )
         self.assertEqual([row["job_uid"] for row in retried], [job["job_uid"]])
 
+    def test_empty_description_from_previous_parser_is_reprocessed_before_backoff(self):
+        jobs = [
+            {
+                "source": "portal",
+                "native_id": "legacy-empty",
+                "title": "Vaga legada",
+                "company": "Empresa",
+                "url": "https://example.com/jobs/legacy-empty",
+            },
+            {
+                "source": "inhire",
+                "native_id": "legacy-inhire",
+                "title": "Vaga InHire legada",
+                "company": "Empresa InHire",
+                "url": "https://objective.inhire.app/vagas/7cbf7a94-2248-48d4-948f-3c310772c65f/vemserobj-banco-de-talentos",
+            },
+        ]
+        seen_at, _ = description_store.sync_manifest(self.connection, jobs)
+        pending = description_store.pending_jobs(
+            self.connection, seen_at=seen_at
+        )
+        self.assertEqual(
+            [row["job_uid"] for row in pending],
+            ["inhire:legacy-inhire", "portal:legacy-empty"],
+        )
+
+        for row in pending:
+            description_store.record_failure(
+                self.connection,
+                row,
+                status="no_description",
+                error="resultado vazio do parser anterior",
+                retry_after_seconds=7 * 86400,
+            )
+        self.connection.execute(
+            "UPDATE job_descriptions SET parser_version = 'description-crawler-v1'"
+        )
+        self.connection.commit()
+
+        retried = description_store.pending_jobs(
+            self.connection, seen_at=seen_at
+        )
+        self.assertEqual(
+            [row["job_uid"] for row in retried],
+            ["inhire:legacy-inhire", "portal:legacy-empty"],
+        )
+
     def test_robots_denied_refresh_with_saved_description_keeps_backoff_status(self):
         jobs = [{
             "source": "portal",
