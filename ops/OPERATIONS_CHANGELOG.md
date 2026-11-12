@@ -588,3 +588,10 @@ Essa separação evita alertas falsos imediatamente após uma falha transitória
 ### Validação obrigatória
 
 Foram adicionados testes para preservar o primeiro instante da falha, atualizar o sucesso e exportar os metadados de 24 horas. O teste de interface verifica que o alerta usa sourceWarningSources(data) e source_warning_after_hours, em vez de testar apenas a presença da lista de falhas.
+## 2026-11-11 — Média geral do Glassdoor via HasData
+
+- O catálogo passa a exibir somente a média geral da empresa, a quantidade de avaliações quando disponível e o link do perfil do Glassdoor; textos de avaliações não são coletados nem publicados.
+- Foi adicionada uma rotina diária de enriquecimento com cache público, perfis canônicos aprovados e fallback opcional via HasData MCP. A chave fica exclusivamente no segredo do ambiente `github-pages`; o código não imprime nem persiste credenciais.
+- O fallback permanece desligado por padrão e é limitado por execução. Quando indisponível, a coleta principal continua e publica o catálogo sem o enriquecimento.
+- Validação do PR: testes direcionados do Glassdoor/HasData, compilação dos módulos alterados, verificação de sintaxe do JavaScript, leitura do YAML e `git diff --check`.
+

@@ -17,6 +17,7 @@ from datetime import date
 from pathlib import Path
 
 import classify
+import glassdoor
 import storage
 from sources import (
     REGISTRY,
@@ -34,6 +35,8 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 DB_PATH = HERE / "data" / "jobs.db"
 JSON_PATH = ROOT / "docs" / "data" / "vagas.json"
+GLASSDOOR_MANIFEST_PATH = HERE / "data" / "glassdoor_profiles.json"
+GLASSDOOR_CACHE_PATH = HERE / "data" / "glassdoor_cache.json"
 
 # Every registered source is expected to expose public vacancies unless it is
 # explicitly documented as a feed that can legitimately be empty. Keep this
@@ -57,6 +60,19 @@ NONEMPTY_SOURCES = frozenset(
 
 CHECKPOINT_SCHEMA_VERSION = 1
 CHECKPOINT_ENV = "JOBS_COLLECTION_CHECKPOINT_DIR"
+
+
+def load_glassdoor_cache():
+    """Load optional public Glassdoor data without blocking vacancy ETL."""
+    manifest_path = Path(
+        os.environ.get("GLASSDOOR_MANIFEST_PATH") or GLASSDOOR_MANIFEST_PATH
+    )
+    cache_path = Path(os.environ.get("GLASSDOOR_CACHE_PATH") or GLASSDOOR_CACHE_PATH)
+    try:
+        return glassdoor.load_cache(cache_path, manifest_path)
+    except Exception as error:
+        print(f"  aviso: cache Glassdoor ignorado: {str(error)[:180]}")
+        return None
 
 def sources_to_preserve(failed_sources):
     """Return unavailable sources whose last valid rows must remain eligible."""
@@ -752,6 +768,7 @@ def main(before_persist=None):
         max_age_days=max_age_days,
         source_counts=dict(sorted(counts.items())),
         failed_sources=snapshot_failed_sources,
+        glassdoor_cache=load_glassdoor_cache(),
         selected_sources=selected_sources if is_partial else None,
     )
     conn.close()
@@ -769,4 +786,3 @@ def main(before_persist=None):
 
 if __name__ == "__main__":
     main()
-

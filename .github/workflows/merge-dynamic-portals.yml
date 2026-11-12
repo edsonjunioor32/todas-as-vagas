@@ -68,6 +68,12 @@ jobs:
           test -s docs/data/vagas.json
           test -s docs/data/fit.json
           cp docs/data/vagas.json .previous-vagas.json
+          if git cat-file -e origin/public-data:data/glassdoor_cache.json 2>/dev/null; then
+            mkdir -p jobs-dashboard/data
+            git archive origin/public-data data/glassdoor_cache.json | tar -x -C jobs-dashboard
+          else
+            echo "Cache Glassdoor ainda não existe no ramo public-data; a exportação seguirá sem enriquecimento."
+          fi
 
       - name: Preparar Python
         uses: actions/setup-python@v5

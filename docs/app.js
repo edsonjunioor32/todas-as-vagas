@@ -369,6 +369,19 @@
     return String(value || '').trim().replace(/^http:\/\//i, 'https://');
   }
 
+  function glassdoorUrl(value) {
+    const normalized = normalizeUrl(value);
+    if (!normalized) return '';
+    try {
+      const parsed = new URL(normalized, window.location.href);
+      if (parsed.protocol !== 'https:') return '';
+      if (!/(^|\.)glassdoor\.com(?:\.br)?$/i.test(parsed.hostname)) return '';
+      return parsed.href;
+    } catch (error) {
+      return '';
+    }
+  }
+
   function buildSearchText(job) {
     return normalize([
       job.title, job.company, job.sourceLabel, job.category, job.seniority,
@@ -436,6 +449,13 @@
   function decode(data) {
     const dictionaries = data.dict || {};
     const jobs = data.jobs || {};
+    const glassdoorRatings = Array.isArray(jobs.gdr) ? jobs.gdr : [];
+    const glassdoorReviewCounts = Array.isArray(jobs.gdc) ? jobs.gdc : [];
+    const glassdoorUrls = Array.isArray(jobs.gdu) ? jobs.gdu : [];
+    const glassdoorCheckedAt = Array.isArray(jobs.gdt) ? jobs.gdt : [];
+    const glassdoorFallbackRatings = Array.isArray(jobs.gfr) ? jobs.gfr : [];
+    const glassdoorFallbackUrls = Array.isArray(jobs.gfu) ? jobs.gfu : [];
+    const glassdoorFallbackCheckedAt = Array.isArray(jobs.gft) ? jobs.gft : [];
     const get = (name, code) => (dictionaries[name] || [])[code] || '';
     const output = [];
     for (let index = 0; index < data.count; index += 1) {
@@ -468,7 +488,14 @@
         currency: get('currency', jobs.cur[index]),
         pcd: Boolean(jobs.pcd[index]),
         blindSelection: Boolean(jobs.blind[index]),
-        contractTypes: contracts
+        contractTypes: contracts,
+        glassdoorRating: glassdoorRatings[index] ?? null,
+        glassdoorReviewCount: glassdoorReviewCounts[index] ?? null,
+        glassdoorUrl: glassdoorUrl(glassdoorUrls[index]),
+        glassdoorCheckedAt: glassdoorCheckedAt[index] || '',
+        glassdoorFallbackRating: glassdoorFallbackRatings[index] ?? null,
+        glassdoorFallbackUrl: glassdoorUrl(glassdoorFallbackUrls[index]),
+        glassdoorFallbackCheckedAt: glassdoorFallbackCheckedAt[index] || ''
       };
       item._activityTimestamp = toTime(item.publishedAt) || toTime(item.lastSeenAt);
       item._location = normalize(rawLocation);
@@ -957,6 +984,49 @@
       meta.append(market);
     }
 
+    const glassdoor = document.createElement('div');
+    glassdoor.className = 'glassdoor-meta';
+    const rating = Number(job.glassdoorRating);
+    if (Number.isFinite(rating) && rating >= 0 && rating <= 5) {
+      const ratingLabel = document.createElement('span');
+      ratingLabel.className = 'glassdoor-rating';
+      ratingLabel.textContent = `★ ${rating.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 2 })}/5`;
+      glassdoor.append(ratingLabel);
+    }
+    if (Number.isInteger(job.glassdoorReviewCount) && job.glassdoorReviewCount >= 0) {
+      const reviews = document.createElement('span');
+      reviews.textContent = `${job.glassdoorReviewCount.toLocaleString('pt-BR')} avaliações`;
+      glassdoor.append(reviews);
+    }
+    if (job.glassdoorUrl) {
+      const glassdoorLink = document.createElement('a');
+      glassdoorLink.className = 'glassdoor-link';
+      glassdoorLink.href = job.glassdoorUrl;
+      glassdoorLink.target = '_blank';
+      glassdoorLink.rel = 'noopener noreferrer';
+      glassdoorLink.textContent = 'Glassdoor ↗';
+      glassdoorLink.setAttribute('aria-label', `Ver avaliações da empresa ${job.company} no Glassdoor`);
+      if (job.glassdoorCheckedAt) glassdoorLink.title = `Dados verificados em ${job.glassdoorCheckedAt}`;
+      glassdoor.append(glassdoorLink);
+    }
+    const fallbackRating = Number(job.glassdoorFallbackRating);
+    if (Number.isFinite(fallbackRating) && fallbackRating >= 0 && fallbackRating <= 5) {
+      const fallbackLabel = document.createElement('span');
+      fallbackLabel.textContent = `Média geral: ★ ${fallbackRating.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 2 })}/5`;
+      glassdoor.append(fallbackLabel);
+    }
+    if (job.glassdoorFallbackUrl) {
+      const fallbackLink = document.createElement('a');
+      fallbackLink.className = 'glassdoor-link';
+      fallbackLink.href = job.glassdoorFallbackUrl;
+      fallbackLink.target = '_blank';
+      fallbackLink.rel = 'noopener noreferrer';
+      fallbackLink.textContent = 'Ver no Glassdoor ↗';
+      fallbackLink.setAttribute('aria-label', `Ver a fonte da média geral da empresa ${job.company} no Glassdoor`);
+      if (job.glassdoorFallbackCheckedAt) fallbackLink.title = `Média geral verificada em ${job.glassdoorFallbackCheckedAt}`;
+      glassdoor.append(fallbackLink);
+    }
+
     const tags = document.createElement('div');
     tags.className = 'tags';
     // Keep the work model as the first, high-contrast tag. It is the quickest
@@ -971,7 +1041,9 @@
       tags.append(tag(keyword, 'keyword'));
     }
 
-    body.append(source, top, company, meta, tags);
+    body.append(source, top, company, meta);
+    if (glassdoor.childNodes.length) body.append(glassdoor);
+    body.append(tags);
     head.append(logo, body);
 
     const footer = document.createElement('div');

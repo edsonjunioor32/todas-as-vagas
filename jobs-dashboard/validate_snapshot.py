@@ -7,6 +7,7 @@ import sys
 from datetime import date, datetime, timezone
 from pathlib import Path
 
+import glassdoor
 import storage
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -16,6 +17,8 @@ REQUIRED_COLUMNS = {
     "pub", "seen", "exp", "url", "np", "sk", "smin", "smax", "cur",
     "pcd", "blind", "ct", "status", "type", "publication_type",
 }
+GLASSDOOR_COLUMNS = {"gdr", "gdc", "gdu", "gdt"}
+GLASSDOOR_FALLBACK_COLUMNS = {"gfr", "gfu", "gft"}
 FORBIDDEN_KEYS = {"description", "descricao", "requirements", "requisitos", "email", "phone"}
 GUPY_TALENT_POOL_RE = re.compile(
     r"\b(?:banco\s+(?:de\s+)?talentos?|talent\s+pool)\b", re.I
@@ -189,6 +192,58 @@ def main():
     for name in REQUIRED_COLUMNS:
         if len(columns[name]) != count:
             fail(f"coluna {name} tem {len(columns[name])} itens; esperado: {count}")
+
+    glassdoor_columns = GLASSDOOR_COLUMNS & set(columns)
+    if glassdoor_columns and glassdoor_columns != GLASSDOOR_COLUMNS:
+        fail(
+            "colunas Glassdoor incompletas: "
+            + ", ".join(sorted(glassdoor_columns))
+        )
+    if glassdoor_columns == GLASSDOOR_COLUMNS:
+        for name in sorted(GLASSDOOR_COLUMNS):
+            if len(columns[name]) != count:
+                fail(f"coluna {name} tem {len(columns[name])} itens; esperado: {count}")
+        for index, value in enumerate(columns["gdr"]):
+            if value is not None:
+                if isinstance(value, bool) or not isinstance(value, (int, float)) or not 0 <= value <= 5:
+                    fail(f"nota Glassdoor inválida na linha {index}: {value!r}")
+        for index, value in enumerate(columns["gdc"]):
+            if value is not None:
+                if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+                    fail(f"quantidade de avaliações Glassdoor inválida na linha {index}: {value!r}")
+        for index, value in enumerate(columns["gdu"]):
+            if value is not None and not glassdoor.is_canonical_profile_url(value):
+                fail(f"URL Glassdoor inválida na linha {index}: {value!r}")
+        for index, value in enumerate(columns["gdt"]):
+            if value is not None:
+                try:
+                    date.fromisoformat(str(value))
+                except (TypeError, ValueError):
+                    fail(f"data Glassdoor inválida na linha {index}: {value!r}")
+
+    fallback_columns = GLASSDOOR_FALLBACK_COLUMNS & set(columns)
+    if fallback_columns and fallback_columns != GLASSDOOR_FALLBACK_COLUMNS:
+        fail(
+            "colunas de fallback Glassdoor incompletas: "
+            + ", ".join(sorted(fallback_columns))
+        )
+    if fallback_columns == GLASSDOOR_FALLBACK_COLUMNS:
+        for name in sorted(GLASSDOOR_FALLBACK_COLUMNS):
+            if len(columns[name]) != count:
+                fail(f"coluna {name} tem {len(columns[name])} itens; esperado: {count}")
+        for index, value in enumerate(columns["gfr"]):
+            if value is not None:
+                if isinstance(value, bool) or not isinstance(value, (int, float)) or not 0 <= value <= 5:
+                    fail(f"nota de fallback Glassdoor inválida na linha {index}: {value!r}")
+        for index, value in enumerate(columns["gfu"]):
+            if value is not None and not glassdoor.is_canonical_reference_url(value):
+                fail(f"URL de referência Glassdoor inválida na linha {index}: {value!r}")
+        for index, value in enumerate(columns["gft"]):
+            if value is not None:
+                try:
+                    date.fromisoformat(str(value))
+                except (TypeError, ValueError):
+                    fail(f"data de fallback Glassdoor inválida na linha {index}: {value!r}")
 
     dictionaries = data.get("dict") or {}
     for name in ("source", "company", "area", "seniority", "work_model", "market", "country", "currency"):
