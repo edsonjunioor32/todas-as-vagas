@@ -918,15 +918,19 @@ def update_cache(
     timeout: float = DEFAULT_TIMEOUT_SECONDS,
     retries: int = DEFAULT_RETRIES,
     backoff: float = DEFAULT_BACKOFF_SECONDS,
+    force: bool = False,
 ) -> tuple[dict, dict]:
-    """Refresh each profile at most once for the current local date."""
+    """Refresh profiles once per day, unless an explicit recovery run forces it."""
     current_date = _local_date(now).isoformat()
     cache = align_cache(manifest, previous_cache or {})
     profiles = cache["profiles"]
     summary = {"attempted": 0, "skipped": 0, "succeeded": 0, "failed": 0, "errors": {}}
     for position, (profile_id, profile) in enumerate((manifest.get("profiles") or {}).items()):
         entry = profiles[profile_id]
-        if entry.get("last_attempted_date") == current_date or entry.get("checked_at") == current_date:
+        if not force and (
+            entry.get("last_attempted_date") == current_date
+            or entry.get("checked_at") == current_date
+        ):
             summary["skipped"] += 1
             continue
         if position and profile_delay > 0:
@@ -1062,6 +1066,7 @@ def run_daily(
     retries: int = DEFAULT_RETRIES,
     backoff: float = DEFAULT_BACKOFF_SECONDS,
     profile_delay: float = DEFAULT_PROFILE_DELAY_SECONDS,
+    force: bool = False,
 ) -> dict:
     manifest = load_manifest(manifest_path)
     previous = load_cache(cache_path, manifest_path)
@@ -1072,6 +1077,7 @@ def run_daily(
         retries=retries,
         backoff=backoff,
         profile_delay=profile_delay,
+        force=force,
     )
     try:
         mcp_queries_path = Path(
@@ -1116,6 +1122,11 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--retries", type=int, default=DEFAULT_RETRIES)
     parser.add_argument("--backoff", type=float, default=DEFAULT_BACKOFF_SECONDS)
     parser.add_argument("--profile-delay", type=float, default=DEFAULT_PROFILE_DELAY_SECONDS)
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="refaz a consulta dos perfis mesmo quando já houve tentativa hoje",
+    )
     return parser
 
 
@@ -1129,6 +1140,7 @@ def main(argv: list[str] | None = None) -> int:
         retries=max(1, args.retries),
         backoff=max(0.0, args.backoff),
         profile_delay=max(0.0, args.profile_delay),
+        force=args.force,
     )
     print(
         "Glassdoor: "

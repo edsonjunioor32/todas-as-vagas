@@ -191,6 +191,42 @@ class GlassdoorTests(unittest.TestCase):
         self.assertEqual(second["skipped"], 1)
         self.assertEqual(again["profiles"]["empresa-teste"]["rating"], 4.1)
 
+    def test_forced_refresh_retries_profile_marked_today(self):
+        previous = {
+            "schema_version": 1,
+            "profiles": {
+                "empresa-teste": {
+                    "id": "empresa-teste",
+                    "company_names": ["Empresa Teste"],
+                    "url": manifest()["profiles"]["empresa-teste"]["url"],
+                    "rating": None,
+                    "review_count": None,
+                    "checked_at": None,
+                    "last_attempted_date": "2026-11-12",
+                }
+            },
+        }
+        calls = []
+
+        def succeed(profile, **kwargs):
+            calls.append(profile["id"])
+            return {"rating": 4.6, "review_count": 17}
+
+        updated, summary = glassdoor.update_cache(
+            manifest(),
+            previous,
+            now=datetime(2026, 11, 12, 20, 0),
+            fetcher=succeed,
+            sleeper=lambda _seconds: None,
+            profile_delay=0,
+            force=True,
+        )
+        self.assertEqual(calls, ["empresa-teste"])
+        self.assertEqual(summary["succeeded"], 1)
+        self.assertEqual(summary["skipped"], 0)
+        self.assertEqual(updated["profiles"]["empresa-teste"]["rating"], 4.6)
+        self.assertEqual(updated["profiles"]["empresa-teste"]["checked_at"], "2026-11-12")
+
     def test_enrich_snapshot_uses_nulls_for_unconfigured_companies(self):
         payload = {
             "schema_version": 3,
@@ -344,6 +380,9 @@ class GlassdoorTests(unittest.TestCase):
         self.assertIn("glassdoor.py", workflow)
         self.assertIn("--timeout 15", workflow)
         self.assertIn("--profile-delay 1", workflow)
+        self.assertIn("force_refresh", workflow)
+        self.assertIn("extra_args+=(--force)", workflow)
+        self.assertIn('"${extra_args[@]}"', workflow)
         self.assertIn("runs-on: self-hosted", workflow)
         self.assertIn("OMKAR_GLASSDOOR_ENDPOINT", workflow)
         self.assertIn("glassdoor-scraper.git", workflow)

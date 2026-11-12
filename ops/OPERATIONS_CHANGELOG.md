@@ -11,8 +11,13 @@
 - A rotina diária passou a iniciar esse scraper em container temporário no runner dedicado do catálogo, fixado no commit `0567eb6ef90674aacde32e79ee668c09f23d91be`, exposto somente em `127.0.0.1:18081` e encerrado ao final da execução.
 - `jobs-dashboard/glassdoor.py` consulta apenas `ratings.overall` e `reviews_count`, exige correspondência do nome retornado com os aliases aprovados e preserva o cache anterior quando a fonte falha. O fallback HasData continua separado, não promove nota de vaga a nota oficial do perfil e deixa de ser exibido quando já existe uma média oficial.
 - Os perfis aprovados agora declaram explicitamente o nome usado no scraper (`scraper_company`), evitando que aliases globais sejam confundidos com a empresa brasileira correta.
-- A rotina foi executada antes desta alteração com sucesso operacional, mas encontrou `0` perfis oficiais novos; o resultado justificou a integração desta fonte específica. Após a mesclagem, será feita uma nova execução manual e conferida a atualização pública.
-- Validação local: suíte completa com 450 testes aprovada, além de compilação e `git diff --check`.
+- A rotina foi executada antes desta alteração com sucesso operacional, mas encontrou `0` perfis oficiais novos; o resultado justificou a integração desta fonte específica. A execução #13 após a mesclagem também não consultou os perfis porque o carimbo diário já estava preenchido por tentativas anteriores.
+- Validação local: suíte completa com 452 testes aprovada, além de compilação, YAML e `git diff --check`.
+
+### Correção da execução pontual
+
+- A primeira execução após o deploy encontrou os quatro perfis como já verificados no dia e, por isso, não chamou o novo scraper; o cache público permaneceu sem médias oficiais. A rotina diária continua idempotente, mas agora o `workflow_dispatch` oferece `force_refresh` para uma recuperação controlada.
+- O modo forçado usa `--force` somente na execução manual solicitada; não muda a cadência agendada, não remove dados válidos e continua preservando o cache anterior em caso de falha.
 
 ## 2026-11-12 — Uso restrito do campo `overallRating` do perfil Glassdoor
 
