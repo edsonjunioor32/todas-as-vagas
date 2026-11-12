@@ -5,6 +5,12 @@
 - Vagas InHire vazias são priorizadas dentro do lote porque a API pública específica já foi validada como capaz de recuperar anúncios ativos que a página inicial renderiza apenas como shell. Anúncios que retornarem HTTP 404/410 continuam sendo classificados como `gone`.
 - Foram adicionados testes de regressão para a migração de parser, prioridade do InHire e preservação do backoff.
 
+## 2026-11-12 — InHire API antes da página renderizada
+
+- O coletor agora consulta primeiro a API pública do InHire para URLs compatíveis, evitando baixar a página SPA apenas para descobrir que ela é um shell sem descrição.
+- O HTML e o Obscura continuam como fallback somente quando a API está indisponível ou não consegue decidir; HTTP 404/410 e descrições válidas são persistidos diretamente.
+- A versão do parser foi incrementada para `description-crawler-v3`, reabrindo somente registros sem descrição para a nova estratégia; descrições já armazenadas continuam fora do reprocessamento em massa.
+
 ## 2026-11-12 — Coleta diária da média geral pelo scraper de classificações
 
 - O teste isolado do `omkarcloud/glassdoor-scraper` confirmou a rota `/companies/ratings` e retornou a média oficial da Heineken Brasil como `4,0`, sem necessidade de ler o conteúdo textual das avaliações.
