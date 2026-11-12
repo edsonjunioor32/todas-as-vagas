@@ -78,7 +78,7 @@ As propriedades opcionais ficam em `jobs` e têm exatamente `count` posições q
 | `gdu` | `glassdoor_url` | URL HTTPS canônica pública ou `null` |
 | `gdt` | `glassdoor_checked_at` | data ISO da última verificação bem-sucedida ou `null` |
 
-A associação é feita somente por nomes exatos normalizados e declarados no manifesto. Empresas sem perfil aprovado ficam sem avaliação. A interface mostra nota, quantidade e link somente quando o respectivo valor existe.
+A associação é feita somente por nomes exatos normalizados e declarados no manifesto. Empresas sem perfil aprovado ficam sem avaliação. A interface mostra nota, quantidade e link somente quando o respectivo valor existe e nunca converte `null` em `0,0/5`; portanto, uma nota zero só pode aparecer quando o provedor realmente retornar o valor numérico zero.
 
 ## Limitações operacionais
 

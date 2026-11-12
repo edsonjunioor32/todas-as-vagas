@@ -19,7 +19,9 @@ concurrency:
 jobs:
   atualizar:
     if: github.ref == 'refs/heads/main'
-    runs-on: [self-hosted, Linux, ARM64]
+    # O enriquecimento é público e não depende da VPS. Usar runner hospedado
+    # evita que a rotina diária seja bloqueada por manutenção do runner ARM64.
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     environment:
       name: github-pages
@@ -29,8 +31,10 @@ jobs:
       - name: Baixar o repositório
         uses: actions/checkout@v4
         with:
-          ref: main
-          fetch-depth: 0
+          # O histórico completo contém snapshots antigos e não é necessário
+          # para atualizar o cache; os dados anteriores vêm de public-data.
+          ref: ${{ github.sha }}
+          fetch-depth: 1
 
       - name: Preparar Python
         uses: actions/setup-python@v5
