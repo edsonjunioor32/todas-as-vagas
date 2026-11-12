@@ -729,6 +729,20 @@ def main() -> None:
             processed_job_uids.append(job["job_uid"])
             processed += 1
             continue
+        # InHire pages are client-rendered shells. The public API is the
+        # authoritative, cheaper path for supported URLs, so consult it
+        # before downloading the HTML page. Non-decisive API failures still
+        # fall through to the existing page/Obscura strategy.
+        inhire_result = inhire_fallback(job)
+        if inhire_result is not None:
+            last_request = time.monotonic()
+            if store_inhire_result(job, inhire_result):
+                fetched += int(
+                    bool(inhire_result.status == "fetched")
+                )
+                processed_job_uids.append(job["job_uid"])
+                processed += 1
+                continue
         try:
             body, content_type, http_status = fetch_page(
                 job["url"], timeout=args.timeout, user_agent=args.user_agent
@@ -738,7 +752,6 @@ def main() -> None:
                 body, content_type, min_chars=max(1, args.min_description_chars)
             )
             if not description:
-                inhire_result = inhire_fallback(job)
                 if store_inhire_result(job, inhire_result):
                     fetched += int(
                         bool(inhire_result and inhire_result.status == "fetched")
@@ -789,7 +802,6 @@ def main() -> None:
             last_request = time.monotonic()
             description = ""
             kind = ""
-            inhire_result = inhire_fallback(job)
             handled_by_inhire = store_inhire_result(job, inhire_result)
             if handled_by_inhire:
                 fetched += int(

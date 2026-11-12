@@ -676,7 +676,7 @@ class PrivateDescriptionTests(unittest.TestCase):
                 description_crawler,
                 "fetch_page",
                 return_value=(b"<html><body>Resumo curto</body></html>", "text/html", 200),
-            ),
+            ) as fetch_page,
             patch.object(
                 description_crawler.inhire_descriptions,
                 "fetch_description",
@@ -696,6 +696,7 @@ class PrivateDescriptionTests(unittest.TestCase):
             "SELECT description, content_kind, status FROM job_descriptions"
         ).fetchone()
         fetch_inhire.assert_called_once()
+        fetch_page.assert_not_called()
         self.assertEqual(stored["content_kind"], "inhire_api")
         self.assertEqual(stored["status"], "fetched")
         self.assertIn("API pública", stored["description"])
