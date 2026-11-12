@@ -639,3 +639,7 @@ Foram adicionados testes para preservar o primeiro instante da falha, atualizar 
 - Resultados bem-sucedidos continuam protegidos por uma consulta diária; falhas podem ser reprocessadas em uma execução manual para não aguardar o próximo dia após instabilidade ou incompatibilidade do provedor.
 - O teto padrão do workflow passou para três chamadas por execução, ainda dentro da franquia gratuita documentada e do limite local. O teste garante que sucessos são ignorados e somente a tentativa falha é refeita.
 
+## 2026-11-12 — Limite de chamadas HasData no ambiente
+
+- A variável não sensível `HASDATA_MCP_MAX_CALLS` do ambiente `github-pages` foi alterada de `1` para `3`, respeitando o teto local e permitindo que as quatro consultas canônicas avancem em execuções pontuais sem tocar na chave `HASDATA_API_KEY`.
+
