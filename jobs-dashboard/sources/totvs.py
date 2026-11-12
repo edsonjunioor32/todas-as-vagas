@@ -43,6 +43,7 @@ BOARDS = {
     "vagasavaeducacao": {"company": "AVA Educação", "catalog": "extended"},
     "selbetti": {"company": "Selbetti", "catalog": "extended"},
     "netratecnologia": {"company": "Netra Tecnologia", "catalog": "extended"},
+    "vagasabertaspagsmilebr": {"company": "Pagsmile", "catalog": ""},
     "vagasecomex": {"company": "eCOMEX", "catalog": "extended"},
 }
 
