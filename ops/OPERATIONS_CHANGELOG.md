@@ -624,3 +624,8 @@ Foram adicionados testes para preservar o primeiro instante da falha, atualizar 
 - A execução pontual confirmou que a allowlist do coletor ainda rejeitava `www.glassdoor.com.br`, embora esse seja o domínio regional documentado pelo provedor. Por isso a chamada nem chegava ao HasData e a nota permanecia ausente.
 - A validação agora aceita os domínios oficiais com e sem `www`, mantendo a restrição de host permitido. Foi incluído teste que valida o manifesto brasileiro e a execução preserva a regra de não publicar nota sem retorno numérico validado.
 
+## 2026-11-12 — Correspondência do nome curto retornado pelo HasData
+
+- A chamada remota passou a responder, mas o resultado não era associado à empresa porque o retorno usa `employer.shortName` em alguns anúncios. O coletor agora lê esse campo somente dentro dos aliases canônicos aprovados.
+- O perfil da Heineken recebeu o alias explícito `Heineken`, sem alterar a validação exata nem permitir correspondência aproximada entre empresas.
+

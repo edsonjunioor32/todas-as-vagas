@@ -106,7 +106,7 @@ class HasDataGlassdoorMcpTests(unittest.TestCase):
         payload = {
             "json": {
                 "jobs": [{
-                    "company": {"name": "Empresa Teste", "rating": 4.7},
+                    "employer": {"shortName": "Empresa Teste", "rating": 4.7},
                     "rating": 1.1,
                     "url": "https://www.glassdoor.com.br/job-listing/vaga.htm?jl=123&utm_source=x",
                 }]

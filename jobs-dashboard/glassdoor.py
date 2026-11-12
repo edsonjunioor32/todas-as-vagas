@@ -648,7 +648,7 @@ def _mcp_company_name(job: dict) -> str:
     for key in ("company", "employer"):
         value = job.get(key)
         if isinstance(value, dict):
-            for name_key in ("name", "companyName", "employerName"):
+            for name_key in ("name", "shortName", "companyName", "employerName"):
                 if value.get(name_key):
                     return str(value[name_key]).strip()
         elif value:
