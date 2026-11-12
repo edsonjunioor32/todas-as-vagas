@@ -65,6 +65,7 @@
     precisionrh: 'Precision RH',
     accenture: 'Accenture',
     ey: 'EY',
+    sonda: 'SONDA',
     bradesco: 'Bradesco',
     cloudwalk: 'CloudWalk',
     mercadolivre: 'Mercado Livre',
