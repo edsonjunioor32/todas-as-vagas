@@ -37,10 +37,12 @@ O repositório da HasData fornece um launcher npm/PyPI que apenas encaminha a
 sessão para o serviço remoto; ele não faz a coleta localmente. Para o workflow
 Python, o projeto usa diretamente o endpoint remoto com a biblioteca padrão,
 sem instalar o launcher nem expor a chave na linha de comando. A sessão usa
-`https://mcp.hasdata.com/api/mcp?apis=glassdoor` e faz `initialize`,
+`https://mcp.hasdata.com/mcp?apis=glassdoor` e faz `initialize`,
 `notifications/initialized`, `tools/list` e somente `tools/call` da busca de
 vagas. A rotina diária não chama `getJobDetails`. O resultado é aceito tanto
-como JSON quanto como SSE; apenas `result.content[0].text` JSON é interpretado.
+como JSON quanto como SSE; `result.structuredContent`, campos JSON do item de
+conteúdo ou texto contendo JSON são interpretados, enquanto texto livre continua
+sendo rejeitado.
 
 Para habilitar no GitHub Actions:
 

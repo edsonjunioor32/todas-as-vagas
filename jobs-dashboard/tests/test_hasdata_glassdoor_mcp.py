@@ -34,9 +34,24 @@ class HasDataGlassdoorMcpTests(unittest.TestCase):
         from hasdata_glassdoor_mcp import DEFAULT_ENDPOINT
 
         self.assertEqual(
-            "https://mcp.hasdata.com/api/mcp?apis=glassdoor",
+            "https://mcp.hasdata.com/mcp?apis=glassdoor",
             DEFAULT_ENDPOINT,
         )
+
+    def test_accepts_structured_content_and_markdown_json(self):
+        structured = HasDataGlassdoorMcpClient._tool_payload({
+            "structuredContent": {"jobs": []},
+        })
+        self.assertEqual(structured, {"jobs": []})
+        markdown = HasDataGlassdoorMcpClient._tool_payload({
+            "content": [{"type": "text", "text": "Resultado:\n```json\n{\"jobs\": []}\n```"}],
+        })
+        self.assertEqual(markdown, {"jobs": []})
+
+    def test_ignores_unstructured_text_without_a_json_object(self):
+        self.assertIsNone(HasDataGlassdoorMcpClient._tool_payload({
+            "content": [{"type": "text", "text": "Nenhuma vaga encontrada"}],
+        }))
 
     def test_rejects_non_hasdata_endpoint_to_prevent_key_exfiltration(self):
         with self.assertRaises(ValueError):

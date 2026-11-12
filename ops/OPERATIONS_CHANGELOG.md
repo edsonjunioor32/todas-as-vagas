@@ -613,3 +613,9 @@ Foram adicionados testes para preservar o primeiro instante da falha, atualizar 
 - A execução pontual confirmou que o endpoint legado respondia, mas o conteúdo não era interpretável pelo cliente. O cliente continua validando JSON-RPC, nome da empresa, nota e URL antes de publicar qualquer valor.
 - Adicionado teste de regressão para impedir a volta do endpoint antigo; nenhuma chave foi registrada no repositório.
 
+## 2026-11-12 — Alinhamento do cliente HasData ao contrato publicado
+
+- A revisão do contrato público do Glassdoor MCP confirmou o endpoint `https://mcp.hasdata.com/mcp?apis=glassdoor` e o domínio regional `www.glassdoor.com.br`; ambos foram restaurados no cliente e nas quatro consultas aprovadas.
+- O parser agora aceita `structuredContent`, campos JSON do item de conteúdo e JSON delimitado por texto/Markdown, mas rejeita texto livre. A validação posterior continua exigindo empresa aprovada, nota numérica e URL Glassdoor HTTPS.
+- Testes direcionados, compilação Python e verificação de diff passaram antes da publicação da alteração.
+

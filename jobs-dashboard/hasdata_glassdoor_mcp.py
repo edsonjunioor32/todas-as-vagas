@@ -10,7 +10,7 @@ import urllib.request
 from typing import Callable
 
 
-DEFAULT_ENDPOINT = "https://mcp.hasdata.com/api/mcp?apis=glassdoor"
+DEFAULT_ENDPOINT = "https://mcp.hasdata.com/mcp?apis=glassdoor"
 DEFAULT_TIMEOUT_SECONDS = 15.0
 DEFAULT_RETRIES = 2
 DEFAULT_BACKOFF_SECONDS = 2.0
@@ -223,6 +223,58 @@ class HasDataGlassdoorMcpClient:
             self._tools = self._result(response)
         return self._tools
 
+    @staticmethod
+    def _json_object_from_text(text: str) -> dict | None:
+        """Decode JSON returned as plain text, fenced Markdown, or prefixed text."""
+        cleaned = str(text or "").strip()
+        if not cleaned:
+            return None
+        candidates = [cleaned]
+        if cleaned.startswith("```"):
+            lines = cleaned.splitlines()
+            if len(lines) >= 3 and lines[0].lstrip().startswith("```") and lines[-1].strip() == "```":
+                candidates.append("\n".join(lines[1:-1]).strip())
+        decoder = json.JSONDecoder()
+        for candidate in candidates:
+            try:
+                value = json.loads(candidate)
+            except (TypeError, ValueError, json.JSONDecodeError):
+                value = None
+            if isinstance(value, dict):
+                return value
+            for position, char in enumerate(candidate):
+                if char != "{":
+                    continue
+                try:
+                    value, _end = decoder.raw_decode(candidate[position:])
+                except (TypeError, ValueError, json.JSONDecodeError):
+                    continue
+                if isinstance(value, dict):
+                    return value
+        return None
+
+    @classmethod
+    def _tool_payload(cls, result: dict) -> dict | None:
+        """Read structuredContent first, then JSON-bearing MCP content."""
+        for key in ("structuredContent", "structured_content"):
+            value = result.get(key)
+            if isinstance(value, dict):
+                return value
+        content = result.get("content")
+        if not isinstance(content, list):
+            return None
+        for item in content:
+            if not isinstance(item, dict):
+                continue
+            for key in ("json", "data", "structuredContent", "structured_content"):
+                value = item.get(key)
+                if isinstance(value, dict):
+                    return value
+            value = cls._json_object_from_text(item.get("text", ""))
+            if value is not None:
+                return value
+        return None
+
     def call_tool(self, name: str, arguments: dict | None = None) -> dict:
         self.list_tools()
         response = self._post({
@@ -232,19 +284,11 @@ class HasDataGlassdoorMcpClient:
             "params": {"name": str(name), "arguments": arguments or {}},
         })
         result = self._result(response)
-        content = result.get("content")
-        if not isinstance(content, list) or not content:
-            raise HasDataGlassdoorMcpError("resultado do HasData sem content")
-        first = content[0]
-        text = first.get("text") if isinstance(first, dict) else None
-        if not isinstance(text, str):
-            raise HasDataGlassdoorMcpError("resultado do HasData sem content.text")
-        try:
-            value = json.loads(text)
-        except (TypeError, ValueError, json.JSONDecodeError) as error:
-            raise HasDataGlassdoorMcpError("content.text do HasData não é JSON válido") from error
-        if not isinstance(value, dict):
-            raise HasDataGlassdoorMcpError("content.text do HasData não é um objeto")
+        value = self._tool_payload(result)
+        if value is None:
+            if not result.get("content"):
+                raise HasDataGlassdoorMcpError("resultado do HasData sem content ou structuredContent")
+            raise HasDataGlassdoorMcpError("resultado estruturado do HasData não foi reconhecido")
         return value
 
     def search_jobs(
@@ -252,7 +296,7 @@ class HasDataGlassdoorMcpClient:
         *,
         keyword: str,
         location: str,
-        domain: str = "glassdoor.com.br",
+        domain: str = "www.glassdoor.com.br",
         sort: str = "recent",
     ) -> dict:
         return self.call_tool(
