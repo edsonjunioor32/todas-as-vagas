@@ -8,6 +8,7 @@ on:
       - "jobs-dashboard/sources/_rendered.py"
       - "jobs-dashboard/sources/experian.py"
       - "jobs-dashboard/sources/ey.py"
+      - "jobs-dashboard/sources/sonda.py"
       - "jobs-dashboard/sources/bradesco.py"
       - "jobs-dashboard/sources/geekhunter.py"
       - "jobs-dashboard/sources/quickin.py"
@@ -78,6 +79,7 @@ jobs:
         run: |
           python -m unittest discover -s jobs-dashboard/tests -p 'test_*dynamic_portals.py' -v
           python -m unittest discover -s jobs-dashboard/tests -p 'test_new_sources.py' -v
+          python -m unittest discover -s jobs-dashboard/tests -p 'test_sonda.py' -v
           python -m unittest discover -s jobs-dashboard/tests -p 'test_quickin_pagination.py' -v
           python -m unittest discover -s jobs-dashboard/tests -p 'test_ngcash.py' -v
           python -m unittest discover -s jobs-dashboard/tests -p 'test_validate_dynamic_portals.py' -v

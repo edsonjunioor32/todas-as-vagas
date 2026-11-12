@@ -1,0 +1,152 @@
+name: Coleta Diária LinkedIn (Vagas Públicas)
+
+on:
+  # Um push que altera o coletor dispara uma execução imediata para que uma
+  # correção não espere a próxima janela agendada. O commit do snapshot usa
+  # [linkedin-refresh] e é ignorado pelo próprio job para evitar recursão.
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/linkedin-jobs.yml"
+      - "tools/collect_linkedin.py"
+      - "jobs-dashboard/sources/linkedin.py"
+  schedule:
+    # Executa às 07h e 19h de Brasília/Fortaleza (10h e 22h UTC).
+    # A segunda coleta do dia captura vagas publicadas após a primeira janela.
+    - cron: "0 10,22 * * *"
+  workflow_dispatch:
+    inputs:
+      results_limit:
+        description: "Vagas solicitadas na varredura geral; cada consulta é limitada a 1.000 e a execução a 1.200 anúncios únicos."
+        required: false
+        default: "1000"
+        type: string
+      remote_results_limit:
+        description: "Busca candidatos por termos de modalidade; esses termos não provam a modalidade. Exige selo real, descrição explícita ou override verificado; limite 1.000 por consulta e 1.200 únicos."
+        required: false
+        default: "1200"
+        type: string
+      hours_old:
+        description: "Janela máxima de publicação em horas (1440 = 60 dias)"
+        required: false
+        default: "1440"
+        type: string
+      easy_apply_only:
+        description: "Filtrar estritamente por Candidatura Simplificada (Easy Apply via f_AL=true)"
+        required: false
+        default: false
+        type: boolean
+      max_jobs_per_company:
+        description: "Teto de vagas por empresa (evita monopólio de agregadores)"
+        required: false
+        default: "25"
+        type: string
+      priority_terms:
+        description: "Clusters prioritários de tecnologia (Software Frontend Dados Produto DevOps QA)"
+        required: false
+        default: "Software Frontend Dados Produto DevOps QA"
+        type: string
+      include_hybrid_pass:
+        description: "Executar busca complementar por vagas híbridas (f_WT=3)"
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  contents: write
+
+concurrency:
+  # A coleta é independente da publicação. O snapshot só é entregue ao
+  # catálogo depois de estar gravado no main; compartilhar o grupo com Pages
+  # fazia uma agenda atrasada bloquear/cancelar a publicação seguinte.
+  group: linkedin-collection
+  cancel-in-progress: false
+
+jobs:
+  collect-linkedin:
+    if: github.event_name != 'push' || !contains(github.event.head_commit.message, '[linkedin-refresh]')
+    name: Coletar vagas públicas LinkedIn
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Instalar dependências da coleta
+        run: |
+          python -m pip install --upgrade pip
+          pip install python-jobspy==1.4.1 pandas
+
+      - name: Executar coleta pública do LinkedIn
+        run: |
+          RESULTS="${{ inputs.results_limit || '1000' }}"
+          REMOTE_RESULTS="${{ inputs.remote_results_limit || '1200' }}"
+          HOURS="${{ inputs.hours_old || '1440' }}"
+          MAX_COMPANY="${{ inputs.max_jobs_per_company || '25' }}"
+          PRIORITY="${{ inputs.priority_terms || 'Software Frontend Dados Produto DevOps QA' }}"
+          EXTRA_FLAGS=""
+          if [ "${{ inputs.easy_apply_only }}" = "true" ]; then
+            EXTRA_FLAGS="$EXTRA_FLAGS --easy-apply"
+          fi
+          if [ "${{ inputs.include_hybrid_pass }}" != "false" ]; then
+            EXTRA_FLAGS="$EXTRA_FLAGS --include-hybrid-pass"
+          fi
+          python tools/collect_linkedin.py \
+            --results-limit "$RESULTS" \
+            --remote-results-limit "$REMOTE_RESULTS" \
+            --hours-old "$HOURS" \
+            --max-jobs-per-company "$MAX_COMPANY" \
+            --priority-terms $PRIORITY \
+            $EXTRA_FLAGS \
+            --output docs/data/linkedin_vagas.json
+
+      - name: Validar snapshot antes da publicação
+        env:
+          LINKEDIN_SNAPSHOT_MAX_AGE_HOURS: "36"
+          LINKEDIN_MAX_AGE_DAYS: "60"
+        run: |
+          PYTHONPATH=jobs-dashboard python - <<'PY'
+          from sources import linkedin
+
+          rows = linkedin.fetch()
+          print(f"Snapshot LinkedIn validado: {len(rows)} vagas brasileiras públicas.")
+          PY
+
+      - name: Preservar artefato para inspeção
+        uses: actions/upload-artifact@v4
+        with:
+          name: linkedin-jobs-snapshot
+          path: docs/data/linkedin_vagas.json
+          retention-days: 7
+
+      - name: Publicar snapshot coletado no repositório
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data/linkedin_vagas.json
+          if git diff --staged --quiet; then
+            echo "Nenhuma alteração nos dados do LinkedIn."
+          else
+            git commit -m "chore(linkedin): atualizar vagas públicas do LinkedIn [linkedin-refresh]"
+            git push origin main
+          fi
+
+          # GITHUB_TOKEN não inicia outro workflow por um simples git push.
+          # Enviamos um evento explícito para que o Pages recalcule o catálogo
+          # e publique o snapshot atualizado nesta mesma execução.
+          curl --fail-with-body --retry 3 --retry-delay 5 \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ github.token }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/dispatches" \
+            -d '{"event_type":"linkedin_refresh"}'
+

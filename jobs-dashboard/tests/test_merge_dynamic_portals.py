@@ -3,6 +3,7 @@ import json
 import sys
 import tempfile
 import unittest
+from datetime import date
 from pathlib import Path
 from unittest.mock import patch
 
@@ -48,6 +49,8 @@ class PartialCatalogTests(unittest.TestCase):
         ), patch.object(merge, "TARGET_NAMES", {"experian", "digisystem"}), patch.object(
             merge, "OPTIONAL_EMPTY_SOURCES", set()
         ), patch.object(
+            merge.storage, "local_today", return_value=date(2026, 9, 30)
+        ), patch.object(
             pipeline, "collect", return_value=(rows, ["digisystem"], [])
         ):
             collected, counts, failed = merge.collect_rows()
@@ -62,6 +65,8 @@ class PartialCatalogTests(unittest.TestCase):
             merge, "TARGETS", (("experian", lambda: []), ("digisystem", lambda: []))
         ), patch.object(merge, "TARGET_NAMES", {"experian", "digisystem"}), patch.object(
             merge, "OPTIONAL_EMPTY_SOURCES", set()
+        ), patch.object(
+            merge.storage, "local_today", return_value=date(2026, 9, 30)
         ), patch.object(
             pipeline, "collect", return_value=(rows, [], [])
         ):

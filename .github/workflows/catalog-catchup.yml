@@ -16,11 +16,14 @@ permissions:
   contents: write
   issues: write
 
-# Este controlador não publica dados: consulta runs, registra o alerta e aciona
-# a publicação self-hosted. A fila é independente do runner da VPS.
+# Este controlador consulta runs, registra o alerta e aciona a publicação em
+# runner hospedado. A fila é independente da VPS e funciona como recuperação
+# real quando uma janela principal não termina.
 concurrency:
   group: catalog-catchup-control
-  queue: max
+  # O monitor sempre reavalia o slot atual; descartar verificações pendentes
+  # antigas evita uma fila de recuperações obsoletas após atraso do runner.
+  queue: single
 
 env:
   CATCHUP_GRACE_MINUTES: "30"

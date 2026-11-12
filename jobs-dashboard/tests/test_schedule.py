@@ -23,14 +23,19 @@ from catalog_catchup import (
 )
 from github_scheduler import (
     BRASILIA,
+    LINKEDIN_COLLECTION_HOURS_UTC,
     decide,
     dispatch_collection as scheduler_dispatch_collection,
+    dispatch_linkedin,
     fetch_runs,
+    is_collection_run,
     latest_slot,
+    resume_key_for_attempt,
     resume_key_for_slot as scheduler_resume_key_for_slot,
     SchedulerLock,
     load_state,
     save_state,
+    _record_dispatch,
 )
 
 
@@ -44,6 +49,12 @@ class ScheduleTests(unittest.TestCase):
         self.assertIn(
             "7 11,14,18,23 * * *",
             cron_entries(".github/workflows/pages.yml"),
+        )
+
+    def test_linkedin_collection_schedule_matches_vps_recovery_slots(self):
+        self.assertIn(
+            "0 10,22 * * *",
+            cron_entries(".github/workflows/linkedin-jobs.yml"),
         )
 
     def test_greenhouse_discovery_condition_matches_its_sunday_schedule(self):
@@ -66,15 +77,17 @@ class ScheduleTests(unittest.TestCase):
         self.assertIn("issues: write", workflow)
         self.assertIn("CATCHUP_GRACE_MINUTES", workflow)
         self.assertIn("catalog_catchup.py", workflow)
+        self.assertIn("  queue: single", workflow)
         pages = (ROOT / ".github/workflows/pages.yml").read_text(encoding="utf-8")
         self.assertIn("  repository_dispatch:", pages)
-        self.assertIn("types: [catalog_recovery]", pages)
+        self.assertIn("types: [catalog_recovery, linkedin_refresh]", pages)
+        self.assertIn("Publicação após coleta do LinkedIn", pages)
         self.assertIn("resume_key:", pages)
         self.assertIn("Restaurar checkpoints da coleta", pages)
         self.assertIn("Salvar checkpoints da coleta", pages)
         self.assertIn("JOBS_COLLECTION_CHECKPOINT_DIR", pages)
         self.assertIn(
-            "github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' ||",
+            "github.event_name == 'workflow_dispatch' || github.event.schedule == '43 7 * * 0'",
             pages,
         )
 
@@ -197,6 +210,66 @@ class ScheduleTests(unittest.TestCase):
         self.assertEqual(slot, datetime(2026, 9, 11, 14, 0, tzinfo=timezone.utc))
         self.assertEqual(slot.astimezone(BRASILIA).strftime("%H:%M"), "11:00")
 
+    def test_vps_scheduler_has_a_separate_linkedin_schedule_and_filter(self):
+        slot = latest_slot(
+            datetime(2026, 9, 11, 14, 10, tzinfo=timezone.utc),
+            LINKEDIN_COLLECTION_HOURS_UTC,
+        )
+        self.assertEqual(slot, datetime(2026, 9, 11, 10, 0, tzinfo=timezone.utc))
+
+        successful_linkedin = {
+            "event": "schedule",
+            "status": "completed",
+            "conclusion": "success",
+            "created_at": "2026-09-11T10:02:00Z",
+        }
+        self.assertEqual(
+            decide(
+                datetime(2026, 9, 11, 14, 10, tzinfo=timezone.utc),
+                [successful_linkedin],
+                {},
+                workflow="linkedin",
+                schedule_hours=LINKEDIN_COLLECTION_HOURS_UTC,
+                state_field="linkedin_dispatched_slots",
+            )["reason"],
+            "slot_succeeded",
+        )
+
+        refresh_push = {
+            "event": "push",
+            "head_commit": {
+                "message": "chore(linkedin): atualizar snapshot [linkedin-refresh]",
+            },
+        }
+        self.assertFalse(is_collection_run(refresh_push, workflow="linkedin"))
+
+    def test_vps_scheduler_keeps_linkedin_attempts_separate_from_catalog(self):
+        now = datetime(2026, 9, 11, 14, 45, tzinfo=timezone.utc)
+        slot_key = "2026-09-11T10:00:00+00:00"
+        state = {"dispatched_slots": {slot_key: "2026-09-11T10:40:00+00:00"}}
+        result = decide(
+            now,
+            [],
+            state,
+            workflow="linkedin",
+            schedule_hours=LINKEDIN_COLLECTION_HOURS_UTC,
+            state_field="linkedin_dispatched_slots",
+        )
+        self.assertEqual(result["action"], "dispatch")
+
+        state["linkedin_dispatched_slots"] = {slot_key: "2026-09-11T10:40:00+00:00"}
+        self.assertEqual(
+            decide(
+                now,
+                [],
+                state,
+                workflow="linkedin",
+                schedule_hours=LINKEDIN_COLLECTION_HOURS_UTC,
+                state_field="linkedin_dispatched_slots",
+            )["reason"],
+            "dispatch_unconfirmed",
+        )
+
     def test_vps_scheduler_waits_then_dispatches_only_missing_slot(self):
         now = datetime(2026, 9, 11, 14, 45, tzinfo=timezone.utc)
         self.assertEqual(decide(now, [], {})["action"], "dispatch")
@@ -247,7 +320,40 @@ class ScheduleTests(unittest.TestCase):
         self.assertEqual(result["action"], "skip")
         self.assertEqual(result["reason"], "dispatch_visibility_grace")
 
-    def test_vps_scheduler_still_retries_a_visible_failed_dispatch_after_short_cooldown(self):
+    def test_vps_scheduler_never_reposts_an_unconfirmed_dispatch(self):
+        state = {"dispatched_slots": {"2026-09-11T14:00:00+00:00": {
+            "attempts": 1,
+            "resume_key": "slot-2026-09-11T14:00:00+00:00",
+            "posted_at_utc": "2026-09-11T14:31:00+00:00",
+        }}}
+        now = datetime(2026, 9, 11, 15, 5, tzinfo=timezone.utc)
+        result = decide(now, [], state)
+        self.assertEqual(result["reason"], "dispatch_unconfirmed")
+        self.assertEqual(result["action"], "skip")
+        unrelated = {"event": "workflow_dispatch", "status": "completed",
+                     "conclusion": "failure", "created_at": "2026-09-11T14:40:00Z",
+                     "display_title": "Execução manual do catálogo run-other"}
+        self.assertEqual(decide(now, [unrelated], state)["reason"], "dispatch_unconfirmed")
+
+    def test_vps_scheduler_retries_only_its_confirmed_failed_run(self):
+        key = "slot-2026-09-11T14:00:00+00:00"
+        state = {"dispatched_slots": {"2026-09-11T14:00:00+00:00": {
+            "attempts": 1, "resume_key": key,
+            "posted_at_utc": "2026-09-11T14:31:00+00:00",
+        }}}
+        failed = {"event": "workflow_dispatch", "status": "completed",
+                  "conclusion": "failure", "created_at": "2026-09-11T14:32:00Z",
+                  "display_title": f"Execução manual do catálogo {key}"}
+        now = datetime(2026, 9, 11, 15, 5, tzinfo=timezone.utc)
+        self.assertEqual(decide(now, [failed], state)["action"], "dispatch")
+
+    def test_vps_scheduler_observes_repository_recovery_as_collection(self):
+        now = datetime(2026, 9, 11, 14, 50, tzinfo=timezone.utc)
+        recovery = {"event": "repository_dispatch", "status": "in_progress",
+                    "created_at": "2026-09-11T14:45:00Z"}
+        self.assertEqual(decide(now, [recovery], {})["reason"], "collection_active")
+
+    def test_vps_scheduler_backs_off_before_retrying_a_visible_failed_dispatch(self):
         now = datetime(2026, 9, 11, 14, 45, tzinfo=timezone.utc)
         failed = {
             "event": "workflow_dispatch",
@@ -263,7 +369,66 @@ class ScheduleTests(unittest.TestCase):
             }
         }
         result = decide(now, [failed], state)
-        self.assertEqual(result["action"], "dispatch")
+        self.assertEqual(result["action"], "skip")
+        self.assertEqual(result["reason"], "dispatch_backoff")
+        retry_ready = decide(datetime(2026, 9, 11, 15, 1, tzinfo=timezone.utc), [failed], state)
+        self.assertEqual(retry_ready["action"], "dispatch")
+
+    def test_vps_scheduler_stops_after_the_per_slot_dispatch_attempt_limit(self):
+        now = datetime(2026, 9, 11, 14, 45, tzinfo=timezone.utc)
+        state = {
+            "dispatched_slots": {
+                "2026-09-11T14:00:00+00:00": {
+                    "attempts": 4,
+                    "last_attempt_at_utc": "2026-09-11T14:31:00+00:00",
+                    "posted_at_utc": "2026-09-11T14:31:00+00:00",
+                }
+            }
+        }
+        result = decide(now, [], state)
+        self.assertEqual(result["action"], "skip")
+        self.assertEqual(result["reason"], "dispatch_attempt_limit")
+        self.assertEqual(result["attempts"], 4)
+
+    def test_vps_scheduler_records_attempt_before_post_and_marks_acceptance(self):
+        slot = datetime(2026, 9, 11, 14, 0, tzinfo=timezone.utc)
+        attempted_at = datetime(2026, 9, 11, 14, 45, tzinfo=timezone.utc)
+        attempted = _record_dispatch({}, slot, attempted_at, resume_key="run-123")
+        record = attempted["dispatched_slots"]["2026-09-11T14:00:00+00:00"]
+        self.assertEqual(record["attempts"], 1)
+        self.assertEqual(record["resume_key"], "run-123")
+        self.assertNotIn("posted_at_utc", record)
+        accepted = _record_dispatch(attempted, slot, attempted_at, accepted=True)
+        record = accepted["dispatched_slots"]["2026-09-11T14:00:00+00:00"]
+        self.assertEqual(record["attempts"], 1)
+        self.assertEqual(record["posted_at_utc"], attempted_at.isoformat())
+        self.assertEqual(record["resume_key"], "run-123")
+
+    def test_vps_scheduler_reuses_checkpoint_key_for_every_retry_of_the_slot(self):
+        slot = datetime(2026, 9, 11, 14, 0, tzinfo=timezone.utc)
+        runs = [
+            {
+                "id": 123,
+                "event": "schedule",
+                "status": "completed",
+                "conclusion": "failure",
+                "created_at": "2026-09-11T14:01:00Z",
+            },
+            {
+                "id": 456,
+                "event": "workflow_dispatch",
+                "status": "completed",
+                "conclusion": "failure",
+                "created_at": "2026-09-11T15:01:00Z",
+            },
+        ]
+        state = {
+            "dispatched_slots": {
+                "2026-09-11T14:00:00+00:00": {"resume_key": "run-123"}
+            }
+        }
+        self.assertEqual(resume_key_for_attempt(runs, slot, state), "run-123")
+        self.assertEqual(resume_key_for_attempt(runs, slot, {}), "run-456")
 
     def test_vps_scheduler_retries_a_failed_dispatch_when_not_locally_confirmed(self):
         now = datetime(2026, 9, 11, 14, 45, tzinfo=timezone.utc)
@@ -292,6 +457,61 @@ class ScheduleTests(unittest.TestCase):
         self.assertIn("actions/workflows/pages.yml/runs", request.full_url)
         self.assertEqual(request.get_header("Authorization"), "Bearer secret")
 
+    def test_vps_scheduler_reads_linkedin_workflow_runs_when_requested(self):
+        class Response:
+            def __enter__(self):
+                return self
+            def __exit__(self, *args):
+                return None
+            def read(self):
+                return b'{"workflow_runs": [{"id": 1}]}'
+
+        with patch("github_scheduler.urllib.request.urlopen", return_value=Response()) as urlopen:
+            self.assertEqual(
+                fetch_runs(
+                    "edsonjunioor32/todas-as-vagas",
+                    "secret",
+                    workflow_file="linkedin-jobs.yml",
+                    schedule_hours=LINKEDIN_COLLECTION_HOURS_UTC,
+                    history_hours=24,
+                ),
+                [{"id": 1}],
+            )
+        request = urlopen.call_args.args[0]
+        self.assertIn("actions/workflows/linkedin-jobs.yml/runs", request.full_url)
+
+    def test_vps_scheduler_dispatches_linkedin_workflow(self):
+        with patch("github_scheduler.urllib.request.urlopen") as urlopen:
+            dispatch_linkedin("edsonjunioor32/todas-as-vagas", "secret")
+        request = urlopen.call_args.args[0]
+        self.assertEqual(request.get_method(), "POST")
+        self.assertIn(
+            "actions/workflows/linkedin-jobs.yml/dispatches",
+            request.full_url,
+        )
+        self.assertEqual(json.loads(request.data.decode("utf-8")), {"ref": "main"})
+        self.assertEqual(request.get_header("Authorization"), "Bearer secret")
+
+    def test_vps_scheduler_paginates_runs_before_deciding_to_dispatch(self):
+        class Response:
+            def __init__(self, body):
+                self.body = body
+            def __enter__(self):
+                return self
+            def __exit__(self, *args):
+                return None
+            def read(self):
+                return json.dumps({"workflow_runs": self.body}).encode("utf-8")
+
+        first_page = [{"id": number, "created_at": datetime.now(timezone.utc).isoformat()}
+                      for number in range(100)]
+        second_page = [{"id": 101, "created_at": datetime.now(timezone.utc).isoformat()}]
+        with patch("github_scheduler.urllib.request.urlopen",
+                   side_effect=[Response(first_page), Response(second_page)]) as urlopen:
+            runs = fetch_runs("edsonjunioor32/todas-as-vagas", "secret")
+        self.assertEqual(len(runs), 101)
+        self.assertIn("page=2", urlopen.call_args.args[0].full_url)
+
     def test_vps_scheduler_dispatches_pages_workflow(self):
         with patch("github_scheduler.urllib.request.urlopen") as urlopen:
             scheduler_dispatch_collection("edsonjunioor32/todas-as-vagas", "secret")
@@ -306,7 +526,8 @@ class ScheduleTests(unittest.TestCase):
             expected = {"dispatched_slots": {"2026-09-11T14:00:00+00:00": "2026-09-11T14:31:00+00:00"}}
             save_state(path, expected)
             self.assertEqual(load_state(path), expected)
-            self.assertEqual(stat.S_IMODE(os.stat(path).st_mode), 0o600)
+            if sys.platform != "win32":
+                self.assertEqual(stat.S_IMODE(os.stat(path).st_mode), 0o600)
 
     def test_vps_scheduler_lock_prevents_overlapping_processes(self):
         with tempfile.TemporaryDirectory() as directory:

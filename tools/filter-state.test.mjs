@@ -27,6 +27,22 @@ assert.match(
   'Valores sem informação não devem virar opções de portal ou mercado.'
 );
 
+assert.match(
+  app,
+  /function sourceWarningSources\(data\)/,
+  'O alerta de portal deve ser calculado a partir da idade da falha, não apenas da lista de falhas.'
+);
+assert.match(
+  app,
+  /source_warning_after_hours/,
+  'O snapshot deve controlar o limite de 24 horas do alerta por portal.'
+);
+assert.match(
+  app,
+  /const warningSources = sourceWarningSources\(data\)/,
+  'A interface deve ocultar falhas ainda dentro da tolerância de 24 horas.'
+);
+
 console.log('Filtro sem seleção não gera chips fantasma.');
 
 const html = fs.readFileSync(path.join(root, 'docs', 'index.html'), 'utf8');
@@ -47,3 +63,38 @@ assert.match(html, /<link rel="canonical" href="https:\/\/edsonjunioor32\.github
 assert.match(html, /meta property="og:url" content="https:\/\/edsonjunioor32\.github\.io\/todas-as-vagas\/"/);
 assert.match(html, /id="resultsTitle" aria-live="polite"/);
 assert.match(html, /id="activeFilters" role="status" aria-live="polite"/);
+assert.match(
+  app,
+  /cache: force \? 'no-store' : 'no-cache'/,
+  'A visita normal deve revalidar a URL estável; a tentativa manual continua ignorando o cache.'
+);
+assert.match(
+  app,
+  /state\.jobs = decode\(data\)\.sort\(/,
+  'A ordenação por recência deve acontecer uma vez ao carregar o snapshot.'
+);
+assert.match(
+  app,
+  /if \(sort !== 'recent'\) state\.filtered\.sort/,
+  'A filtragem padrão deve preservar a ordem de recência sem reordenar todo o resultado.'
+);
+assert.doesNotMatch(
+  app,
+  /const sorted = \[\.\.\.state\.jobs\]\.sort/,
+  'A lista de empresas recentes não deve ordenar novamente o catálogo completo.'
+);
+assert.doesNotMatch(
+  app,
+  /const version = encodeURIComponent\(state\.meta\?\./,
+  'A URL do índice de aderência deve permanecer estável entre versões do catálogo.'
+);
+assert.match(
+  app,
+  /fetch\('\.\/data\/fit\.json', \{ cache: 'no-cache' \}\)/,
+  'O índice de aderência deve revalidar a URL estável em vez de baixar uma cópia por versão.'
+);
+assert.match(
+  app,
+  /fetch\(`\.\/data\/vagas\.json\$\{suffix\}`, \{ cache: force \? 'no-store' : 'no-cache' \}\)/,
+  'O catálogo deve revalidar a URL estável e só ignorar o cache no retry manual.'
+);

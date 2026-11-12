@@ -47,6 +47,71 @@ def validate_entry(url, entry, term_count):
     return None
 
 
+def quarantine_pii_terms(payload):
+    """Remove PII-like vocabulary items and safely reindex every fit entry."""
+    terms = payload.get("terms")
+    jobs = payload.get("jobs")
+    if not isinstance(terms, list) or not isinstance(jobs, dict):
+        raise ValueError("terms/jobs inválidos antes da quarentena de PII")
+
+    remap = []
+    safe_terms = []
+    removed_terms = 0
+    for term in terms:
+        value = str(term)
+        if EMAIL.search(value) or PHONE.search(value):
+            remap.append(None)
+            removed_terms += 1
+        else:
+            remap.append(len(safe_terms))
+            safe_terms.append(term)
+
+    safe_jobs = {}
+    removed_references = 0
+    removed_entries = 0
+    for url, entry in jobs.items():
+        if not isinstance(entry, dict):
+            safe_jobs[url] = entry
+            continue
+        clean_entry = dict(entry)
+        entry_removed_references = 0
+        for key in ("m", "p", "c", "x"):
+            values = clean_entry.get(key)
+            if not isinstance(values, list):
+                continue
+            clean_values = []
+            for index in values:
+                if isinstance(index, int) and not isinstance(index, bool) and 0 <= index < len(remap):
+                    replacement = remap[index]
+                    if replacement is None:
+                        removed_references += 1
+                        entry_removed_references += 1
+                        continue
+                    clean_values.append(replacement)
+                else:
+                    # Preserve malformed references so validate_entry can
+                    # quarantine the affected row instead of hiding the defect.
+                    clean_values.append(index)
+            clean_entry[key] = clean_values
+
+        if entry_removed_references and not any(
+            clean_entry.get(key) for key in ("m", "p", "c", "x")
+        ):
+            removed_entries += 1
+            continue
+        safe_jobs[url] = clean_entry
+
+    updated = dict(payload)
+    updated["terms"] = safe_terms
+    updated["jobs"] = safe_jobs
+    updated["count"] = len(safe_jobs)
+    return updated, {
+        "terms": removed_terms,
+        "references": removed_references,
+        "entries": removed_entries,
+    }
+
+
 def main():
     if not FIT.exists() or not TAXONOMY.exists():
         fail("fit.json ou fit-taxonomy.json ausente")

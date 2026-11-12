@@ -2,14 +2,18 @@
 """Idempotent external scheduler for the public catalog workflow.
 
 This module uses only Python's standard library so it can run on a small VPS.
-It never edits repository data: it only observes pages.yml runs and, when a
-slot is missing, requests an explicit workflow_dispatch for main.
+It never edits repository data: it observes the catalog and LinkedIn workflow
+runs and, when a slot is missing, requests an explicit workflow_dispatch for
+main.
 """
 
 from __future__ import annotations
 
 from datetime import datetime, time, timedelta, timezone
-import fcntl
+try:
+    import fcntl
+except ImportError:
+    fcntl = None
 import json
 import os
 from pathlib import Path
@@ -23,9 +27,14 @@ from zoneinfo import ZoneInfo
 UTC = timezone.utc
 BRASILIA = ZoneInfo("America/Sao_Paulo")
 COLLECTION_HOURS_UTC = (11, 14, 18, 23)
+LINKEDIN_COLLECTION_HOURS_UTC = (10, 22)
+CATALOG_WORKFLOW_FILE = "pages.yml"
+LINKEDIN_WORKFLOW_FILE = "linkedin-jobs.yml"
 DEFAULT_GRACE_MINUTES = 30
 DEFAULT_DISPATCH_COOLDOWN_MINUTES = 10
 DEFAULT_PENDING_DISPATCH_GRACE_MINUTES = 30
+DEFAULT_MAX_DISPATCH_ATTEMPTS = 4
+DISPATCH_RETRY_BACKOFF_MINUTES = (15, 30, 60)
 DEFAULT_REPOSITORY = "edsonjunioor32/todas-as-vagas"
 DEFAULT_STATE_PATH = "~/.local/state/todas-as-vagas/github-scheduler.json"
 DEFAULT_LOCK_PATH = "~/.local/state/todas-as-vagas/github-scheduler.lock"
@@ -41,7 +50,10 @@ def _as_utc(value: datetime) -> datetime:
     return value.astimezone(UTC)
 
 
-def latest_slot(now: datetime) -> datetime:
+def latest_slot(
+    now: datetime,
+    schedule_hours: tuple[int, ...] = COLLECTION_HOURS_UTC,
+) -> datetime:
     """Return the latest configured Brasília slot at or before now."""
     current = _as_utc(now)
     candidates = []
@@ -49,7 +61,7 @@ def latest_slot(now: datetime) -> datetime:
         day = current.date() + timedelta(days=day_offset)
         candidates.extend(
             datetime.combine(day, time(hour=hour, tzinfo=UTC))
-            for hour in COLLECTION_HOURS_UTC
+            for hour in schedule_hours
         )
     return max(slot for slot in candidates if slot <= current)
 
@@ -68,9 +80,16 @@ def _run_time(run: dict) -> datetime | None:
         return None
 
 
-def is_collection_run(run: dict) -> bool:
+def is_collection_run(run: dict, workflow: str = "catalog") -> bool:
     event = str(run.get("event") or "")
-    if event in {"schedule", "workflow_dispatch"}:
+    if workflow == "linkedin":
+        if event in {"schedule", "workflow_dispatch"}:
+            return True
+        if event == "push":
+            message = str((run.get("head_commit") or {}).get("message") or "")
+            return "[linkedin-refresh]" not in message
+        return False
+    if event in {"schedule", "workflow_dispatch", "repository_dispatch"}:
         return True
     if event == "push":
         message = str((run.get("head_commit") or {}).get("message") or "")
@@ -79,13 +98,61 @@ def is_collection_run(run: dict) -> bool:
 
 
 
-def _state_posted_at(state: dict, key: str) -> datetime | None:
-    slots = state.get("dispatched_slots") if isinstance(state, dict) else None
-    if not isinstance(slots, dict) or key not in slots:
+def _state_posted_at(
+    state: dict,
+    key: str,
+    state_field: str = "dispatched_slots",
+) -> datetime | None:
+    record = _slot_record(state, key, state_field)
+    value = record.get("posted_at_utc")
+    if not value:
+        # Legacy state files stored the timestamp directly as a string.
+        slots = state.get(state_field) if isinstance(state, dict) else None
+        value = slots.get(key) if isinstance(slots, dict) else None
+    if not isinstance(value, str):
         return None
-    value = slots[key]
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone(UTC)
+    except ValueError:
+        return None
+
+
+def _slot_record(
+    state: dict,
+    key: str,
+    state_field: str = "dispatched_slots",
+) -> dict:
+    slots = state.get(state_field) if isinstance(state, dict) else None
+    value = slots.get(key) if isinstance(slots, dict) else None
     if isinstance(value, dict):
-        value = value.get("posted_at_utc")
+        return value
+    if isinstance(value, str):
+        return {"posted_at_utc": value, "attempts": 1}
+    return {}
+
+
+def _state_attempt_count(
+    state: dict,
+    key: str,
+    state_field: str = "dispatched_slots",
+) -> int:
+    record = _slot_record(state, key, state_field)
+    value = record.get("attempts")
+    if value is None:
+        return 1 if record.get("posted_at_utc") else 0
+    try:
+        return max(0, int(value))
+    except (TypeError, ValueError):
+        return 0
+
+
+def _state_last_attempt_at(
+    state: dict,
+    key: str,
+    state_field: str = "dispatched_slots",
+) -> datetime | None:
+    record = _slot_record(state, key, state_field)
+    value = record.get("last_attempt_at_utc") or record.get("posted_at_utc")
     if not isinstance(value, str):
         return None
     try:
@@ -103,19 +170,37 @@ def _recent_dispatch(run, current, cooldown_minutes):
     return created >= current - timedelta(minutes=max(0, int(cooldown_minutes)))
 
 
-def resume_key_for_slot(runs: list[dict], slot: datetime) -> str:
+def resume_key_for_slot(
+    runs: list[dict],
+    slot: datetime,
+    workflow: str = "catalog",
+) -> str:
     """Keep retries of a failed slot attached to its original checkpoints."""
     candidates = [
         run for run in runs
         if (created := _run_time(run)) is not None
         and created >= slot
-        and is_collection_run(run)
+        and is_collection_run(run, workflow=workflow)
         and str(run.get("id") or "").strip()
     ]
     if candidates:
         latest = max(candidates, key=lambda run: _run_time(run) or slot)
         return f"run-{latest['id']}"
     return f"slot-{slot.isoformat()}"
+
+
+def resume_key_for_attempt(
+    runs: list[dict],
+    slot: datetime,
+    state: dict,
+    workflow: str = "catalog",
+    state_field: str = "dispatched_slots",
+) -> str:
+    """Reuse the original checkpoint key across retries of the same slot."""
+    saved_key = _slot_record(state, slot_key(slot), state_field).get("resume_key")
+    if isinstance(saved_key, str) and saved_key.strip():
+        return saved_key.strip()
+    return resume_key_for_slot(runs, slot, workflow=workflow)
 
 
 def decide(
@@ -125,21 +210,29 @@ def decide(
     grace_minutes: int = DEFAULT_GRACE_MINUTES,
     dispatch_cooldown_minutes: int = DEFAULT_DISPATCH_COOLDOWN_MINUTES,
     pending_dispatch_grace_minutes: int = DEFAULT_PENDING_DISPATCH_GRACE_MINUTES,
-) -> dict[str, str | datetime]:
+    max_dispatch_attempts: int = DEFAULT_MAX_DISPATCH_ATTEMPTS,
+    *,
+    workflow: str = "catalog",
+    schedule_hours: tuple[int, ...] = COLLECTION_HOURS_UTC,
+    state_field: str = "dispatched_slots",
+) -> dict[str, str | datetime | int]:
     """Decide whether a dispatch is needed for the current slot.
 
-    A local dispatch gets a visibility grace in case GitHub has accepted the
-    request but its run is not yet visible to the API. Visible failed runs can
-    still be retried after the shorter dispatch cooldown.
+    Persisted attempts impose an increasing retry delay and a hard per-slot
+    cap. This protects against API eventual consistency and repeated failures
+    turning the five-minute timer into an unbounded Actions dispatcher.
     """
     current = _as_utc(now)
-    slot = latest_slot(current)
+    slot = latest_slot(current, schedule_hours)
     key = slot_key(slot)
     grace_end = slot + timedelta(minutes=max(0, int(grace_minutes)))
 
     if current < grace_end:
         return {"action": "wait", "reason": "within_grace", "slot": slot}
-    collection_runs = [run for run in runs if is_collection_run(run)]
+    collection_runs = [
+        run for run in runs
+        if is_collection_run(run, workflow=workflow)
+    ]
     active_statuses = {"queued", "in_progress", "pending", "waiting", "requested"}
     if any(str(run.get("status") or "") in active_statuses for run in collection_runs):
         return {"action": "skip", "reason": "collection_active", "slot": slot}
@@ -160,19 +253,56 @@ def decide(
         for run in slot_runs
     ):
         return {"action": "skip", "reason": "dispatch_cooldown", "slot": slot}
-    posted_at = _state_posted_at(state, key)
-    if posted_at is not None:
-        matching_dispatch = any(
-            str(run.get("event") or "") == "workflow_dispatch"
+    posted_at = _state_posted_at(state, key, state_field)
+    attempt_count = _state_attempt_count(state, key, state_field)
+    last_attempt_at = _state_last_attempt_at(state, key, state_field)
+    if attempt_count >= max(1, int(max_dispatch_attempts)):
+        return {
+            "action": "skip",
+            "reason": "dispatch_attempt_limit",
+            "attempts": attempt_count,
+            "slot": slot,
+        }
+
+    if posted_at is not None or last_attempt_at is not None:
+        record = _slot_record(state, key, state_field)
+        resume_key = str(record.get("resume_key") or "").strip()
+        matching_runs = [
+            run for run in slot_runs
+            if str(run.get("event") or "") == "workflow_dispatch"
             and (created := _run_time(run)) is not None
-            and created >= posted_at - timedelta(minutes=2)
-            for run in slot_runs
-        )
-        visibility_deadline = posted_at + timedelta(
+            and created >= (last_attempt_at or posted_at) - timedelta(minutes=2)
+            and (not resume_key or resume_key in str(run.get("display_title") or ""))
+        ]
+        reference_time = last_attempt_at or posted_at
+        visibility_deadline = reference_time + timedelta(
             minutes=max(0, int(pending_dispatch_grace_minutes))
         )
-        if not matching_dispatch and current < visibility_deadline:
-            return {"action": "skip", "reason": "dispatch_visibility_grace", "slot": slot}
+        if not matching_runs:
+            reason = "dispatch_visibility_grace" if current < visibility_deadline else "dispatch_unconfirmed"
+            return {"action": "skip", "reason": reason, "slot": slot}
+
+        latest_dispatch = max(matching_runs, key=lambda run: _run_time(run) or slot)
+        if str(latest_dispatch.get("status") or "") != "completed":
+            return {"action": "skip", "reason": "dispatch_pending", "slot": slot}
+        if str(latest_dispatch.get("conclusion") or "") not in {"failure", "cancelled", "timed_out"}:
+            return {"action": "skip", "reason": "dispatch_not_failed", "slot": slot}
+
+        if last_attempt_at is not None:
+            backoff_index = min(max(attempt_count - 1, 0), len(DISPATCH_RETRY_BACKOFF_MINUTES) - 1)
+            backoff_minutes = max(
+                int(dispatch_cooldown_minutes),
+                DISPATCH_RETRY_BACKOFF_MINUTES[backoff_index],
+            )
+            retry_at = last_attempt_at + timedelta(minutes=backoff_minutes)
+            if current < retry_at:
+                return {
+                    "action": "skip",
+                    "reason": "dispatch_backoff",
+                    "attempts": attempt_count,
+                    "retry_at": retry_at,
+                    "slot": slot,
+                }
 
     return {"action": "dispatch", "reason": "slot_missing", "slot": slot}
 
@@ -231,12 +361,22 @@ class SchedulerLock:
 
     def acquire(self) -> bool:
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        os.chmod(self.path.parent, 0o700)
-        self._handle = self.path.open("a+", encoding="utf-8")
-        os.chmod(self.path, 0o600)
         try:
-            fcntl.flock(self._handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except BlockingIOError:
+            os.chmod(self.path.parent, 0o700)
+        except OSError:
+            pass
+        self._handle = self.path.open("a+", encoding="utf-8")
+        try:
+            os.chmod(self.path, 0o600)
+        except OSError:
+            pass
+        try:
+            if fcntl is not None:
+                fcntl.flock(self._handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            else:
+                import msvcrt
+                msvcrt.locking(self._handle.fileno(), msvcrt.LK_NBLCK, 1)
+        except (BlockingIOError, OSError):
             self._handle.close()
             self._handle = None
             return False
@@ -245,7 +385,14 @@ class SchedulerLock:
     def release(self) -> None:
         if self._handle is None:
             return
-        fcntl.flock(self._handle.fileno(), fcntl.LOCK_UN)
+        try:
+            if fcntl is not None:
+                fcntl.flock(self._handle.fileno(), fcntl.LOCK_UN)
+            else:
+                import msvcrt
+                msvcrt.locking(self._handle.fileno(), msvcrt.LK_UNLCK, 1)
+        except OSError:
+            pass
         self._handle.close()
         self._handle = None
 
@@ -283,32 +430,57 @@ def _open_get(request: urllib.request.Request):
     raise RuntimeError("consulta GitHub falhou após retries")
 
 
-def fetch_runs(repository: str, token: str) -> list[dict]:
+def fetch_runs(
+    repository: str,
+    token: str,
+    *,
+    workflow_file: str = CATALOG_WORKFLOW_FILE,
+    schedule_hours: tuple[int, ...] = COLLECTION_HOURS_UTC,
+    history_hours: int = 4,
+) -> list[dict]:
     if not repository.strip() or not token.strip():
         raise ValueError("repository e token são obrigatórios")
-    query = urllib.parse.urlencode({"branch": "main", "per_page": 100})
-    request = urllib.request.Request(
-        f"{API_BASE}/repos/{repository}/actions/workflows/pages.yml/runs?{query}",
-        headers=_headers(token),
+    runs: list[dict] = []
+    oldest_needed = latest_slot(datetime.now(UTC), schedule_hours) - timedelta(
+        hours=max(1, int(history_hours))
     )
-    with _open_get(request) as response:
-        try:
-            payload = json.loads(response.read().decode("utf-8"))
-        except (UnicodeDecodeError, json.JSONDecodeError) as error:
-            raise RuntimeError("resposta de runs do GitHub não é JSON válido") from error
-    return list(payload.get("workflow_runs") or [])
+    for page in range(1, 6):
+        query = urllib.parse.urlencode({"branch": "main", "per_page": 100, "page": page})
+        request = urllib.request.Request(
+            f"{API_BASE}/repos/{repository}/actions/workflows/{workflow_file}/runs?{query}",
+            headers=_headers(token),
+        )
+        with _open_get(request) as response:
+            try:
+                payload = json.loads(response.read().decode("utf-8"))
+            except (UnicodeDecodeError, json.JSONDecodeError) as error:
+                raise RuntimeError("resposta de runs do GitHub não é JSON válido") from error
+        batch = list(payload.get("workflow_runs") or [])
+        runs.extend(batch)
+        oldest = min((created for run in batch if (created := _run_time(run))), default=None)
+        if len(batch) < 100 or (oldest is not None and oldest <= oldest_needed):
+            return runs
+    raise RuntimeError("histórico de runs incompleto; dispatch suspenso para evitar duplicidade")
 
 
-def dispatch_collection(repository: str, token: str, resume_key: str | None = None) -> None:
-    """Request one dispatch; do not blindly retry an ambiguous POST."""
+def dispatch_workflow(
+    repository: str,
+    token: str,
+    workflow_file: str,
+    *,
+    inputs: dict[str, str] | None = None,
+) -> None:
+    """Request one workflow dispatch; do not blindly retry an ambiguous POST."""
     if not repository.strip() or not token.strip():
         raise ValueError("repository e token são obrigatórios")
     payload_data = {"ref": "main"}
-    if resume_key:
-        payload_data["inputs"] = {"resume_key": str(resume_key)}
+    if inputs:
+        payload_data["inputs"] = {
+            str(key): str(value) for key, value in inputs.items()
+        }
     payload = json.dumps(payload_data).encode("utf-8")
     request = urllib.request.Request(
-        f"{API_BASE}/repos/{repository}/actions/workflows/pages.yml/dispatches",
+        f"{API_BASE}/repos/{repository}/actions/workflows/{workflow_file}/dispatches",
         data=payload,
         method="POST",
         headers={**_headers(token), "Content-Type": "application/json"},
@@ -317,9 +489,33 @@ def dispatch_collection(repository: str, token: str, resume_key: str | None = No
         with urllib.request.urlopen(request, timeout=REQUEST_TIMEOUT_SECONDS):
             return
     except urllib.error.HTTPError as error:
-        raise RuntimeError(f"dispatch do catálogo falhou com HTTP {error.code}") from error
+        raise RuntimeError(f"dispatch do workflow falhou com HTTP {error.code}") from error
     except urllib.error.URLError as error:
-        raise RuntimeError(f"dispatch do catálogo falhou: {error.reason}") from error
+        raise RuntimeError(f"dispatch do workflow falhou: {error.reason}") from error
+
+
+def dispatch_collection(
+    repository: str,
+    token: str,
+    resume_key: str | None = None,
+) -> None:
+    """Dispatch the catalog workflow, preserving its resumable checkpoint key."""
+    inputs = {"resume_key": str(resume_key)} if resume_key else None
+    dispatch_workflow(
+        repository,
+        token,
+        CATALOG_WORKFLOW_FILE,
+        inputs=inputs,
+    )
+
+
+def dispatch_linkedin(repository: str, token: str) -> None:
+    """Dispatch the isolated LinkedIn collector with its workflow defaults."""
+    dispatch_workflow(
+        repository,
+        token,
+        LINKEDIN_WORKFLOW_FILE,
+    )
 
 
 def _state_path() -> Path:
@@ -330,11 +526,35 @@ def _lock_path() -> Path:
     return Path(os.environ.get("GITHUB_SCHEDULER_LOCK", DEFAULT_LOCK_PATH)).expanduser()
 
 
-def _record_dispatch(state: dict, slot: datetime, posted_at: datetime) -> dict:
+def _record_dispatch(
+    state: dict,
+    slot: datetime,
+    attempted_at: datetime,
+    *,
+    accepted: bool = False,
+    resume_key: str | None = None,
+    state_field: str = "dispatched_slots",
+) -> dict:
     updated = dict(state)
-    slots = dict(updated.get("dispatched_slots") or {})
-    slots[slot_key(slot)] = {"posted_at_utc": _as_utc(posted_at).isoformat()}
-    updated["dispatched_slots"] = dict(sorted(slots.items())[-32:])
+    slots = dict(updated.get(state_field) or {})
+    key = slot_key(slot)
+    previous = _slot_record(state, key, state_field)
+    attempts = _state_attempt_count(state, key, state_field)
+    if not accepted:
+        attempts += 1
+    elif attempts == 0:
+        attempts = 1
+    record = {
+        **previous,
+        "attempts": attempts,
+        "last_attempt_at_utc": _as_utc(attempted_at).isoformat(),
+    }
+    if resume_key:
+        record["resume_key"] = resume_key
+    if accepted:
+        record["posted_at_utc"] = _as_utc(attempted_at).isoformat()
+    slots[key] = record
+    updated[state_field] = dict(sorted(slots.items())[-32:])
     return updated
 
 
@@ -353,7 +573,6 @@ def main() -> int:
     try:
         now = datetime.now(UTC)
         state = load_state(_state_path())
-        runs = fetch_runs(repository, token)
         try:
             cooldown_minutes = int(
                 os.environ.get("CATCHUP_DISPATCH_COOLDOWN_MINUTES", str(DEFAULT_DISPATCH_COOLDOWN_MINUTES))
@@ -369,33 +588,145 @@ def main() -> int:
             )
         except ValueError:
             pending_grace_minutes = DEFAULT_PENDING_DISPATCH_GRACE_MINUTES
-        result = decide(
-            now,
-            runs,
-            state,
-            int(os.environ.get("CATCHUP_GRACE_MINUTES", DEFAULT_GRACE_MINUTES)),
-            cooldown_minutes,
-            pending_grace_minutes,
+        try:
+            max_dispatch_attempts = int(
+                os.environ.get(
+                    "CATCHUP_DISPATCH_MAX_ATTEMPTS",
+                    str(DEFAULT_MAX_DISPATCH_ATTEMPTS),
+                )
+            )
+        except ValueError:
+            max_dispatch_attempts = DEFAULT_MAX_DISPATCH_ATTEMPTS
+        state_path = _state_path()
+        grace_minutes = int(
+            os.environ.get("CATCHUP_GRACE_MINUTES", DEFAULT_GRACE_MINUTES)
         )
-        slot = result["slot"]
-        assert isinstance(slot, datetime)
-        print(
-            f"SCHEDULER_STATUS={result['action']} "
-            f"reason={result['reason']} "
-            f"slot_utc={slot.isoformat()} "
-            f"slot_brt={slot.astimezone(BRASILIA).isoformat()}",
-            flush=True,
+        workflows = (
+            {
+                "label": "catalog",
+                "file": CATALOG_WORKFLOW_FILE,
+                "hours": COLLECTION_HOURS_UTC,
+                "history_hours": 4,
+                "kind": "catalog",
+                "state_field": "dispatched_slots",
+            },
+            {
+                "label": "linkedin",
+                "file": LINKEDIN_WORKFLOW_FILE,
+                "hours": LINKEDIN_COLLECTION_HOURS_UTC,
+                # GitHub scheduled events can be delayed for several hours;
+                # retain a full day of runs so a delayed LinkedIn slot is not
+                # mistaken for a missing run.
+                "history_hours": 24,
+                "kind": "linkedin",
+                "state_field": "linkedin_dispatched_slots",
+            },
         )
-        if result["action"] != "dispatch":
-            return 0
+        failures = 0
+        for workflow in workflows:
+            try:
+                runs = fetch_runs(
+                    repository,
+                    token,
+                    workflow_file=workflow["file"],
+                    schedule_hours=workflow["hours"],
+                    history_hours=workflow["history_hours"],
+                )
+                result = decide(
+                    now,
+                    runs,
+                    state,
+                    grace_minutes,
+                    cooldown_minutes,
+                    pending_grace_minutes,
+                    max_dispatch_attempts,
+                    workflow=workflow["kind"],
+                    schedule_hours=workflow["hours"],
+                    state_field=workflow["state_field"],
+                )
+            except (RuntimeError, ValueError) as error:
+                failures += 1
+                print(
+                    f"SCHEDULER_ERROR=workflow_check workflow={workflow['label']} "
+                    f"error={error}",
+                    flush=True,
+                )
+                continue
 
-        dispatch_collection(repository, token, resume_key_for_slot(runs, slot))
-        save_state(_state_path(), _record_dispatch(state, slot, now))
-        print(
-            f"SCHEDULER_DISPATCHED=true slot_utc={slot.isoformat()}",
-            flush=True,
-        )
-        return 0
+            slot = result["slot"]
+            assert isinstance(slot, datetime)
+            print(
+                f"SCHEDULER_STATUS={result['action']} "
+                f"workflow={workflow['label']} "
+                f"reason={result['reason']} "
+                f"slot_utc={slot.isoformat()} "
+                f"slot_brt={slot.astimezone(BRASILIA).isoformat()}",
+                flush=True,
+            )
+            if result.get("reason") in {"dispatch_attempt_limit", "dispatch_unconfirmed"}:
+                print(
+                    f"SCHEDULER_ALERT={result['reason']} "
+                    f"workflow={workflow['label']} "
+                    f"attempts={result.get('attempts', 0)} "
+                    f"slot_utc={slot.isoformat()}",
+                    flush=True,
+                )
+            if result["action"] != "dispatch":
+                continue
+
+            resume_key = None
+            if workflow["kind"] == "catalog":
+                resume_key = resume_key_for_attempt(
+                    runs,
+                    slot,
+                    state,
+                    workflow=workflow["kind"],
+                    state_field=workflow["state_field"],
+                )
+            attempted_state = _record_dispatch(
+                state,
+                slot,
+                now,
+                resume_key=resume_key,
+                state_field=workflow["state_field"],
+            )
+            # Write ahead before POST: if the network drops after GitHub
+            # accepts the dispatch, the next timer tick still sees this
+            # attempt and waits.
+            save_state(state_path, attempted_state)
+            try:
+                if workflow["kind"] == "catalog":
+                    dispatch_collection(repository, token, resume_key)
+                else:
+                    dispatch_linkedin(repository, token)
+            except (RuntimeError, ValueError) as error:
+                failures += 1
+                state = attempted_state
+                print(
+                    f"SCHEDULER_ERROR=dispatch workflow={workflow['label']} "
+                    f"error={error}",
+                    flush=True,
+                )
+                continue
+            state = _record_dispatch(
+                attempted_state,
+                slot,
+                now,
+                accepted=True,
+                state_field=workflow["state_field"],
+            )
+            save_state(state_path, state)
+            attempts = _slot_record(
+                attempted_state,
+                slot_key(slot),
+                workflow["state_field"],
+            ).get("attempts", 0)
+            print(
+                f"SCHEDULER_DISPATCHED=true workflow={workflow['label']} "
+                f"attempt={attempts} slot_utc={slot.isoformat()}",
+                flush=True,
+            )
+        return 1 if failures else 0
     finally:
         lock.release()
 

@@ -190,5 +190,35 @@ class GupyEligibilityTests(unittest.TestCase):
         self.assertEqual(gupy.GupyMCPClient._retry_delay(502, "", 2), 1)
 
 
+    def test_gateware_is_monitored_as_a_public_gupy_career_page(self):
+        self.assertIn(
+            "https://gateware.gupy.io/",
+            gupy.MONITORED_CAREER_PAGES,
+        )
+
+    def test_omie_is_monitored_as_a_public_gupy_career_page(self):
+        self.assertIn(
+            "https://carreirasomie.gupy.io/",
+            gupy.MONITORED_CAREER_PAGES,
+        )
+
+    def test_unrestricted_broad_catalog_keeps_titles_outside_search_hints(self):
+        source = item(name="Product Manager Senior - Payments")
+        source.pop("status")
+        source.pop("publicationType")
+
+        with patch.object(
+            gupy,
+            "_search_page",
+            return_value=([source], 1),
+        ) as search:
+            collected = gupy._fetch_recent_catalog(object())
+
+        self.assertEqual([row["title"] for row in collected], [
+            "Product Manager Senior - Payments"
+        ])
+        self.assertEqual(search.call_args.args[1], None)
+
+
 if __name__ == "__main__":
     unittest.main()

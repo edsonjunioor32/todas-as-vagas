@@ -246,6 +246,12 @@ def merge_catalog(rows, collected_counts, db_path=DB_PATH, json_path=JSON_PATH,
         shutil.copy2(db_path, temp_db)
         conn = storage.connect(str(temp_db))
         storage.upsert(conn, rows)
+        storage.update_source_health(
+            conn,
+            attempted_sources=touched_sources,
+            failed_sources=failed_this_run,
+            observed_at=storage.utc_now_iso(),
+        )
         removed = {}
         for source in sorted(healthy_sources):
             removed[source] = storage.purge_source_rows_not_in_uids(

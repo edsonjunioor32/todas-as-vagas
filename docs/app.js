@@ -35,6 +35,7 @@
     grupovanguarda: 'Grupo Vanguarda',
     tirol: 'Laticínios Tirol',
     novomateus: 'Novo Mateus',
+    insi: 'Insi',
     tagguirh: 'Taggui RH',
     geekhunter: 'GeekHunter',
     stone: 'Stone',
@@ -63,6 +64,8 @@
     abler: 'Abler',
     precisionrh: 'Precision RH',
     accenture: 'Accenture',
+    ey: 'EY',
+    sonda: 'SONDA',
     bradesco: 'Bradesco',
     cloudwalk: 'CloudWalk',
     mercadolivre: 'Mercado Livre',
@@ -108,7 +111,8 @@
     glcapital: 'GL Capital',
     grupoamigao: 'Grupo Amigão',
     true: 'True',
-    wise: 'Wise'
+    wise: 'Wise',
+    jobii: 'Jobii'
   };
 
   const state = {
@@ -168,6 +172,29 @@
     recentCompaniesMore: document.querySelector('#recentCompaniesMore'),
   };
 
+  function trackAnalyticsEvent(name, parameters = {}) {
+    if (typeof window.gtag !== 'function') return;
+    window.gtag('event', name, parameters);
+  }
+
+  function activeFilterCount() {
+    return activeFilterEntries().length;
+  }
+
+  function trackFilterUse(target) {
+    const filterName = target?.name || target?.id || 'unknown';
+    const inputType = target?.type === 'select-one'
+      ? 'select'
+      : target?.type === 'checkbox'
+        ? 'checkbox'
+        : 'text';
+    trackAnalyticsEvent('uso_filtro', {
+      filter_name: filterName,
+      input_type: inputType,
+      active_filter_count: activeFilterCount()
+    });
+  }
+
   function normalize(value) {
     return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
   }
@@ -223,6 +250,21 @@
   function sourceLabel(value) {
     const raw = String(value || '').trim();
     return SOURCE_LABELS[raw] || SOURCE_LABELS[normalize(raw)] || raw || 'Portal não informado';
+  }
+
+  function sourceWarningSources(data) {
+    const generatedAt = Date.parse(String(data.generated_at || ''));
+    const thresholdHours = Math.max(1, Number(data.source_warning_after_hours || 24));
+    const thresholdMs = thresholdHours * 60 * 60 * 1000;
+    const lastSuccessAt = data.source_last_success_at || {};
+    const failureStartedAt = data.source_failure_started_at || {};
+    if (!Number.isFinite(generatedAt)) return [];
+    return (data.failed_sources || []).filter(source => {
+      const lastSuccess = Date.parse(String(lastSuccessAt[source] || ''));
+      const failureStarted = Date.parse(String(failureStartedAt[source] || ''));
+      const reference = Number.isFinite(lastSuccess) ? lastSuccess : failureStarted;
+      return Number.isFinite(reference) && generatedAt - reference >= thresholdMs;
+    });
   }
 
   function workplaceLabel(value) {
@@ -373,7 +415,7 @@
   }
 
   function activityTime(job) {
-    const time = toTime(job.publishedAt) || toTime(job.lastSeenAt);
+    const time = job._activityTimestamp ?? (toTime(job.publishedAt) || toTime(job.lastSeenAt));
     return Math.min(time, Date.now());
   }
 
@@ -455,6 +497,7 @@
         glassdoorFallbackUrl: glassdoorUrl(glassdoorFallbackUrls[index]),
         glassdoorFallbackCheckedAt: glassdoorFallbackCheckedAt[index] || ''
       };
+      item._activityTimestamp = toTime(item.publishedAt) || toTime(item.lastSeenAt);
       item._location = normalize(rawLocation);
       item._search = buildSearchText(item);
       output.push(item);
@@ -496,8 +539,7 @@
 
   function loadFitIndex() {
     if (state.fitPromise) return state.fitPromise;
-    const version = encodeURIComponent(state.meta?.generated_at || state.meta?.generated_date || 'current');
-    state.fitPromise = fetch(`./data/fit.json?v=${version}`, { cache: 'no-cache' })
+    state.fitPromise = fetch('./data/fit.json', { cache: 'no-cache' })
       .then(response => {
         if (!response.ok) throw new Error('Índice de palavras-chave indisponível.');
         return response.json();
@@ -806,7 +848,9 @@
     });
 
     const sort = elements.sortFilter.value;
-    state.filtered.sort((a, b) => {
+    // The base is sorted once by recency at load time; Array.filter preserves
+    // that order and avoids sorting tens of thousands of rows on each keystroke.
+    if (sort !== 'recent') state.filtered.sort((a, b) => {
       if (sort === 'company') return collator.compare(a.company, b.company) || activityTime(b) - activityTime(a);
       if (sort === 'title') return collator.compare(a.title, b.title) || activityTime(b) - activityTime(a);
       if (sort === 'portals') return (b.portals - a.portals) || activityTime(b) - activityTime(a);
@@ -1016,6 +1060,14 @@
     link.rel = 'noopener noreferrer';
     link.textContent = 'Ver vaga original ↗';
     link.setAttribute('aria-label', `Ver vaga ${job.title} no portal ${job.sourceLabel}`);
+    link.addEventListener('click', () => {
+      trackAnalyticsEvent('clique_vaga_original', {
+        portal: job.sourceLabel,
+        modalidade: job.workplaceType,
+        mercado: job.market,
+        area: job.category
+      });
+    });
     footer.append(date, link);
 
     article.append(head, footer);
@@ -1024,11 +1076,13 @@
 
   function recentCompaniesData() {
     const unique = new Map();
-    const sorted = [...state.jobs].sort((a, b) => activityTime(b) - activityTime(a));
-    for (const job of sorted) {
+    // state.jobs is already in recency order, so the visible 16 companies can
+    // be selected in one short pass instead of sorting and scanning the catalog.
+    for (const job of state.jobs) {
       const key = normalize(job.company);
       if (!key || unique.has(key)) continue;
       unique.set(key, { company: job.company, activity: activityTime(job) });
+      if (unique.size === 16) break;
     }
     return [...unique.values()];
   }
@@ -1057,6 +1111,15 @@
         state.page = 1;
         render();
         elements.searchInput.focus();
+        trackAnalyticsEvent('uso_filtro', {
+          filter_name: 'empresa_recente',
+          input_type: 'shortcut',
+          active_filter_count: 1
+        });
+        trackAnalyticsEvent('pesquisa_realizada', {
+          search_scope: 'company_shortcut',
+          active_filter_count: 1
+        });
         elements.resultsTitle.scrollIntoView({ block: 'start' });
       });
       const badge = document.createElement('span');
@@ -1153,16 +1216,57 @@
   }
 
   let searchTimer;
+  let searchAnalyticsTimer;
+  let lastTrackedSearch = '';
+  function trackKeywordSearch() {
+    const value = elements.searchInput.value.trim();
+    if (!value) {
+      lastTrackedSearch = '';
+      return;
+    }
+    if (value === lastTrackedSearch) return;
+    lastTrackedSearch = value;
+    trackAnalyticsEvent('pesquisa_realizada', {
+      search_scope: 'keyword',
+      active_filter_count: activeFilterCount()
+    });
+  }
+
   function scheduleRender() {
     clearTimeout(searchTimer);
     searchTimer = setTimeout(() => { state.page = 1; render(); }, 180);
   }
 
+  function bindStaticAnalyticsEvents() {
+    document.querySelectorAll('a[href*="whatsapp.com"]').forEach(link => {
+      link.addEventListener('click', () => {
+        trackAnalyticsEvent('clique_whatsapp', {
+          placement: link.closest('.hero-access-grid') ? 'hero' : 'other'
+        });
+      });
+    });
+    document.querySelectorAll('a[data-fit-entry]').forEach(link => {
+      link.addEventListener('click', () => {
+        trackAnalyticsEvent('clique_analise_curriculo', {
+          placement: link.closest('.hero-access-grid') ? 'hero' : 'other'
+        });
+      });
+    });
+  }
+
   function bindEvents() {
-    elements.searchInput.addEventListener('input', scheduleRender);
+    elements.searchInput.addEventListener('input', () => {
+      scheduleRender();
+      clearTimeout(searchAnalyticsTimer);
+      searchAnalyticsTimer = setTimeout(trackKeywordSearch, 450);
+    });
     elements.excludeTerms.addEventListener('input', scheduleRender);
     elements.cityFilter.addEventListener('input', scheduleRender);
-    elements.filtersForm.addEventListener('change', () => { state.page = 1; render(); });
+    elements.filtersForm.addEventListener('change', event => {
+      state.page = 1;
+      render();
+      trackFilterUse(event.target);
+    });
     elements.sortFilter.addEventListener('change', () => { state.page = 1; render(); });
     elements.clearFilters.addEventListener('click', resetFilters);
     elements.shareSearch?.addEventListener('click', shareSearch);
@@ -1220,6 +1324,8 @@
     }
     try {
       const suffix = force ? `?retry=${Date.now()}` : '';
+      // Keep a stable URL so HTTP validators can reuse unchanged catalog data;
+      // manual retry uses a unique URL and bypasses the cache.
       const response = await fetch(`./data/vagas.json${suffix}`, { cache: force ? 'no-store' : 'no-cache' });
       if (!response.ok) throw new Error('A base de vagas não respondeu.');
       const data = await response.json();
@@ -1227,7 +1333,11 @@
         throw new Error('O formato da base de vagas é inválido.');
       }
       state.meta = data;
-      state.jobs = decode(data);
+      const now = Date.now();
+      state.jobs = decode(data).sort((a, b) =>
+        Math.min(b._activityTimestamp, now) - Math.min(a._activityTimestamp, now)
+        || collator.compare(a.title, b.title)
+      );
       resetFilterOptions();
       elements.totalJobs.textContent = numberFormatter.format(data.count);
       elements.totalCompanies.textContent = numberFormatter.format(data.companies || new Set(state.jobs.map(job => job.company)).size);
@@ -1235,9 +1345,10 @@
       elements.updatedLabel.textContent = data.generated_at
         ? `Atualizado em ${dateTimeFormatter.format(new Date(data.generated_at))}`
         : 'Data da última atualização não informada';
-      if ((data.failed_sources || []).length) {
+      const warningSources = sourceWarningSources(data);
+      if (warningSources.length) {
         elements.sourceWarning.hidden = false;
-        elements.sourceWarning.textContent = `Alguns portais não responderam nesta atualização: ${data.failed_sources.map(sourceLabel).join(', ')}. Resultados vistos recentemente podem ser preservados por até ${data.fresh_days || 3} dias.`;
+        elements.sourceWarning.textContent = `Alguns portais não responderam nesta atualização: ${warningSources.map(sourceLabel).join(', ')}. Resultados vistos recentemente podem ser preservados por até ${data.fresh_days || 3} dias.`;
       } else {
         elements.sourceWarning.hidden = true;
       }
@@ -1267,5 +1378,6 @@
   }
 
   initTheme();
+  bindStaticAnalyticsEvents();
   init();
 })();

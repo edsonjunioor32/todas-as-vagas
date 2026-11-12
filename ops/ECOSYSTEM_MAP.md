@@ -1,0 +1,237 @@
+# Mapa operacional do ecossistema Todas as Vagas
+
+Revisão: 2026-11-11. Este documento complementa o inventário **arquivo a arquivo dos arquivos rastreados de `todas-as-vagas/main`** em [OPERATIONS_CHANGELOG.md](OPERATIONS_CHANGELOG.md#mapa-dos-arquivos-rastreados). As listas abaixo incluem todos os arquivos rastreados na branch padrão dos demais repositórios vinculados, não apenas os executáveis. A classificação descreve a função observada; não autoriza ativar, desativar ou excluir nada. Antes de mudar um componente, confira também o código e os runs atuais: o mapa é uma fotografia, não um substituto para validação em produção.
+
+## Fronteiras e fluxo de dados
+
+1. `todas-as-vagas/main`: `jobs-dashboard/` e `busca_vagas/` descobrem/normalizam vagas; `.github/workflows/pages.yml` coordena coleta, validação, publicação e site. A coleta pública e a publicação dinâmica agora usam `ubuntu-latest`; a VPS permanece necessária para o armazenamento privado, OpenWA, fallback e serviços persistentes, mas não é mais o único executor do catálogo público. Os quadros individuais, como o Positivo S+ na Pandapé, entram no mesmo snapshot por fontes próprias e não são confundidos com a busca geral do InfoJobs. `history-data/data/jobs.db.gz` preserva o banco histórico; `public-data/data/vagas.json` e `data/fit.json` alimentam a interface e os consumidores. Os três arquivos gerados pertencem a branches separadas, **não** à árvore de `main`. A validação de publicação compara `source_counts` com o snapshot anterior para impedir perda silenciosa causada por uma coleta parcial. A descoberta exploratória de novos tenants InHire ocorre no slot semanal de domingo ou sob demanda; a coleta dos tenants já conhecidos continua em todas as janelas regulares.
+2. `edsonjunioor32-todas-as-vagas-telegram`: lê o catálogo publicado; `sync_snapshot.py` sincroniza o Worker/D1 e `notifier.py` filtra/envia ao canal. Estados de deduplicação e progresso ficam no próprio repositório. O fluxo regular não depende de `.github/workflows/telegram.yml` do repositório central, que é manual.
+3. `botwhats`: consome o snapshot público, guarda cópia/estado em volume Docker e usa OpenWA para consulta interativa e publicação no canal. Seu `production.yml` é o publicador ativo; o timer `botwhats-catalog-fallback` na VPS é a redundância.
+4. `todas-as-vagas-whats`: publicador **legado**; seu único workflow de envio é manual e executa simulação sem envio. Não é uma segunda redundância autorizada.
+5. `agente-vagas-edson`: consome `public-data/data/vagas.json` para ranqueamento personalizado e gera saídas próprias; não publica vagas no catálogo.
+6. `vagas-remotas-inhire`: projeto independente de descoberta InHire. Os arquivos `busca_vagas/` do repositório central são cópias/implementações próprias; não há dependência de execução entre os dois repositórios. Desativar este projeto não equivale a desligar InHire no catálogo central.
+7. `todos-os-cursos-free` aparece como link de navegação do site, mas não participa da coleta/publicação de vagas. N8n, Postiz, Temporal e outros containers presentes na VPS não são classificados como dependências da rotina de vagas sem evidência de chamada nos fluxos acima.
+
+## Branches de dados do repositório central — 3 arquivos adicionais
+
+| Branch / arquivo | Responsabilidade; impacto de perda ou mudança de contrato |
+| --- | --- |
+| `public-data/data/vagas.json` | Snapshot de vagas do site, Telegram, WhatsApp e agente; ausência, URL ou esquema alterado interrompe/empobrece todos os consumidores. |
+| `public-data/data/fit.json` | Índice auxiliar de aderência usado pela interface; mudança de esquema afeta a análise de currículo, não a origem das vagas. |
+| `history-data/data/jobs.db.gz` | Banco histórico usado pela coleta incremental; perda/arquivo inválido compromete deduplicação, continuidade e recuperação do catálogo. |
+
+## Telegram — 26 arquivos rastreados
+
+| Arquivo | Responsabilidade |
+| --- | --- |
+| `.github/workflows/notify.yml` | Agenda e execução do filtro/envio ao Telegram; grava `state.json`. |
+| `.github/workflows/telegram-poll.yml` | Polling desativado inclusive quando acionado manualmente (`if: false`); coexistir com webhook pode duplicar processamento. |
+| `.github/workflows/telegram-sync-catchup.yml` | Recuperação **manual** de sincronização perdida do Worker. |
+| `.github/workflows/telegram-sync.yml` | Agenda e sincronização do catálogo público com Worker/D1; grava `sync_state.json`. |
+| `.github/workflows/telegram-webhook.yml` | Operação do webhook do bot, fora do notificador agendado. |
+| `.github/workflows/telegram-worker-deploy.yml` | Publica o Worker que atende consultas interativas. |
+| `.github/workflows/validate-button-ui.yml` | Valida interface/botões e contrato da interação. |
+| `README.md` | Uso, configuração e operação do bot. |
+| `notifier.py` | Filtra novas vagas e envia mensagens; mantém estado de envio. Também fornece funções de leitura usadas por `sync_snapshot.py`. |
+| `state.json` | Checkpoint de deduplicação do notificador; não apagar para forçar reenvio. |
+| `sync_guard.py` | Verifica se a coleta de origem terminou antes de sincronizar. |
+| `sync_snapshot.py` | Baixa e envia o snapshot ao Worker com controle de progresso. |
+| `sync_state.json` | Checkpoint de sincronização; evita repetir snapshot idêntico. |
+| `tests/test_d1_write_guard.py` | Regressão contra escrita insegura no D1. |
+| `tests/test_message_layout.py` | Regressão do layout das mensagens. |
+| `tests/test_sync_guard.py` | Testes `unittest` da barreira de atualização; são executados pela descoberta e pela chamada direta do workflow. |
+| `tests/test_sync_snapshot_progress.py` | Regressão do avanço/reinício do sync. |
+| `tests/test_ui_buttons.py` | Regressão dos botões de interação. |
+| `tests/test_worker_message_layout.py` | Regressão do layout produzido pelo Worker. |
+| `worker/README.md` | Implantação/operação do Worker. |
+| `worker/migrations/0002_drop_unhelpful_job_indexes.sql` | Migração de índices D1; executar sem revisão pode afetar consultas. |
+| `worker/package.json` | Scripts e dependências do Worker. |
+| `worker/schema.sql` | Esquema D1 da base de vagas/filtros. |
+| `worker/src/index.ts` | Webhook, busca, filtros e respostas do bot no Worker. |
+| `worker/tsconfig.json` | Compilação TypeScript do Worker. |
+| `worker/wrangler.jsonc` | Bindings/implantação Cloudflare do Worker e D1. |
+
+## WhatsApp legado — 8 arquivos rastreados
+
+| Arquivo | Responsabilidade |
+| --- | --- |
+| `.env.example` | Exemplo de configuração, sem credenciais reais. |
+| `.github/workflows/pull-request.yml` | Validação em PR. |
+| `.github/workflows/whatsapp-sync.yml` | Simulação manual do publicador antigo; não envia mensagens na configuração atual. |
+| `.gitignore` | Exclusão de saídas/segredos locais. |
+| `README.md` | Histórico e operação manual legada. |
+| `state.json` | Estado do publicador antigo; **não** é o estado do `botwhats`. |
+| `tests/test_whatsapp_notifier.py` | Testes do notificador antigo. |
+| `whatsapp_notifier.py` | Implementação do notificador antigo, atualmente só invocada em dry-run. |
+
+## botwhats — 39 arquivos rastreados
+
+| Arquivo | Responsabilidade |
+| --- | --- |
+| `.dockerignore` | Exclui arquivos do contexto da imagem. |
+| `.env.example` | Exemplo de variáveis; valores reais ficam em secrets/ambiente. |
+| `.github/workflows/openwa-recovery.yml` | Recuperação **manual** da sessão OpenWA. |
+| `.github/workflows/production.yml` | Implantação, registro de webhook, sincronização e publicação agendada no canal. |
+| `.github/workflows/pull-request.yml` | Testes/validação de mudanças antes de produção. |
+| `.github/workflows/vps-health.yml` | Verifica bot, rede, sessão, fila e disco; alerta, não publica vagas. |
+| `.gitignore` | Exclui dados/segredos locais do Git. |
+| `Dockerfile` | Imagem do serviço do bot. |
+| `OPERATIONS.md` | Runbook específico do bot/OpenWA. |
+| `README.md` | Arquitetura, uso e configuração. |
+| `bot/__init__.py` | Declara o pacote Python. |
+| `bot/app.py` | Constrói a aplicação e suas dependências. |
+| `bot/catalog_source.py` | Obtém o snapshot `public-data/data/vagas.json`. |
+| `bot/filters.py` | Aplica critérios de busca de vagas. |
+| `bot/formatting.py` | Formata respostas e mensagens do canal. |
+| `bot/http_server.py` | HTTP de webhook e saúde. |
+| `bot/menus.py` | Menus/comandos da conversa. |
+| `bot/models.py` | Modelos de vagas e dados do bot. |
+| `bot/notifications.py` | Seleção/envio e controle de notificações do canal. |
+| `bot/openwa.py` | Cliente da API OpenWA, sessão e mensagens. |
+| `bot/register_webhook.py` | Registra callback de mensagens recebidas no OpenWA. |
+| `bot/runtime.py` | Processamento assíncrono de mensagens e ciclo do bot. |
+| `bot/service.py` | Orquestra comandos e pesquisa do usuário. |
+| `bot/storage.py` | SQLite persistente: filtros, catálogo, fila e envios. |
+| `bot/sync_catalog.py` | Valida/importa snapshot e dispara notificações pendentes. |
+| `docker-compose.yml` | Serviço, volumes, rede Docker e healthcheck. |
+| `ops/botwhats-cycle.sh` | Lock e marcação de tentativa compartilhados por workflow e fallback; impede corrida/reenvio rápido. |
+| `ops/systemd/botwhats-catalog-fallback.service` | Serviço de recuperação na VPS. |
+| `ops/systemd/botwhats-catalog-fallback.timer` | Agenda da recuperação na VPS. |
+| `renovate.json` | Política de atualização de dependências. |
+| `tests/test_bot.py` | Regressão de filtros/comandos. |
+| `tests/test_catalog_source.py` | Regressão de leitura do catálogo. |
+| `tests/test_channel_notifications.py` | Regressão de fila/envio do canal. |
+| `tests/test_cycle_script.py` | Regressão do lock/redundância do ciclo. |
+| `tests/test_durable_hardening.py` | Regressão de persistência e recuperação. |
+| `tests/test_hardening.py` | Regressão de limites/validação defensiva. |
+| `tests/test_openwa_session.py` | Regressão de conexão/sessão OpenWA. |
+| `tests/test_runtime.py` | Regressão do processamento em execução. |
+| `tests/test_workflows.py` | Regressão dos contratos de workflow. |
+
+## Agente de vagas — 17 arquivos rastreados
+
+| Arquivo | Responsabilidade |
+| --- | --- |
+| `.github/workflows/vagas.yml` | Agenda diária, testes, ranqueamento e publicação das saídas próprias. |
+| `.gitignore` | Exclui dados locais não versionados. |
+| `README.md` | Uso e limites do agente. |
+| `docs/app.js` | Interface dos resultados ranqueados. |
+| `docs/index.html` | Entrada da interface do agente. |
+| `docs/styles.css` | Aparência da interface. |
+| `output/resumo.md` | Resumo publicado da execução. |
+| `output/vagas_ranqueadas.csv` | Exportação tabular publicada. |
+| `output/vagas_ranqueadas.json` | Dados ranqueados publicados; contrato do site do agente. |
+| `perfil.json` | Perfil usado no ranqueamento; tratar como dado pessoal. |
+| `src/enrichment.py` | Enriquecimento limitado dos dados das vagas. |
+| `src/pipeline.py` | Fonte, normalização e utilitários de coleta/ranking. |
+| `src/pipeline_v2.py` | Pipeline atual de seleção e ranqueamento. |
+| `src/scoring_v2.py` | Cálculo da aderência/filtragem remota. |
+| `tests/test_enrichment.py` | Regressão do enriquecimento. |
+| `tests/test_pipeline.py` | Regressão do pipeline. |
+| `tests/test_scoring_v2.py` | Regressão da pontuação. |
+
+## Projeto InHire independente — 14 arquivos rastreados
+
+| Arquivo | Responsabilidade |
+| --- | --- |
+| `.github/workflows/pages.yml` | Coleta/publicação do **projeto separado**. |
+| `README_GITHUB_PAGES.md` | Operação do projeto separado. |
+| `busca_vagas/build_public_inhire.js` | Monta lote público InHire local. |
+| `busca_vagas/harvest_inhire_public.js` | Descobre vagas InHire localmente. |
+| `busca_vagas/inhire_tenants_seed.json` | Sementes de empresas. |
+| `busca_vagas/validate_public_inhire.js` | Valida a exportação local. |
+| `docs/app.js` | Interface do projeto separado. |
+| `docs/data/meta.json` | Metadados gerados da coleta própria. |
+| `docs/data/vagas.json` | Snapshot gerado da coleta própria. |
+| `docs/favicon.svg` | Ícone do site separado. |
+| `docs/index.html` | Entrada do site separado. |
+| `docs/robots.txt` | Diretrizes de indexação do site separado. |
+| `docs/styles.css` | Estilo do site separado. |
+| `package.json` | Scripts/dependências Node locais. |
+
+## Estado fora do Git e limites do inventário
+
+- VPS: `/home/ubuntu/todas-as-vagas` (checkout do coletor), `/home/ubuntu/todas-as-vagas-private/descriptions.sqlite3` (descrições completas privadas), `-wal`/`-shm` transitórios e cópias de recuperação. O arquivo SQLite não integra o catálogo público. `jobs-dashboard/description_crawler.py` e `ops/systemd/todas-as-vagas-descriptions.{service,timer}` são os arquivos versionados correspondentes. A unidade instalada `/etc/systemd/system/todas-as-vagas-descriptions-watchdog.service` **não tem equivalente versionado**: é `oneshot` e executa `systemctl start --no-block todas-as-vagas-descriptions.service`; o timer instalado é horário e aponta para ela. Isto difere do template do Git; conferir `systemctl cat` antes de alterar o agendamento.
+- VPS: `todas-as-vagas-github-scheduler.{service,timer}` instalado sob systemd, `ops/github_scheduler.py` versionado, ambiente privado em `/home/ubuntu/.config/todas-as-vagas/github-scheduler.env` e estado de tentativas privado. Nunca copiar token/estado para o Git. A unidade do scheduler usa o checkout em `/home/ubuntu/todas-as-vagas`; mudanças em `main` não chegam automaticamente se a cópia local ficar atrasada. O recuperador agora observa separadamente `pages.yml` e `linkedin-jobs.yml`, com slots e estado privados distintos; a VPS e `catalog-catchup.yml` **não compartilham o registro de tentativas**, embora consultem o histórico de runs de seus respectivos workflows.
+- `todas-as-vagas-docker-cache-prune.{service,timer}` foi mesclado no PR #149 e instalado/habilitado como timer de sistema na VPS. Execução diária, com próxima ativação observada em 2026-10-18 04:08 UTC; remove somente cache de build Docker com mais de sete dias e não executa se o daemon estiver indisponível. Não remove imagens, containers ou volumes.
+- VPS: `openwa` (imagem `rmyndharis/openwa:0.24.0`, dados em `/opt/openwa/data`), `botwhats` e seu volume/SQLite, rede `openwa_net`, runner ARM64 e timer de fallback de usuário. A configuração efetiva, secrets e dados persistentes não são arquivos rastreados desses repositórios. Não expor credenciais no mapa.
+- Cloudflare Worker/D1 do Telegram e APIs externas dos portais são serviços fora do Git; `worker/` documenta código e esquema, mas o estado remoto deve ser verificado separadamente. Pacotes, camadas Docker, internals do runner e caches não são arquivos de projeto e ficam fora da promessa de inventário de arquivos rastreados.
+
+## Matriz de impacto e risco antes de desativar ou alterar
+
+| Componente / mudança | O que deixa de funcionar ou pode degradar | Verificação e decisão segura |
+| --- | --- | --- |
+| `todas-as-vagas/.github/workflows/pages.yml` (agenda/coleta) | Uma falha do runner hospedado, dos limites de tempo ou da validação ainda pode deixar site e bots no snapshot anterior; a indisponibilidade da VPS, isoladamente, não deve mais interromper a coleta pública. Uma execução de interface em push **não prova** atualização de vagas. | Conferir run agendado completo, horário UTC, contagem/data do snapshot `public-data` e publicação `history-data`. Validar também o recuperador hospedado e o estado do fallback da VPS; nunca desativar sem substituto e recuperação testada. |
+| Deploy só da interface em push de `main` | O site pode mudar sem nova coleta; em falha de deploy, consumidores diretos do JSON podem estar atualizados enquanto o Pages continua antigo. | Distinguir o job `publicar-interface` do job de coleta; conferir a cópia `docs/data/` publicada e o snapshot bruto. |
+| Escritas sequenciais de `pages.yml` | Histórico, snapshot público e Pages podem ficar em revisões diferentes se uma etapa intermediária falhar. | Comparar separadamente os heads `history-data`/`public-data`, o run completo e o deploy Pages; não confiar apenas no status agregado. |
+| Adaptador de portal, lista/seed ou filtro em `jobs-dashboard/` / `busca_vagas/` | Somente os portais afetados deixam de atualizar; vagas antigas podem permanecer até expirar. | Identificar fonte e consumidores, comparar contagem/IDs/links antes e depois, testar amostra da origem e regra de retenção. Não usar sucesso global do workflow como prova por portal. |
+| `catalog-catchup.yml` ou scheduler da VPS | Perda da redundância: uma execução perdida pode não ser recuperada; o catchup hospedado é a primeira recuperação e o scheduler da VPS é uma segunda via, mas nenhum dos dois substitui a agenda principal. | Confirmar estado dos **dois** recuperadores, token do scheduler, última decisão/dispatch e idempotência; não executar resgate manual sem verificar `resume_key`/runs para evitar duplicata. |
+| `merge-dynamic-portals.yml` manual | Perde-se a via de reparo/publicação parcial de portais dinâmicos; coleta integral regular permanece. | Testar snapshot, índice de aderência e publicação das três saídas antes de usar como contingência. |
+| Validação/PII/snapshot (`catalog-ci`, `fit-ci`, validadores) | A validação estrutural/PII do catálogo ainda bloqueia publicação insegura; uma falha isolada do índice de aderência não deve mais descartar a atualização das vagas, mas pode manter o `fit.json` anterior. | Manter a validação final do catálogo, executar o fit separadamente e aceitar somente o último índice válido como fallback; registrar o alerta para correção posterior. |
+| `history-data/data/jobs.db.gz` | Coleta incremental, histórico e deduplicação podem perder continuidade. | Validar integridade e backup antes de substituir; não limpar para “reiniciar” coleta. |
+| `public-data/data/vagas.json` (URL/esquema/IDs) | Site, Telegram, WhatsApp e agente podem parar ou duplicar notificações. | Testes de contrato dos quatro consumidores, amostra de IDs estáveis e publicação coordenada. |
+| `public-data/data/fit.json` ou `jobs-dashboard/fit_*` | Aderência de currículo pode falhar embora a listagem de vagas continue. | Testar interface e validação do índice; não confundir com queda do catálogo principal. |
+| Telegram `telegram-sync.yml`, catchup, `sync_state.json`, Worker/D1 | Consulta interativa pode ficar desatualizada; notificações podem sair fora de sincronia com o catálogo. | Comparar hash/progresso e execução de sync com data do catálogo; confirmar Worker/D1 antes de tocar no checkpoint. |
+| Telegram `notify.yml`, `notifier.py`, `state.json` | Canal deixa de receber novas vagas ou, se resetar estado, pode reenviar lote antigo. | Conferir último envio, fila e checkpoint; `telegram.yml` central não é substituição automática segura. |
+| Dois caminhos de envio do Telegram (Worker/D1 e `notifier.py`) | Um chat cadastrado em ambos pode receber duplicatas: `sent_jobs` no D1 e `state.json` não compartilham deduplicação. | Conferir destinatários e ledgers reais antes de alterar agendamento ou migrar usuários; não desligar um caminho sem validar quem depende dele. |
+| `botwhats/production.yml` ou runner ARM64 | Implantação/sync/envio ao canal deixam de ser garantidos; fallback da VPS pode manter sync, mas precisa comprovação. | Conferir timer fallback, último sync, fila e último envio; não presumir que o container “healthy” prova publicação. |
+| `botwhats` fallback, `ops/botwhats-cycle.sh` ou SQLite/volume | Sem redundância, ou risco de corrida/reenvio/estado perdido. | Verificar lock, marcador de tentativa, timer, volume, filas e contagem enviada antes de modificar. |
+| OpenWA, rede `openwa_net`, webhook, sessão ou credenciais | Canal e consultas interativas param embora catálogo siga atualizando. | Verificar sessão `ready`, `engineLoaded`, webhook, rede, fila e último envio; não exigir navegador aberto. |
+| `todas-as-vagas-whats/whatsapp-sync.yml` legado | Desativá-lo não deve afetar produção atual; **reativá-lo para envio** pode duplicar mensagens/usar estado errado. | Manter manual/dry-run até migração formal e teste de exclusão mútua. |
+| Agente `.github/workflows/vagas.yml` | Somente recomendações pessoais ficam desatualizadas; catálogo e bots não dependem dele. | Verificar data do `output/` e URL da fonte `public-data`; não tratar falha do agente como falha da coleta. |
+| Coletor privado de descrições / timer da VPS | Descrições completas deixam de enriquecer a base privada; vagas públicas continuam chegando. | Conferir timer, watchdog instalado, último avanço do SQLite e taxa de falhas; não inferir saúde pela contagem do site. |
+| `vagas-remotas-inhire` independente | Seu site/snapshot separado envelhece; não há evidência de dependência da coleta InHire central. | Confirmar referências reais no código antes de remover; testar os dois projetos separadamente. |
+
+### Riscos e correções em acompanhamento observados em 2026-10-17
+
+- **Alta prioridade — recuperador da VPS:** timer e serviço de sistema estão instalados; o timer está ativo, mas o serviço falha com HTTP 401 ao consultar o GitHub. O token do ambiente privado foi testado sem expor seu valor e recebeu HTTP 401. A redundância externa **permanece indisponível** até substituir a credencial local por uma válida; não disparar recuperação às cegas.
+- **Alta prioridade — disco da VPS:** em 2026-10-17 foi identificada uma causa de crescimento em `/tmp`: a etapa `Capturar fotografia anterior para proteção` de `.github/workflows/pages.yml` criava `mktemp` com `data/vagas.json` sem removê-lo ao terminar. O PR #151 corrigiu a etapa com limpeza automática mesmo em caso de falha. Depois de confirmar que não havia runner ativo e que todas as pastas continham apenas a cópia esperada, foram removidas 267 pastas órfãs (5.693.364.531 bytes). A ocupação da raiz caiu de 86% para 74% (33 GB usados de 45 GB; 12 GB livres), abaixo do limite de falha de 85% de `botwhats/vps-health.yml`; não restaram diretórios `/tmp/tmp.*`. A limpeza preservou imagens, containers, volumes, banco privado, logs e runners ativos/configurados. O timer diário também limita novo acúmulo de cache de build; manter o monitoramento porque `containerd` ainda ocupa cerca de 15 GB.
+- **Média prioridade — drift de infraestrutura:** `todas-as-vagas-descriptions-watchdog.service` está instalado/ativo na VPS, mas não consta dos arquivos rastreados no repositório central. Documentar/versar a unidade após comparar o conteúdo efetivo e o comportamento desejado.
+- **Média prioridade — teste de guard do Telegram:** corrigido e mesclado no PR #16 do repositório `edsonjunioor32-todas-as-vagas-telegram`; os quatro casos passaram localmente e no workflow `Validar menus guiados do Telegram` (run 39047242932). Alteração limitada aos testes.
+- **Média prioridade — CI de aderência:** corrigido e mesclado no PR #149; o workflow valida o CTA público, acompanha mudanças em `docs/index.html`/`docs/styles.css` e passou no run 39047220637. A validação de catálogo também passou (run 39047220595).
+- **Média prioridade — instrução antiga de instalação:** `WORKFLOW_PARA_COPIAR.yml` tem cron, runner e política de concorrência antigos. O README foi corrigido para proibir sua cópia sobre `pages.yml`.
+- **Observação:** o último workflow de produção do `botwhats` e os de Telegram consultados estavam bem-sucedidos; isso não elimina os riscos de disco/scheduler nem comprova que cada portal individual foi atualizado.
+
+## Checklist obrigatório de impacto para mudanças futuras
+
+1. Identificar arquivo, workflow, branch, serviço instalado e todos os consumidores na matriz; buscar referências no código **e na configuração de produção**.
+2. Separar “coleta”, “publicação”, “recuperação”, “notificação”, “consulta” e “observabilidade”: um run verde em uma etapa não atesta as demais.
+3. Verificar última execução, próximo horário UTC, fila/checkpoint, data do snapshot e contagem por portal antes e depois. Para alterações de IDs/URLs/esquema, testar site, Telegram, WhatsApp e agente.
+4. Para desativar agenda ou fonte, demonstrar substituto ativo e definir rollback; não ativar publicadores legados em paralelo.
+5. Atualizar este arquivo e o inventário central quando árvores/contratos mudarem; comparar todas as árvores Git (`main` dos seis repositórios mais `public-data`/`history-data`) com as linhas do mapa. Não registrar secrets, dados pessoais nem conteúdo das descrições privadas.
+
+## Regra do catálogo público (2026-11-03)
+
+- O catálogo Todas as Vagas não usa termos de cargo como filtro global de inclusão. Cada adaptador deve retornar as vagas públicas elegíveis do próprio portal; a consolidação aplica apenas validação de publicação, localização, prazo, deduplicação e janela de até dois meses.
+- Consultas com termos, quando impostas por um provedor, são somente estratégias aditivas de cobertura e não podem descartar uma vaga retornada pela consulta ampla. Filtros geográficos, de modalidade e de tipo de anúncio devem permanecer explícitos e documentados.
+- LinkedIn: `.github/workflows/linkedin-jobs.yml` executa `tools/collect_linkedin.py`, grava o snapshot `docs/data/linkedin_vagas.json` e aciona a publicação existente do catálogo. A consulta ampla é complementada por uma busca com `remoto`, `remota`, `remote`, `home office` e `work from home` somente para descobrir candidatos. Nem esses termos, nem `f_WT=2`, nem campos genéricos `is_remote`/JobSpy classificam uma vaga. O coletor só registra modalidade comprovada por selo da página individual, descrição explícita e não ambígua ou override manual verificado; `jobs-dashboard/sources/linkedin.py` rejeita evidência antiga `linkedin_remote_search_filter`, e registros sem evidência permanecem sem modalidade, mas elegíveis. Overrides verificados incluem Nortal `4486898930` (remota), St Marche `4478138443` (presencial), Dexian `4479109326` (remota) e Mirante Tecnologia `4484868146` (remota, descrição pública declara “Modalidade: Remota”). Consultas por palavras têm limite de cobertura e não garantem localizar todas as vagas remotas; o limite de candidatos não é uma contagem de remotas classificadas.
+- Uma atualização é considerada publicada somente quando o snapshot novo de `public-data` e o GitHub Pages forem confirmados, não apenas quando o workflow terminar verde.
+
+## Private description enrichment — 2026-11-11
+
+The private enrichment path is auxiliary and must never be a prerequisite for the public snapshot, Telegram, WhatsApp or the resume-fit index.
+
+| File / resource | Responsibility and impact |
+| --- | --- |
+| jobs-dashboard/description_crawler.py | Reads the validated public catalogue, fetches descriptions, applies robots/rate/timeout policy, checkpoints every attempt and emits execution metrics. It can fail without invalidating the public catalogue. |
+| jobs-dashboard/description_store.py | Private SQLite persistence, manifest checkpoint, retry/backoff, FTS optimization and search. Its stats API remains backward-compatible. |
+| jobs-dashboard/inhire_descriptions.py | Resolves the public InHire tenant and fetches the public job description API before browser fallback. It uses no credentials and classifies HTTP 404/410 as removed candidates. |
+| jobs-dashboard/description_quality.py | Pure, network-free classifier. It distinguishes complete_candidate, usable, short, empty, blocked, gone, stale and pending from stored evidence. complete_candidate is a quality candidate, not a semantic guarantee. |
+| jobs-dashboard/description_report.py | Read-only report over all rows, grouped by portal, quality, status and content kind. It opens SQLite with mode=ro and query_only; it must not call connect(), sync_manifest() or prune_missing(). |
+| /home/ubuntu/todas-as-vagas-private/descriptions.sqlite3 | Private database on the VPS. It must not enter the public repository or public snapshot. |
+| Obscura fallback | Optional rendered-page fallback, bounded by timeout and response limits. It is not a universal bypass for robots, authentication, CAPTCHA or rate limits. InHire API extraction runs first for supported public job URLs because the initial InHire HTML is an SPA shell. |
+
+### Quality contract
+
+The report classifies every selected row exactly once. A successful HTTP request is not enough for complete_candidate. The report keeps these concepts separate:
+
+- content quality: complete_candidate, usable, short or empty;
+- access state: blocked or gone (a confirmed HTTP 404/410 or terminal removed status);
+- freshness: stale;
+- processing state: pending.
+
+The crawler metrics ending in _this_run describe only rows processed in that execution. The full database view is produced by description_report.py. The existing DESCRIPTION_CRAWLER_METRICS fields remain compatible. A confirmed `gone` row keeps any historical description, receives a long retry backoff and is excluded from ordinary stale refreshes; it is not treated as a robots block or a temporary network failure.
+
+### Current private-store evidence
+
+The 2026-11-11 read-only measurement found 84,133 rows, 64,561 with non-empty text, 33,378 complete candidates, 24,167 usable, 5,624 short, 5,957 empty, 11,022 blocked, 1,392 stale and 2,593 pending. This is a baseline for comparison, not a promise that all source pages are accessible.

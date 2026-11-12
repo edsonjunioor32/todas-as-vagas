@@ -36,6 +36,10 @@
     "tenantName": "2fpeers"
   },
   {
+    "slug": "2fradix",
+    "tenantName": "2fradix"
+  },
+  {
     "slug": "2fseazone",
     "tenantName": "2fseazone"
   },
@@ -54,6 +58,10 @@
   {
     "slug": "2fv360",
     "tenantName": "2fv360"
+  },
+  {
+    "slug": "2fvintglobal",
+    "tenantName": "2fvintglobal"
   },
   {
     "slug": "2fwestwing",
@@ -84,6 +92,10 @@
     "tenantName": "Adyen"
   },
   {
+    "slug": "aeromotcorporate",
+    "tenantName": "aeromotcorporate"
+  },
+  {
     "slug": "agrosearch",
     "tenantName": "AGROSearch"
   },
@@ -102,6 +114,10 @@
   {
     "slug": "alana",
     "tenantName": "Instituto Alana"
+  },
+  {
+    "slug": "aldaktecnologia",
+    "tenantName": "aldaktecnologia"
   },
   {
     "slug": "alelo",
@@ -254,6 +270,10 @@
   {
     "slug": "avivatec",
     "tenantName": "Avivatec"
+  },
+  {
+    "slug": "azion",
+    "tenantName": "azion"
   },
   {
     "slug": "azos",
@@ -480,6 +500,10 @@
     "tenantName": "ClickBus"
   },
   {
+    "slug": "clubecandeias",
+    "tenantName": "clubecandeias"
+  },
+  {
     "slug": "coaktion",
     "tenantName": "coaktion"
   },
@@ -668,6 +692,14 @@
     "tenantName": "Eclipseworks"
   },
   {
+    "slug": "ecoagro",
+    "tenantName": "ecoagro"
+  },
+  {
+    "slug": "ecommit",
+    "tenantName": "ecommit"
+  },
+  {
     "slug": "ecore",
     "tenantName": "e-Core"
   },
@@ -686,6 +718,10 @@
   {
     "slug": "edge",
     "tenantName": "EDGE"
+  },
+  {
+    "slug": "educbank",
+    "tenantName": "educbank"
   },
   {
     "slug": "eiti",
@@ -708,12 +744,20 @@
     "tenantName": "Enjoei"
   },
   {
+    "slug": "envolti",
+    "tenantName": "envolti"
+  },
+  {
     "slug": "enzrossi",
     "tenantName": "EnzRossi"
   },
   {
     "slug": "eqi",
     "tenantName": "EQI"
+  },
+  {
+    "slug": "equanimus",
+    "tenantName": "equanimus"
   },
   {
     "slug": "erural",
@@ -840,6 +884,10 @@
     "tenantName": "Flutter Brazil"
   },
   {
+    "slug": "flymedia",
+    "tenantName": "flymedia"
+  },
+  {
     "slug": "fmu",
     "tenantName": "FMU"
   },
@@ -952,6 +1000,10 @@
     "tenantName": "Grupo Comolatti"
   },
   {
+    "slug": "grupodaycoval",
+    "tenantName": "grupodaycoval"
+  },
+  {
     "slug": "grupoeximio",
     "tenantName": "Grupo Eximio"
   },
@@ -1002,6 +1054,10 @@
   {
     "slug": "grupoprotege",
     "tenantName": "Grupo Protege"
+  },
+  {
+    "slug": "gruposabe",
+    "tenantName": "gruposabe"
   },
   {
     "slug": "gruposaga",
@@ -1062,6 +1118,10 @@
   {
     "slug": "holy-learning",
     "tenantName": "holy-learning"
+  },
+  {
+    "slug": "hunterstackio",
+    "tenantName": "hunterstackio"
   },
   {
     "slug": "icatu",
@@ -1280,6 +1340,10 @@
     "tenantName": "Líber"
   },
   {
+    "slug": "libertainvestimentos",
+    "tenantName": "libertainvestimentos"
+  },
+  {
     "slug": "liggatelecom",
     "tenantName": "Ligga"
   },
@@ -1360,6 +1424,10 @@
     "tenantName": "Magna Executive Search"
   },
   {
+    "slug": "makasi",
+    "tenantName": "makasi"
+  },
+  {
     "slug": "mapahds",
     "tenantName": "Mapa HDS"
   },
@@ -1386,6 +1454,10 @@
   {
     "slug": "mb",
     "tenantName": "Mercado Bitcoin"
+  },
+  {
+    "slug": "mblabs",
+    "tenantName": "mblabs"
   },
   {
     "slug": "mediahero",
@@ -1432,6 +1504,10 @@
     "tenantName": "MK Solutions"
   },
   {
+    "slug": "mnadvocacia",
+    "tenantName": "mnadvocacia"
+  },
+  {
     "slug": "monkey",
     "tenantName": "Monkey"
   },
@@ -1442,6 +1518,10 @@
   {
     "slug": "mottu",
     "tenantName": "Mottu"
+  },
+  {
+    "slug": "mouras",
+    "tenantName": "mouras"
   },
   {
     "slug": "movecta",
@@ -1478,6 +1558,10 @@
   {
     "slug": "nexaas",
     "tenantName": "Nexaas"
+  },
+  {
+    "slug": "nexforce-trial",
+    "tenantName": "nexforce-trial"
   },
   {
     "slug": "nibo",
@@ -1676,6 +1760,10 @@
     "tenantName": "Prosper Tech Talents"
   },
   {
+    "slug": "pxcenter",
+    "tenantName": "pxcenter"
+  },
+  {
     "slug": "qeevo",
     "tenantName": "Qeevo"
   },
@@ -1780,8 +1868,20 @@
     "tenantName": "Conta Simples - RPO"
   },
   {
+    "slug": "rpo-deloitte",
+    "tenantName": "rpo-deloitte"
+  },
+  {
     "slug": "rpo-olist",
     "tenantName": "Olist"
+  },
+  {
+    "slug": "rposolutions",
+    "tenantName": "rposolutions"
+  },
+  {
+    "slug": "sallve",
+    "tenantName": "sallve"
   },
   {
     "slug": "same-engenharia",
@@ -1980,6 +2080,10 @@
     "tenantName": "Tempest"
   },
   {
+    "slug": "tenchisecurity-trial",
+    "tenantName": "tenchisecurity-trial"
+  },
+  {
     "slug": "tera",
     "tenantName": "Tera"
   },
@@ -2032,6 +2136,10 @@
     "tenantName": "Tray"
   },
   {
+    "slug": "trescal",
+    "tenantName": "trescal"
+  },
+  {
     "slug": "trinca",
     "tenantName": "Trinca"
   },
@@ -2066,6 +2174,10 @@
   {
     "slug": "unimar",
     "tenantName": "Unimar"
+  },
+  {
+    "slug": "unimedvr",
+    "tenantName": "unimedvr"
   },
   {
     "slug": "uninter",
@@ -2112,8 +2224,16 @@
     "tenantName": "Vatto"
   },
   {
+    "slug": "venturaoffshore",
+    "tenantName": "venturaoffshore"
+  },
+  {
     "slug": "venturus",
     "tenantName": "Venturus"
+  },
+  {
+    "slug": "vericode",
+    "tenantName": "vericode"
   },
   {
     "slug": "verticalrh",
@@ -2138,6 +2258,10 @@
   {
     "slug": "vinta",
     "tenantName": "Vinta"
+  },
+  {
+    "slug": "vintglobal",
+    "tenantName": "vintglobal"
   },
   {
     "slug": "viseu",
@@ -2206,6 +2330,10 @@
   {
     "slug": "wellz",
     "tenantName": "Wellz by Wellhub"
+  },
+  {
+    "slug": "weme",
+    "tenantName": "weme"
   },
   {
     "slug": "westwing",

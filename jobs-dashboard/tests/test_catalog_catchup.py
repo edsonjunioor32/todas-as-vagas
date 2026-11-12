@@ -1,7 +1,8 @@
 import sys
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 from datetime import datetime, timezone
+from urllib.error import HTTPError
 
 sys.path.insert(0, "jobs-dashboard")
 
@@ -9,6 +10,25 @@ import catalog_catchup
 
 
 class CatalogCatchupTests(unittest.TestCase):
+    def test_retries_transient_github_gateway_error(self):
+        response = MagicMock()
+        response.__enter__.return_value.read.return_value = b'{"workflow_runs": []}'
+        gateway_error = HTTPError("https://api.github.com", 504, "Gateway Timeout", {}, None)
+        with patch.object(catalog_catchup.urllib.request, "urlopen", side_effect=[gateway_error, response]) as fetch, \
+                patch.object(catalog_catchup, "sleep") as sleep:
+            self.assertEqual(catalog_catchup.fetch_collection_runs("owner/repo", "token"), [])
+        self.assertEqual(fetch.call_count, 2)
+        sleep.assert_called_once()
+
+    def test_does_not_retry_authentication_error(self):
+        auth_error = HTTPError("https://api.github.com", 401, "Unauthorized", {}, None)
+        with patch.object(catalog_catchup.urllib.request, "urlopen", side_effect=auth_error) as fetch, \
+                patch.object(catalog_catchup, "sleep") as sleep:
+            with self.assertRaisesRegex(RuntimeError, "401"):
+                catalog_catchup.fetch_collection_runs("owner/repo", "token")
+        self.assertEqual(fetch.call_count, 1)
+        sleep.assert_not_called()
+
     def test_waits_for_grace_period(self):
         now = datetime(2026, 9, 24, 11, 10, tzinfo=timezone.utc)
         result = catalog_catchup.decide(now, [])
@@ -87,6 +107,32 @@ class CatalogCatchupTests(unittest.TestCase):
             "action": "catalog_recovery",
         }))
 
+
+    def test_controlled_catalog_refresh_push_counts_as_a_catalog_run(self):
+        self.assertTrue(catalog_catchup.is_collection_run({
+            "event": "push",
+            "head_commit": {"message": "fix(ci): recovery [catalog-refresh:run]"},
+        }))
+
+    def test_successful_controlled_refresh_satisfies_the_slot(self):
+        now = datetime(2026, 9, 24, 12, 0, tzinfo=timezone.utc)
+        runs = [{
+            "id": 999,
+            "event": "push",
+            "status": "completed",
+            "conclusion": "success",
+            "created_at": "2026-09-24T11:45:00Z",
+            "head_commit": {"message": "fix(ci): recovery [catalog-refresh:run]"},
+        }]
+        result = catalog_catchup.decide(now, runs)
+        self.assertEqual(result["action"], "skip")
+        self.assertEqual(result["reason"], "slot_succeeded")
+
+    def test_unmarked_catalog_refresh_text_is_not_a_collection_run(self):
+        self.assertFalse(catalog_catchup.is_collection_run({
+            "event": "push",
+            "head_commit": {"message": "docs: registra [catalog-refresh]"},
+        }))
 
     def test_alerts_when_a_collection_is_queued_too_long_without_duplicating_it(self):
         now = datetime(2026, 9, 24, 12, 0, tzinfo=timezone.utc)

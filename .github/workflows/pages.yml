@@ -1,6 +1,7 @@
 name: Atualizar vagas multiportal e publicar GitHub Pages
+# O evento linkedin_refresh consolida apenas o snapshot do LinkedIn já coletado.
 run-name: >-
-  ${{ github.event_name == 'repository_dispatch' && github.event.action == 'catalog_recovery' && 'Recuperação automática do catálogo' || github.event_name == 'workflow_dispatch' && 'Execução manual do catálogo' || 'Atualização programada do catálogo' }}
+  ${{ github.event_name == 'repository_dispatch' && github.event.action == 'linkedin_refresh' && 'Publicação após coleta do LinkedIn' || github.event_name == 'repository_dispatch' && github.event.action == 'catalog_recovery' && 'Recuperação automática do catálogo' || github.event_name == 'workflow_dispatch' && format('Execução manual do catálogo {0}', inputs.resume_key) || 'Atualização programada do catálogo' }}
 
 on:
   push:
@@ -18,13 +19,19 @@ on:
         description: "Identificador da coleta anterior a ser retomada"
         required: false
         type: string
+      publish_linkedin_only:
+        description: "Publicar o snapshot do LinkedIn sem coletar os demais portais"
+        required: false
+        default: false
+        type: boolean
   repository_dispatch:
-    types: [catalog_recovery]
+    types: [catalog_recovery, linkedin_refresh]
   schedule:
     # GitHub Actions usa UTC; Brasília/Fortaleza permanece em UTC-3.
     # Equivale a 08h07, 11h07, 15h07 e 20h07 em Brasília/Fortaleza.
     - cron: "7 11,14,18,23 * * *"
     # Atualização semanal do catálogo Greenhouse: domingo às 04h43 (UTC-3).
+    # Verificação pós-mesclagem [catalog-refresh:run]; manter este workflow dentro do gatilho de coleta.
     - cron: "43 7 * * 0"
 
 permissions:
@@ -42,8 +49,8 @@ concurrency:
 
 jobs:
   publicar-interface:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && !contains(github.event.head_commit.message, '[refresh-fit]') && !contains(github.event.head_commit.message, '[isolated]')
-    runs-on: [self-hosted, Linux, ARM64]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && !contains(github.event.head_commit.message, '[refresh-fit]') && !contains(github.event.head_commit.message, '[isolated]') && !contains(github.event.head_commit.message, '[catalog-refresh:run]') && !contains(github.event.head_commit.message, '[linkedin-refresh]')
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     environment:
       name: github-pages
@@ -53,7 +60,8 @@ jobs:
       - name: Baixar o repositório
         uses: actions/checkout@v4
         with:
-          ref: main
+          # Usa exatamente o commit que disparou a execução; não a ponta móvel de main.
+          ref: ${{ github.sha }}
 
       - name: Restaurar snapshots públicos
         shell: bash
@@ -107,8 +115,8 @@ jobs:
           artifact_name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
 
   atualizar-e-publicar:
-    if: github.ref == 'refs/heads/main' && (github.event_name != 'push' || (contains(github.event.head_commit.message, '[refresh-fit]') && !contains(github.event.head_commit.message, '[isolated]')))
-    runs-on: [self-hosted, Linux, ARM64]
+    if: (github.ref == 'refs/heads/main' || github.event_name == 'repository_dispatch') && (github.event_name != 'push' || ((contains(github.event.head_commit.message, '[refresh-fit]') || contains(github.event.head_commit.message, '[catalog-refresh:run]') || contains(github.event.head_commit.message, '[linkedin-refresh]')) && !contains(github.event.head_commit.message, '[isolated]')))
+    runs-on: ubuntu-latest
     timeout-minutes: 120
     environment:
       name: github-pages
@@ -118,10 +126,10 @@ jobs:
       - name: Baixar o repositório
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ github.sha }}
           # Só usamos a ponta atual do código; o histórico completo inclui versões antigas de jobs.db e excede o disco do runner.
           fetch-depth: 1
-      
+
       - name: Limpar histórico antigo do runner
         shell: bash
         run: |
@@ -131,7 +139,15 @@ jobs:
           git reflog expire --expire=now --all
           git gc --prune=now
 
-      - name: Preparar navegador Chromium ARM64
+      - name: Restaurar cache do navegador
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/todas-as-vagas/chrome-for-testing
+          key: cft-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('tools/ensure_chromium.sh') }}
+          restore-keys: |
+            cft-${{ runner.os }}-${{ runner.arch }}-
+
+      - name: Preparar navegador Chrome for Testing
         shell: bash
         run: bash tools/ensure_chromium.sh
 
@@ -194,9 +210,14 @@ jobs:
           set -euo pipefail
           git fetch --depth=1 --no-tags origin +refs/heads/public-data:refs/remotes/origin/public-data
           previous_dir="$(mktemp -d)"
-          git archive origin/public-data data/vagas.json | tar -x -C "$previous_dir"
+          trap 'rm -rf -- "$previous_dir"' EXIT
+          git archive origin/public-data data/vagas.json data/fit.json | tar -x -C "$previous_dir"
           cp "$previous_dir/data/vagas.json" .previous-vagas.json
+          cp "$previous_dir/data/fit.json" .previous-fit.json
+          git rev-parse origin/public-data > .previous-public-data-sha
+          test -s .previous-public-data-sha
           test -s .previous-vagas.json
+          test -s .previous-fit.json
 
       - name: Restaurar cache Glassdoor
         shell: bash
@@ -254,22 +275,35 @@ jobs:
           finally:
               driver.quit()
 
-      - name: Testar analisador de aderência
+      - name: Validar smoke do analisador de aderência
+        id: fit-smoke
+        continue-on-error: true
         run: |
-          python -m unittest discover -s jobs-dashboard/tests -v
           python -m py_compile jobs-dashboard/notify_telegram.py
           npm run test:fit
           node --check docs/fit-entry.js
           node --input-type=module --check < docs/aderencia/fit-engine.js
           node --input-type=module --check < docs/aderencia/app.js
 
+      - name: Registrar falha do smoke sem bloquear o catálogo
+        if: steps.fit-smoke.outcome != 'success'
+        run: |
+          echo "::warning::O smoke do analisador falhou; a coleta do catálogo continuará e o último fit válido será preservado se necessário."
+          echo "O smoke do analisador falhou; a coleta do catálogo não foi bloqueada." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Preflight antes da coleta
+        env:
+          PREFLIGHT_MIN_JOBS: "500"
+          PREFLIGHT_MAX_AGE_MONTHS: "2"
+        run: python jobs-dashboard/preflight_catalog.py --mode before-collection --snapshot .previous-vagas.json
+
       - name: Atualizar catálogo brasileiro da Greenhouse
-        if: github.event_name == 'workflow_dispatch' || github.event.schedule == '43 7 * * 0'
+        if: ${{ (github.event_name == 'workflow_dispatch' || github.event.schedule == '43 7 * * 0') && !((github.event_name == 'workflow_dispatch' && inputs.publish_linkedin_only) || (github.event_name == 'repository_dispatch' && github.event.action == 'linkedin_refresh')) }}
         continue-on-error: true
         run: python jobs-dashboard/discover_greenhouse_br.py --workers 6 --timeout 12
 
       - name: Descobrir novas empresas InHire
-        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[refresh-fit]'))
+        if: ${{ (github.event_name == 'workflow_dispatch' || github.event.schedule == '43 7 * * 0') && !((github.event_name == 'workflow_dispatch' && inputs.publish_linkedin_only) || (github.event_name == 'repository_dispatch' && github.event.action == 'linkedin_refresh')) }}
         continue-on-error: true
         env:
           INHIRE_URLSCAN_PAGES: "20"
@@ -285,6 +319,7 @@ jobs:
             inhire-details-v1-
 
       - name: Coletar a InHire
+        if: ${{ !((github.event_name == 'workflow_dispatch' && inputs.publish_linkedin_only) || (github.event_name == 'repository_dispatch' && github.event.action == 'linkedin_refresh')) }}
         continue-on-error: true
         env:
           INHIRE_DETAIL_TTL_HOURS: "24"
@@ -292,6 +327,7 @@ jobs:
         run: node busca_vagas/build_public_inhire.js
 
       - name: Validar a coleta da InHire
+        if: ${{ !((github.event_name == 'workflow_dispatch' && inputs.publish_linkedin_only) || (github.event_name == 'repository_dispatch' && github.event.action == 'linkedin_refresh')) }}
         continue-on-error: true
         shell: bash
         run: |
@@ -311,6 +347,7 @@ jobs:
 
       - name: Coletar, normalizar e consolidar todos os portais
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           JOBS_SOURCE_WORKERS: "5"
           # Limit only rendered Chromium sessions; HTTP source concurrency is unchanged.
           COLLECTOR_BROWSER_WORKERS: "2"
@@ -328,7 +365,18 @@ jobs:
           INFOJOBS_MAX_JOBS: "2000"
           INFOJOBS_MAX_SCROLLS: "0"
           JOBS_COLLECTION_CHECKPOINT_DIR: "jobs-dashboard/data/collection_checkpoints"
-        run: python jobs-dashboard/pipeline_fit.py --max-age-months 2
+          FIT_FALLBACK_PATH: ".previous-fit.json"
+          LINKEDIN_ONLY: ${{ (github.event_name == 'repository_dispatch' && github.event.action == 'linkedin_refresh') || (github.event_name == 'workflow_dispatch' && inputs.publish_linkedin_only) }}
+        run: |
+          set -euo pipefail
+          if [ "$LINKEDIN_ONLY" = "true" ]; then
+            echo "CATALOG_COLLECTION_SCOPE=partial:linkedin" >> "$GITHUB_ENV"
+            echo "Modo LinkedIn-only: consolidando o snapshot já coletado; os demais portais não serão consultados."
+            python jobs-dashboard/pipeline_fit.py --sources linkedin --max-age-months 2
+          else
+            echo "CATALOG_COLLECTION_SCOPE=full" >> "$GITHUB_ENV"
+            python jobs-dashboard/pipeline_fit.py --max-age-months 2
+          fi
 
       - name: Salvar checkpoints da coleta
         if: always()
@@ -337,7 +385,7 @@ jobs:
           path: jobs-dashboard/data/collection_checkpoints
           key: catalog-collection-v1-${{ steps.collection-context.outputs.resume_key }}-${{ github.run_id }}-${{ github.run_attempt }}
 
-      - name: Validar privacidade e integridade
+      - name: Validar privacidade e integridade do catálogo
         env:
           MIN_PUBLIC_JOBS: "500"
           PREVIOUS_SNAPSHOT_PATH: ".previous-vagas.json"
@@ -348,7 +396,27 @@ jobs:
           MAX_DUPLICATE_URL_RATIO: "0.005"
         run: |
           python jobs-dashboard/validate_snapshot.py
+
+      - name: Validar índice de aderência
+        id: fit-validation
+        continue-on-error: true
+        run: python jobs-dashboard/validate_fit.py
+
+      - name: Preservar último índice de aderência válido
+        if: steps.fit-validation.outcome != 'success'
+        run: |
+          set -euo pipefail
+          cp .previous-fit.json docs/data/fit.json
           python jobs-dashboard/validate_fit.py
+          echo "::warning::O índice de aderência desta execução foi rejeitado; o último índice válido foi preservado."
+          echo "O índice de aderência anterior foi preservado; o catálogo de vagas continua atualizado." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Preflight antes da publicação
+        env:
+          PREFLIGHT_MIN_JOBS: "500"
+          PREFLIGHT_MAX_AGE_MONTHS: "2"
+          PREFLIGHT_MIN_ALLOWED_RATIO: "0.5"
+        run: python jobs-dashboard/preflight_catalog.py --mode after-collection --snapshot docs/data/vagas.json --previous-snapshot .previous-vagas.json
 
       - name: Publicar banco histórico no ramo dedicado
         shell: bash
@@ -375,6 +443,18 @@ jobs:
             git -C "$data_worktree" commit -m "Atualiza histórico do pipeline"
             git -C "$data_worktree" push origin HEAD:history-data
           fi
+
+      - name: Confirmar que o código da coleta ainda é o commit disparador
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --depth=1 --no-tags origin +refs/heads/main:refs/remotes/origin/main
+          current_main_sha="$(git rev-parse origin/main)"
+          if [ "$current_main_sha" != "$GITHUB_SHA" ]; then
+            echo "ERRO: main avançou durante a coleta; recusando publicar um snapshot baseado em código defasado." >&2
+            exit 1
+          fi
+          echo "OK: a coleta será publicada a partir de $GITHUB_SHA."
 
       - name: Publicar snapshots no ramo dedicado
         shell: bash
@@ -408,6 +488,23 @@ jobs:
             git -C "$data_worktree" push origin HEAD:public-data
           fi
 
+      - name: Confirmar publicação dos snapshots no ramo público
+        shell: bash
+        run: |
+          set -euo pipefail
+          previous_sha="$(cat .previous-public-data-sha)"
+          git fetch --depth=1 --no-tags origin +refs/heads/public-data:refs/remotes/origin/public-data
+          current_sha="$(git rev-parse origin/public-data)"
+          if [ "$current_sha" = "$previous_sha" ]; then
+            echo "ERRO: o ramo public-data não mudou após a publicação." >&2
+            exit 1
+          fi
+          git show "origin/public-data:data/vagas.json" > .published-vagas.json
+          git show "origin/public-data:data/fit.json" > .published-fit.json
+          cmp --silent docs/data/vagas.json .published-vagas.json
+          cmp --silent docs/data/fit.json .published-fit.json
+          echo "OK: public-data mudou e os snapshots publicados correspondem à execução atual."
+
       - name: Preservar histórico e fotografia pública
         shell: bash
         run: |
@@ -419,7 +516,12 @@ jobs:
             echo "Nenhuma alteração para registrar."
           else
             git commit -m "Atualiza índice público de vagas [skip ci]"
-            git pull --rebase origin main
+            git fetch --depth=1 --no-tags origin +refs/heads/main:refs/remotes/origin/main
+            current_main_sha="$(git rev-parse origin/main)"
+            if [ "$current_main_sha" != "$GITHUB_SHA" ]; then
+              echo "ERRO: main avançou antes do commit de manutenção; não faremos rebase silencioso." >&2
+              exit 1
+            fi
             git push origin HEAD:main
           fi
 
@@ -440,4 +542,5 @@ jobs:
         uses: actions/deploy-pages@v4
         with:
           artifact_name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
+
 

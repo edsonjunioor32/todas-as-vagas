@@ -15,7 +15,8 @@ from pathlib import Path
 
 
 SCHEMA_VERSION = 2
-PARSER_VERSION = "description-crawler-v1"
+PARSER_VERSION = "description-crawler-v2"
+TERMINAL_FAILURE_STATUSES = frozenset({"gone", "removed", "not_found"})
 
 
 def utc_now() -> str:
@@ -308,6 +309,7 @@ def pending_jobs(
                 )
                 OR (
                     description <> ''
+                    AND status NOT IN ('gone', 'removed', 'not_found')
                     AND checked_at <> ''
                     AND checked_at <= ?
                 )
@@ -431,7 +433,7 @@ def record_failure(
     failure_status = str(status or "error")[:40]
     stored_status = (
         failure_status
-        if failure_status == "robots_denied"
+        if failure_status in {"robots_denied", *TERMINAL_FAILURE_STATUSES}
         else "stale" if current_description else failure_status
     )
     now = utc_now()
@@ -501,7 +503,9 @@ def stats(
             (description = '' AND (next_attempt_at = '' OR next_attempt_at <= ?))
             OR (status = 'robots_denied' AND
                 (next_attempt_at = '' OR next_attempt_at <= ?))
-            OR (description <> '' AND checked_at <> '' AND checked_at <= ?)
+            OR (description <> ''
+                AND status NOT IN ('gone', 'removed', 'not_found')
+                AND checked_at <> '' AND checked_at <= ?)
         ) {manifest_filter}
         GROUP BY status
         ORDER BY status

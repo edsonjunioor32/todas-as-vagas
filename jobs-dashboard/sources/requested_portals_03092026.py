@@ -3,7 +3,8 @@
 
 Individual Quickin job and application URLs identify the tenant that owns the
 posting.  We register each tenant once and collect its complete public board,
-so a single example URL never limits the company to one vacancy.
+so a single example URL never limits the company to one vacancy.  The same
+module also contains the rendered Pandapé boards requested in this batch.
 """
 import html
 import re
@@ -18,6 +19,7 @@ from ._common import iso_date, job, strip_html, work_model_label
 
 
 PANDAPE_URL = "https://minsaitbrasil.pandape.infojobs.com.br/"
+POSITIVOSMAIS_URL = "https://positivosmais.pandape.infojobs.com.br/"
 PANDAPE_DETAIL_RE = re.compile(r"/Detail/(\d+)(?:[/?#]|$)", re.I)
 PANDAPE_LOCATION_RE = re.compile(r"^(.+?)\s+-\s*([A-Z]{2})$", re.I)
 PANDAPE_MONTHS = {
@@ -77,12 +79,12 @@ def _pandape_more_button(driver):
     return None
 
 
-def _pandape_rendered_cards():
+def _pandape_rendered_cards(base_url=PANDAPE_URL, portal_label="Minsait"):
     driver = _new_pandape_driver()
     try:
         try:
             driver.set_page_load_timeout(65)
-            driver.get(PANDAPE_URL)
+            driver.get(base_url)
         except Exception:
             # An eager page-load timeout can still leave a usable rendered DOM.
             pass
@@ -121,10 +123,13 @@ def _pandape_rendered_cards():
         cards = _pandape_card_rows(driver)
         total = _pandape_total(driver)
         if not cards:
-            raise RuntimeError("Pandapé/Minsait rendered no public vacancy cards")
+            raise RuntimeError(
+                f"Pandapé/{portal_label} rendered no public vacancy cards"
+            )
         if total and len(cards) < total:
             raise RuntimeError(
-                f"Pandapé/Minsait exposed only {len(cards)} of {total} public vacancies"
+                f"Pandapé/{portal_label} exposed only {len(cards)} of "
+                f"{total} public vacancies"
             )
         return cards
     finally:
@@ -162,7 +167,23 @@ def _pandape_contracts(text):
     return values
 
 
-def _pandape_row(raw):
+def _pandape_work_model(text):
+    model = work_model_label(raw=text)
+    if model:
+        return model
+    # Pandapé's English rendering uses "Presential" for the same value that
+    # the Portuguese rendering exposes as "Presencial".
+    if re.search(r"\bpresential\b", text or "", re.I):
+        return "on-site"
+    return ""
+
+
+def _pandape_row(
+    raw,
+    source="minsait",
+    company="Minsait Brasil",
+    base_url=PANDAPE_URL,
+):
     url = html.unescape(str(raw.get("href") or "")).strip()
     match = PANDAPE_DETAIL_RE.search(url)
     if not match:
@@ -185,12 +206,12 @@ def _pandape_row(raw):
             city, state = location.group(1).strip(), location.group(2).upper()
             break
     return job(
-        "minsait",
+        source,
         match.group(1),
         title=title,
-        company="Minsait Brasil",
-        url=urljoin(PANDAPE_URL, url),
-        work_model=work_model_label(raw=text),
+        company=company,
+        url=urljoin(base_url, url),
+        work_model=_pandape_work_model(text),
         city=city or "Brasil",
         state=state,
         country="BR",
@@ -206,23 +227,36 @@ def _pandape_row(raw):
                 re.I,
             )
         )),
-        categories=["Minsait Brasil"],
+        categories=[company],
         contract_types=_pandape_contracts(text),
         pcd=bool(re.search(r"\bpcd\b|pessoa com deficiência", f"{title} {text}", re.I)),
     )
 
 
-def fetch_minsait():
+def _fetch_pandape(source, base_url, company):
     rows = []
     seen = set()
-    for raw in _pandape_rendered_cards():
-        row = _pandape_row(raw)
+    for raw in _pandape_rendered_cards(base_url, company):
+        row = _pandape_row(
+            raw,
+            source=source,
+            company=company,
+            base_url=base_url,
+        )
         if row and row["native_id"] not in seen:
             seen.add(row["native_id"])
             rows.append(row)
     if not rows:
-        raise RuntimeError("Pandapé/Minsait returned no public vacancies")
+        raise RuntimeError(f"Pandapé/{company} returned no public vacancies")
     return rows
+
+
+def fetch_minsait():
+    return _fetch_pandape("minsait", PANDAPE_URL, "Minsait Brasil")
+
+
+def fetch_positivosmais():
+    return _fetch_pandape("positivosmais", POSITIVOSMAIS_URL, "Positivo S+")
 
 
 def fetch_emphasys():
@@ -565,5 +599,6 @@ QUICKIN_TARGETS = tuple(
 
 TARGETS = (
     ("minsait", fetch_minsait),
+    ("positivosmais", fetch_positivosmais),
     ("emphasys", fetch_emphasys),
 ) + QUICKIN_TARGETS

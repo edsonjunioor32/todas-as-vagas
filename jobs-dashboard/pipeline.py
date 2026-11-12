@@ -429,6 +429,8 @@ def infer_work_models(rows):
     inferred = 0
     remote_locations = {"br", "brasil", "brazil", "remoto", "remote", "home office"}
     for row in rows:
+        if str(row.get("source") or "").strip().casefold() == "linkedin":
+            continue
         if str(row.get("work_model") or "").strip():
             continue
         location = str(row.get("city") or "").strip().casefold()
@@ -437,9 +439,7 @@ def infer_work_models(rows):
         is_brazil = country in {"br", "brasil", "brazil"} or market == "br"
         if not is_brazil:
             continue
-        if location in remote_locations or (
-            not location and country in {"brasil", "brazil"}
-        ):
+        if location in remote_locations:
             row["work_model"] = "remote"
         elif location:
             row["work_model"] = "on-site"
@@ -665,7 +665,20 @@ def main(before_persist=None):
         before_persist(rows)
     conn = storage.connect(str(DB_PATH))
     before = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
-    storage.upsert(conn, rows)
+    linkedin_work_models_reset = 0
+    if "linkedin" in selected_sources and "linkedin" not in failed:
+        linkedin_work_models_reset = storage.upsert_linkedin_snapshot(conn, rows)
+    else:
+        storage.upsert(conn, rows)
+    # Health is tracked per source, separately from row retention. Paused
+    # sources are also marked as unavailable so the UI waits the same 24 full
+    # hours before showing a warning for them.
+    storage.update_source_health(
+        conn,
+        attempted_sources=set(selected_sources) | set(PAUSED_SOURCES),
+        failed_sources=set(failed) | set(PAUSED_SOURCES),
+        observed_at=storage.utc_now_iso(),
+    )
     recrutei_repaired = 0
     if "recrutei" in selected_sources and "recrutei" not in failed:
         candidates = conn.execute(
@@ -729,9 +742,11 @@ def main(before_persist=None):
                 if row["source"] == "greenhouse"
             ],
         )
+    is_partial = bool(args.sources)
     active_feed_sources = {
         source for source in storage.ACTIVE_PUBLIC_FEED_SOURCES
-        if counts.get(source, 0) and source not in failed
+        if (counts.get(source, 0) and source not in failed)
+        or (is_partial and source not in selected_sources)
     }
     pruned = storage.prune(
         conn,
@@ -740,6 +755,7 @@ def main(before_persist=None):
         max_age_months=max(0, args.max_age_months),
         active_feed_sources=active_feed_sources,
         max_age_days=max_age_days,
+        selected_sources=selected_sources if is_partial else None,
     )
     after = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
     snapshot_failed_sources = sorted(set(preserved_sources) | set(failed))
@@ -753,11 +769,12 @@ def main(before_persist=None):
         source_counts=dict(sorted(counts.items())),
         failed_sources=snapshot_failed_sources,
         glassdoor_cache=load_glassdoor_cache(),
+        selected_sources=selected_sources if is_partial else None,
     )
     conn.close()
     phases["Banco e fotografia pública"] = time.perf_counter() - stage_started
     phases["total"] = time.perf_counter() - pipeline_started
-    print(f"  base histórica: {after} vagas ({after-before+pruned:+d} nesta execução; {pruned} removidas; {greenhouse_removed} Greenhouse fora do Brasil; {totvs_removed} TOTVS obsoletas/inválidas; {solides_urls_repaired} links Sólides corrigidos; {senior_markets_repaired} mercados Senior corrigidos; {yellowipe_markets_repaired} mercados YellowIpe corrigidos; {recrutei_repaired} localizações Recrutei reparadas; {modality_inferred} modalidades inferidas)")
+    print(f"  base histórica: {after} vagas ({after-before+pruned:+d} nesta execução; {pruned} removidas; {greenhouse_removed} Greenhouse fora do Brasil; {totvs_removed} TOTVS obsoletas/inválidas; {solides_urls_repaired} links Sólides corrigidos; {senior_markets_repaired} mercados Senior corrigidos; {yellowipe_markets_repaired} mercados YellowIpe corrigidos; {recrutei_repaired} localizações Recrutei reparadas; {modality_inferred} modalidades inferidas; {linkedin_work_models_reset} rótulos LinkedIn antigos limpos)")
     print(f"  base pública: {count} vagas · {size_mb:.2f} MB · {JSON_PATH.relative_to(ROOT)}")
     print(
         "  tempos: "

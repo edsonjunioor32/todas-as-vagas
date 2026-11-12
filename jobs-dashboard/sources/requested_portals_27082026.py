@@ -6,6 +6,7 @@ a validação pode consultar as fontes e a mesclagem posterior pode substituir
 somente as linhas pertencentes a estas fontes.
 """
 import html
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
 import re
 import urllib.parse
@@ -184,8 +185,20 @@ def fetch_acciona():
     return _workday_rows("acciona")
 
 
-def _jsonld_rows(source, url, company):
-    page = get_text(url, timeout=45, retries=3)
+
+def _structured_work_model(text):
+    """Prefer an explicit hybrid/on-site declaration over prose mentions."""
+    value = str(text or "").casefold()
+    if re.search(r"\b(?:h[ií]brid[oa]|hybrid)\b", value):
+        return "hybrid"
+    if re.search(r"\b(?:on[- ]?site|presencial|in[- ]office)\b", value):
+        return "on-site"
+    if re.search(r"\b(?:remote|remot[oa]|anywhere|home[- ]?office)\b", value):
+        return "remote"
+    return ""
+
+
+def _jsonld_rows_from_page(source, url, company, page):
     blocks = re.findall(
         r'<script[^>]+type=["\']application/ld\+json["\'][^>]*>(.*?)</script>',
         page, re.I | re.S,
@@ -207,24 +220,39 @@ def _jsonld_rows(source, url, company):
             if isinstance(location_data, list):
                 location_data = location_data[0] if location_data else {}
             address = (location_data.get("address") or {}) if isinstance(location_data, dict) else {}
-            location = ", ".join(
-                str(address.get(key) or "").strip()
-                for key in ("addressLocality", "addressRegion", "addressCountry")
-                if str(address.get(key) or "").strip()
-            )
+            locality = str(address.get("addressLocality") or "").strip()
+            region = str(address.get("addressRegion") or "").strip()
+            country = str(address.get("addressCountry") or "BR").strip()
+            location = ", ".join(part for part in (locality, region) if part)
             if location and not is_brazil_location(location) and not BRAZIL_WORDS.search(location):
                 continue
             identifier = value.get("identifier") or {}
-            native_id = str(identifier.get("value") if isinstance(identifier, dict) else identifier or title)
+            native_id = str(
+                identifier.get("value")
+                if isinstance(identifier, dict) else identifier or title
+            )
+            description = strip_html(value.get("description") or "")
             rows.append(job(
                 source, native_id, title=title, company=company,
-                url=str(value.get("url") or url), work_model=work_model_label(raw=f"{title} {location}"),
-                city=location or "Brasil", country="BR", market="BR",
+                url=str(value.get("url") or url),
+                work_model=_structured_work_model(
+                    f"{title} {location} {description[:1800]}"
+                ),
+                city=location, country=country or "BR", market="BR",
                 published_date=iso_date(value.get("datePosted")),
-                description=strip_html(value.get("description") or ""),
-                contract_types=[str(value.get("employmentType") or "").strip()] if value.get("employmentType") else [],
+                description=description,
+                contract_types=[
+                    str(value.get("employmentType") or "").strip()
+                ] if value.get("employmentType") else [],
             ))
     return rows
+
+
+def _jsonld_rows(source, url, company, timeout=45, retries=3):
+    page = get_text(url, timeout=timeout, retries=retries)
+    return _jsonld_rows_from_page(source, url, company, page)
+
+
 
 
 def _anchor_rows(source, url, company, pattern=r'/(?:vaga|vagas|job|jobs)/[^"?#]+'):
@@ -242,7 +270,7 @@ def _anchor_rows(source, url, company, pattern=r'/(?:vaga|vagas|job|jobs)/[^"?#]
         rows.append(job(
             source, absolute.rstrip("/").split("/")[-1], title=title, company=company,
             url=absolute, work_model=work_model_label(raw=title),
-            city="Brasil", country="BR", market="BR",
+            city="", country="BR", market="BR",
         ))
     if not rows:
         rows = _jsonld_rows(source, url, company)
@@ -251,8 +279,40 @@ def _anchor_rows(source, url, company, pattern=r'/(?:vaga|vagas|job|jobs)/[^"?#]
     return rows
 
 
+def _enrich_huntit_rows(rows):
+    """Use the detail page as the authority for location, modality and date."""
+    enriched = list(rows)
+    workers = min(8, max(1, len(enriched)))
+
+    def load(index, fallback):
+        try:
+            details = _jsonld_rows(
+                "huntit", fallback["url"], "Hunt IT", timeout=30, retries=1
+            )
+            if not details:
+                return index, fallback
+            detail = details[0]
+            detail["native_id"] = fallback["native_id"]
+            detail["url"] = fallback["url"]
+            detail["title"] = detail.get("title") or fallback["title"]
+            return index, detail
+        except Exception:
+            return index, fallback
+
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        futures = [
+            pool.submit(load, index, row)
+            for index, row in enumerate(enriched)
+        ]
+        for future in as_completed(futures):
+            index, row = future.result()
+            enriched[index] = row
+    return enriched
+
+
 def fetch_huntit():
-    return _anchor_rows("huntit", "https://huntit.com.br/vagas/", "Hunt IT")
+    rows = _anchor_rows("huntit", "https://huntit.com.br/vagas/", "Hunt IT")
+    return _enrich_huntit_rows(rows)
 
 
 def fetch_forza():
@@ -506,3 +566,4 @@ TARGETS = (
     ("mdlz", fetch_mdlz),
     ("edenred", fetch_edenred),
 )
+

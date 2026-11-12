@@ -41,6 +41,7 @@ SOURCE_LABELS = {
     "grupovanguarda": "Grupo Vanguarda",
     "tirol": "Laticínios Tirol",
     "novomateus": "Novo Mateus",
+    "insi": "Insi",
     "tagguirh": "Taggui RH",
     "geekhunter": "GeekHunter",
     "stone": "Stone",
@@ -71,8 +72,11 @@ SOURCE_LABELS = {
     "abler": "Abler",
     "precisionrh": "Precision RH",
     "infojobs": "InfoJobs",
+    "positivosmais": "Positivo S+",
     "recrutei": "Recrutei",
     "accenture": "Accenture",
+    "ey": "EY",
+    "sonda": "SONDA",
     "bradesco": "Bradesco",
     "cloudwalk": "CloudWalk",
     "mercadolivre": "Mercado Livre",
@@ -87,6 +91,7 @@ SOURCE_LABELS = {
     "providerit": "Provider IT",
     "inlog": "Inlog",
     "revolut": "Revolut",
+    "jobii": "Jobii",
 }
 TI_RE = re.compile(
     r"\b(?:ti|tecnologia|software|sistemas?|suporte|desenvolv|devops|"

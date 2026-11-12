@@ -20,6 +20,12 @@ LOCAL_TIMEZONE = ZoneInfo("America/Fortaleza")
 EXTENDED_PUBLICATION_WEEKDAYS = frozenset({0, 4, 5, 6})  # Mon, Fri, Sat, Sun
 EXTENDED_PUBLICATION_DAYS = 63
 
+# The warning is intentionally independent from the preservation window. A
+# portal must be continuously unsuccessful for 24 full hours before the public
+# interface calls attention to it; previously valid rows keep the normal
+# publication-age rules.
+SOURCE_WARNING_AFTER_HOURS = 24
+
 # SmartRecruiters keeps DBC's public postings active while exposing their
 # original release date. This source-specific exception is shared by the
 # collector and the snapshot validator so the same active-feed rule is used
@@ -85,6 +91,7 @@ ACTIVE_PUBLIC_FEED_SOURCES = {
     "grupowish",
     "h2club",
     "healthbit",
+    "huntit",
     "hrin",
     "humtech",
     "hyper",
@@ -115,6 +122,7 @@ ACTIVE_PUBLIC_FEED_SOURCES = {
     "metrisdho",
     "meutudo",
     "minsait",
+    "positivosmais",
     "modaxo",
     "mollicait",
     "moovgenteegestao",
@@ -171,6 +179,7 @@ ACTIVE_PUBLIC_FEED_SOURCES = {
     "grupovanguarda",
     "tirol",
     "novomateus",
+    "insi",
     "tagguirh",
     "tagna",
     "talentworksrh",
@@ -187,6 +196,8 @@ ACTIVE_PUBLIC_FEED_SOURCES = {
     "uniflexgroup",
     # Valorei still lists older postings as open on its current public board.
     "valorei",
+    # Jobii's paginated public board contains only currently active vacancies.
+    "jobii",
     "vagasautomotivas",
     "vagasconsultoria",
     "verity",
@@ -233,6 +244,11 @@ CREATE TABLE IF NOT EXISTS jobs (
 CREATE INDEX IF NOT EXISTS idx_jobs_dedupe ON jobs(dedupe_key);
 CREATE INDEX IF NOT EXISTS idx_jobs_seen ON jobs(last_seen_date);
 CREATE INDEX IF NOT EXISTS idx_jobs_source ON jobs(source);
+CREATE TABLE IF NOT EXISTS source_health (
+    source              TEXT PRIMARY KEY,
+    last_success_at     TEXT DEFAULT '',
+    failure_started_at  TEXT DEFAULT ''
+);
 """
 
 MIGRATION_COLUMNS = {
@@ -309,6 +325,99 @@ def connect(db_path):
             conn.execute(f"ALTER TABLE jobs ADD COLUMN {name} {definition}")
     conn.commit()
     return conn
+
+
+def utc_now_iso():
+    """Return an explicit UTC timestamp for source-health comparisons."""
+    return datetime.now(timezone.utc).isoformat()
+
+
+def backfill_source_health(conn):
+    """Seed health timestamps from existing job history after the migration."""
+    rows = conn.execute(
+        "SELECT source, MAX(last_seen_date) FROM jobs GROUP BY source"
+    ).fetchall()
+    for source, last_seen in rows:
+        source = str(source or "").strip()
+        last_seen = str(last_seen or "").strip()[:10]
+        if not source or not last_seen:
+            continue
+        fallback = f"{last_seen}T23:59:59+00:00"
+        conn.execute(
+            """
+            INSERT INTO source_health (source, last_success_at, failure_started_at)
+            VALUES (?, ?, '')
+            ON CONFLICT(source) DO UPDATE SET
+                last_success_at = CASE
+                    WHEN TRIM(COALESCE(source_health.last_success_at, '')) = ''
+                    THEN excluded.last_success_at
+                    ELSE source_health.last_success_at
+                END
+            """,
+            (source, fallback),
+        )
+    conn.commit()
+
+
+def update_source_health(conn, attempted_sources, failed_sources, observed_at=None):
+    """Persist the last success and the beginning of a continuous outage."""
+    backfill_source_health(conn)
+    attempted = {
+        str(source).strip() for source in (attempted_sources or [])
+        if str(source).strip()
+    }
+    failed = {
+        str(source).strip() for source in (failed_sources or [])
+        if str(source).strip()
+    }
+    observed_at = str(observed_at or utc_now_iso()).strip()
+    for source in sorted(attempted):
+        if source in failed:
+            conn.execute(
+                """
+                INSERT INTO source_health (source, last_success_at, failure_started_at)
+                VALUES (?, '', ?)
+                ON CONFLICT(source) DO UPDATE SET
+                    failure_started_at = CASE
+                        WHEN TRIM(COALESCE(source_health.failure_started_at, '')) = ''
+                        THEN excluded.failure_started_at
+                        ELSE source_health.failure_started_at
+                    END
+                """,
+                (source, observed_at),
+            )
+        else:
+            conn.execute(
+                """
+                INSERT INTO source_health (source, last_success_at, failure_started_at)
+                VALUES (?, ?, '')
+                ON CONFLICT(source) DO UPDATE SET
+                    last_success_at = excluded.last_success_at,
+                    failure_started_at = ''
+                """,
+                (source, observed_at),
+            )
+    conn.commit()
+
+
+def source_health_snapshot(conn):
+    """Return source health metadata safe for the public snapshot."""
+    backfill_source_health(conn)
+    rows = conn.execute(
+        """
+        SELECT source, last_success_at, failure_started_at
+        FROM source_health
+        WHERE TRIM(COALESCE(source, '')) <> ''
+        ORDER BY source
+        """
+    ).fetchall()
+    return {
+        str(source): {
+            "last_success_at": str(last_success or "").strip(),
+            "failure_started_at": str(failure_started or "").strip(),
+        }
+        for source, last_success, failure_started in rows
+    }
 
 
 def upsert(conn, jobs, today=None):
@@ -450,6 +559,78 @@ def rewrite_source_market_all(conn, source, replacement):
     return cursor.rowcount
 
 
+def clear_linkedin_work_models(conn, jobs=None, target_uids=None):
+    """Clear stale LinkedIn labels before applying the latest verified snapshot.
+
+    If jobs or target_uids are provided, only rows being updated in the current
+    snapshot have their work_model reset, preserving the historical modality
+    of prior valid vacancies that did not appear in the latest snapshot.
+    """
+    if jobs is not None or target_uids is not None:
+        uids = set()
+        if target_uids:
+            for item in target_uids:
+                uid_str = str(item or "").strip()
+                if not uid_str:
+                    continue
+                if not uid_str.startswith("linkedin:"):
+                    uid_str = f"linkedin:{uid_str}"
+                uids.add(uid_str)
+        if jobs is not None:
+            for item in jobs:
+                if isinstance(item, dict):
+                    src = item.get("source", "")
+                    if src == "linkedin":
+                        native_or_url = item.get("native_id") or item.get("url")
+                        if native_or_url:
+                            uids.add(f"linkedin:{native_or_url}")
+                elif isinstance(item, str):
+                    s = item.strip()
+                    if s:
+                        if not s.startswith("linkedin:"):
+                            s = f"linkedin:{s}"
+                        uids.add(s)
+        if not uids:
+            return 0
+        cleared = 0
+        uid_list = list(uids)
+        chunk_size = 500
+        for i in range(0, len(uid_list), chunk_size):
+            chunk = uid_list[i : i + chunk_size]
+            placeholders = ",".join("?" for _ in chunk)
+            cursor = conn.execute(
+                f"""
+                UPDATE jobs
+                SET work_model = ''
+                WHERE source = 'linkedin'
+                  AND job_uid IN ({placeholders})
+                  AND TRIM(COALESCE(work_model, '')) <> ''
+                """,
+                chunk,
+            )
+            cleared += cursor.rowcount
+        return cleared
+
+    cursor = conn.execute("""
+        UPDATE jobs
+        SET work_model = ''
+        WHERE source = 'linkedin'
+          AND TRIM(COALESCE(work_model, '')) <> ''
+    """)
+    return cursor.rowcount
+
+
+def upsert_linkedin_snapshot(conn, jobs, today=None):
+    """Replace stored LinkedIn labels and upsert its snapshot atomically."""
+    try:
+        cleared = clear_linkedin_work_models(conn, jobs=jobs)
+        upsert(conn, jobs, today=today)
+    except Exception:
+        conn.rollback()
+        raise
+    return cleared
+
+
 def infer_missing_work_models(conn):
     """Infer the modality only when the portal did not provide it.
 
@@ -461,6 +642,7 @@ def infer_missing_work_models(conn):
         UPDATE jobs
         SET work_model = 'remote'
         WHERE TRIM(COALESCE(work_model, '')) = ''
+          AND source <> 'linkedin'
           AND (
               LOWER(TRIM(COALESCE(country, ''))) IN ('br', 'brasil', 'brazil')
               OR LOWER(TRIM(COALESCE(market, ''))) = 'br'
@@ -479,6 +661,7 @@ def infer_missing_work_models(conn):
         UPDATE jobs
         SET work_model = 'on-site'
         WHERE TRIM(COALESCE(work_model, '')) = ''
+          AND source <> 'linkedin'
           AND TRIM(COALESCE(city, '')) <> ''
           AND (
               LOWER(TRIM(COALESCE(country, ''))) IN ('br', 'brasil', 'brazil')
@@ -541,7 +724,8 @@ def purge_source_rows_not_in_uids(conn, source, current_uids):
     return len(invalid)
 
 def prune(conn, keep_days=120, today=None, max_age_months=2,
-          active_feed_sources=None, max_age_days=None):
+          active_feed_sources=None, max_age_days=None,
+          selected_sources=None):
     today = today or local_today().isoformat()
     seen_cutoff = (date.fromisoformat(today) - timedelta(days=keep_days)).isoformat()
     age_cutoff = publication_cutoff(
@@ -550,8 +734,20 @@ def prune(conn, keep_days=120, today=None, max_age_months=2,
     gupy_cutoff = months_ago(
         date.fromisoformat(today), max(0, max_age_months)
     ).isoformat()
-    active = sorted({str(source).strip() for source in (active_feed_sources or [])
-                     if str(source).strip() in ACTIVE_PUBLIC_FEED_SOURCES})
+    selected_set = {
+        str(source).strip() for source in (selected_sources or [])
+        if str(source).strip()
+    } if selected_sources is not None else None
+    active_set = {
+        str(source).strip() for source in (active_feed_sources or [])
+        if str(source).strip() in ACTIVE_PUBLIC_FEED_SOURCES
+    }
+    if selected_set is not None:
+        active_set.update(
+            source for source in ACTIVE_PUBLIC_FEED_SOURCES
+            if source not in selected_set
+        )
+    active = sorted(active_set)
     exemptions = []
     active_params = []
     if active:
@@ -635,7 +831,7 @@ def _canonicalize_snapshot_rows(rows):
 def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
                     max_age_months=2,
                     max_raw_mb=64, source_counts=None, failed_sources=None,
-                    max_age_days=None, glassdoor_cache=None):
+                    max_age_days=None, selected_sources=None, glassdoor_cache=None):
     """Export jobs seen in a recent successful collection window.
 
     A three-day tolerance prevents a temporary portal outage from instantly
@@ -660,7 +856,18 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
     gupy_cutoff = months_ago(
         date.fromisoformat(today), max(0, max_age_months)
     ).isoformat()
-    failed = sorted({str(source).strip() for source in (failed_sources or []) if str(source).strip()})
+    selected_set = {
+        str(source).strip() for source in (selected_sources or [])
+        if str(source).strip()
+    } if selected_sources is not None else None
+    persisted_failures = [
+        source for source, item in source_health_snapshot(conn).items()
+        if item.get("failure_started_at")
+    ]
+    raw_failed = list(failed_sources or [])
+    if selected_set is not None:
+        raw_failed.extend(persisted_failures)
+    failed = sorted({str(source).strip() for source in raw_failed if str(source).strip()})
     preserve_failed = [source for source in failed if source != "gupy"]
     failed_clause = ""
     failed_params = []
@@ -673,10 +880,12 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
     # Public company boards can expose active postings with an original opening date while
     # retaining their original 2021 release date. Include that source only
     # when the current collection actually returned rows; a failed/absent
-    # source never receives this exception.
+    # source never receives this exception. In partial runs, unattempted feed sources
+    # retain their eligibility so their valid rows in jobs.db are not dropped.
     active_feed_sources = [
         source for source in sorted(ACTIVE_PUBLIC_FEED_SOURCES)
-        if source_counts.get(source, 0) and source not in failed
+        if (source_counts.get(source, 0) and source not in failed)
+        or (selected_set is not None and source not in selected_set)
     ]
     active_feed_clause = ""
     active_feed_params = []
@@ -685,11 +894,19 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
         active_feed_clause = f" OR source IN ({placeholders})"
         active_feed_params = active_feed_sources
 
+    # Gupy cutoff: in a full run or when Gupy was selected, require collection on this date.
+    # In a partial run where Gupy was not selected, preserve recent verified Gupy rows (>= cutoff).
+    gupy_seen_cutoff = (
+        today
+        if (selected_set is None or "gupy" in selected_set)
+        else cutoff
+    )
+
     # The general refresh leaves max_jobs unset so every eligible row is exported.
     limit_clause = ""
     query_params = (
         cutoff, *failed_params, today, age_cutoff, *active_feed_params,
-        today, gupy_cutoff,
+        gupy_seen_cutoff, gupy_cutoff,
     )
     if max_jobs is not None:
         limit_clause = "LIMIT ?"
@@ -779,7 +996,7 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
         columns["mk"].append(code("market", market))
         columns["co"].append(code("country", country))
         columns["city"].append(city or state or "")
-        columns["pub"].append(published or first_seen or "")
+        columns["pub"].append(published or "")
         columns["seen"].append((last_seen or first_seen or "")[:10])
         columns["exp"].append((expires or "")[:10])
         columns["url"].append((url or "").replace("http://", "https://", 1))
@@ -837,7 +1054,18 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
         "total_base": conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0],
         "source_counts": dict(sorted(snapshot_source_counts.items())),
         "collected_source_counts": source_counts,
-        "failed_sources": failed_sources or [],
+        "failed_sources": failed,
+        "source_warning_after_hours": SOURCE_WARNING_AFTER_HOURS,
+        "source_last_success_at": {
+            source: item["last_success_at"]
+            for source, item in source_health_snapshot(conn).items()
+            if item["last_success_at"]
+        },
+        "source_failure_started_at": {
+            source: item["failure_started_at"]
+            for source, item in source_health_snapshot(conn).items()
+            if item["failure_started_at"]
+        },
         "companies": len({row[2] for row in rows if row[2]}),
         "pcd_count": sum(1 for row in rows if row[20]),
         "dict": dictionaries,

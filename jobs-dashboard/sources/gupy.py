@@ -25,14 +25,19 @@ MCP_HEADERS = {
     "User-Agent": "todas-as-vagas/1.0 (public vacancy collector)",
 }
 
-# Complementary searches fill older active results beyond the MCP's first 10k
-# broad matches. Keep a smaller, cross-functional set to respect rate limits.
-TERMS = [
+# The catalog is unrestricted by title terms: every row from the broad
+# public index is retained. This list is only a supplemental coverage
+# partition for records outside the MCP's first 10k broad results; it is never
+# used to discard a row.
+SUPPLEMENTAL_SEARCH_TERMS = [
     "analista", "desenvolvedor", "vendas", "atendimento", "marketing",
     "financeiro", "administrativo", "logística", "operações",
     "recursos humanos", "estágio", "jovem aprendiz", "engenheiro",
-    "suporte", "coordenador", "gerente", "produto", "customer success",
+    "suporte", "coordenador", "gerente", "produto", "product manager",
+    "customer success",
 ]
+# Compatibility alias for operators/tests; this is not an eligibility list.
+TERMS = SUPPLEMENTAL_SEARCH_TERMS
 
 PAGE = 100
 MAX_OFFSET = 400                 # bounded collection: at most 500 results per term
@@ -40,6 +45,10 @@ MCP_PAGE_DELAY_SECONDS = 0.25
 MONITORED_CAREER_PAGES = (
     "https://voxtecnologia.gupy.io/",
     "https://creditas.gupy.io/",
+    "https://gateware.gupy.io/",
+    # Public career page monitored after regression 12711932 was missed by
+    # the broad index cap; this is a source-level reconciliation, not a title filter.
+    "https://carreirasomie.gupy.io/",
 )
 NEXT_DATA_RE = re.compile(
     r'<script[^>]+id="__NEXT_DATA__"[^>]*>(.*?)</script>',
@@ -438,9 +447,9 @@ def _monitored_pages():
 
 
 def fetch():
-    # The broad query brings in the newest public jobs regardless of title.
-    # Term searches then extend coverage beyond MCP's 10k-result offset ceiling.
-    limit = int(os.environ.get("GUPY_MAX_TERMS") or len(TERMS))
+    # The broad query is authoritative for inclusion and is never narrowed by
+    # title. Supplemental searches only add rows beyond the provider's cap.
+    limit = int(os.environ.get("GUPY_MAX_TERMS") or len(SUPPLEMENTAL_SEARCH_TERMS))
     workers = min(max(1, int(os.environ.get("GUPY_WORKERS") or 1)), 2)
     client = GupyMCPClient()
     try:
