@@ -9,7 +9,7 @@
       "company_names": ["Skeelo"],
       "keyword": "Skeelo",
       "location": "Brasil",
-      "domain": "glassdoor.com.br",
+      "domain": "www.glassdoor.com.br",
       "sort": "recent"
     },
     {
@@ -20,7 +20,7 @@
       "company_names": ["Heineken Brasil", "Heineken Brasil S.A."],
       "keyword": "Heineken Brasil",
       "location": "Brasil",
-      "domain": "glassdoor.com.br",
+      "domain": "www.glassdoor.com.br",
       "sort": "recent"
     },
     {
@@ -31,7 +31,7 @@
       "company_names": ["Sicredi"],
       "keyword": "Sicredi",
       "location": "Brasil",
-      "domain": "glassdoor.com.br",
+      "domain": "www.glassdoor.com.br",
       "sort": "recent"
     },
     {
@@ -42,7 +42,7 @@
       "company_names": ["Accenture", "Accenture Brasil"],
       "keyword": "Accenture",
       "location": "Brasil",
-      "domain": "glassdoor.com.br",
+      "domain": "www.glassdoor.com.br",
       "sort": "recent"
     }
   ]
