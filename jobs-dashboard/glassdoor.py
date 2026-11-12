@@ -681,8 +681,12 @@ def _mcp_job_url(job: dict) -> str | None:
 
 def _mcp_match(payload: object, query: dict) -> dict:
     allowed_names = {company_key(name) for name in query.get("company_names") or []}
-    for job in _mcp_jobs(payload):
+    jobs = _mcp_jobs(payload)
+    returned_names = set()
+    for job in jobs:
         returned_company = company_key(_mcp_company_name(job))
+        if returned_company:
+            returned_names.add(returned_company)
         if not returned_company or returned_company not in allowed_names:
             continue
         rating = _mcp_job_rating(job)
@@ -692,7 +696,11 @@ def _mcp_match(payload: object, query: dict) -> dict:
                 "rating": rating,
                 "reference_url": reference_url,
             }
-    raise ProfileDataUnavailable("HasData não retornou vaga da empresa aprovada com rating e referência válidos")
+    names = ", ".join(sorted(returned_names)[:5]) or "nenhuma"
+    raise ProfileDataUnavailable(
+        "HasData não retornou vaga da empresa aprovada com rating e referência válidos"
+        f" (vagas={len(jobs)}; empresas={names})"
+    )
 
 
 def update_hasdata_fallback(
