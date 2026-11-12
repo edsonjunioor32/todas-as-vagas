@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-12T13:06:58.753109+00:00",
+  "generated_at": "2026-11-12T13:13:02.684909+00:00",
   "profiles": {
     "accenture": {
       "checked_at": null,
@@ -55,7 +55,7 @@
         "Skeelo"
       ],
       "hasdata_checked_at": null,
-      "hasdata_last_attempted_date": null,
+      "hasdata_last_attempted_date": "2026-11-12",
       "hasdata_rating": null,
       "hasdata_reference_url": null,
       "id": "skeelo",
