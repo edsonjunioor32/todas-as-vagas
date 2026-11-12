@@ -19,9 +19,9 @@ concurrency:
 jobs:
   atualizar:
     if: github.ref == 'refs/heads/main'
-    # O enriquecimento é público e não depende da VPS. Usar runner hospedado
-    # evita que a rotina diária seja bloqueada por manutenção do runner ARM64.
-    runs-on: ubuntu-latest
+    # O scraper local roda em container no runner dedicado do catálogo. Ele
+    # fica exposto apenas em loopback durante esta execução.
+    runs-on: self-hosted
     timeout-minutes: 20
     environment:
       name: github-pages
@@ -40,6 +40,32 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      - name: Iniciar scraper local de classificações
+        shell: bash
+        run: |
+          set -euo pipefail
+          workdir="$(mktemp -d)"
+          image="todas-vagas-glassdoor-ratings:${GITHUB_RUN_ID}"
+          echo "OMKAR_WORKDIR=$workdir" >> "$GITHUB_ENV"
+          echo "OMKAR_IMAGE=$image" >> "$GITHUB_ENV"
+          docker rm -f todas-vagas-glassdoor-ratings >/dev/null 2>&1 || true
+          git clone --quiet --depth 1 https://github.com/omkarcloud/glassdoor-scraper.git "$workdir/source"
+          git -C "$workdir/source" fetch --quiet --depth 1 origin 0567eb6ef90674aacde32e79ee668c09f23d91be
+          git -C "$workdir/source" checkout --quiet --detach 0567eb6ef90674aacde32e79ee668c09f23d91be
+          docker build --tag "$image" "$workdir/source"
+          docker run --detach --rm \
+            --name todas-vagas-glassdoor-ratings \
+            --publish 127.0.0.1:18081:8000 \
+            "$image" >/dev/null
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent --show-error --max-time 5 http://127.0.0.1:18081/health >/dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker logs todas-vagas-glassdoor-ratings || true
+          exit 1
 
       - name: Restaurar snapshot e cache anteriores
         shell: bash
@@ -61,6 +87,8 @@ jobs:
           HASDATA_API_KEY: ${{ secrets.HASDATA_API_KEY }}
           HASDATA_MCP_ENABLED: ${{ vars.HASDATA_MCP_ENABLED || 'false' }}
           HASDATA_MCP_MAX_CALLS: ${{ vars.HASDATA_MCP_MAX_CALLS || '3' }}
+          OMKAR_GLASSDOOR_ENABLED: "true"
+          OMKAR_GLASSDOOR_ENDPOINT: "http://127.0.0.1:18081"
         run: |
           python jobs-dashboard/glassdoor.py \
             --timeout 15 \
@@ -111,3 +139,15 @@ jobs:
         uses: actions/deploy-pages@v4
         with:
           artifact_name: github-pages-glassdoor-${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: Encerrar scraper local
+        if: always()
+        shell: bash
+        run: |
+          docker rm -f todas-vagas-glassdoor-ratings >/dev/null 2>&1 || true
+          if [ -n "${OMKAR_IMAGE:-}" ]; then
+            docker image rm "$OMKAR_IMAGE" >/dev/null 2>&1 || true
+          fi
+          if [ -n "${OMKAR_WORKDIR:-}" ]; then
+            rm -rf "$OMKAR_WORKDIR"
+          fi

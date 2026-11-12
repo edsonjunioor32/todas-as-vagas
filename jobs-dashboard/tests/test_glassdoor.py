@@ -57,6 +57,70 @@ class GlassdoorTests(unittest.TestCase):
             {"rating": 4.0, "review_count": None},
         )
 
+    def test_parse_omkar_company_ratings_reads_only_overall_rating(self):
+        body = {
+            "company": {"id": 8990981, "name": "Heineken Brasil"},
+            "ratings": {"overall": 4.0, "culture_and_values": 3.9},
+            "reviews_count": 245,
+            "reviews": [{"pros": "texto que não deve ser capturado"}],
+        }
+        profile = {
+            "company_names": ["Heineken Brasil", "HEINEKEN Brazil"],
+            "url": "https://www.glassdoor.com.br/Avaliações/Heineken-Brasil-Avaliações-E8990981.htm",
+        }
+        self.assertEqual(
+            glassdoor.parse_omkar_company_ratings(body, profile),
+            {"rating": 4.0, "review_count": 245},
+        )
+
+    def test_parse_omkar_company_ratings_rejects_wrong_company(self):
+        body = {
+            "company": {"id": 1, "name": "Outra Empresa"},
+            "ratings": {"overall": 4.8},
+            "reviews_count": 12,
+        }
+        with self.assertRaises(glassdoor.ProfileDataUnavailable):
+            glassdoor.parse_omkar_company_ratings(
+                body,
+                {"company_names": ["Empresa Teste"], "url": manifest()["profiles"]["empresa-teste"]["url"]},
+            )
+
+    def test_fetch_profile_uses_local_omkar_ratings_endpoint(self):
+        requests = []
+
+        class Response:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_args):
+                return False
+
+            def read(self, _limit):
+                return json.dumps({
+                    "company": {"name": "Empresa Teste"},
+                    "ratings": {"overall": 4.6},
+                    "reviews_count": 17,
+                }).encode("utf-8")
+
+        def opener(request, timeout):
+            requests.append((request.full_url, timeout))
+            return Response()
+
+        profile = manifest()["profiles"]["empresa-teste"]
+        with patch.dict(
+            "os.environ",
+            {
+                "OMKAR_GLASSDOOR_ENABLED": "true",
+                "OMKAR_GLASSDOOR_ENDPOINT": "http://127.0.0.1:18081",
+            },
+        ):
+            self.assertEqual(
+                glassdoor.fetch_profile(profile, timeout=7, opener=opener),
+                {"rating": 4.6, "review_count": 17},
+            )
+        self.assertEqual(requests[0][0], "http://127.0.0.1:18081/companies/ratings?company=Empresa+Teste")
+        self.assertEqual(requests[0][1], 7)
+
     def test_manifest_url_is_explicit_and_canonical(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "profiles.json"
@@ -180,6 +244,34 @@ class GlassdoorTests(unittest.TestCase):
         self.assertEqual(enriched["jobs"]["gfu"], ["https://www.glassdoor.com.br/job-listing/vaga-1.htm"])
         self.assertEqual(enriched["jobs"]["gft"], ["2026-11-11"])
 
+    def test_enrich_snapshot_hides_fallback_when_official_rating_exists(self):
+        payload = {
+            "schema_version": 3,
+            "count": 1,
+            "dict": {"company": ["Empresa Teste"]},
+            "jobs": {"cmp": [0]},
+        }
+        cache = {
+            "schema_version": 1,
+            "profiles": {
+                "empresa-teste": {
+                    "company_names": ["Empresa Teste"],
+                    "url": manifest()["profiles"]["empresa-teste"]["url"],
+                    "rating": 4.0,
+                    "checked_at": "2026-11-12",
+                    "hasdata_rating": 4.2,
+                    "hasdata_reference_url": "https://www.glassdoor.com.br/job-listing/vaga-1.htm",
+                    "hasdata_checked_at": "2026-11-12",
+                }
+            },
+        }
+        enriched, matched = glassdoor.enrich_snapshot(payload, cache)
+        self.assertEqual(matched, 1)
+        self.assertEqual(enriched["jobs"]["gdr"], [4.0])
+        self.assertEqual(enriched["jobs"]["gfr"], [None])
+        self.assertEqual(enriched["jobs"]["gfu"], [None])
+        self.assertEqual(enriched["jobs"]["gft"], [None])
+
     def test_enrich_snapshot_matches_catalog_name_heineken_brazil(self):
         payload = {
             "schema_version": 3,
@@ -252,6 +344,9 @@ class GlassdoorTests(unittest.TestCase):
         self.assertIn("glassdoor.py", workflow)
         self.assertIn("--timeout 15", workflow)
         self.assertIn("--profile-delay 1", workflow)
+        self.assertIn("runs-on: self-hosted", workflow)
+        self.assertIn("OMKAR_GLASSDOOR_ENDPOINT", workflow)
+        self.assertIn("glassdoor-scraper.git", workflow)
         self.assertNotIn("JOBS_SOURCE_WORKERS", workflow)
 
     def test_frontend_does_not_turn_missing_metrics_into_zero(self):
