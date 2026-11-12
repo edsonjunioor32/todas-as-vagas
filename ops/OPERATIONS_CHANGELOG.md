@@ -18,6 +18,8 @@
 
 - A primeira execução após o deploy encontrou os quatro perfis como já verificados no dia e, por isso, não chamou o novo scraper; o cache público permaneceu sem médias oficiais. A rotina diária continua idempotente, mas agora o `workflow_dispatch` oferece `force_refresh` para uma recuperação controlada.
 - O modo forçado usa `--force` somente na execução manual solicitada; não muda a cadência agendada, não remove dados válidos e continua preservando o cache anterior em caso de falha.
+- O run manual #14 (`43325577409`) foi executado com `force_refresh=true` e terminou com `4` perfis atualizados, `0` falhas e `0` perfis ignorados. O container foi encerrado e removido ao final.
+- O cache público passou a registrar: Accenture `3,7` (231.289 avaliações), Heineken Brasil `4,0` (245), Sicredi `4,3` (5.482) e Skeelo `4,2` (142). O deploy do Pages foi concluído no mesmo run; a fonte pública ficou no commit `2e31d85` do ramo `public-data`.
 
 ## 2026-11-12 — Uso restrito do campo `overallRating` do perfil Glassdoor
 
