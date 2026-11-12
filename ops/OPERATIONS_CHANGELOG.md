@@ -16,6 +16,13 @@
 - Os testes direcionados da Fase 1 passaram (31 testes). A suíte completa da cópia da VPS teve 406 aprovações e duas falhas/erros pré-existentes do UnlockCareer causados pela ausência do pacote Selenium naquela máquina; isso permanece separado da Fase 1.
 - O relatório não executa sincronização de manifesto, limpeza, coleta, publicação ou fallback de navegador.
 
+## 2026-11-11 — Inclusão do portal SONDA
+
+- **Fonte pública:** `https://carrera.sonda.com/search/?q=&q2=&alertId=&title=&location=Brasil&department=`, portal de carreiras SAP SuccessFactors da SONDA.
+- **Implementação:** `jobs-dashboard/sources/sonda.py` percorre a tabela pública de resultados, consulta as páginas individuais públicas e normaliza título, requisitado, localização, departamento, data `datePosted` e descrição pública.
+- **Integração:** a fonte foi registrada no pipeline como `sonda`, com rótulo SONDA no site e nas notificações do Telegram. O filtro Brasil do portal é mantido; nenhuma credencial ou login é necessário.
+- **Validação:** foram adicionados testes offline para parser, deduplicação dos links desktop/mobile, schema.org, data de publicação, modalidade explícita e registro da fonte. A execução ao vivo deve confirmar a contagem no workflow de validação antes de entrar na rotina regular.
+
 ## 2026-11-11 — Descoberta InHire fora da rotina horária
 
 - **Verificação pós-mesclagem:** a próxima coleta completa será executada com a regra de descoberta semanal já publicada, evitando que a execução longa anterior seja usada como evidência do código antigo.
@@ -359,6 +366,7 @@ O registro de adaptadores fica em `jobs-dashboard/sources/__init__.py`. Cada mó
 - `jobs-dashboard/sources/empregare.py` — vagas Empregare.
 - `jobs-dashboard/sources/experian.py` — vagas Experian.
 - `jobs-dashboard/sources/ey.py` — vagas EY.
+- `jobs-dashboard/sources/sonda.py` — vagas SONDA.
 - `jobs-dashboard/sources/geekhunter.py` — GeekHunter e NTT Data.
 - `jobs-dashboard/sources/github_boards.py` — fontes de vagas publicadas no GitHub.
 - `jobs-dashboard/sources/gupy.py` — vagas Gupy.
