@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-12T12:27:08.344496+00:00",
+  "generated_at": "2026-11-12T12:41:11.071533+00:00",
   "profiles": {
     "accenture": {
       "checked_at": null,
@@ -24,7 +24,7 @@
         "Heineken Brasil S.A."
       ],
       "hasdata_checked_at": null,
-      "hasdata_last_attempted_date": null,
+      "hasdata_last_attempted_date": "2026-11-12",
       "hasdata_rating": null,
       "hasdata_reference_url": null,
       "id": "heineken-brasil",
