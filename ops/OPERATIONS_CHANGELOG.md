@@ -629,3 +629,8 @@ Foram adicionados testes para preservar o primeiro instante da falha, atualizar 
 - A chamada remota passou a responder, mas o resultado não era associado à empresa porque o retorno usa `employer.shortName` em alguns anúncios. O coletor agora lê esse campo somente dentro dos aliases canônicos aprovados.
 - O perfil da Heineken recebeu o alias explícito `Heineken`, sem alterar a validação exata nem permitir correspondência aproximada entre empresas.
 
+## 2026-11-12 — Consulta dedicada para Heineken
+
+- Como a busca por `Heineken Brasil` não retornou uma vaga associável, a consulta aprovada passou a usar `keyword=Heineken` e `location=Brazil`, mantendo o domínio brasileiro e os aliases canônicos.
+- Em falhas de correspondência, o log passa a registrar somente contagem de vagas e até cinco nomes empresariais normalizados; nenhum texto de vaga, credencial ou conteúdo de mensagem é exposto.
+

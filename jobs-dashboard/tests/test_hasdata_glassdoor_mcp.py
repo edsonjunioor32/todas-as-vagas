@@ -57,6 +57,9 @@ class HasDataGlassdoorMcpTests(unittest.TestCase):
         queries = glassdoor.load_hasdata_queries()
         self.assertTrue(queries)
         self.assertTrue(all(item["domain"] == "www.glassdoor.com.br" for item in queries))
+        heineken = next(item for item in queries if item["id"] == "heineken-brasil-fallback")
+        self.assertEqual(heineken["keyword"], "Heineken")
+        self.assertEqual(heineken["location"], "Brazil")
 
     def test_rejects_non_hasdata_endpoint_to_prevent_key_exfiltration(self):
         with self.assertRaises(ValueError):
