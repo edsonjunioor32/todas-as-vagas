@@ -634,3 +634,8 @@ Foram adicionados testes para preservar o primeiro instante da falha, atualizar 
 - Como a busca por `Heineken Brasil` não retornou uma vaga associável, a consulta aprovada passou a usar `keyword=Heineken` e `location=Brazil`, mantendo o domínio brasileiro e os aliases canônicos.
 - Em falhas de correspondência, o log passa a registrar somente contagem de vagas e até cinco nomes empresariais normalizados; nenhum texto de vaga, credencial ou conteúdo de mensagem é exposto.
 
+## 2026-11-12 — Retentativa controlada de falhas HasData
+
+- Resultados bem-sucedidos continuam protegidos por uma consulta diária; falhas podem ser reprocessadas em uma execução manual para não aguardar o próximo dia após instabilidade ou incompatibilidade do provedor.
+- O teto padrão do workflow passou para três chamadas por execução, ainda dentro da franquia gratuita documentada e do limite local. O teste garante que sucessos são ignorados e somente a tentativa falha é refeita.
+

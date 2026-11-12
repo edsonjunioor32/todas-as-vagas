@@ -47,7 +47,7 @@ DEFAULT_PROFILE_DELAY_SECONDS = 1.0
 MAX_RESPONSE_BYTES = 2 * 1024 * 1024
 MAX_PROFILES = 100
 DEFAULT_MCP_QUERY_PATH = PROJECT_ROOT / "jobs-dashboard" / "data" / "glassdoor_mcp_queries.json"
-DEFAULT_MCP_MAX_CALLS = 1
+DEFAULT_MCP_MAX_CALLS = 3
 MAX_MCP_QUERIES = 50
 # Three daily calls remain below the 100-call/month free allowance even in a
 # 31-day month; the workflow default is more conservative and uses one.
@@ -788,7 +788,10 @@ def update_hasdata_fallback(
             summary["failed"] += 1
             summary["errors"][query_id] = "aliases MCP não pertencem ao perfil aprovado"
             continue
-        if entry.get("hasdata_last_attempted_date") == current_date or entry.get("hasdata_checked_at") == current_date:
+        # A successful result is checked once per day. Failed attempts may be
+        # retried by a manually dispatched run, subject to the execution cap;
+        # this avoids waiting a full day after a transient/provider mismatch.
+        if entry.get("hasdata_checked_at") == current_date:
             summary["skipped"] += 1
             continue
         if used_calls >= limit:

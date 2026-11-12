@@ -267,6 +267,62 @@ class HasDataGlassdoorMcpTests(unittest.TestCase):
         self.assertEqual(summary["capped"], 1)
         self.assertEqual(updated["profiles"]["outra-empresa"].get("hasdata_rating"), None)
 
+    def test_fallback_retries_failed_attempt_same_day_but_skips_success(self):
+        cache = {
+            "schema_version": 1,
+            "profiles": {
+                "empresa-teste": {
+                    "id": "empresa-teste",
+                    "company_names": ["Empresa Teste"],
+                    "company_keys": ["empresa teste"],
+                    "hasdata_last_attempted_date": "2026-11-12",
+                },
+                "outra-empresa": {
+                    "id": "outra-empresa",
+                    "company_names": ["Outra Empresa"],
+                    "company_keys": ["outra empresa"],
+                    "hasdata_last_attempted_date": "2026-11-12",
+                    "hasdata_checked_at": "2026-11-12",
+                    "hasdata_rating": 4.2,
+                },
+            },
+        }
+        queries = [
+            {
+                "id": "empresa-teste-query",
+                "profile_id": "empresa-teste",
+                "company_names": ["Empresa Teste"],
+                "keyword": "Empresa Teste",
+                "location": "Brasil",
+                "domain": "www.glassdoor.com.br",
+            },
+            {
+                "id": "outra-empresa-query",
+                "profile_id": "outra-empresa",
+                "company_names": ["Outra Empresa"],
+                "keyword": "Outra Empresa",
+                "location": "Brasil",
+                "domain": "www.glassdoor.com.br",
+            },
+        ]
+        calls = []
+        with patch.dict(os.environ, {"HASDATA_MCP_ENABLED": "true", "HASDATA_API_KEY": "test"}, clear=True):
+            updated, summary = glassdoor.update_hasdata_fallback(
+                cache,
+                queries,
+                now=datetime(2026, 11, 12, 8, 0),
+                fetcher=lambda query: calls.append(query["profile_id"]) or {
+                    "jobs": [{
+                        "url": "https://www.glassdoor.com.br/job-listing/vaga-1.htm",
+                        "employer": {"shortName": "Empresa Teste", "rating": 4.4},
+                    }]
+                },
+                max_calls=3,
+            )
+        self.assertEqual(calls, ["empresa-teste"])
+        self.assertEqual(summary["succeeded"], 1)
+        self.assertEqual(updated["profiles"]["empresa-teste"]["hasdata_rating"], 4.4)
+
     def test_fallback_rotates_oldest_attempted_query_before_newer_query(self):
         cache = {
             "schema_version": 1,
