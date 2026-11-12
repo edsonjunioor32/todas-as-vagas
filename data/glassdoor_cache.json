@@ -1,0 +1,68 @@
+{
+  "generated_at": "2026-11-12T12:27:08.344496+00:00",
+  "profiles": {
+    "accenture": {
+      "checked_at": null,
+      "company_names": [
+        "Accenture",
+        "Accenture Brasil"
+      ],
+      "hasdata_checked_at": null,
+      "hasdata_last_attempted_date": "2026-11-12",
+      "hasdata_rating": null,
+      "hasdata_reference_url": null,
+      "id": "accenture",
+      "last_attempted_date": "2026-11-12",
+      "rating": null,
+      "review_count": null,
+      "url": "https://www.glassdoor.com.br/Vis%C3%A3o-geral/Trabalhar-na-Accenture-EI_IE4138.13%2C22.htm"
+    },
+    "heineken-brasil": {
+      "checked_at": null,
+      "company_names": [
+        "Heineken Brasil",
+        "Heineken Brasil S.A."
+      ],
+      "hasdata_checked_at": null,
+      "hasdata_last_attempted_date": null,
+      "hasdata_rating": null,
+      "hasdata_reference_url": null,
+      "id": "heineken-brasil",
+      "last_attempted_date": "2026-11-12",
+      "rating": null,
+      "review_count": null,
+      "url": "https://www.glassdoor.com.br/Avalia%C3%A7%C3%B5es/Heineken-Brasil-Avalia%C3%A7%C3%B5es-E8990981.htm"
+    },
+    "sicredi": {
+      "checked_at": null,
+      "company_names": [
+        "Sicredi"
+      ],
+      "hasdata_checked_at": null,
+      "hasdata_last_attempted_date": null,
+      "hasdata_rating": null,
+      "hasdata_reference_url": null,
+      "id": "sicredi",
+      "last_attempted_date": "2026-11-12",
+      "rating": null,
+      "review_count": null,
+      "url": "https://www.glassdoor.com.br/Avalia%C3%A7%C3%B5es/Sicredi-Avalia%C3%A7%C3%B5es-E661772.htm"
+    },
+    "skeelo": {
+      "checked_at": null,
+      "company_names": [
+        "Skeelo"
+      ],
+      "hasdata_checked_at": null,
+      "hasdata_last_attempted_date": null,
+      "hasdata_rating": null,
+      "hasdata_reference_url": null,
+      "id": "skeelo",
+      "last_attempted_date": "2026-11-12",
+      "rating": null,
+      "review_count": null,
+      "url": "https://www.glassdoor.com.br/Vis%C3%A3o-geral/Trabalhar-na-Skeelo-EI_IE3556448.13%2C19.htm"
+    }
+  },
+  "schema_version": 1
+}
