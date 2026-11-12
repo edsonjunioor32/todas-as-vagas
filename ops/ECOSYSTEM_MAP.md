@@ -215,21 +215,22 @@ The private enrichment path is auxiliary and must never be a prerequisite for th
 | --- | --- |
 | jobs-dashboard/description_crawler.py | Reads the validated public catalogue, fetches descriptions, applies robots/rate/timeout policy, checkpoints every attempt and emits execution metrics. It can fail without invalidating the public catalogue. |
 | jobs-dashboard/description_store.py | Private SQLite persistence, manifest checkpoint, retry/backoff, FTS optimization and search. Its stats API remains backward-compatible. |
-| jobs-dashboard/description_quality.py | Pure, network-free classifier. It distinguishes complete_candidate, usable, short, empty, blocked, stale and pending from stored evidence. complete_candidate is a quality candidate, not a semantic guarantee. |
+| jobs-dashboard/inhire_descriptions.py | Resolves the public InHire tenant and fetches the public job description API before browser fallback. It uses no credentials and classifies HTTP 404/410 as removed candidates. |
+| jobs-dashboard/description_quality.py | Pure, network-free classifier. It distinguishes complete_candidate, usable, short, empty, blocked, gone, stale and pending from stored evidence. complete_candidate is a quality candidate, not a semantic guarantee. |
 | jobs-dashboard/description_report.py | Read-only report over all rows, grouped by portal, quality, status and content kind. It opens SQLite with mode=ro and query_only; it must not call connect(), sync_manifest() or prune_missing(). |
 | /home/ubuntu/todas-as-vagas-private/descriptions.sqlite3 | Private database on the VPS. It must not enter the public repository or public snapshot. |
-| Obscura fallback | Optional rendered-page fallback, bounded by timeout and response limits. It is not a universal bypass for robots, authentication, CAPTCHA or rate limits. |
+| Obscura fallback | Optional rendered-page fallback, bounded by timeout and response limits. It is not a universal bypass for robots, authentication, CAPTCHA or rate limits. InHire API extraction runs first for supported public job URLs because the initial InHire HTML is an SPA shell. |
 
 ### Quality contract
 
 The report classifies every selected row exactly once. A successful HTTP request is not enough for complete_candidate. The report keeps these concepts separate:
 
 - content quality: complete_candidate, usable, short or empty;
-- access state: blocked;
+- access state: blocked or gone (a confirmed HTTP 404/410 or terminal removed status);
 - freshness: stale;
 - processing state: pending.
 
-The crawler metrics ending in _this_run describe only rows processed in that execution. The full database view is produced by description_report.py. The existing DESCRIPTION_CRAWLER_METRICS fields remain compatible.
+The crawler metrics ending in _this_run describe only rows processed in that execution. The full database view is produced by description_report.py. The existing DESCRIPTION_CRAWLER_METRICS fields remain compatible. A confirmed `gone` row keeps any historical description, receives a long retry backoff and is excluded from ordinary stale refreshes; it is not treated as a robots block or a temporary network failure.
 
 ### Current private-store evidence
 

@@ -1,3 +1,12 @@
+## 2026-11-11 — InHire API público e separação de anúncios removidos
+
+- Adicionado `jobs-dashboard/inhire_descriptions.py`, que resolve o tenant público e consulta a API pública do InHire antes do fallback de navegador. A coleta não usa credenciais, não contorna `robots.txt` e não altera o catálogo público.
+- Vagas InHire com HTTP 404/410 passam a ser registradas como `gone`/removidas, preservando uma descrição histórica já armazenada e evitando que uma vaga removida seja confundida com bloqueio, erro temporário ou ausência de texto.
+- `description_quality.py` e `description_report.py` exibem a categoria removida separadamente. O armazenamento aplica backoff terminal de 30 dias e não reprocessa uma vaga removida apenas porque sua descrição antiga ficou fora da janela de atualização.
+- Corrigido o relatório somente leitura para abrir o SQLite com URI compatível com Windows e Linux. O `parser_version` foi atualizado para `description-crawler-v2` para identificar o novo contrato de coleta.
+- O Browserless não foi incorporado: a infraestrutura atual não possui esse serviço; o fallback existente continua sendo o Obscura, limitado por tempo, tamanho e política de acesso.
+- Testes direcionados: InHire API, crawler privado, classificação de qualidade e relatório passaram; a compilação dos módulos alterados e `git diff --check` também passaram.
+
 ## 2026-11-11 — Contrato de qualidade das descrições privadas
 
 - Criados jobs-dashboard/description_quality.py e jobs-dashboard/description_report.py. A classificação é derivada, explicável e não chama texto curto de descrição completa.
@@ -312,7 +321,10 @@ Escopo: 173 arquivos rastreados da branch `main` nesta revisão, incluindo `AGEN
 - `jobs-dashboard/data/greenhouse_watchlist.json` — empresas Greenhouse sob acompanhamento.
 - `jobs-dashboard/data/revolut_br_seed.json` — semente de vagas brasileiras da Revolut.
 - `jobs-dashboard/description_crawler.py` — coleta separada de descrições completas para SQLite privado.
+- `jobs-dashboard/inhire_descriptions.py` — adaptador da API pública de descrições do InHire, com resolução de tenant e classificação de 404/410.
 - `jobs-dashboard/description_store.py` — persistência e estado da coleta privada.
+- `jobs-dashboard/description_quality.py` — classificação determinística de qualidade, bloqueio, remoção e atualização.
+- `jobs-dashboard/description_report.py` — relatório somente leitura por portal e categoria.
 - `jobs-dashboard/discover_greenhouse_br.py` — descobre empresas/vagas Greenhouse no Brasil.
 - `jobs-dashboard/empregare_mcp.py` — consulta diagnóstica/manual da fonte Empregare via MCP.
 - `jobs-dashboard/fit_requirements.py` — extrai requisitos e termos do índice de aderência.
@@ -404,6 +416,10 @@ Todos os arquivos desta seção são testes automatizados; não são coletores n
 - `jobs-dashboard/tests/test_abler_precision.py` — precisão Abler e formato Telegram.
 - `jobs-dashboard/tests/test_catalog_catchup.py` — decisões e falhas do recuperador.
 - `jobs-dashboard/tests/test_description_crawler.py` — extração de descrições.
+- `jobs-dashboard/tests/test_inhire_descriptions.py` — contrato da API pública do InHire e classificação de anúncio removido.
+- `jobs-dashboard/tests/test_description_quality.py` — classificação de conteúdo, bloqueio, remoção e atualização.
+- `jobs-dashboard/tests/test_description_report.py` — relatório somente leitura e separação de removidas.
+- `jobs-dashboard/tests/test_private_descriptions.py` — persistência, backoff, crawler e integração das descrições privadas.
 - `jobs-dashboard/tests/test_dynamic_portals.py` — contratos dos portais dinâmicos.
 - `jobs-dashboard/tests/test_eightfold.py` — fonte Eightfold.
 - `jobs-dashboard/tests/test_fit_requirements.py` — extração de requisitos.
@@ -419,7 +435,6 @@ Todos os arquivos desta seção são testes automatizados; não são coletores n
 - `jobs-dashboard/tests/test_pipeline.py` — orquestração e persistência.
 - `jobs-dashboard/tests/test_portal_source_resilience.py` — isolamento de falhas de fontes.
 - `jobs-dashboard/tests/test_prepare_fit_assets.py` — valida o ponto público de entrada e os ativos locais do analisador.
-- `jobs-dashboard/tests/test_private_descriptions.py` — banco privado de descrições.
 - `jobs-dashboard/tests/test_publication_concurrency.py` — prevenção de publicações concorrentes.
 - `jobs-dashboard/tests/test_pwc_source.py` — fonte PwC.
 - `jobs-dashboard/tests/test_quickin_pagination.py` — paginação Quickin.

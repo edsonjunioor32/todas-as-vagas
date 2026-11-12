@@ -18,9 +18,12 @@ QUALITY_LEVELS = (
     "short",
     "empty",
     "blocked",
+    "gone",
     "stale",
     "pending",
 )
+
+_GONE_STATUSES = frozenset({"gone", "removed", "not_found"})
 
 _BLOCKED_STATUSES = frozenset(
     {
@@ -119,11 +122,23 @@ def assess_row(
 
     http_status = _value(row, "http_status")
     error = str(_value(row, "error")).strip()
+    if status in _GONE_STATUSES:
+        return QualityAssessment("gone", "gone", character_count, sections)
+    try:
+        numeric_http_status = int(http_status or 0)
+    except (TypeError, ValueError):
+        numeric_http_status = 0
+    if numeric_http_status in {404, 410} and (
+        status == "stale"
+        or status.startswith("http_")
+    ):
+        return QualityAssessment(
+            "gone",
+            f"http_{numeric_http_status}",
+            character_count,
+            sections,
+        )
     if status == "stale":
-        try:
-            numeric_http_status = int(http_status or 0)
-        except (TypeError, ValueError):
-            numeric_http_status = 0
         if numeric_http_status >= 400:
             return QualityAssessment(
                 "blocked",

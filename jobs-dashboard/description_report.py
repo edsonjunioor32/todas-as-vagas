@@ -29,6 +29,8 @@ def _sample(row: sqlite3.Row, assessment: Any) -> dict[str, Any]:
         "reason": assessment.reason,
         "character_count": assessment.character_count,
         "content_kind": str(row["content_kind"]),
+        "http_status": row["http_status"],
+        "error": str(row["error"] or ""),
     }
 
 
@@ -165,8 +167,8 @@ def render_markdown(report: dict[str, Any]) -> str:
             "",
             "## Portais",
             "",
-            "| Portal | Total | Com texto | Candidatas completas | Bloqueadas | Vazias |",
-            "| --- | ---: | ---: | ---: | ---: | ---: |",
+            "| Portal | Total | Com texto | Candidatas completas | Bloqueadas | Removidas | Vazias |",
+            "| --- | ---: | ---: | ---: | ---: | ---: | ---: |",
         ]
     )
     for source, value in report["sources"].items():
@@ -174,6 +176,7 @@ def render_markdown(report: dict[str, Any]) -> str:
             f"| {source} | {value['total']} | {value['with_description']} | "
             f"{value['quality'].get('complete_candidate', 0)} | "
             f"{value['quality'].get('blocked', 0)} | "
+            f"{value['quality'].get('gone', 0)} | "
             f"{value['quality'].get('empty', 0)} |"
         )
 
@@ -193,7 +196,7 @@ def render_markdown(report: dict[str, Any]) -> str:
 
 def _read_only_connection(path: str | Path) -> sqlite3.Connection:
     target = Path(path).expanduser().resolve()
-    connection = sqlite3.connect(f"file:{target}?mode=ro", uri=True)
+    connection = sqlite3.connect(f"{target.as_uri()}?mode=ro", uri=True)
     connection.execute("PRAGMA query_only = ON")
     connection.row_factory = sqlite3.Row
     return connection

@@ -164,6 +164,32 @@ class DescriptionReportTests(unittest.TestCase):
         self.assertNotIn("stale", report["quality"])
         self.assertEqual(report["samples"]["blocked"][0]["reason"], "http_503")
 
+    def test_report_separates_removed_rows_from_blocked_rows(self):
+        jobs = [{
+            "source": "inhire",
+            "native_id": "gone",
+            "title": "Vaga removida",
+            "company": "Empresa",
+            "url": "https://objective.inhire.app/vagas/gone",
+        }]
+        seen_at, _ = description_store.sync_manifest(self.connection, jobs)
+        current = description_store.pending_jobs(self.connection, seen_at=seen_at)[0]
+        description_store.record_failure(
+            self.connection,
+            current,
+            status="gone",
+            error="HTTP 404",
+            http_status=404,
+            permanent=True,
+        )
+
+        report = build_report(self.connection, seen_at=seen_at, sample_limit=2)
+
+        self.assertEqual(report["quality"].get("gone"), 1)
+        self.assertNotIn("blocked", report["quality"])
+        self.assertEqual(report["samples"]["gone"][0]["reason"], "gone")
+        self.assertIn("Removidas", render_markdown(report))
+
     def test_reader_is_query_only_and_does_not_change_database(self):
         self.connection.execute(
             "CREATE TABLE report_read_only_probe (value TEXT NOT NULL)"

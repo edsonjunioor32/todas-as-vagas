@@ -39,6 +39,32 @@ class DescriptionQualityTests(unittest.TestCase):
         self.assertEqual(result.level, "blocked")
         self.assertEqual(result.reason, "http_403")
 
+    def test_removed_job_is_distinct_from_blocked_and_stale(self):
+        result = assess_row(
+            self.row(
+                status="gone",
+                description="Descrição histórica que deve ser preservada.",
+                http_status=404,
+                error="HTTP 404",
+            ),
+            now=self.now,
+        )
+        self.assertEqual(result.level, "gone")
+        self.assertEqual(result.reason, "gone")
+
+    def test_http_404_is_reported_as_gone_candidate(self):
+        result = assess_row(
+            self.row(
+                status="stale",
+                description="Descrição histórica.",
+                http_status=404,
+                error="HTTP 404",
+            ),
+            now=self.now,
+        )
+        self.assertEqual(result.level, "gone")
+        self.assertEqual(result.reason, "http_404")
+
     def test_short_text_is_not_usable(self):
         result = assess_row(
             self.row(status="fetched", description="x" * 199),
