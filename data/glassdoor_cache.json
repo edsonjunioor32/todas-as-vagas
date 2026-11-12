@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-12T13:01:01.239630+00:00",
+  "generated_at": "2026-11-12T13:06:58.753109+00:00",
   "profiles": {
     "accenture": {
       "checked_at": null,
@@ -20,6 +20,7 @@
     "heineken-brasil": {
       "checked_at": null,
       "company_names": [
+        "Heineken",
         "Heineken Brasil",
         "Heineken Brasil S.A."
       ],
