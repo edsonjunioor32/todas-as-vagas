@@ -30,6 +30,14 @@ class _Response:
 
 
 class HasDataGlassdoorMcpTests(unittest.TestCase):
+    def test_uses_current_hasdata_glassdoor_mcp_endpoint(self):
+        from hasdata_glassdoor_mcp import DEFAULT_ENDPOINT
+
+        self.assertEqual(
+            "https://mcp.hasdata.com/api/mcp?apis=glassdoor",
+            DEFAULT_ENDPOINT,
+        )
+
     def test_rejects_non_hasdata_endpoint_to_prevent_key_exfiltration(self):
         with self.assertRaises(ValueError):
             HasDataGlassdoorMcpClient(

@@ -10,7 +10,7 @@ import urllib.request
 from typing import Callable
 
 
-DEFAULT_ENDPOINT = "https://mcp.hasdata.com/mcp?apis=glassdoor"
+DEFAULT_ENDPOINT = "https://mcp.hasdata.com/api/mcp?apis=glassdoor"
 DEFAULT_TIMEOUT_SECONDS = 15.0
 DEFAULT_RETRIES = 2
 DEFAULT_BACKOFF_SECONDS = 2.0
