@@ -647,3 +647,8 @@ Foram adicionados testes para preservar o primeiro instante da falha, atualizar 
 
 - A execução controlada mostrou que os anúncios brasileiros retornam o empregador como `Heineken N.V.`. Esse alias foi adicionado explicitamente ao perfil Heineken; não foi habilitada correspondência parcial ou aproximada.
 
+## 2026-11-12 — Alias da origem do catálogo Heineken Brazil
+
+- A publicação confirmou que as vagas do catálogo usam a empresa `HEINEKEN Brazil`, enquanto o retorno do Glassdoor/HasData usa `Heineken N.V.`. O alias da origem do catálogo foi adicionado ao perfil canônico para propagar a média geral ao campo público `gfr`.
+- Foi incluído teste de regressão cobrindo o mapeamento `HEINEKEN Brazil` → média geral `4,2`.
+
