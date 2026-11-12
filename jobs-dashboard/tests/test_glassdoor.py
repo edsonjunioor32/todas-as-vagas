@@ -164,6 +164,31 @@ class GlassdoorTests(unittest.TestCase):
         self.assertEqual(enriched["jobs"]["gfu"], ["https://www.glassdoor.com.br/job-listing/vaga-1.htm"])
         self.assertEqual(enriched["jobs"]["gft"], ["2026-11-11"])
 
+    def test_enrich_snapshot_matches_catalog_name_heineken_brazil(self):
+        payload = {
+            "schema_version": 3,
+            "count": 1,
+            "dict": {"company": ["HEINEKEN Brazil"]},
+            "jobs": {"cmp": [0]},
+        }
+        cache = {
+            "schema_version": 1,
+            "profiles": {
+                "heineken-brasil": {
+                    "company_names": ["Heineken N.V.", "HEINEKEN Brazil"],
+                    "url": "https://www.glassdoor.com.br/Avalia%C3%A7%C3%B5es/Heineken-Brasil-Avalia%C3%A7%C3%B5es-E8990981.htm",
+                    "hasdata_rating": 4.2,
+                    "hasdata_reference_url": "https://www.glassdoor.com.br/job-listing/vaga-1.htm",
+                    "hasdata_checked_at": "2026-11-12",
+                }
+            },
+        }
+        enriched, matched = glassdoor.enrich_snapshot(payload, cache)
+        self.assertEqual(matched, 1)
+        self.assertEqual(enriched["jobs"]["gfr"], [4.2])
+        self.assertEqual(enriched["jobs"]["gfu"], ["https://www.glassdoor.com.br/job-listing/vaga-1.htm"])
+        self.assertEqual(enriched["jobs"]["gft"], ["2026-11-12"])
+
     def test_export_snapshot_includes_optional_arrays_without_changing_job_count(self):
         with tempfile.TemporaryDirectory() as directory:
             conn = storage.connect(str(Path(directory) / "jobs.db"))
