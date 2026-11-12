@@ -301,6 +301,10 @@ def pending_jobs(
             (
                 (
                     description = ''
+                    AND parser_version <> ?
+                )
+                OR (
+                    description = ''
                     AND (next_attempt_at = '' OR next_attempt_at <= ?)
                 )
                 OR (
@@ -315,7 +319,11 @@ def pending_jobs(
                 )
             )
         """
-        parameters.extend([now, now, refresh_cutoff])
+        # An empty result produced by an older parser must be reconsidered
+        # immediately after a parser/API upgrade. Otherwise the normal
+        # backoff can postpone the new strategy for up to seven days, even
+        # when the new adapter can already recover the description.
+        parameters.extend([PARSER_VERSION, now, now, refresh_cutoff])
     return connection.execute(
         f"""
         SELECT job_uid, source, native_id, title, company, url, description,
@@ -323,7 +331,8 @@ def pending_jobs(
         FROM job_descriptions
         WHERE last_seen_at = ? {source_clause}
           AND {due_clause}
-        ORDER BY CASE WHEN description = '' THEN 0 ELSE 1 END,
+        ORDER BY CASE WHEN description = '' AND source = 'inhire' THEN 0 ELSE 1 END,
+                 CASE WHEN description = '' THEN 0 ELSE 1 END,
                  source, job_uid
         """,
         parameters,
