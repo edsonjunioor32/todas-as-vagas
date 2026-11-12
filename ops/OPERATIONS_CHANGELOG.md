@@ -1,3 +1,10 @@
+## 2026-11-12 — Inclusão do portal de vagas da Pagsmile
+
+- **Fonte pública:** `https://atracaodetalentos.totvs.app/vagasabertaspagsmilebr#listJobOpportunities`, quadro de carreiras da Pagsmile hospedado na plataforma TOTVS Atração de Talentos.
+- **Implementação:** o quadro `vagasabertaspagsmilebr` foi incluído em `jobs-dashboard/sources/totvs.py`, usando a URL raiz do quadro; a coleta aproveita o parser, enriquecimento de detalhes, deduplicação e limpeza já aplicados aos demais quadros TOTVS.
+- **Integração:** as vagas entram no catálogo compartilhado com empresa `Pagsmile` e fonte `totvs`, sem credenciais ou login.
+- **Validação:** teste offline adicionado para confirmar o quadro, URL raiz, identificador e localização normalizada.
+
 ## 2026-11-12 — Uso restrito do campo `overallRating` do perfil Glassdoor
 
 - Incorporada somente a parte necessária do `omkarcloud/glassdoor-scraper`: o reconhecimento de `ratings.overallRating` em metadados estruturados do perfil público.
