@@ -1,3 +1,10 @@
+## 2026-11-12 — Uso restrito do campo `overallRating` do perfil Glassdoor
+
+- Incorporada somente a parte necessária do `omkarcloud/glassdoor-scraper`: o reconhecimento de `ratings.overallRating` em metadados estruturados do perfil público.
+- Nenhum endpoint de avaliações, texto de reviews, salários, entrevistas, login, proxy ou bypass anti-bot foi incorporado. O fluxo continua usando os perfis canônicos aprovados, `robots.txt`, cache diário e fallback HasData já existente.
+- A ausência ou falha da nota continua preservando o cache anterior; o portal nunca transforma ausência em `0,0`.
+- Teste offline adicionado para comprovar a leitura da média geral e o descarte de texto de avaliação.
+
 ## 2026-11-11 — InHire API público e separação de anúncios removidos
 
 - Adicionado `jobs-dashboard/inhire_descriptions.py`, que resolve o tenant público e consulta a API pública do InHire antes do fallback de navegador. A coleta não usa credenciais, não contorna `robots.txt` e não altera o catálogo público.

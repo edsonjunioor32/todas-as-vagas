@@ -41,6 +41,22 @@ class GlassdoorTests(unittest.TestCase):
             {"rating": 4.3, "review_count": 1234},
         )
 
+    def test_parse_profile_overall_rating_from_reference_shape_without_review_text(self):
+        body = """
+        <script type="application/ld+json">
+          {
+            "employer": {
+              "ratings": {"overallRating": "4.0"},
+              "reviews": [{"summary": "texto que não deve ser capturado"}]
+            }
+          }
+        </script>
+        """
+        self.assertEqual(
+            glassdoor.parse_public_profile(body),
+            {"rating": 4.0, "review_count": None},
+        )
+
     def test_manifest_url_is_explicit_and_canonical(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "profiles.json"
