@@ -55,7 +55,10 @@ MAX_MCP_CALLS = 3
 
 _DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 _PROFILE_ID_RE = re.compile(r"^[a-z0-9][a-z0-9._-]{0,79}$")
-_RATING_KEYS = {"ratingvalue", "rating"}
+# O perfil estruturado do Glassdoor usado pelo scraper de referência expõe a
+# média da empresa como ``ratings.overallRating``. Aceitamos somente esse
+# campo numérico, sem importar endpoints ou texto de avaliações.
+_RATING_KEYS = {"ratingvalue", "rating", "overallrating"}
 _COUNT_KEYS = {"reviewcount", "ratingcount"}
 _ALLOWED_HOSTS = {"glassdoor.com", "glassdoor.com.br"}
 _MCP_ALLOWED_DOMAINS = _ALLOWED_HOSTS | {"www.glassdoor.com", "www.glassdoor.com.br"}
