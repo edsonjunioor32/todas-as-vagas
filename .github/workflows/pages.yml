@@ -129,7 +129,7 @@ jobs:
           ref: ${{ github.sha }}
           # Só usamos a ponta atual do código; o histórico completo inclui versões antigas de jobs.db e excede o disco do runner.
           fetch-depth: 1
-      
+
       - name: Limpar histórico antigo do runner
         shell: bash
         run: |
@@ -218,6 +218,17 @@ jobs:
           test -s .previous-public-data-sha
           test -s .previous-vagas.json
           test -s .previous-fit.json
+
+      - name: Restaurar cache Glassdoor
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git cat-file -e origin/public-data:data/glassdoor_cache.json 2>/dev/null; then
+            mkdir -p jobs-dashboard/data
+            git archive origin/public-data data/glassdoor_cache.json | tar -x -C jobs-dashboard
+          else
+            echo "Cache Glassdoor ainda não existe no ramo public-data; a exportação seguirá sem enriquecimento."
+          fi
 
       - name: Preparar Node.js
         uses: actions/setup-node@v4

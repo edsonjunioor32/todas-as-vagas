@@ -5,6 +5,22 @@
 - Vagas InHire vazias são priorizadas dentro do lote porque a API pública específica já foi validada como capaz de recuperar anúncios ativos que a página inicial renderiza apenas como shell. Anúncios que retornarem HTTP 404/410 continuam sendo classificados como `gone`.
 - Foram adicionados testes de regressão para a migração de parser, prioridade do InHire e preservação do backoff.
 
+## 2026-11-12 — Coleta diária da média geral pelo scraper de classificações
+
+- O teste isolado do `omkarcloud/glassdoor-scraper` confirmou a rota `/companies/ratings` e retornou a média oficial da Heineken Brasil como `4,0`, sem necessidade de ler o conteúdo textual das avaliações.
+- A rotina diária passou a iniciar esse scraper em container temporário no runner dedicado do catálogo, fixado no commit `0567eb6ef90674aacde32e79ee668c09f23d91be`, exposto somente em `127.0.0.1:18081` e encerrado ao final da execução.
+- `jobs-dashboard/glassdoor.py` consulta apenas `ratings.overall` e `reviews_count`, exige correspondência do nome retornado com os aliases aprovados e preserva o cache anterior quando a fonte falha. O fallback HasData continua separado, não promove nota de vaga a nota oficial do perfil e deixa de ser exibido quando já existe uma média oficial.
+- Os perfis aprovados agora declaram explicitamente o nome usado no scraper (`scraper_company`), evitando que aliases globais sejam confundidos com a empresa brasileira correta.
+- A rotina foi executada antes desta alteração com sucesso operacional, mas encontrou `0` perfis oficiais novos; o resultado justificou a integração desta fonte específica. Após a mesclagem, será feita uma nova execução manual e conferida a atualização pública.
+- Validação local: suíte completa com 450 testes aprovada, além de compilação e `git diff --check`.
+
+## 2026-11-12 — Uso restrito do campo `overallRating` do perfil Glassdoor
+
+- Incorporada somente a parte necessária do `omkarcloud/glassdoor-scraper`: o reconhecimento de `ratings.overallRating` em metadados estruturados do perfil público.
+- Nenhum endpoint de avaliações, texto de reviews, salários, entrevistas, login, proxy ou bypass anti-bot foi incorporado. O fluxo continua usando os perfis canônicos aprovados, `robots.txt`, cache diário e fallback HasData já existente.
+- A ausência ou falha da nota continua preservando o cache anterior; o portal nunca transforma ausência em `0,0`.
+- Teste offline adicionado para comprovar a leitura da média geral e o descarte de texto de avaliação.
+
 ## 2026-11-11 — InHire API público e separação de anúncios removidos
 
 - Adicionado `jobs-dashboard/inhire_descriptions.py`, que resolve o tenant público e consulta a API pública do InHire antes do fallback de navegador. A coleta não usa credenciais, não contorna `robots.txt` e não altera o catálogo público.
@@ -595,3 +611,67 @@ Essa separação evita alertas falsos imediatamente após uma falha transitória
 ### Validação obrigatória
 
 Foram adicionados testes para preservar o primeiro instante da falha, atualizar o sucesso e exportar os metadados de 24 horas. O teste de interface verifica que o alerta usa sourceWarningSources(data) e source_warning_after_hours, em vez de testar apenas a presença da lista de falhas.
+## 2026-11-11 — Média geral do Glassdoor via HasData
+
+- O catálogo passa a exibir somente a média geral da empresa, a quantidade de avaliações quando disponível e o link do perfil do Glassdoor; textos de avaliações não são coletados nem publicados.
+- Foi adicionada uma rotina diária de enriquecimento com cache público, perfis canônicos aprovados e fallback opcional via HasData MCP. A chave fica exclusivamente no segredo do ambiente `github-pages`; o código não imprime nem persiste credenciais.
+- O fallback permanece desligado por padrão e é limitado por execução. Quando indisponível, a coleta principal continua e publica o catálogo sem o enriquecimento.
+- Validação do PR: testes direcionados do Glassdoor/HasData, compilação dos módulos alterados, verificação de sintaxe do JavaScript, leitura do YAML e `git diff --check`.
+
+## 2026-11-11 — Runner hospedado para a atualização diária do Glassdoor
+
+- O workflow `glassdoor-daily.yml` deixou de depender do runner ARM64 da VPS e passou a usar `ubuntu-latest`.
+- O checkout foi reduzido para o commit disparador (`github.sha`) com `fetch-depth: 1`; o snapshot anterior continua sendo recuperado exclusivamente do ramo `public-data`.
+- A mudança elimina a dependência do espaço, disponibilidade e estado do runner persistente para o enriquecimento diário. A chave HasData continua restrita ao segredo do ambiente `github-pages`.
+
+## 2026-11-12 — Correção da média geral do Glassdoor para todo o catálogo
+
+- Corrigida a renderização dos campos Glassdoor para que `null`/ausente não seja convertido implicitamente em `0,0/5` pelo JavaScript. A regra vale para todas as empresas e para as duas fontes de nota (perfil público e fallback HasData).
+- Empresas sem perfil aprovado ou sem resposta válida continuam no catálogo, mas não exibem uma nota falsa; somente um valor numérico retornado e validado pelo provedor pode ser apresentado.
+- Incluído teste de regressão e documentação do contrato. A nota da Heineken (esperada em torno de 4,0/5 conforme a fonte) só será exibida após o cache diário ser efetivamente gerado e publicado.
+
+## 2026-11-12 — Endpoint atual do MCP Glassdoor da HasData
+
+- Corrigido o endpoint padrão do cliente HasData de `/mcp?apis=glassdoor` para `/api/mcp?apis=glassdoor`, conforme a interface atual do MCP Glassdoor.
+- A execução pontual confirmou que o endpoint legado respondia, mas o conteúdo não era interpretável pelo cliente. O cliente continua validando JSON-RPC, nome da empresa, nota e URL antes de publicar qualquer valor.
+- Adicionado teste de regressão para impedir a volta do endpoint antigo; nenhuma chave foi registrada no repositório.
+
+## 2026-11-12 — Alinhamento do cliente HasData ao contrato publicado
+
+- A revisão do contrato público do Glassdoor MCP confirmou o endpoint `https://mcp.hasdata.com/mcp?apis=glassdoor` e o domínio regional `www.glassdoor.com.br`; ambos foram restaurados no cliente e nas quatro consultas aprovadas.
+- O parser agora aceita `structuredContent`, campos JSON do item de conteúdo e JSON delimitado por texto/Markdown, mas rejeita texto livre. A validação posterior continua exigindo empresa aprovada, nota numérica e URL Glassdoor HTTPS.
+- Testes direcionados, compilação Python e verificação de diff passaram antes da publicação da alteração.
+
+## 2026-11-12 — Correção da allowlist do domínio regional HasData
+
+- A execução pontual confirmou que a allowlist do coletor ainda rejeitava `www.glassdoor.com.br`, embora esse seja o domínio regional documentado pelo provedor. Por isso a chamada nem chegava ao HasData e a nota permanecia ausente.
+- A validação agora aceita os domínios oficiais com e sem `www`, mantendo a restrição de host permitido. Foi incluído teste que valida o manifesto brasileiro e a execução preserva a regra de não publicar nota sem retorno numérico validado.
+
+## 2026-11-12 — Correspondência do nome curto retornado pelo HasData
+
+- A chamada remota passou a responder, mas o resultado não era associado à empresa porque o retorno usa `employer.shortName` em alguns anúncios. O coletor agora lê esse campo somente dentro dos aliases canônicos aprovados.
+- O perfil da Heineken recebeu o alias explícito `Heineken`, sem alterar a validação exata nem permitir correspondência aproximada entre empresas.
+
+## 2026-11-12 — Consulta dedicada para Heineken
+
+- Como a busca por `Heineken Brasil` não retornou uma vaga associável, a consulta aprovada passou a usar `keyword=Heineken` e `location=Brazil`, mantendo o domínio brasileiro e os aliases canônicos.
+- Em falhas de correspondência, o log passa a registrar somente contagem de vagas e até cinco nomes empresariais normalizados; nenhum texto de vaga, credencial ou conteúdo de mensagem é exposto.
+
+## 2026-11-12 — Retentativa controlada de falhas HasData
+
+- Resultados bem-sucedidos continuam protegidos por uma consulta diária; falhas podem ser reprocessadas em uma execução manual para não aguardar o próximo dia após instabilidade ou incompatibilidade do provedor.
+- O teto padrão do workflow passou para três chamadas por execução, ainda dentro da franquia gratuita documentada e do limite local. O teste garante que sucessos são ignorados e somente a tentativa falha é refeita.
+
+## 2026-11-12 — Limite de chamadas HasData no ambiente
+
+- A variável não sensível `HASDATA_MCP_MAX_CALLS` do ambiente `github-pages` foi alterada de `1` para `3`, respeitando o teto local e permitindo que as quatro consultas canônicas avancem em execuções pontuais sem tocar na chave `HASDATA_API_KEY`.
+
+## 2026-11-12 — Alias canônico Heineken N.V.
+
+- A execução controlada mostrou que os anúncios brasileiros retornam o empregador como `Heineken N.V.`. Esse alias foi adicionado explicitamente ao perfil Heineken; não foi habilitada correspondência parcial ou aproximada.
+
+## 2026-11-12 — Alias da origem do catálogo Heineken Brazil
+
+- A publicação confirmou que as vagas do catálogo usam a empresa `HEINEKEN Brazil`, enquanto o retorno do Glassdoor/HasData usa `Heineken N.V.`. O alias da origem do catálogo foi adicionado ao perfil canônico para propagar a média geral ao campo público `gfr`.
+- Foi incluído teste de regressão cobrindo o mapeamento `HEINEKEN Brazil` → média geral `4,2`.
+

@@ -2,11 +2,22 @@ name: LinkedIn Daily Best Jobs Digest
 
 on:
   schedule:
-    # Segunda a Quinta-feira às 21:00 UTC (18:00 BRT - Horário de Brasília)
-    # Nas sextas-feiras roda a edição semanal (linkedin-weekly-digest.yml)
-    - cron: '0 21 * * 1-4'
+    # 21:15 UTC = 18:15 BRT (Horário principal fora do pico do minuto zero)
+    - cron: '15 21 * * 1-4'
+    # 21:45 UTC = 18:45 BRT (Catchup automático caso o runner atrase no horário principal)
+    - cron: '45 21 * * 1-4'
+  workflow_run:
+    # Acoplamento: dispara também após a atualização oficial do catálogo
+    workflows: ["Atualizar vagas multiportal e publicar GitHub Pages"]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
     inputs:
+      force:
+        description: 'Forçar postagem mesmo se já tiver postado hoje'
+        required: false
+        type: boolean
+        default: false
       dry_run:
         description: 'Simular postagem sem enviar para o Webhook do Make'
         required: false
@@ -14,16 +25,23 @@ on:
         default: false
 
 permissions:
-  contents: read
+  contents: write
+
+concurrency:
+  group: linkedin-daily-digest
+  cancel-in-progress: false
 
 jobs:
   publish-daily-digest:
     name: Curar e Publicar Melhores Vagas do Dia no LinkedIn
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout do Repositório
         uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Configurar Python
         uses: actions/setup-python@v5
@@ -35,8 +53,22 @@ jobs:
           PYTHONPATH: tools
           MAKE_LINKEDIN_WEBHOOK_URL: ${{ secrets.MAKE_LINKEDIN_WEBHOOK_URL || 'https://hook.us2.make.com/pmtttsu5fw61y2sjhyevac82zw74mwx0' }}
         run: |
+          FLAGS=""
+          if [ "${{ inputs.force }}" = "true" ]; then
+            FLAGS="$FLAGS --force"
+          fi
           if [ "${{ inputs.dry_run }}" = "true" ]; then
-            python tools/publish_linkedin_daily.py --dry-run
-          else
-            python tools/publish_linkedin_daily.py
+            FLAGS="$FLAGS --dry-run"
+          fi
+          python tools/publish_linkedin_daily.py $FLAGS
+
+      - name: Persistir estado do digest diário no repositório
+        if: inputs.dry_run != true
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data/linkedin_digest_state.json || true
+          if ! git diff --staged --quiet; then
+            git commit -m "chore(linkedin): atualizar estado de postagem diária [skip ci]"
+            git push origin main
           fi
