@@ -213,6 +213,14 @@ class GlassdoorTests(unittest.TestCase):
         self.assertIn("--profile-delay 1", workflow)
         self.assertNotIn("JOBS_SOURCE_WORKERS", workflow)
 
+    def test_frontend_does_not_turn_missing_metrics_into_zero(self):
+        app = (ROOT / "docs/app.js").read_text(encoding="utf-8")
+        self.assertIn("function optionalGlassdoorNumber(value)", app)
+        self.assertIn("const rating = optionalGlassdoorNumber(job.glassdoorRating);", app)
+        self.assertIn("const fallbackRating = optionalGlassdoorNumber(job.glassdoorFallbackRating);", app)
+        self.assertNotIn("const rating = Number(job.glassdoorRating);", app)
+        self.assertNotIn("const fallbackRating = Number(job.glassdoorFallbackRating);", app)
+
 
 if __name__ == "__main__":
     unittest.main()

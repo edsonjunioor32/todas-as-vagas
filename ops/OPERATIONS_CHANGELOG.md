@@ -595,3 +595,15 @@ Foram adicionados testes para preservar o primeiro instante da falha, atualizar 
 - O fallback permanece desligado por padrão e é limitado por execução. Quando indisponível, a coleta principal continua e publica o catálogo sem o enriquecimento.
 - Validação do PR: testes direcionados do Glassdoor/HasData, compilação dos módulos alterados, verificação de sintaxe do JavaScript, leitura do YAML e `git diff --check`.
 
+## 2026-11-11 — Runner hospedado para a atualização diária do Glassdoor
+
+- O workflow `glassdoor-daily.yml` deixou de depender do runner ARM64 da VPS e passou a usar `ubuntu-latest`.
+- O checkout foi reduzido para o commit disparador (`github.sha`) com `fetch-depth: 1`; o snapshot anterior continua sendo recuperado exclusivamente do ramo `public-data`.
+- A mudança elimina a dependência do espaço, disponibilidade e estado do runner persistente para o enriquecimento diário. A chave HasData continua restrita ao segredo do ambiente `github-pages`.
+
+## 2026-11-12 — Correção da média geral do Glassdoor para todo o catálogo
+
+- Corrigida a renderização dos campos Glassdoor para que `null`/ausente não seja convertido implicitamente em `0,0/5` pelo JavaScript. A regra vale para todas as empresas e para as duas fontes de nota (perfil público e fallback HasData).
+- Empresas sem perfil aprovado ou sem resposta válida continuam no catálogo, mas não exibem uma nota falsa; somente um valor numérico retornado e validado pelo provedor pode ser apresentado.
+- Incluído teste de regressão e documentação do contrato. A nota da Heineken (esperada em torno de 4,0/5 conforme a fonte) só será exibida após o cache diário ser efetivamente gerado e publicado.
+

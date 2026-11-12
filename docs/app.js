@@ -382,6 +382,17 @@
     }
   }
 
+  // Optional Glassdoor metrics are serialized as null when a company has no
+  // approved profile or when the daily provider did not return a value.
+  // Number(null) is 0 in JavaScript, which made unavailable ratings appear as
+  // a real 0.0/5 score across the catalog.
+  function optionalGlassdoorNumber(value) {
+    if (value === null || value === undefined || value === '') return null;
+    if (typeof value !== 'number' && typeof value !== 'string') return null;
+    const numeric = Number(value);
+    return Number.isFinite(numeric) ? numeric : null;
+  }
+
   function buildSearchText(job) {
     return normalize([
       job.title, job.company, job.sourceLabel, job.category, job.seniority,
@@ -986,16 +997,17 @@
 
     const glassdoor = document.createElement('div');
     glassdoor.className = 'glassdoor-meta';
-    const rating = Number(job.glassdoorRating);
-    if (Number.isFinite(rating) && rating >= 0 && rating <= 5) {
+    const rating = optionalGlassdoorNumber(job.glassdoorRating);
+    if (rating !== null && rating >= 0 && rating <= 5) {
       const ratingLabel = document.createElement('span');
       ratingLabel.className = 'glassdoor-rating';
       ratingLabel.textContent = `★ ${rating.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 2 })}/5`;
       glassdoor.append(ratingLabel);
     }
-    if (Number.isInteger(job.glassdoorReviewCount) && job.glassdoorReviewCount >= 0) {
+    const reviewCount = optionalGlassdoorNumber(job.glassdoorReviewCount);
+    if (reviewCount !== null && Number.isInteger(reviewCount) && reviewCount >= 0) {
       const reviews = document.createElement('span');
-      reviews.textContent = `${job.glassdoorReviewCount.toLocaleString('pt-BR')} avaliações`;
+      reviews.textContent = `${reviewCount.toLocaleString('pt-BR')} avaliações`;
       glassdoor.append(reviews);
     }
     if (job.glassdoorUrl) {
@@ -1009,8 +1021,8 @@
       if (job.glassdoorCheckedAt) glassdoorLink.title = `Dados verificados em ${job.glassdoorCheckedAt}`;
       glassdoor.append(glassdoorLink);
     }
-    const fallbackRating = Number(job.glassdoorFallbackRating);
-    if (Number.isFinite(fallbackRating) && fallbackRating >= 0 && fallbackRating <= 5) {
+    const fallbackRating = optionalGlassdoorNumber(job.glassdoorFallbackRating);
+    if (fallbackRating !== null && fallbackRating >= 0 && fallbackRating <= 5) {
       const fallbackLabel = document.createElement('span');
       fallbackLabel.textContent = `Média geral: ★ ${fallbackRating.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 2 })}/5`;
       glassdoor.append(fallbackLabel);
