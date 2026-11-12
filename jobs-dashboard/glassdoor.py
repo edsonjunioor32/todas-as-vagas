@@ -58,6 +58,7 @@ _PROFILE_ID_RE = re.compile(r"^[a-z0-9][a-z0-9._-]{0,79}$")
 _RATING_KEYS = {"ratingvalue", "rating"}
 _COUNT_KEYS = {"reviewcount", "ratingcount"}
 _ALLOWED_HOSTS = {"glassdoor.com", "glassdoor.com.br"}
+_MCP_ALLOWED_DOMAINS = _ALLOWED_HOSTS | {"www.glassdoor.com", "www.glassdoor.com.br"}
 _MCP_QUERY_ID_RE = re.compile(r"^[a-z0-9][a-z0-9._-]{0,79}$")
 
 
@@ -247,7 +248,7 @@ def load_hasdata_queries(path: str | os.PathLike[str] = DEFAULT_MCP_QUERY_PATH) 
         if not keyword or not location:
             raise GlassdoorConfigurationError(f"query MCP {query_id} sem keyword/location")
         domain = str(raw.get("domain") or "glassdoor.com.br").strip().casefold()
-        if domain not in _ALLOWED_HOSTS:
+        if domain not in _MCP_ALLOWED_DOMAINS:
             raise GlassdoorConfigurationError(f"domínio MCP Glassdoor não aprovado: {domain}")
         sort = str(raw.get("sort") or "recent").strip().casefold()
         if sort not in {"recent", "relevant"}:

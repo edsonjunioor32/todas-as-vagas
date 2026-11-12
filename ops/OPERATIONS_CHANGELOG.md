@@ -619,3 +619,8 @@ Foram adicionados testes para preservar o primeiro instante da falha, atualizar 
 - O parser agora aceita `structuredContent`, campos JSON do item de conteúdo e JSON delimitado por texto/Markdown, mas rejeita texto livre. A validação posterior continua exigindo empresa aprovada, nota numérica e URL Glassdoor HTTPS.
 - Testes direcionados, compilação Python e verificação de diff passaram antes da publicação da alteração.
 
+## 2026-11-12 — Correção da allowlist do domínio regional HasData
+
+- A execução pontual confirmou que a allowlist do coletor ainda rejeitava `www.glassdoor.com.br`, embora esse seja o domínio regional documentado pelo provedor. Por isso a chamada nem chegava ao HasData e a nota permanecia ausente.
+- A validação agora aceita os domínios oficiais com e sem `www`, mantendo a restrição de host permitido. Foi incluído teste que valida o manifesto brasileiro e a execução preserva a regra de não publicar nota sem retorno numérico validado.
+

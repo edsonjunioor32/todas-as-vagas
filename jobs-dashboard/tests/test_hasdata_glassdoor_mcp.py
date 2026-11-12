@@ -53,6 +53,11 @@ class HasDataGlassdoorMcpTests(unittest.TestCase):
             "content": [{"type": "text", "text": "Nenhuma vaga encontrada"}],
         }))
 
+    def test_queries_accept_the_official_brazilian_regional_domain(self):
+        queries = glassdoor.load_hasdata_queries()
+        self.assertTrue(queries)
+        self.assertTrue(all(item["domain"] == "www.glassdoor.com.br" for item in queries))
+
     def test_rejects_non_hasdata_endpoint_to_prevent_key_exfiltration(self):
         with self.assertRaises(ValueError):
             HasDataGlassdoorMcpClient(
