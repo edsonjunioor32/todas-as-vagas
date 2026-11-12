@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-11-12T22:53:03.635114+00:00",
+  "generated_at": "2026-11-12T23:04:24.971434+00:00",
   "profiles": {
     "accenture": {
-      "checked_at": null,
+      "checked_at": "2026-11-12",
       "company_names": [
         "Accenture",
         "Accenture Brasil"
@@ -13,12 +13,12 @@
       "hasdata_reference_url": null,
       "id": "accenture",
       "last_attempted_date": "2026-11-12",
-      "rating": null,
-      "review_count": null,
+      "rating": 3.7,
+      "review_count": 231289,
       "url": "https://www.glassdoor.com.br/Vis%C3%A3o-geral/Trabalhar-na-Accenture-EI_IE4138.13%2C22.htm"
     },
     "heineken-brasil": {
-      "checked_at": null,
+      "checked_at": "2026-11-12",
       "company_names": [
         "Heineken",
         "Heineken N.V.",
@@ -32,12 +32,12 @@
       "hasdata_reference_url": "https://www.glassdoor.com.br/job-listing/pessoa-ajudante-interno-armazenagem-benevides-the-heineken-company-JV_IC2465180_KO0,45_KE46,66.htm?jl=1010311811413",
       "id": "heineken-brasil",
       "last_attempted_date": "2026-11-12",
-      "rating": null,
-      "review_count": null,
+      "rating": 4.0,
+      "review_count": 245,
       "url": "https://www.glassdoor.com.br/Avalia%C3%A7%C3%B5es/Heineken-Brasil-Avalia%C3%A7%C3%B5es-E8990981.htm"
     },
     "sicredi": {
-      "checked_at": null,
+      "checked_at": "2026-11-12",
       "company_names": [
         "Sicredi"
       ],
@@ -47,12 +47,12 @@
       "hasdata_reference_url": null,
       "id": "sicredi",
       "last_attempted_date": "2026-11-12",
-      "rating": null,
-      "review_count": null,
+      "rating": 4.3,
+      "review_count": 5482,
       "url": "https://www.glassdoor.com.br/Avalia%C3%A7%C3%B5es/Sicredi-Avalia%C3%A7%C3%B5es-E661772.htm"
     },
     "skeelo": {
-      "checked_at": null,
+      "checked_at": "2026-11-12",
       "company_names": [
         "Skeelo"
       ],
@@ -62,8 +62,8 @@
       "hasdata_reference_url": null,
       "id": "skeelo",
       "last_attempted_date": "2026-11-12",
-      "rating": null,
-      "review_count": null,
+      "rating": 4.2,
+      "review_count": 142,
       "url": "https://www.glassdoor.com.br/Vis%C3%A3o-geral/Trabalhar-na-Skeelo-EI_IE3556448.13%2C19.htm"
     }
   },
