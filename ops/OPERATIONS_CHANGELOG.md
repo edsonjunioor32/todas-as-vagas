@@ -607,3 +607,9 @@ Foram adicionados testes para preservar o primeiro instante da falha, atualizar 
 - Empresas sem perfil aprovado ou sem resposta válida continuam no catálogo, mas não exibem uma nota falsa; somente um valor numérico retornado e validado pelo provedor pode ser apresentado.
 - Incluído teste de regressão e documentação do contrato. A nota da Heineken (esperada em torno de 4,0/5 conforme a fonte) só será exibida após o cache diário ser efetivamente gerado e publicado.
 
+## 2026-11-12 — Endpoint atual do MCP Glassdoor da HasData
+
+- Corrigido o endpoint padrão do cliente HasData de `/mcp?apis=glassdoor` para `/api/mcp?apis=glassdoor`, conforme a interface atual do MCP Glassdoor.
+- A execução pontual confirmou que o endpoint legado respondia, mas o conteúdo não era interpretável pelo cliente. O cliente continua validando JSON-RPC, nome da empresa, nota e URL antes de publicar qualquer valor.
+- Adicionado teste de regressão para impedir a volta do endpoint antigo; nenhuma chave foi registrada no repositório.
+
