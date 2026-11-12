@@ -60,6 +60,7 @@ class HasDataGlassdoorMcpTests(unittest.TestCase):
         heineken = next(item for item in queries if item["id"] == "heineken-brasil-fallback")
         self.assertEqual(heineken["keyword"], "Heineken")
         self.assertEqual(heineken["location"], "Brazil")
+        self.assertIn("Heineken N.V.", heineken["company_names"])
 
     def test_rejects_non_hasdata_endpoint_to_prevent_key_exfiltration(self):
         with self.assertRaises(ValueError):

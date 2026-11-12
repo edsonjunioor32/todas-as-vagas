@@ -643,3 +643,7 @@ Foram adicionados testes para preservar o primeiro instante da falha, atualizar 
 
 - A variável não sensível `HASDATA_MCP_MAX_CALLS` do ambiente `github-pages` foi alterada de `1` para `3`, respeitando o teto local e permitindo que as quatro consultas canônicas avancem em execuções pontuais sem tocar na chave `HASDATA_API_KEY`.
 
+## 2026-11-12 — Alias canônico Heineken N.V.
+
+- A execução controlada mostrou que os anúncios brasileiros retornam o empregador como `Heineken N.V.`. Esse alias foi adicionado explicitamente ao perfil Heineken; não foi habilitada correspondência parcial ou aproximada.
+
