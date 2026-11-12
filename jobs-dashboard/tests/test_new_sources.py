@@ -33,6 +33,7 @@ from sources import (  # noqa: E402
     wellfound,
     workable,
     workable_brazil,
+    totvs,
 )
 import pipeline  # noqa: E402
 import storage  # noqa: E402
@@ -397,6 +398,32 @@ class RegistryTests(unittest.TestCase):
         self.assertTrue({"spassu", "infovagas", "bradesco", "nttdata", "btg", "luza", "levva", "esig", "azify", "finayatech", "yellowipe", "tivit"}.issubset(pipeline.NONEMPTY_SOURCES))
 
 
+
+    def test_pagsmile_board_uses_root_catalog_and_preserves_company(self):
+        config = totvs.BOARDS["vagasabertaspagsmilebr"]
+        self.assertEqual(config["company"], "Pagsmile")
+        self.assertEqual(totvs._catalog_url("vagasabertaspagsmilebr", config),
+                         "https://atracaodetalentos.totvs.app/vagasabertaspagsmilebr/")
+
+        markup = """
+        <div class="index__job-opportunities__grid__item"
+             data-title="Analista Comercial Pleno"
+             data-city-name="São Paulo" data-state-small-name="SP">
+          <a data-cy="job-opportunity-link"
+             data-title="Analista Comercial Pleno"
+             href="https://atracaodetalentos.totvs.app/vagasabertaspagsmilebr/23/analista-comercial-pleno">
+            Analista Comercial Pleno
+          </a>
+        </div>
+        """
+        parser = totvs.CatalogParser("vagasabertaspagsmilebr", "Pagsmile")
+        parser.feed(markup)
+        self.assertEqual(len(parser.rows), 1)
+        self.assertEqual(parser.rows[0]["source"], "totvs")
+        self.assertEqual(parser.rows[0]["native_id"], "vagasabertaspagsmilebr:23")
+        self.assertEqual(parser.rows[0]["company"], "Pagsmile")
+        self.assertEqual(parser.rows[0]["city"], "São Paulo")
+        self.assertEqual(parser.rows[0]["state"], "SP")
     def test_tarken_is_kept_in_seeded_inhire_tenants(self):
         seed_path = DASHBOARD.parent / "busca_vagas" / "inhire_tenants_seed.json"
         data = json.loads(seed_path.read_text(encoding="utf-8"))
