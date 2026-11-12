@@ -260,6 +260,7 @@ def merge_catalog(rows, collected_counts, db_path=DB_PATH, json_path=JSON_PATH,
                 max_age_days=storage.publication_max_age_days(),
                 source_counts=dict(sorted(previous_collected.items())),
                 failed_sources=failed_after,
+                glassdoor_cache=pipeline.load_glassdoor_cache(),
             )
         finally:
             conn.close()

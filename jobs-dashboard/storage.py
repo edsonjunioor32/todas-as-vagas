@@ -9,6 +9,8 @@ import unicodedata
 from datetime import date, datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
+import glassdoor
+
 LOCAL_TIMEZONE = ZoneInfo("America/Fortaleza")
 
 # Friday through Monday have a lower volume of new postings. The public
@@ -633,7 +635,7 @@ def _canonicalize_snapshot_rows(rows):
 def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
                     max_age_months=2,
                     max_raw_mb=64, source_counts=None, failed_sources=None,
-                    max_age_days=None):
+                    max_age_days=None, glassdoor_cache=None):
     """Export jobs seen in a recent successful collection window.
 
     A three-day tolerance prevents a temporary portal outage from instantly
@@ -745,6 +747,10 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
     )}
     indexes = {name: {} for name in dictionaries}
 
+    # Glassdoor is an optional enrichment. A malformed or unavailable cache
+    # must never turn the vacancy export into a failed publication.
+    glassdoor_index = glassdoor.build_snapshot_index(glassdoor_cache)
+
     def code(name, value):
         value = value or ""
         if value not in indexes[name]:
@@ -757,6 +763,8 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
         "pub", "seen", "exp", "url", "np", "sk", "smin", "smax", "cur",
         "pcd", "blind", "ct", "status", "type", "publication_type"
     )}
+    if glassdoor_cache is not None:
+        columns.update({name: [] for name in ("gdr", "gdc", "gdu", "gdt", "gfr", "gfu", "gft")})
     for row in rows:
         (source, title, company, area, seniority, work_model, city, state, country,
          market, salary_min, salary_max, currency, published, first_seen, last_seen,
@@ -786,6 +794,23 @@ def export_snapshot(conn, out_path, fresh_days=3, today=None, max_jobs=None,
         columns["status"].append(source_status or "")
         columns["type"].append(source_type or "")
         columns["publication_type"].append(source_publication_type or "")
+        if glassdoor_cache is not None:
+            profile = glassdoor_index.get(glassdoor.company_key(company))
+            columns["gdr"].append(profile.get("glassdoor_rating") if profile else None)
+            columns["gdc"].append(
+                profile.get("glassdoor_review_count") if profile else None
+            )
+            columns["gdu"].append(profile.get("glassdoor_url") if profile else None)
+            columns["gdt"].append(
+                profile.get("glassdoor_checked_at") if profile else None
+            )
+            columns["gfr"].append(
+                profile.get("glassdoor_fallback_rating") if profile else None
+            )
+            columns["gfu"].append(profile.get("glassdoor_fallback_url") if profile else None)
+            columns["gft"].append(
+                profile.get("glassdoor_fallback_checked_at") if profile else None
+            )
 
     try:
         collected_count = sum(max(0, int(value or 0)) for value in source_counts.values())

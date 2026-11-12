@@ -171,6 +171,14 @@ As publicações do catálogo principal, dos portais dinâmicos, do Journy e do 
 
 O workflow `.github/workflows/telegram.yml` deste repositório é acionado manualmente (`workflow_dispatch`) para testes, reenvios e operação controlada. Ele compara snapshots e registra o estado das notificações. O envio automático regular do canal é mantido no repositório dedicado do Telegram. O bot do WhatsApp consulta o snapshot público da branch `public-data` por meio do repositório `botwhats`.
 
+### Enriquecimento opcional do Glassdoor
+
+O workflow separado [`glassdoor-daily.yml`](.github/workflows/glassdoor-daily.yml) atualiza, no máximo uma vez por dia, apenas perfis explicitamente aprovados em `jobs-dashboard/data/glassdoor_profiles.json`. O cache público é mantido no ramo `public-data`; falhas, timeouts ou ausência de dados preservam a última avaliação válida sem interromper a coleta de vagas.
+
+Quando houver perfil configurado, o snapshot pode conter arrays opcionais alinhados às vagas: `jobs.gdr` (média geral de 0 a 5), `jobs.gdc` (quantidade exata de avaliações), `jobs.gdu` (URL HTTPS canônica) e `jobs.gdt` (data da última verificação). A interface não captura nem exibe textos de avaliações.
+
+O fallback opcional usa o [HasData Glassdoor MCP](https://github.com/HasData/glassdoor-mcp). O workflow usa diretamente o endpoint remoto com a biblioteca padrão, sem instalar um crawler local. Para habilitar, cadastre `HASDATA_API_KEY` como secret e defina a variável de repositório `HASDATA_MCP_ENABLED=true`; a chave nunca deve ser gravada neste repositório. O limite padrão é uma busca por execução, com rotação dos perfis aprovados e no máximo três chamadas locais por execução. O MCP fornece somente a média geral associada a uma vaga; os campos `jobs.gfr`, `jobs.gfu` e `jobs.gft` mantêm essa referência separada do perfil canônico. Consulte [`docs/glassdoor.md`](docs/glassdoor.md) para detalhes e limites.
+
 ### Otimizações do pipeline
 
 - até cinco fontes independentes são consultadas em paralelo, sem alterar a ordem determinística da consolidação;

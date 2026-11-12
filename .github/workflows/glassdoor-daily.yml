@@ -1,0 +1,109 @@
+name: Atualizar cache público do Glassdoor
+
+on:
+  workflow_dispatch:
+  schedule:
+    # GitHub Actions uses UTC; Brasília/Fortaleza is UTC-3.
+    - cron: "23 6 * * *"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  # Glassdoor writes the same public-data snapshot as the catalog workflows.
+  group: catalog-publication
+  cancel-in-progress: false
+
+jobs:
+  atualizar:
+    if: github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, Linux, ARM64]
+    timeout-minutes: 20
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Restaurar snapshot e cache anteriores
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin public-data
+          mkdir -p docs/data jobs-dashboard/data
+          git archive origin/public-data data/vagas.json data/fit.json | tar -x -C docs
+          if git cat-file -e origin/public-data:data/glassdoor_cache.json 2>/dev/null; then
+            git archive origin/public-data data/glassdoor_cache.json | tar -x -C jobs-dashboard
+          fi
+          test -s docs/data/vagas.json
+          test -s docs/data/fit.json
+
+      - name: Atualizar somente perfis Glassdoor aprovados
+        env:
+          # Optional HasData fallback. The secret is never stored in the repo;
+          # the provider remains disabled unless the repository variable is true.
+          HASDATA_API_KEY: ${{ secrets.HASDATA_API_KEY }}
+          HASDATA_MCP_ENABLED: ${{ vars.HASDATA_MCP_ENABLED || 'false' }}
+          HASDATA_MCP_MAX_CALLS: ${{ vars.HASDATA_MCP_MAX_CALLS || '1' }}
+        run: |
+          python jobs-dashboard/glassdoor.py \
+            --timeout 15 \
+            --retries 2 \
+            --backoff 2 \
+            --profile-delay 1
+
+      - name: Validar snapshot enriquecido
+        env:
+          MIN_PUBLIC_JOBS: "1"
+        run: python jobs-dashboard/validate_snapshot.py
+
+      - name: Publicar snapshot e cache no ramo público
+        shell: bash
+        run: |
+          set -euo pipefail
+          data_worktree="$(mktemp -d)"
+          cleanup() {
+            git worktree remove --force "$data_worktree" >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+          git worktree add --detach "$data_worktree" origin/public-data
+          git -C "$data_worktree" switch -C public-data
+          mkdir -p "$data_worktree/data"
+          cp docs/data/vagas.json "$data_worktree/data/vagas.json"
+          cp jobs-dashboard/data/glassdoor_cache.json "$data_worktree/data/glassdoor_cache.json"
+          git -C "$data_worktree" add data/vagas.json data/glassdoor_cache.json
+          if git -C "$data_worktree" diff --cached --quiet; then
+            echo "Snapshot e cache Glassdoor já estão atualizados."
+          else
+            git -C "$data_worktree" config user.name "github-actions[bot]"
+            git -C "$data_worktree" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git -C "$data_worktree" commit -m "Atualiza cache público do Glassdoor"
+            git -C "$data_worktree" push origin HEAD:public-data
+          fi
+
+      - name: Preparar Pages
+        uses: actions/configure-pages@v5
+
+      - name: Preparar arquivos do site
+        uses: actions/upload-pages-artifact@v4
+        with:
+          name: github-pages-glassdoor-${{ github.run_id }}-${{ github.run_attempt }}
+          path: docs
+
+      - name: Publicar
+        id: deployment
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages-glassdoor-${{ github.run_id }}-${{ github.run_attempt }}

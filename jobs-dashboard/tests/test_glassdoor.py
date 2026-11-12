@@ -1,0 +1,218 @@
+import json
+import sys
+import tempfile
+import unittest
+from datetime import datetime
+from pathlib import Path
+from unittest.mock import patch
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "jobs-dashboard"))
+
+import glassdoor
+import storage
+
+
+def manifest(*, approved=True):
+    return {
+        "schema_version": 1,
+        "profiles": {
+            "empresa-teste": {
+                "id": "empresa-teste",
+                "company_names": ["Empresa Teste"],
+                "company_keys": ["empresa teste"],
+                "url": "https://www.glassdoor.com.br/Overview/Working-at-Empresa-Teste-EI_IE1.htm",
+            }
+        },
+    }
+
+
+class GlassdoorTests(unittest.TestCase):
+    def test_parse_public_structured_metrics_without_visible_text_scraping(self):
+        body = """
+        <html><head>
+          <script type="application/ld+json">
+            {"@type":"Organization","aggregateRating":{"ratingValue":"4.3","reviewCount":"1.234"}}
+          </script>
+        </head><body>999,9 avaliações falsas</body></html>
+        """
+        self.assertEqual(
+            glassdoor.parse_public_profile(body),
+            {"rating": 4.3, "review_count": 1234},
+        )
+
+    def test_manifest_url_is_explicit_and_canonical(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "profiles.json"
+            path.write_text(
+                json.dumps({
+                    "schema_version": 1,
+                    "profiles": [{
+                        "id": "empresa-teste",
+                        "approved": True,
+                        "company_names": ["Empresa Teste"],
+                        "url": "https://www.glassdoor.com.br/Overview/Working-at-Empresa-Teste-EI_IE1.htm?x=1",
+                    }],
+                }),
+                encoding="utf-8",
+            )
+            loaded = glassdoor.load_manifest(path)
+        self.assertEqual(
+            loaded["profiles"]["empresa-teste"]["url"],
+            "https://www.glassdoor.com.br/Overview/Working-at-Empresa-Teste-EI_IE1.htm",
+        )
+        self.assertFalse(glassdoor.is_canonical_profile_url("https://example.com/profile"))
+
+    def test_failed_daily_refresh_preserves_last_valid_values_and_is_not_retried_same_day(self):
+        previous = {
+            "schema_version": 1,
+            "profiles": {
+                "empresa-teste": {
+                    "id": "empresa-teste",
+                    "company_names": ["Empresa Teste"],
+                    "url": manifest()["profiles"]["empresa-teste"]["url"],
+                    "rating": 4.1,
+                    "review_count": 88,
+                    "checked_at": "2026-11-10",
+                    "last_attempted_date": "2026-11-10",
+                }
+            },
+        }
+        calls = []
+
+        def fail(profile, **kwargs):
+            calls.append(profile["id"])
+            raise TimeoutError("timeout")
+
+        updated, summary = glassdoor.update_cache(
+            manifest(),
+            previous,
+            now=datetime(2026, 11, 11, 8, 0),
+            fetcher=fail,
+            sleeper=lambda _seconds: None,
+            profile_delay=0,
+        )
+        entry = updated["profiles"]["empresa-teste"]
+        self.assertEqual(entry["rating"], 4.1)
+        self.assertEqual(entry["review_count"], 88)
+        self.assertEqual(entry["checked_at"], "2026-11-10")
+        self.assertEqual(entry["last_attempted_date"], "2026-11-11")
+        self.assertEqual(summary["failed"], 1)
+
+        again, second = glassdoor.update_cache(
+            manifest(),
+            updated,
+            now=datetime(2026, 11, 11, 20, 0),
+            fetcher=fail,
+            sleeper=lambda _seconds: None,
+            profile_delay=0,
+        )
+        self.assertEqual(calls, ["empresa-teste"])
+        self.assertEqual(second["skipped"], 1)
+        self.assertEqual(again["profiles"]["empresa-teste"]["rating"], 4.1)
+
+    def test_enrich_snapshot_uses_nulls_for_unconfigured_companies(self):
+        payload = {
+            "schema_version": 3,
+            "count": 2,
+            "dict": {"company": ["Empresa Teste", "Outra Empresa"]},
+            "jobs": {"cmp": [0, 1]},
+        }
+        cache = {
+            "schema_version": 1,
+            "profiles": {
+                "empresa-teste": {
+                    "company_names": ["Empresa Teste"],
+                    "url": manifest()["profiles"]["empresa-teste"]["url"],
+                    "rating": 4.5,
+                    "review_count": 120,
+                    "checked_at": "2026-11-11",
+                }
+            },
+        }
+        enriched, matched = glassdoor.enrich_snapshot(payload, cache)
+        self.assertEqual(matched, 1)
+        self.assertEqual(enriched["jobs"]["gdr"], [4.5, None])
+        self.assertEqual(enriched["jobs"]["gdc"], [120, None])
+        self.assertEqual(enriched["jobs"]["gdu"][1], None)
+        self.assertEqual(enriched["jobs"]["gdt"], ["2026-11-11", None])
+
+    def test_enrich_snapshot_keeps_hasdata_rating_and_reference_separate(self):
+        payload = {
+            "schema_version": 3,
+            "count": 1,
+            "dict": {"company": ["Empresa Teste"]},
+            "jobs": {"cmp": [0]},
+        }
+        cache = {
+            "schema_version": 1,
+            "profiles": {
+                "empresa-teste": {
+                    "company_names": ["Empresa Teste"],
+                    "url": manifest()["profiles"]["empresa-teste"]["url"],
+                    "hasdata_rating": 4.4,
+                    "hasdata_reference_url": "https://www.glassdoor.com.br/job-listing/vaga-1.htm",
+                    "hasdata_checked_at": "2026-11-11",
+                }
+            },
+        }
+        enriched, matched = glassdoor.enrich_snapshot(payload, cache)
+        self.assertEqual(matched, 1)
+        self.assertEqual(enriched["jobs"]["gdr"], [None])
+        self.assertEqual(enriched["jobs"]["gdc"], [None])
+        self.assertEqual(enriched["jobs"]["gfr"], [4.4])
+        self.assertEqual(enriched["jobs"]["gfu"], ["https://www.glassdoor.com.br/job-listing/vaga-1.htm"])
+        self.assertEqual(enriched["jobs"]["gft"], ["2026-11-11"])
+
+    def test_export_snapshot_includes_optional_arrays_without_changing_job_count(self):
+        with tempfile.TemporaryDirectory() as directory:
+            conn = storage.connect(str(Path(directory) / "jobs.db"))
+            storage.upsert(conn, [{
+                "source": "portal",
+                "native_id": "1",
+                "title": "Vaga",
+                "company": "Empresa Teste",
+                "url": "https://example.com/1",
+                "city": "São Paulo",
+                "state": "SP",
+                "country": "BR",
+                "market": "BR",
+                "skills": [],
+                "contract_types": [],
+            }], today="2026-11-11")
+            output = Path(directory) / "vagas.json"
+            count, _ = storage.export_snapshot(
+                conn,
+                str(output),
+                today="2026-11-11",
+                glassdoor_cache={
+                    "schema_version": 1,
+                    "profiles": {
+                        "empresa-teste": {
+                            "company_names": ["Empresa Teste"],
+                            "url": manifest()["profiles"]["empresa-teste"]["url"],
+                            "rating": 4.2,
+                            "review_count": 42,
+                            "checked_at": "2026-11-11",
+                        }
+                    },
+                },
+            )
+            data = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(count, 1)
+            self.assertEqual(data["jobs"]["gdr"], [4.2])
+            self.assertEqual(data["jobs"]["gdc"], [42])
+            conn.close()
+
+    def test_daily_workflow_is_separate_and_serialized(self):
+        workflow = (ROOT / ".github/workflows/glassdoor-daily.yml").read_text(encoding="utf-8")
+        self.assertIn('cron: "23 6 * * *"', workflow)
+        self.assertIn("group: catalog-publication", workflow)
+        self.assertIn("glassdoor.py", workflow)
+        self.assertIn("--timeout 15", workflow)
+        self.assertIn("--profile-delay 1", workflow)
+        self.assertNotIn("JOBS_SOURCE_WORKERS", workflow)
+
+
+if __name__ == "__main__":
+    unittest.main()

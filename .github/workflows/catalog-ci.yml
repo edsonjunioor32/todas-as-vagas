@@ -49,7 +49,9 @@ jobs:
             jobs-dashboard/validate_snapshot.py \
             jobs-dashboard/storage.py \
             jobs-dashboard/pipeline.py \
-            jobs-dashboard/pipeline_fit.py
+            jobs-dashboard/pipeline_fit.py \
+            jobs-dashboard/glassdoor.py \
+            jobs-dashboard/hasdata_glassdoor_mcp.py
 
       - name: Validar script do navegador nativo
         run: bash -n tools/ensure_chromium.sh
