@@ -1,3 +1,12 @@
+## 2026-11-12 — Coleta diária da média geral pelo scraper de classificações
+
+- O teste isolado do `omkarcloud/glassdoor-scraper` confirmou a rota `/companies/ratings` e retornou a média oficial da Heineken Brasil como `4,0`, sem necessidade de ler o conteúdo textual das avaliações.
+- A rotina diária passou a iniciar esse scraper em container temporário no runner dedicado do catálogo, fixado no commit `0567eb6ef90674aacde32e79ee668c09f23d91be`, exposto somente em `127.0.0.1:18081` e encerrado ao final da execução.
+- `jobs-dashboard/glassdoor.py` consulta apenas `ratings.overall` e `reviews_count`, exige correspondência do nome retornado com os aliases aprovados e preserva o cache anterior quando a fonte falha. O fallback HasData continua separado, não promove nota de vaga a nota oficial do perfil e deixa de ser exibido quando já existe uma média oficial.
+- Os perfis aprovados agora declaram explicitamente o nome usado no scraper (`scraper_company`), evitando que aliases globais sejam confundidos com a empresa brasileira correta.
+- A rotina foi executada antes desta alteração com sucesso operacional, mas encontrou `0` perfis oficiais novos; o resultado justificou a integração desta fonte específica. Após a mesclagem, será feita uma nova execução manual e conferida a atualização pública.
+- Validação local: suíte completa com 450 testes aprovada, além de compilação e `git diff --check`.
+
 ## 2026-11-12 — Uso restrito do campo `overallRating` do perfil Glassdoor
 
 - Incorporada somente a parte necessária do `omkarcloud/glassdoor-scraper`: o reconhecimento de `ratings.overallRating` em metadados estruturados do perfil público.

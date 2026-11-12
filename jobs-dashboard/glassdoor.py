@@ -63,6 +63,7 @@ _COUNT_KEYS = {"reviewcount", "ratingcount"}
 _ALLOWED_HOSTS = {"glassdoor.com", "glassdoor.com.br"}
 _MCP_ALLOWED_DOMAINS = _ALLOWED_HOSTS | {"www.glassdoor.com", "www.glassdoor.com.br"}
 _MCP_QUERY_ID_RE = re.compile(r"^[a-z0-9][a-z0-9._-]{0,79}$")
+_OMKAR_ENABLED_VALUES = {"1", "true", "yes", "on"}
 
 
 class GlassdoorError(RuntimeError):
@@ -321,10 +322,16 @@ def load_manifest(path: str | os.PathLike[str] = DEFAULT_MANIFEST_PATH) -> dict:
                 f"URL Glassdoor duplicada entre {profile_id} e {urls[url]}"
             )
         urls[url] = profile_id
+        scraper_company = str(raw.get("scraper_company") or clean_names[0]).strip()
+        if company_key(scraper_company) not in set(clean_keys):
+            raise GlassdoorConfigurationError(
+                f"scraper_company do perfil {profile_id} não corresponde a um alias aprovado"
+            )
         profiles[profile_id] = {
             "id": profile_id,
             "company_names": clean_names,
             "company_keys": clean_keys,
+            "scraper_company": scraper_company,
             "url": url,
         }
     return {"schema_version": SCHEMA_VERSION, "profiles": profiles}
@@ -433,14 +440,20 @@ def build_snapshot_index(cache: dict | None) -> dict[str, dict]:
             )
         except GlassdoorConfigurationError:
             fallback_url = None
+        primary_rating = _rating(raw.get("rating"))
         entry = {
-            "glassdoor_rating": _rating(raw.get("rating")),
+            "glassdoor_rating": primary_rating,
             "glassdoor_review_count": _review_count(raw.get("review_count")),
             "glassdoor_url": url,
             "glassdoor_checked_at": _iso_date(raw.get("checked_at")),
-            "glassdoor_fallback_rating": _rating(raw.get("hasdata_rating")),
-            "glassdoor_fallback_url": fallback_url,
-            "glassdoor_fallback_checked_at": _iso_date(raw.get("hasdata_checked_at")),
+            # A HasData job-listing rating is only a fallback when the
+            # official company profile has no rating.  Never show two
+            # different numbers for the same employer.
+            "glassdoor_fallback_rating": None if primary_rating is not None else _rating(raw.get("hasdata_rating")),
+            "glassdoor_fallback_url": None if primary_rating is not None else fallback_url,
+            "glassdoor_fallback_checked_at": (
+                None if primary_rating is not None else _iso_date(raw.get("hasdata_checked_at"))
+            ),
         }
         for alias in aliases:
             key = company_key(alias)
@@ -536,6 +549,42 @@ def parse_public_profile(payload: bytes | str) -> dict:
     return {"rating": parsed_rating, "review_count": parsed_count}
 
 
+def parse_omkar_company_ratings(payload: bytes | str | dict, profile: dict) -> dict:
+    """Extract only the approved company's overall rating from Omkar's API.
+
+    The scraper exposes many review fields.  This integration deliberately
+    ignores them and accepts only ``ratings.overall`` plus the aggregate count.
+    The returned company name must match an explicitly approved alias so a
+    broad search cannot attach another employer's rating to a vacancy.
+    """
+    if isinstance(payload, bytes):
+        payload = payload.decode("utf-8", "replace")
+    if isinstance(payload, str):
+        try:
+            payload = json.loads(payload)
+        except (TypeError, ValueError, json.JSONDecodeError) as error:
+            raise ProfileDataUnavailable("scraper Glassdoor retornou JSON inválido") from error
+    if not isinstance(payload, dict):
+        raise ProfileDataUnavailable("scraper Glassdoor retornou payload inválido")
+
+    company = payload.get("company")
+    returned_name = company.get("name") if isinstance(company, dict) else None
+    allowed_names = {
+        company_key(name) for name in (profile.get("company_names") or []) if company_key(name)
+    }
+    if not returned_name or company_key(returned_name) not in allowed_names:
+        raise ProfileDataUnavailable("scraper Glassdoor retornou empresa diferente do perfil aprovado")
+
+    ratings = payload.get("ratings")
+    rating = _rating(ratings.get("overall") if isinstance(ratings, dict) else None)
+    if rating is None:
+        raise ProfileDataUnavailable("scraper Glassdoor não retornou ratings.overall válido")
+    return {
+        "rating": rating,
+        "review_count": _review_count(payload.get("reviews_count")),
+    }
+
+
 def _read_url(
     url: str,
     *,
@@ -552,6 +601,46 @@ def _read_url(
     if len(content) > MAX_RESPONSE_BYTES:
         raise GlassdoorFetchError(f"resposta excedeu {MAX_RESPONSE_BYTES} bytes")
     return content
+
+
+def _omkar_endpoint() -> str:
+    """Validate the local-only scraper endpoint used by the daily runner."""
+    raw = str(os.environ.get("OMKAR_GLASSDOOR_ENDPOINT") or "").strip().rstrip("/")
+    if not raw:
+        raise GlassdoorConfigurationError("OMKAR_GLASSDOOR_ENDPOINT ausente")
+    parsed = urllib.parse.urlsplit(raw)
+    if (
+        parsed.scheme.casefold() not in {"http", "https"}
+        or parsed.hostname not in {"127.0.0.1", "localhost", "::1"}
+        or parsed.username
+        or parsed.password
+    ):
+        raise GlassdoorConfigurationError(
+            "endpoint Omkar deve ser HTTP(S) local (127.0.0.1/localhost/::1)"
+        )
+    return raw
+
+
+def fetch_omkar_profile(
+    profile: dict,
+    *,
+    endpoint: str | None = None,
+    timeout: float = DEFAULT_TIMEOUT_SECONDS,
+    opener=urllib.request.urlopen,
+) -> dict:
+    """Fetch a single approved profile through Omkar's ratings endpoint."""
+    base = _omkar_endpoint() if endpoint is None else endpoint.rstrip("/")
+    query_name = str(profile.get("scraper_company") or (profile.get("company_names") or [""])[0]).strip()
+    if not query_name:
+        raise GlassdoorConfigurationError("perfil Glassdoor sem nome para o scraper")
+    url = f"{base}/companies/ratings?{urllib.parse.urlencode({'company': query_name})}"
+    body = _read_url(
+        url,
+        timeout=timeout,
+        opener=opener,
+        accept="application/json",
+    )
+    return parse_omkar_company_ratings(body, profile)
 
 
 def _robots_allowed(
@@ -592,6 +681,8 @@ def fetch_profile(
     opener=urllib.request.urlopen,
 ) -> dict:
     """Read one approved public profile, respecting robots.txt and backoff."""
+    if str(os.environ.get("OMKAR_GLASSDOOR_ENABLED") or "").strip().casefold() in _OMKAR_ENABLED_VALUES:
+        return fetch_omkar_profile(profile, timeout=timeout, opener=opener)
     url = profile["url"]
     if not _robots_allowed(url, timeout=timeout, opener=opener):
         raise GlassdoorFetchError("robots.txt não autorizou ou não respondeu com segurança")
