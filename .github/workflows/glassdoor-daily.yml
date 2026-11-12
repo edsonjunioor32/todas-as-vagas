@@ -60,7 +60,7 @@ jobs:
           # the provider remains disabled unless the repository variable is true.
           HASDATA_API_KEY: ${{ secrets.HASDATA_API_KEY }}
           HASDATA_MCP_ENABLED: ${{ vars.HASDATA_MCP_ENABLED || 'false' }}
-          HASDATA_MCP_MAX_CALLS: ${{ vars.HASDATA_MCP_MAX_CALLS || '1' }}
+          HASDATA_MCP_MAX_CALLS: ${{ vars.HASDATA_MCP_MAX_CALLS || '3' }}
         run: |
           python jobs-dashboard/glassdoor.py \
             --timeout 15 \

@@ -55,11 +55,13 @@ Para habilitar no GitHub Actions:
 
 O padrão é desabilitado (`false`), concorrência efetiva de uma chamada por vez,
 timeout de 15 segundos, no máximo duas novas tentativas para HTTP 429/5xx e
-uma chamada por execução por padrão. O limite pode ser ajustado por
+até três chamadas por execução por padrão. O limite pode ser ajustado por
 `HASDATA_MCP_TIMEOUT`, `HASDATA_MCP_RETRIES`, `HASDATA_MCP_BACKOFF` e
 `HASDATA_MCP_MAX_CALLS`, respeitando o teto local de três chamadas. Esse teto
 mantém o uso diário compatível com a franquia gratuita documentada pela
-HasData mesmo em meses de 31 dias; o padrão do workflow é uma chamada.
+HasData mesmo em meses de 31 dias. Um resultado bem-sucedido continua sendo
+consultado no máximo uma vez por dia; tentativas que falharam podem ser
+reprocessadas em execução manual, sempre dentro do teto de três chamadas.
 
 O MCP fornece somente a avaliação agregada associada a uma vaga do Glassdoor;
 ele não fornece `review_count` nem substitui os perfis canônicos. O fallback
