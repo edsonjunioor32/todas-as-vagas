@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-12T13:24:12.458229+00:00",
+  "generated_at": "2026-11-12T13:31:20.659800+00:00",
   "profiles": {
     "accenture": {
       "checked_at": null,
@@ -21,13 +21,14 @@
       "checked_at": null,
       "company_names": [
         "Heineken",
+        "Heineken N.V.",
         "Heineken Brasil",
         "Heineken Brasil S.A."
       ],
-      "hasdata_checked_at": null,
+      "hasdata_checked_at": "2026-11-12",
       "hasdata_last_attempted_date": "2026-11-12",
-      "hasdata_rating": null,
-      "hasdata_reference_url": null,
+      "hasdata_rating": 4.2,
+      "hasdata_reference_url": "https://www.glassdoor.com.br/job-listing/pessoa-ajudante-interno-armazenagem-benevides-the-heineken-company-JV_IC2465180_KO0,45_KE46,66.htm?jl=1010311811413",
       "id": "heineken-brasil",
       "last_attempted_date": "2026-11-12",
       "rating": null,
