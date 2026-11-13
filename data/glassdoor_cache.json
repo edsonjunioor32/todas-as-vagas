@@ -85240,14 +85240,14 @@
       "url": null
     },
     "leo madeiras": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "LEO MADEIRAS"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.3,
+      "review_count": 338,
+      "status": "matched",
       "url": null
     },
     "leo servicos administrativos ltda": {
@@ -102910,10 +102910,10 @@
       "company_names": [
         "NUTRIPLANT INDÚSTRIA E COMÉRCIO S/A"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "nutripura nutricao animal": {
@@ -113481,10 +113481,10 @@
       "company_names": [
         "PRIME AGRO PRODUTOS AGRÍCOLAS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "prime coffe tatuape lanchonete ltda": {
@@ -116572,10 +116572,10 @@
       "company_names": [
         "Quest Defense Systems &#038; Solutions, Inc."
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "questor": {
@@ -160370,7 +160370,7 @@
       "url": null
     }
   },
-  "generated_at": "2026-11-13T20:37:19.115314+00:00",
+  "generated_at": "2026-11-13T20:52:19.977456+00:00",
   "profiles": {
     "accenture": {
       "checked_at": "2026-11-13",
