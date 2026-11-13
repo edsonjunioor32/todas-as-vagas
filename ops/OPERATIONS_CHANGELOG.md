@@ -705,3 +705,12 @@ Foram adicionados testes para preservar o primeiro instante da falha, atualizar 
 - A publicação confirmou que as vagas do catálogo usam a empresa `HEINEKEN Brazil`, enquanto o retorno do Glassdoor/HasData usa `Heineken N.V.`. O alias da origem do catálogo foi adicionado ao perfil canônico para propagar a média geral ao campo público `gfr`.
 - Foi incluído teste de regressão cobrindo o mapeamento `HEINEKEN Brazil` → média geral `4,2`.
 
+
+
+## 2026-11-13 — Fallback Browserless para perfis prioritários do Glassdoor
+
+- A consulta de média geral permanece sequencial: perfil oficial via scraper local; quando não houver retorno válido, fallback HasData conforme a política existente; e, somente para perfis explicitamente aprovados com browserless_fallback: true, renderização do URL canônico via Browserless.
+- A captura do fallback extrai apenas a nota geral e a quantidade exata de avaliações. Textos de avaliações não são armazenados, publicados ou usados para associação.
+- A configuração é opt-in no ambiente github-pages: BROWSERLESS_GLASSDOOR_ENABLED=true, BROWSERLESS_ENDPOINT e o segredo BROWSERLESS_TOKEN. O padrão continua desligado; sem endpoint/token, a coleta preserva a nota anterior e não bloqueia o catálogo.
+- A Cresol foi adicionada com o perfil canônico fornecido pelo usuário. Também foram cadastrados Assaí Atacadista, Bosch e Minsait com URLs canônicas explicitamente aprovadas; o restante do catálogo não é enviado automaticamente ao Browserless.
+- A validação inclui fixture da Cresol, teste de ordem de fallback, proteção contra uso em perfis não opt-in e verificação de que o token só é enviado à URL do provedor.
