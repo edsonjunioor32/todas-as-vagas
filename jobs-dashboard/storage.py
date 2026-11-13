@@ -682,6 +682,17 @@ _BRAZIL_LOCATION_RE = re.compile(
     re.I,
 )
 
+_GREENHOUSE_BOARD_URL_RE = re.compile(
+    r"(?:job-boards|boards)\.greenhouse\.io/([^/?#]+)/jobs/",
+    re.I,
+)
+
+
+def greenhouse_board_from_url(url):
+    """Return the Greenhouse board slug encoded in a public job URL."""
+    match = _GREENHOUSE_BOARD_URL_RE.search(str(url or ""))
+    return match.group(1).strip().casefold() if match else ""
+
 
 def purge_greenhouse_non_brazil(conn, current_uids=None):
     """Remove invalid legacy rows without discarding freshly validated jobs.
@@ -722,6 +733,47 @@ def purge_source_rows_not_in_uids(conn, source, current_uids):
         conn.executemany("DELETE FROM jobs WHERE job_uid = ?", [(uid,) for uid in invalid])
         conn.commit()
     return len(invalid)
+
+
+def reconcile_greenhouse_boards(conn, health):
+    """Reconcile only boards whose current response was complete.
+
+    A Greenhouse collection can be partially unavailable. Healthy boards are
+    authoritative and may remove vacancies that disappeared from their live
+    API response; failed boards are left untouched so a transient outage cannot
+    erase valid historical rows. A retired (HTTP 404) board is safe to clear
+    because its public board no longer exists.
+    """
+    if not isinstance(health, dict):
+        return 0
+    boards = health.get("boards") or {}
+    if not isinstance(boards, dict):
+        return 0
+    candidates = conn.execute(
+        "SELECT job_uid, url FROM jobs WHERE source = 'greenhouse'"
+    ).fetchall()
+    to_delete = []
+    for board, result in boards.items():
+        if not isinstance(result, dict):
+            continue
+        status = str(result.get("status") or "").strip().casefold()
+        if status not in {"ok", "retired"}:
+            continue
+        allowed = {
+            str(uid or "").strip()
+            for uid in (result.get("uids") or [])
+            if str(uid or "").strip()
+        }
+        board_slug = str(board or "").strip().casefold()
+        for job_uid, url in candidates:
+            if greenhouse_board_from_url(url) != board_slug:
+                continue
+            if status == "retired" or str(job_uid or "").strip() not in allowed:
+                to_delete.append((job_uid,))
+    if to_delete:
+        conn.executemany("DELETE FROM jobs WHERE job_uid = ?", to_delete)
+        conn.commit()
+    return len(to_delete)
 
 def prune(conn, keep_days=120, today=None, max_age_months=2,
           active_feed_sources=None, max_age_days=None,

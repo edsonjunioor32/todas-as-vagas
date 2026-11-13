@@ -10,6 +10,7 @@ import json
 import os
 import re
 import time
+import urllib.error
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from ._http import get_json
@@ -77,12 +78,23 @@ PCD_PATTERN = re.compile(r"\bpcd\b|pessoa(?:s)?\s+com\s+defici", re.I)
 
 
 class GreenhouseCollectionError(RuntimeError):
-    """A partial Greenhouse result that must preserve the prior snapshot."""
+    """A partial Greenhouse result with per-board health information."""
 
-    def __init__(self, message, rows=None, failed_boards=None):
+    def __init__(self, message, rows=None, failed_boards=None, board_health=None):
         super().__init__(message)
         self.rows = list(rows or [])
         self.failed_boards = list(failed_boards or [])
+        self.greenhouse_health = board_health or getattr(
+            rows, "greenhouse_health", None
+        )
+
+
+class GreenhouseRows(list):
+    """Collected rows plus the board-level result needed for safe reconciliation."""
+
+    def __init__(self, rows, board_health):
+        super().__init__(rows)
+        self.greenhouse_health = board_health
 
 
 def _market(loc):
@@ -154,9 +166,31 @@ def fetch_greenhouse():
 
     def fetch_board(config):
         board = config["board"]
-        payload = request_board(board)
+        try:
+            payload = request_board(board)
+        except urllib.error.HTTPError as error:
+            # A deleted Greenhouse board is a healthy negative result. Treating
+            # it as a source-wide failure would preserve every old vacancy from
+            # that board indefinitely.
+            if error.code == 404:
+                return board, [], "retired"
+            raise
+        jobs_payload = payload.get("jobs") or []
+        if not isinstance(jobs_payload, list):
+            raise RuntimeError("Greenhouse returned an invalid jobs payload")
+        metadata = payload.get("meta") or {}
+        total = metadata.get("total")
+        if total is not None:
+            try:
+                total = int(total)
+            except (TypeError, ValueError) as error:
+                raise RuntimeError("Greenhouse returned an invalid meta.total") from error
+            if total != len(jobs_payload):
+                raise RuntimeError(
+                    f"Greenhouse board returned an incomplete page ({len(jobs_payload)}/{total})"
+                )
         rows = []
-        for item in payload.get("jobs") or []:
+        for item in jobs_payload:
             loc = str((item.get("location") or {}).get("name") or "").strip()
             if not accepts_location(loc, config):
                 continue
@@ -185,28 +219,40 @@ def fetch_greenhouse():
                 contract_types=[str(value).strip() for value in contracts if str(value or "").strip()],
                 pcd=bool(PCD_PATTERN.search(title)),
             ))
-        return board, rows
+        return board, rows, "ok"
 
     out = []
     failed_boards = []
-    empty_required_boards = []
+    board_health = {}
     workers = min(8, max(1, int(os.environ.get("GREENHOUSE_WORKERS", "4"))))
     with ThreadPoolExecutor(max_workers=workers) as executor:
         futures = {executor.submit(fetch_board, config): config for config in configs}
         for future in as_completed(futures):
             config = futures[future]
             try:
-                board, rows = future.result()
-                if board in REQUIRED_GREENHOUSE_BOARDS and not rows:
-                    empty_required_boards.append(board)
-                    print(f"    [gh:{board}] required board returned zero Brazilian vacancies")
+                board, rows, status = future.result()
+                board_health[board] = {
+                    "status": status,
+                    "uids": [
+                        f"greenhouse:{row.get('native_id') or row.get('url')}"
+                        for row in rows
+                    ],
+                }
+                if status == "retired":
+                    print(f"    [gh:{board}] board retired (HTTP 404)")
                 else:
                     out.extend(rows)
             except Exception as error:
                 board = config.get("board")
                 failed_boards.append(board)
+                board_health[board] = {"status": "failed", "uids": []}
                 print(f"    [gh:{board}] {str(error)[:100]}")
-    failed_boards.extend(empty_required_boards)
+    board_health = {
+        "boards": board_health,
+        "failed_boards": sorted(str(board) for board in failed_boards if board),
+        "complete": not failed_boards,
+    }
+    result = GreenhouseRows(out, board_health)
     if failed_boards:
         failed_boards.sort()
         sample = ", ".join(failed_boards[:12])
@@ -214,10 +260,11 @@ def fetch_greenhouse():
         raise GreenhouseCollectionError(
             f"{len(failed_boards)} Greenhouse boards failed; "
             f"successful rows were retained ({sample}{suffix})",
-            rows=out,
+            rows=result,
             failed_boards=failed_boards,
+            board_health=board_health,
         )
-    return out
+    return result
 
 
 def fetch_lever():
