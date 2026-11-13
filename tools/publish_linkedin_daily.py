@@ -121,24 +121,31 @@ def select_daily_vacancies(snapshot: dict, target_count: int = 12) -> list[dict]
 def compose_daily_digest(vacancies: list[dict], today: date | None = None) -> str:
     today = today or datetime.now(BRASILIA).date()
     header = (
-        f"💼 Oportunidades em Alta no Brasil — Edição de Hoje ({today:%d/%m/%Y})\n\n"
-        "Confira as 12 posições com alta demanda no mercado nacional corporativo e de tecnologia selecionadas hoje (100% Remotas / Home Office):\n\n"
+        f"💼 AS MELHORES VAGAS DO DIA — Edição de Hoje ({today:%d/%m/%Y})\n\n"
+        "Curadoria exclusiva com as principais posições abertas no mercado corporativo e de tecnologia (100% Remotas e Híbridas):\n\n"
     )
-
-    blocks = []
-    for idx, job in enumerate(vacancies, 1):
-        title = job.get("cleaned_title") or job.get("title", "").strip()
-        company = job.get("company", "").strip() or "Empresa Confidencial"
-        url = job.get("url", "").strip()
-        block = f"{idx}. 🔹 {title}\n🏢 {company} · 100% Remoto\n🔗 {url}"
-        blocks.append(block)
 
     marker_url = f"https://edsonjunioor32.github.io/todas-as-vagas/?utm_source=linkedin&utm_medium=social&utm_campaign=todas-as-vagas-{today:%Y%m%d}"
     footer = (
         f"\n\n🔎 Explore e filtre mais de 78 mil vagas gratuitas em nosso portal:\n{marker_url}\n\n"
         f"📲 Entre no Canal Oficial no WhatsApp para não perder novas vagas diárias:\n{WHATSAPP_CHANNEL}\n\n"
-        "#TodasAsVagas #VagasRemotas #TrabalhoRemoto #HomeOffice #Emprego #Carreira #VagasTech"
+        "#TodasAsVagas #MelhoresVagasDoDia #VagasRemotas #TrabalhoRemoto #HomeOffice #Emprego #Carreira #VagasTech"
     )
+
+    current_vacancies = list(vacancies)
+    while current_vacancies:
+        blocks = []
+        for idx, job in enumerate(current_vacancies, 1):
+            title = job.get("cleaned_title") or job.get("title", "").strip()
+            company = utils.clean_company_name(job.get("company", ""))
+            url = job.get("url", "").strip()
+            block = f"{idx}. 🔹 {title}\n🏢 {company} · 100% Remoto\n🔗 {url}"
+            blocks.append(block)
+
+        text = header + "\n\n".join(blocks) + footer
+        if len(text) <= 2800:
+            return text
+        current_vacancies.pop()
 
     return header + "\n\n".join(blocks) + footer
 

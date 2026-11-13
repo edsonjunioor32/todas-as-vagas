@@ -1,0 +1,69 @@
+name: LinkedIn Morning Desperta Vagas
+
+on:
+  schedule:
+    # 10:17 UTC = 07:17 BRT (Horário de Brasília - Edição Matinal Desperta Vagas)
+    - cron: '17 10 * * *'
+    # 10:47 UTC = 07:47 BRT (Catchup automático em caso de retenção de runners matinais)
+    - cron: '47 10 * * *'
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Forçar postagem matinal mesmo se já tiver postado hoje'
+        required: false
+        type: boolean
+        default: false
+      dry_run:
+        description: 'Simular postagem sem enviar para o Webhook do Make'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: linkedin-morning-desperta
+  cancel-in-progress: false
+
+jobs:
+  publish-morning-digest:
+    name: Curar e Publicar Desperta Vagas no LinkedIn (07h17)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Executar Curadoria e Disparo do Desperta Vagas
+        env:
+          PYTHONPATH: tools
+          MAKE_LINKEDIN_WEBHOOK_URL: ${{ secrets.MAKE_LINKEDIN_WEBHOOK_URL || 'https://hook.us2.make.com/pmtttsu5fw61y2sjhyevac82zw74mwx0' }}
+        run: |
+          FLAGS=""
+          if [ "${{ inputs.force }}" = "true" ]; then
+            FLAGS="$FLAGS --force"
+          fi
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            FLAGS="$FLAGS --dry-run"
+          fi
+          python tools/publish_linkedin_morning.py $FLAGS
+
+      - name: Persistir estado do Desperta Vagas no repositório
+        if: inputs.dry_run != true
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data/linkedin_digest_state.json || true
+          if ! git diff --staged --quiet; then
+            git commit -m "chore(linkedin): atualizar estado de postagem matinal [skip ci]"
+            git push origin main
+          fi

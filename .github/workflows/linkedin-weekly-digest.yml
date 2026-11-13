@@ -2,10 +2,17 @@ name: LinkedIn Weekly Best Jobs Digest
 
 on:
   schedule:
-    # Sexta-feira às 21:00 UTC (18:00 BRT - Horário de Brasília)
-    - cron: '0 21 * * 5'
+    # 21:15 UTC = 18:15 BRT (Horário de Brasília na Sexta-feira)
+    - cron: '15 21 * * 5'
+    # 21:45 UTC = 18:45 BRT (Catchup automático na Sexta-feira)
+    - cron: '45 21 * * 5'
   workflow_dispatch:
     inputs:
+      force:
+        description: 'Forçar postagem semanal mesmo se já tiver postado esta semana'
+        required: false
+        type: boolean
+        default: false
       dry_run:
         description: 'Simular postagem sem enviar para o Webhook do Make'
         required: false
@@ -13,16 +20,23 @@ on:
         default: false
 
 permissions:
-  contents: read
+  contents: write
+
+concurrency:
+  group: linkedin-weekly-digest
+  cancel-in-progress: false
 
 jobs:
   publish-weekly-digest:
     name: Curar e Publicar Melhores da Semana no LinkedIn
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout do Repositório
         uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Configurar Python
         uses: actions/setup-python@v5
@@ -31,10 +45,25 @@ jobs:
 
       - name: Executar Curadoria e Disparo da Edição Semanal
         env:
+          PYTHONPATH: tools
           MAKE_LINKEDIN_WEBHOOK_URL: ${{ secrets.MAKE_LINKEDIN_WEBHOOK_URL || 'https://hook.us2.make.com/pmtttsu5fw61y2sjhyevac82zw74mwx0' }}
         run: |
+          FLAGS=""
+          if [ "${{ inputs.force }}" = "true" ]; then
+            FLAGS="$FLAGS --force"
+          fi
           if [ "${{ inputs.dry_run }}" = "true" ]; then
-            python tools/publish_linkedin_weekly.py --dry-run
-          else
-            python tools/publish_linkedin_weekly.py
+            FLAGS="$FLAGS --dry-run"
+          fi
+          python tools/publish_linkedin_weekly.py $FLAGS
+
+      - name: Persistir estado do digest semanal no repositório
+        if: inputs.dry_run != true
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data/linkedin_digest_state.json || true
+          if ! git diff --staged --quiet; then
+            git commit -m "chore(linkedin): atualizar estado de postagem semanal [skip ci]"
+            git push origin main
           fi
