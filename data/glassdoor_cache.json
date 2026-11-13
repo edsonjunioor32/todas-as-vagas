@@ -58305,10 +58305,10 @@
       "company_names": [
         "Grupo Constancy"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo consulth": {
@@ -58316,32 +58316,32 @@
       "company_names": [
         "Grupo Consulth"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo contty": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Contty"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.5,
+      "review_count": 2,
+      "status": "matched",
       "url": null
     },
     "grupo coringa": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Coringa"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.3,
+      "review_count": 46,
+      "status": "matched",
       "url": null
     },
     "grupo crff": {
@@ -58349,10 +58349,10 @@
       "company_names": [
         "Grupo CRFF"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo crisdu": {
@@ -58360,21 +58360,21 @@
       "company_names": [
         "Grupo Crisdu"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo crm": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo CRM"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.6,
+      "review_count": 181,
+      "status": "matched",
       "url": null
     },
     "grupo csc transporte e logistica": {
@@ -58382,32 +58382,32 @@
       "company_names": [
         "Grupo CSC Transporte e Logística"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo cvlb": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO CVLB"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.8,
+      "review_count": 81,
+      "status": "matched",
       "url": null
     },
     "grupo d avo": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo D'avó"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.3,
+      "review_count": 297,
+      "status": "matched",
       "url": null
     },
     "grupo d center": {
@@ -58415,21 +58415,21 @@
       "company_names": [
         "Grupo D. Center"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo dago": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO DAGO"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 6,
+      "status": "matched",
       "url": null
     },
     "grupo daycoval": {
@@ -58437,10 +58437,10 @@
       "company_names": [
         "Grupo Daycoval"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo dbk heineken": {
@@ -58448,10 +58448,10 @@
       "company_names": [
         "Grupo DBK / Heineken"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo ddm cobranca credito e contact center ltda": {
@@ -58459,10 +58459,10 @@
       "company_names": [
         "GRUPO DDM COBRANCA, CREDITO E CONTACT CENTER LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo de restaurantes": {
@@ -58470,10 +58470,10 @@
       "company_names": [
         "GRUPO DE RESTAURANTES"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo decio": {
@@ -58481,10 +58481,10 @@
       "company_names": [
         "Grupo Decio"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo delibox": {
@@ -58492,10 +58492,10 @@
       "company_names": [
         "GRUPO DELIBOX"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo delta energia": {
@@ -58503,21 +58503,21 @@
       "company_names": [
         "Grupo Delta Energia"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo destaque": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Destaque"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 43,
+      "status": "matched",
       "url": null
     },
     "grupo diagmed unidade campinas": {
@@ -58525,10 +58525,10 @@
       "company_names": [
         "Grupo Diagmed - Unidade: Campinas"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo diagmed unidade indaiatuba": {
@@ -58536,10 +58536,10 @@
       "company_names": [
         "Grupo Diagmed - Unidade: Indaiatuba"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo diagmed unidade jundiai": {
@@ -58547,10 +58547,10 @@
       "company_names": [
         "Grupo Diagmed - Unidade: Jundiaí"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo diagmed unidade sumare": {
@@ -58558,21 +58558,21 @@
       "company_names": [
         "Grupo Diagmed - Unidade: Sumaré"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo diagonal": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "grupo diagonal"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.0,
+      "review_count": 4,
+      "status": "matched",
       "url": null
     },
     "grupo diamantes": {
@@ -58580,10 +58580,10 @@
       "company_names": [
         "Grupo Diamantes"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo dicoplast": {
@@ -58591,10 +58591,10 @@
       "company_names": [
         "Grupo Dicoplast"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo direcional": {
@@ -58602,10 +58602,10 @@
       "company_names": [
         "Grupo Direcional."
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo disbrava": {
@@ -58613,21 +58613,21 @@
       "company_names": [
         "GRUPO DISBRAVA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo dislub equador": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Dislub Equador"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.5,
+      "review_count": 65,
+      "status": "matched",
       "url": null
     },
     "grupo doce mel": {
@@ -58635,32 +58635,32 @@
       "company_names": [
         "Grupo Doce Mel"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo domingao": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Domingão"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.8,
+      "review_count": 11,
+      "status": "matched",
       "url": null
     },
     "grupo dpsp": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo DPSP"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.5,
+      "review_count": 3311,
+      "status": "matched",
       "url": null
     },
     "grupo drsul concessionarias": {
@@ -58668,32 +58668,32 @@
       "company_names": [
         "Grupo DRSUL Concessionárias"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo drumattos": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Drumattos"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.5,
+      "review_count": 24,
+      "status": "matched",
       "url": null
     },
     "grupo easy": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Easy"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.4,
+      "review_count": 3,
+      "status": "matched",
       "url": null
     },
     "grupo ebeg": {
@@ -58701,10 +58701,10 @@
       "company_names": [
         "Grupo EBEG"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo economico unimed mercosul": {
@@ -58712,10 +58712,10 @@
       "company_names": [
         "GRUPO ECONÔMICO UNIMED MERCOSUL"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo ei beleza": {
@@ -58723,10 +58723,10 @@
       "company_names": [
         "Grupo Ei Beleza"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo eletropoll": {
@@ -58734,10 +58734,10 @@
       "company_names": [
         "Grupo Eletropoll"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo elettromec": {
@@ -58745,32 +58745,32 @@
       "company_names": [
         "Grupo Elettromec"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo elfa": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Elfa"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.6,
+      "review_count": 512,
+      "status": "matched",
       "url": null
     },
     "grupo elian": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Elian"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 85,
+      "status": "matched",
       "url": null
     },
     "grupo ello associacao e clube de beneficios": {
@@ -58778,87 +58778,87 @@
       "company_names": [
         "GRUPO ELLO ASSOCIACAO E CLUBE DE BENEFICIOS"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo elo": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Elo"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 139,
+      "status": "matched",
       "url": null
     },
     "grupo em defesa da crianca com cancer grendacc": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO EM DEFESA DA CRIANCA COM CANCER-GRENDACC"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.0,
+      "review_count": 16,
+      "status": "matched",
       "url": null
     },
     "grupo emma": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Emma"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.0,
+      "review_count": 2,
+      "status": "matched",
       "url": null
     },
     "grupo empresarial tb": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Empresarial TB"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 11,
+      "status": "matched",
       "url": null
     },
     "grupo energisa": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Energisa"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 115,
+      "status": "matched",
       "url": null
     },
     "grupo ep": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO EP"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 2,
+      "status": "matched",
       "url": null
     },
     "grupo equatorial": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Equatorial"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.0,
+      "review_count": 1089,
+      "status": "matched",
       "url": null
     },
     "grupo equatorial energia": {
@@ -58866,10 +58866,10 @@
       "company_names": [
         "Grupo Equatorial Energia"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo er": {
@@ -58877,21 +58877,21 @@
       "company_names": [
         "Grupo ER"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo esd": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo ESD"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 1.0,
+      "review_count": 1,
+      "status": "matched",
       "url": null
     },
     "grupo esse": {
@@ -58899,10 +58899,10 @@
       "company_names": [
         "GRUPO ESSE"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo eximio": {
@@ -58910,43 +58910,43 @@
       "company_names": [
         "Grupo Eximio"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo extrema": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Extrema"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.0,
+      "review_count": 1,
+      "status": "matched",
       "url": null
     },
     "grupo facil": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Fácil"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.2,
+      "review_count": 65,
+      "status": "matched",
       "url": null
     },
     "grupo fan": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo FAN"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.3,
+      "review_count": 33,
+      "status": "matched",
       "url": null
     },
     "grupo fapes": {
@@ -58954,10 +58954,10 @@
       "company_names": [
         "GRUPO FAPES"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo farmax": {
@@ -58965,10 +58965,10 @@
       "company_names": [
         "Grupo Farmax"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo fenix": {
@@ -58976,10 +58976,10 @@
       "company_names": [
         "Grupo Fênix 🐦‍🔥"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo fila empreendimentos e participacoes ltda": {
@@ -58987,10 +58987,10 @@
       "company_names": [
         "GRUPO FILA EMPREENDIMENTOS E PARTICIPAÇÕES LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo fit oportunidades": {
@@ -58998,21 +58998,21 @@
       "company_names": [
         "Grupo FIT - Oportunidades"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo fleury": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Fleury"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 3777,
+      "status": "matched",
       "url": null
     },
     "grupo foco ms rh": {
@@ -59020,10 +59020,10 @@
       "company_names": [
         "GRUPO FOCO MS - RH"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo fontes o boticario": {
@@ -59031,10 +59031,10 @@
       "company_names": [
         "GRUPO FONTES  -  O BOTICÁRIO"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo food nation": {
@@ -59042,21 +59042,21 @@
       "company_names": [
         "Grupo Food Nation"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo fornecedora": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Fornecedora"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 68,
+      "status": "matched",
       "url": null
     },
     "grupo forte le": {
@@ -59064,32 +59064,32 @@
       "company_names": [
         "GRUPO FORTE LE"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo four": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Four"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.5,
+      "review_count": 7,
+      "status": "matched",
       "url": null
     },
     "grupo franzen": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Franzen"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 24,
+      "status": "matched",
       "url": null
     },
     "grupo friopecas": {
@@ -59097,32 +59097,32 @@
       "company_names": [
         "Grupo Friopeças"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo futuro": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO FUTURO"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.3,
+      "review_count": 4,
+      "status": "matched",
       "url": null
     },
     "grupo fx": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo FX"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.0,
+      "review_count": 5,
+      "status": "matched",
       "url": null
     },
     "grupo g dias": {
@@ -59130,10 +59130,10 @@
       "company_names": [
         "Grupo G Dias"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo g t": {
@@ -59141,10 +59141,10 @@
       "company_names": [
         "Grupo G&T"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo g5": {
@@ -59152,32 +59152,32 @@
       "company_names": [
         "Grupo G5"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo garbo": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Garbo"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.3,
+      "review_count": 6,
+      "status": "matched",
       "url": null
     },
     "grupo gbi": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo GBI"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.3,
+      "review_count": 30,
+      "status": "matched",
       "url": null
     },
     "grupo gbrasil": {
@@ -59185,10 +59185,10 @@
       "company_names": [
         "GRUPO GBRASIL"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo gcb": {
@@ -59196,10 +59196,10 @@
       "company_names": [
         "Grupo GCB"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo gcs": {
@@ -59207,10 +59207,10 @@
       "company_names": [
         "Grupo GCS"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo genese": {
@@ -59218,21 +59218,21 @@
       "company_names": [
         "Grupo Genese"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo gerbera": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Gérbera"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 26,
+      "status": "matched",
       "url": null
     },
     "grupo geriba": {
@@ -59240,43 +59240,43 @@
       "company_names": [
         "Grupo Geribá"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo germanica": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Germânica"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.5,
+      "review_count": 9,
+      "status": "matched",
       "url": null
     },
     "grupo gpac": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO GPAC"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.9,
+      "review_count": 116,
+      "status": "matched",
       "url": null
     },
     "grupo gps": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo GPS"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.2,
+      "review_count": 2442,
+      "status": "matched",
       "url": null
     },
     "grupo gr": {
@@ -59284,21 +59284,21 @@
       "company_names": [
         "GRUPO GR"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo gsh": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo GSH"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.2,
+      "review_count": 250,
+      "status": "matched",
       "url": null
     },
     "grupo guanabara": {
@@ -59306,10 +59306,10 @@
       "company_names": [
         "Grupo Guanabara"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo h w publishing": {
@@ -59317,21 +59317,21 @@
       "company_names": [
         "GRUPO H&W PUBLISHING"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo h2": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo H2"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 62,
+      "status": "matched",
       "url": null
     },
     "grupo hagana": {
@@ -59339,10 +59339,10 @@
       "company_names": [
         "GRUPO HAGANA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo hdi": {
@@ -59350,10 +59350,10 @@
       "company_names": [
         "Grupo HDI"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo helpful": {
@@ -59361,10 +59361,10 @@
       "company_names": [
         "GRUPO HELPFUL"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo hennings": {
@@ -59372,10 +59372,10 @@
       "company_names": [
         "Grupo Hennings"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo henry schein brasil": {
@@ -59383,21 +59383,21 @@
       "company_names": [
         "Grupo Henry Schein Brasil"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo herval": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Herval"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 341,
+      "status": "matched",
       "url": null
     },
     "grupo hervalense": {
@@ -59405,10 +59405,10 @@
       "company_names": [
         "Grupo Hervalense"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo hidrau torque": {
@@ -59416,32 +59416,32 @@
       "company_names": [
         "Grupo Hidrau Torque"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo hiper farma": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Hiper Farma"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.0,
+      "review_count": 9,
+      "status": "matched",
       "url": null
     },
     "grupo hp": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo HP"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.0,
+      "review_count": 1,
+      "status": "matched",
       "url": null
     },
     "grupo hp trade": {
@@ -59449,10 +59449,10 @@
       "company_names": [
         "Grupo HP Trade"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo hs claro movidos por conquistas": {
@@ -59460,10 +59460,10 @@
       "company_names": [
         "Grupo HS - Claro | Movidos por Conquistas"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo htb": {
@@ -59471,21 +59471,21 @@
       "company_names": [
         "Grupo HTB"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo hubner": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Hübner"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.0,
+      "review_count": 110,
+      "status": "matched",
       "url": null
     },
     "grupo i mendes": {
@@ -59493,21 +59493,21 @@
       "company_names": [
         "Grupo I Mendes"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo iesa": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo IESA"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.0,
+      "review_count": 1,
+      "status": "matched",
       "url": null
     },
     "grupo igl": {
@@ -59515,10 +59515,10 @@
       "company_names": [
         "GRUPO IGL"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo ignicao digital": {
@@ -59526,10 +59526,10 @@
       "company_names": [
         "Grupo Ignição Digital"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo indaia": {
@@ -59537,21 +59537,21 @@
       "company_names": [
         "GRUPO INDAIA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo indiana": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Indiana"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 51,
+      "status": "matched",
       "url": null
     },
     "grupo inova": {
@@ -59559,10 +59559,10 @@
       "company_names": [
         "GRUPO INOVA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo interfusao participacoes ltda": {
@@ -59570,10 +59570,10 @@
       "company_names": [
         "GRUPO INTERFUSAO PARTICIPACOES LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo interway": {
@@ -59581,120 +59581,120 @@
       "company_names": [
         "Grupo Interway"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo itadil": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Itadil"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 15,
+      "status": "matched",
       "url": null
     },
     "grupo itavema": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Itavema"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.0,
+      "review_count": 134,
+      "status": "matched",
       "url": null
     },
     "grupo iter": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Iter"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.2,
+      "review_count": 54,
+      "status": "matched",
       "url": null
     },
     "grupo itg": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo ITG"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.4,
+      "review_count": 16,
+      "status": "matched",
       "url": null
     },
     "grupo j sleiman": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo J.Sleiman"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.5,
+      "review_count": 46,
+      "status": "matched",
       "url": null
     },
     "grupo jardim da saudade": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Jardim da Saudade"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.1,
+      "review_count": 50,
+      "status": "matched",
       "url": null
     },
     "grupo jb": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO JB"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 11,
+      "status": "matched",
       "url": null
     },
     "grupo jca": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo JCA"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 173,
+      "status": "matched",
       "url": null
     },
     "grupo jcc": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo JCC"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 5.0,
+      "review_count": 2,
+      "status": "matched",
       "url": null
     },
     "grupo jcpm": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO JCPM"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.0,
+      "review_count": 51,
+      "status": "matched",
       "url": null
     },
     "grupo jobz": {
@@ -59702,10 +59702,10 @@
       "company_names": [
         "Grupo Jobz"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo jpdv": {
@@ -59713,21 +59713,21 @@
       "company_names": [
         "GRUPO JPDV"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo jrca": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo JRCA"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 5.0,
+      "review_count": 2,
+      "status": "matched",
       "url": null
     },
     "grupo kharina": {
@@ -59735,21 +59735,21 @@
       "company_names": [
         "Grupo KHARINA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo kmb": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo KMB"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.8,
+      "review_count": 2,
+      "status": "matched",
       "url": null
     },
     "grupo kmr": {
@@ -59757,32 +59757,32 @@
       "company_names": [
         "GRUPO KMR"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo knc": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo KNC"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.0,
+      "review_count": 2,
+      "status": "matched",
       "url": null
     },
     "grupo koch": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Koch"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 81,
+      "status": "matched",
       "url": null
     },
     "grupo kothe": {
@@ -59790,21 +59790,21 @@
       "company_names": [
         "Grupo Kothe"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo kyly": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Kyly"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 169,
+      "status": "matched",
       "url": null
     },
     "grupo l occitane": {
@@ -59812,10 +59812,10 @@
       "company_names": [
         "Grupo L'Occitane"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo l8": {
@@ -59823,32 +59823,32 @@
       "company_names": [
         "Grupo L8"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo lagoa": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Lagoa"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 3,
+      "status": "matched",
       "url": null
     },
     "grupo lamane": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Lamane"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 1.0,
+      "review_count": 1,
+      "status": "matched",
       "url": null
     },
     "grupo lamane franqueado o boticario": {
@@ -59856,32 +59856,32 @@
       "company_names": [
         "GRUPO LAMANE - Franqueado O Boticário"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo lara": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO LARA"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 3,
+      "status": "matched",
       "url": null
     },
     "grupo larch": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Larch"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.9,
+      "review_count": 6,
+      "status": "matched",
       "url": null
     },
     "grupo laredo": {
@@ -59889,21 +59889,21 @@
       "company_names": [
         "Grupo Laredo"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo leauto": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO LEAUTO"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 30,
+      "status": "matched",
       "url": null
     },
     "grupo lemospassos": {
@@ -59911,10 +59911,10 @@
       "company_names": [
         "Grupo LemosPassos"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo lev": {
@@ -59922,21 +59922,21 @@
       "company_names": [
         "Grupo Lev"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo level": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Level"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 19,
+      "status": "matched",
       "url": null
     },
     "grupo liberal": {
@@ -59944,32 +59944,32 @@
       "company_names": [
         "GRUPO LIBERAL"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo lider": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Lider"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.1,
+      "review_count": 30,
+      "status": "matched",
       "url": null
     },
     "grupo lins ferrao": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Lins Ferrão"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.2,
+      "review_count": 28,
+      "status": "matched",
       "url": null
     },
     "grupo lipetral": {
@@ -59977,21 +59977,21 @@
       "company_names": [
         "Grupo Lipetral"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo litoral": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Litoral"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 6,
+      "status": "matched",
       "url": null
     },
     "grupo livemed": {
@@ -59999,10 +59999,10 @@
       "company_names": [
         "Grupo Livemed"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo londres": {
@@ -60010,21 +60010,21 @@
       "company_names": [
         "GRUPO LONDRES"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo los": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo LOS"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.5,
+      "review_count": 33,
+      "status": "matched",
       "url": null
     },
     "grupo lpj it consulting": {
@@ -60032,10 +60032,10 @@
       "company_names": [
         "GRUPO LPJ IT Consulting"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo luck receptivo": {
@@ -60043,10 +60043,10 @@
       "company_names": [
         "Grupo Luck Receptivo"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo luta pela vida": {
@@ -60054,10 +60054,10 @@
       "company_names": [
         "Grupo Luta Pela Vida"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo machado": {
@@ -60065,10 +60065,10 @@
       "company_names": [
         "Grupo Machado"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo madero": {
@@ -60076,43 +60076,43 @@
       "company_names": [
         "Grupo Madero"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo mag": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo MAG"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.4,
+      "review_count": 998,
+      "status": "matched",
       "url": null
     },
     "grupo mais barato": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO MAIS BARATO"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 26,
+      "status": "matched",
       "url": null
     },
     "grupo malwee": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Malwee"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.5,
+      "review_count": 216,
+      "status": "matched",
       "url": null
     },
     "grupo mantevida": {
@@ -60120,10 +60120,10 @@
       "company_names": [
         "Grupo Mantevida"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo maqnelson": {
@@ -60131,21 +60131,21 @@
       "company_names": [
         "Grupo Maqnelson"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo marajo": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO MARAJÓ"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 2,
+      "status": "matched",
       "url": null
     },
     "grupo marata": {
@@ -60153,10 +60153,10 @@
       "company_names": [
         "Grupo Maratá"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo maria cristina": {
@@ -60164,10 +60164,10 @@
       "company_names": [
         "Grupo Maria Cristina"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo marilan": {
@@ -60175,10 +60175,10 @@
       "company_names": [
         "Grupo Marilan"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo marinho de andrade": {
@@ -60186,21 +60186,21 @@
       "company_names": [
         "Grupo Marinho de Andrade"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo marista": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Marista"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.0,
+      "review_count": 1040,
+      "status": "matched",
       "url": null
     },
     "grupo marquise": {
@@ -60208,10 +60208,10 @@
       "company_names": [
         "Grupo Marquise"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo marra": {
@@ -60219,21 +60219,21 @@
       "company_names": [
         "GRUPO MARRA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo massa": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO MASSA"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 58,
+      "status": "matched",
       "url": null
     },
     "grupo mastellini ltda": {
@@ -60241,54 +60241,54 @@
       "company_names": [
         "GRUPO MASTELLINI LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo master": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Master"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.4,
+      "review_count": 4,
+      "status": "matched",
       "url": null
     },
     "grupo mater": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO MATER"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.2,
+      "review_count": 16,
+      "status": "matched",
       "url": null
     },
     "grupo mateus": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Mateus"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.5,
+      "review_count": 1476,
+      "status": "matched",
       "url": null
     },
     "grupo mc": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo MC"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.0,
+      "review_count": 1,
+      "status": "matched",
       "url": null
     },
     "grupo med": {
@@ -60296,10 +60296,10 @@
       "company_names": [
         "GRUPO MED"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo med center": {
@@ -60307,10 +60307,10 @@
       "company_names": [
         "GRUPO MED CENTER"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo mega rio": {
@@ -60318,10 +60318,10 @@
       "company_names": [
         "Grupo Mega Rio"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo meia sola": {
@@ -60329,21 +60329,21 @@
       "company_names": [
         "Grupo meia sola"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo mendes": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Mendes"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 55,
+      "status": "matched",
       "url": null
     },
     "grupo metropax": {
@@ -60351,10 +60351,10 @@
       "company_names": [
         "Grupo Metropax"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo mf paris alimentos": {
@@ -60362,10 +60362,10 @@
       "company_names": [
         "GRUPO MF PARIS ALIMENTOS"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo minas verde": {
@@ -60373,32 +60373,32 @@
       "company_names": [
         "GRUPO MINAS VERDE"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo mirassol": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO MIRASSOL"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 91,
+      "status": "matched",
       "url": null
     },
     "grupo moas": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO MOAS"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 135,
+      "status": "matched",
       "url": null
     },
     "grupo modena e araujo s a": {
@@ -60406,32 +60406,32 @@
       "company_names": [
         "Grupo Modena e Araújo S/A"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo monaco": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO MÔNACO"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 136,
+      "status": "matched",
       "url": null
     },
     "grupo monto": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Monto"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 52,
+      "status": "matched",
       "url": null
     },
     "grupo moriah log": {
@@ -60439,21 +60439,21 @@
       "company_names": [
         "GRUPO MORIAH LOG."
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo moura": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Moura"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 793,
+      "status": "matched",
       "url": null
     },
     "grupo move up": {
@@ -60461,32 +60461,32 @@
       "company_names": [
         "GRUPO MOVE UP"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo mpr": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo MPR"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.1,
+      "review_count": 12,
+      "status": "matched",
       "url": null
     },
     "grupo muffato": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Muffato"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.2,
+      "review_count": 55,
+      "status": "matched",
       "url": null
     },
     "grupo nantes": {
@@ -60494,21 +60494,21 @@
       "company_names": [
         "Grupo Nantes"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo nasa": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Nasa"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.5,
+      "review_count": 10,
+      "status": "matched",
       "url": null
     },
     "grupo nautica comunicacao ltda": {
@@ -60516,21 +60516,21 @@
       "company_names": [
         "GRUPO NAUTICA COMUNICACAO LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo nd": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO ND"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.6,
+      "review_count": 52,
+      "status": "matched",
       "url": null
     },
     "grupo netway": {
@@ -60538,21 +60538,21 @@
       "company_names": [
         "Grupo Netway"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo newchase": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo NewChase"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.3,
+      "review_count": 64,
+      "status": "matched",
       "url": null
     },
     "grupo nicosia franquia o boticario videira fraiburgo cacador uniao da vitoria e taio": {
@@ -60560,21 +60560,21 @@
       "company_names": [
         "Grupo Nicósia - franquia o Boticário Videira, Fraiburgo, Caçador, União da Vitória e Taió"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo nissey": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Nissey"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 5.0,
+      "review_count": 1,
+      "status": "matched",
       "url": null
     },
     "grupo normatel": {
@@ -60582,10 +60582,10 @@
       "company_names": [
         "Grupo Normatel"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo nortearh": {
@@ -60593,43 +60593,43 @@
       "company_names": [
         "Grupo Nortearh"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo nortis": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Nortis"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.7,
+      "review_count": 165,
+      "status": "matched",
       "url": null
     },
     "grupo noster": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO NOSTER"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 5.0,
+      "review_count": 1,
+      "status": "matched",
       "url": null
     },
     "grupo nova": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO NOVA"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.4,
+      "review_count": 33,
+      "status": "matched",
       "url": null
     },
     "grupo nova era": {
@@ -60637,10 +60637,10 @@
       "company_names": [
         "GRUPO NOVA ERA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo ntsec": {
@@ -60648,10 +60648,10 @@
       "company_names": [
         "Grupo NTSEC"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo obvia e appice": {
@@ -60659,32 +60659,32 @@
       "company_names": [
         "GRUPO OBVIA E APPICE"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo oceanic": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Oceanic"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.3,
+      "review_count": 6,
+      "status": "matched",
       "url": null
     },
     "grupo odilon santos": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Odilon Santos"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 28,
+      "status": "matched",
       "url": null
     },
     "grupo officina": {
@@ -60692,32 +60692,32 @@
       "company_names": [
         "GRUPO OFFICINA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo oikos": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO OIKOS"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.9,
+      "review_count": 55,
+      "status": "matched",
       "url": null
     },
     "grupo olx": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo OLX"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 1494,
+      "status": "matched",
       "url": null
     },
     "grupo om": {
@@ -60725,10 +60725,10 @@
       "company_names": [
         "Grupo OM"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo omotenashi": {
@@ -60736,21 +60736,21 @@
       "company_names": [
         "Grupo Omotenashi"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo oncoclinicas": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Oncoclínicas"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.6,
+      "review_count": 287,
+      "status": "matched",
       "url": null
     },
     "grupo open veiculos": {
@@ -60758,43 +60758,43 @@
       "company_names": [
         "GRUPO OPEN VEÍCULOS"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo opera": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO OPERA"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 3,
+      "status": "matched",
       "url": null
     },
     "grupo orizonti": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Orizonti"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.0,
+      "review_count": 3,
+      "status": "matched",
       "url": null
     },
     "grupo ourho": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Ourho"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 34,
+      "status": "matched",
       "url": null
     },
     "grupo pai": {
@@ -60802,10 +60802,10 @@
       "company_names": [
         "Grupo PAI"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo pampa": {
@@ -60813,21 +60813,21 @@
       "company_names": [
         "GRUPO PAMPA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo panvel": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Panvel"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 314,
+      "status": "matched",
       "url": null
     },
     "grupo panvel lifar": {
@@ -60835,10 +60835,10 @@
       "company_names": [
         "Grupo Panvel | Lifar"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo paradiso": {
@@ -60846,21 +60846,21 @@
       "company_names": [
         "GRUPO PARADISO"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo parana": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Paraná"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.3,
+      "review_count": 5,
+      "status": "matched",
       "url": null
     },
     "grupo parolar": {
@@ -60868,10 +60868,10 @@
       "company_names": [
         "GRUPO PAROLAR"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo parque das flores": {
@@ -60879,43 +60879,43 @@
       "company_names": [
         "Grupo Parque das Flores"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo partage": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Partage"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 8,
+      "status": "matched",
       "url": null
     },
     "grupo parvi": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO PARVI"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 323,
+      "status": "matched",
       "url": null
     },
     "grupo passarela": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Passarela"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 5,
+      "status": "matched",
       "url": null
     },
     "grupo passo e passo": {
@@ -60923,10 +60923,10 @@
       "company_names": [
         "Grupo Passo e Passo"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo pd": {
@@ -60934,21 +60934,21 @@
       "company_names": [
         "Grupo PD"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo pereira": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Pereira"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.6,
+      "review_count": 289,
+      "status": "matched",
       "url": null
     },
     "grupo perim supermercado perim": {
@@ -60956,32 +60956,32 @@
       "company_names": [
         "GRUPO PERIM - SUPERMERCADO PERIM"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo permaneo": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Permaneo"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 65,
+      "status": "matched",
       "url": null
     },
     "grupo petropolis": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Petrópolis"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 2680,
+      "status": "matched",
       "url": null
     },
     "grupo pg prime": {
@@ -60989,21 +60989,21 @@
       "company_names": [
         "Grupo PG Prime"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo piracanjuba": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Piracanjuba"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.2,
+      "review_count": 390,
+      "status": "matched",
       "url": null
     },
     "grupo pisolar": {
@@ -61011,10 +61011,10 @@
       "company_names": [
         "Grupo Pisolar"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo platinao": {
@@ -61022,10 +61022,10 @@
       "company_names": [
         "Grupo Platinão"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo pmg": {
@@ -61033,54 +61033,54 @@
       "company_names": [
         "GRUPO PMG"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo podium": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Podium"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.0,
+      "review_count": 1,
+      "status": "matched",
       "url": null
     },
     "grupo positivo": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Positivo"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.4,
+      "review_count": 5,
+      "status": "matched",
       "url": null
     },
     "grupo prestarh": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Prestarh"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 22,
+      "status": "matched",
       "url": null
     },
     "grupo prever": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Prever"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.4,
+      "review_count": 21,
+      "status": "matched",
       "url": null
     },
     "grupo prevserv": {
@@ -61088,21 +61088,21 @@
       "company_names": [
         "Grupo Prevserv"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo prime": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO PRIME"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 4,
+      "status": "matched",
       "url": null
     },
     "grupo priner": {
@@ -61110,10 +61110,10 @@
       "company_names": [
         "Grupo Priner"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo pro security": {
@@ -61121,21 +61121,21 @@
       "company_names": [
         "Grupo Pro Security"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo profarma": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Profarma"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.2,
+      "review_count": 229,
+      "status": "matched",
       "url": null
     },
     "grupo profarma rede d1000": {
@@ -61143,21 +61143,21 @@
       "company_names": [
         "Grupo Profarma | Rede d1000"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo progresso": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Progresso"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.3,
+      "review_count": 16,
+      "status": "matched",
       "url": null
     },
     "grupo projecao": {
@@ -61165,21 +61165,21 @@
       "company_names": [
         "Grupo Projeção"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo projeta": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Projeta"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.6,
+      "review_count": 140,
+      "status": "matched",
       "url": null
     },
     "grupo prosegur": {
@@ -61187,21 +61187,21 @@
       "company_names": [
         "GRUPO PROSEGUR"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo protege": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Protege"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.3,
+      "review_count": 7,
+      "status": "matched",
       "url": null
     },
     "grupo protevia": {
@@ -61209,21 +61209,21 @@
       "company_names": [
         "GRUPO PROTEVIA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo quintoandar": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo QuintoAndar"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.5,
+      "review_count": 50,
+      "status": "matched",
       "url": null
     },
     "grupo rai": {
@@ -61231,32 +61231,32 @@
       "company_names": [
         "Grupo Rái"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo ramiro campelo": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Ramiro Campelo"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.8,
+      "review_count": 69,
+      "status": "matched",
       "url": null
     },
     "grupo ramiro campelo comercio de utilidades ltda": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Ramiro Campelo Comércio de Utilidades Ltda"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.4,
+      "review_count": 7,
+      "status": "matched",
       "url": null
     },
     "grupo rangel contabilidade eireli": {
@@ -61264,10 +61264,10 @@
       "company_names": [
         "GRUPO RANGEL CONTABILIDADE EIRELI"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo rascal restaurantes": {
@@ -61275,10 +61275,10 @@
       "company_names": [
         "GRUPO RÁSCAL RESTAURANTES"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo raymundo da fonte": {
@@ -61286,54 +61286,54 @@
       "company_names": [
         "Grupo Raymundo da Fonte"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo rbs": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo RBS"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 862,
+      "status": "matched",
       "url": null
     },
     "grupo rcn de comunicacao": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO RCN DE COMUNICAÇÃO"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 8,
+      "status": "matched",
       "url": null
     },
     "grupo rcr seguranca": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO RCR SEGURANÇA"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.7,
+      "review_count": 17,
+      "status": "matched",
       "url": null
     },
     "grupo rcs": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo RCS"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 41,
+      "status": "matched",
       "url": null
     },
     "grupo rdo": {
@@ -61341,10 +61341,10 @@
       "company_names": [
         "Grupo RDO"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo real": {
@@ -61352,21 +61352,21 @@
       "company_names": [
         "Grupo Real"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo rede mais": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Rede Mais"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.6,
+      "review_count": 11,
+      "status": "matched",
       "url": null
     },
     "grupo redemix supermercados": {
@@ -61374,21 +61374,21 @@
       "company_names": [
         "Grupo RedeMix Supermercados"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo rehael": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Rehael"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 9,
+      "status": "matched",
       "url": null
     },
     "grupo reis alves": {
@@ -61396,10 +61396,10 @@
       "company_names": [
         "GRUPO REIS ALVES"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo remotors pr revendedora de motos ltda": {
@@ -61407,10 +61407,10 @@
       "company_names": [
         "GRUPO REMOTORS PR - REVENDEDORA DE MOTOS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo renova": {
@@ -61418,10 +61418,10 @@
       "company_names": [
         "Grupo Renova"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo rezende": {
@@ -61429,21 +61429,21 @@
       "company_names": [
         "Grupo Rezende"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo rf": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo RF"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 1.0,
+      "review_count": 1,
+      "status": "matched",
       "url": null
     },
     "grupo rhes": {
@@ -61451,21 +61451,21 @@
       "company_names": [
         "GRUPO RHES"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo ri happy": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Ri Happy"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 890,
+      "status": "matched",
       "url": null
     },
     "grupo ribeiro medicina": {
@@ -61473,21 +61473,21 @@
       "company_names": [
         "Grupo Ribeiro Medicina"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo rio branco": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO RIO BRANCO"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.4,
+      "review_count": 3,
+      "status": "matched",
       "url": null
     },
     "grupo rohden": {
@@ -61495,10 +61495,10 @@
       "company_names": [
         "Grupo Rohden"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo roldao s a": {
@@ -61506,32 +61506,32 @@
       "company_names": [
         "GRUPO ROLDAO S/A"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo roma brasil": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Roma Brasil"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.0,
+      "review_count": 75,
+      "status": "matched",
       "url": null
     },
     "grupo rovema": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO ROVEMA"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 31,
+      "status": "matched",
       "url": null
     },
     "grupo royal palm": {
@@ -61539,32 +61539,32 @@
       "company_names": [
         "Grupo Royal Palm"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo rpn": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo RPN"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 23,
+      "status": "matched",
       "url": null
     },
     "grupo rv": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO RV"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 15,
+      "status": "matched",
       "url": null
     },
     "grupo s e": {
@@ -61572,10 +61572,10 @@
       "company_names": [
         "Grupo S.E."
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo s2": {
@@ -61583,43 +61583,43 @@
       "company_names": [
         "GRUPO S2"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo sa": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo SA"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 26,
+      "status": "matched",
       "url": null
     },
     "grupo saf": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo SAF"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 5.0,
+      "review_count": 3,
+      "status": "matched",
       "url": null
     },
     "grupo saga": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Saga"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 396,
+      "status": "matched",
       "url": null
     },
     "grupo sagit": {
@@ -61627,10 +61627,10 @@
       "company_names": [
         "Grupo Sagit"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo salta educacao": {
@@ -61638,10 +61638,10 @@
       "company_names": [
         "Grupo Salta Educação"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo salz": {
@@ -61649,10 +61649,10 @@
       "company_names": [
         "Grupo Salz"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo santa helena": {
@@ -61660,10 +61660,10 @@
       "company_names": [
         "Grupo Santa Helena"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo santa maria": {
@@ -61671,43 +61671,43 @@
       "company_names": [
         "Grupo Santa Maria"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo santa rosa": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Santa Rosa"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.5,
+      "review_count": 2,
+      "status": "matched",
       "url": null
     },
     "grupo santo anjo": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Santo Anjo"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 5.0,
+      "review_count": 1,
+      "status": "matched",
       "url": null
     },
     "grupo sao roque": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo São Roque"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.2,
+      "review_count": 20,
+      "status": "matched",
       "url": null
     },
     "grupo sapiens": {
@@ -61715,10 +61715,10 @@
       "company_names": [
         "Grupo Sapiens"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo saraiva e maia": {
@@ -61726,21 +61726,21 @@
       "company_names": [
         "GRUPO SARAIVA E MAIA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo savar": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Savar"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.6,
+      "review_count": 18,
+      "status": "matched",
       "url": null
     },
     "grupo savegnago": {
@@ -61748,54 +61748,54 @@
       "company_names": [
         "Grupo Savegnago"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo sbf": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo SBF"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.2,
+      "review_count": 1240,
+      "status": "matched",
       "url": null
     },
     "grupo seb": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo SEB"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 181,
+      "status": "matched",
       "url": null
     },
     "grupo selecionar": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO SELECIONAR"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.9,
+      "review_count": 60,
+      "status": "matched",
       "url": null
     },
     "grupo selpe": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO SELPE"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.6,
+      "review_count": 210,
+      "status": "matched",
       "url": null
     },
     "grupo senff": {
@@ -61803,10 +61803,10 @@
       "company_names": [
         "Grupo Senff"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo senior administracao judicial pericia judicial mediacao e arbitragem ltda": {
@@ -61814,32 +61814,32 @@
       "company_names": [
         "GRUPO SENIOR ADMINISTRACAO JUDICIAL, PERICIA JUDICIAL, MEDIACAO E ARBITRAGEM LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo sereng": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo SERENG"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 85,
+      "status": "matched",
       "url": null
     },
     "grupo serpa": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO SERPA"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.6,
+      "review_count": 22,
+      "status": "matched",
       "url": null
     },
     "grupo seta": {
@@ -61847,32 +61847,32 @@
       "company_names": [
         "GRUPO SETA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo setec": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Setec"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 8,
+      "status": "matched",
       "url": null
     },
     "grupo seven": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Seven"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.4,
+      "review_count": 19,
+      "status": "matched",
       "url": null
     },
     "grupo simeira": {
@@ -61880,21 +61880,21 @@
       "company_names": [
         "GRUPO SIMEIRA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo simoes": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Simões"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.3,
+      "review_count": 188,
+      "status": "matched",
       "url": null
     },
     "grupo simpar": {
@@ -61902,43 +61902,43 @@
       "company_names": [
         "GRUPO SIMPAR"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo sinal": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Sinal"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 172,
+      "status": "matched",
       "url": null
     },
     "grupo sinosserra": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Sinosserra"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 80,
+      "status": "matched",
       "url": null
     },
     "grupo sinova": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO SINOVA"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.2,
+      "review_count": 218,
+      "status": "matched",
       "url": null
     },
     "grupo so ven": {
@@ -61946,10 +61946,10 @@
       "company_names": [
         "Grupo So_ven"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo sohome ltda": {
@@ -61957,65 +61957,65 @@
       "company_names": [
         "GRUPO SOHOME LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo soma": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo SOMA"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.5,
+      "review_count": 1078,
+      "status": "matched",
       "url": null
     },
     "grupo sorriso": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Sorriso"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 5.0,
+      "review_count": 1,
+      "status": "matched",
       "url": null
     },
     "grupo souza lima": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO SOUZA LIMA"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.0,
+      "review_count": 703,
+      "status": "matched",
       "url": null
     },
     "grupo splice": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Splice"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 131,
+      "status": "matched",
       "url": null
     },
     "grupo srm": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO SRM"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.3,
+      "review_count": 17,
+      "status": "matched",
       "url": null
     },
     "grupo starlis": {
@@ -62023,54 +62023,54 @@
       "company_names": [
         "Grupo Starlis"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo steelcorp": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo SteelCorp"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.2,
+      "review_count": 21,
+      "status": "matched",
       "url": null
     },
     "grupo stt": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo STT"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 9,
+      "status": "matched",
       "url": null
     },
     "grupo studio": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Studio"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 192,
+      "status": "matched",
       "url": null
     },
     "grupo suno": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Suno"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 227,
+      "status": "matched",
       "url": null
     },
     "grupo super nosso": {
@@ -62078,32 +62078,32 @@
       "company_names": [
         "Grupo Super Nosso"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo suporte": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO SUPORTE"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.6,
+      "review_count": 33,
+      "status": "matched",
       "url": null
     },
     "grupo svd": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo SVD"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.3,
+      "review_count": 3,
+      "status": "matched",
       "url": null
     },
     "grupo sysmap": {
@@ -62111,10 +62111,10 @@
       "company_names": [
         "Grupo SysMap"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo tagg": {
@@ -62122,21 +62122,21 @@
       "company_names": [
         "GRUPO TAGG"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo tcm": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO TCM"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 22,
+      "status": "matched",
       "url": null
     },
     "grupo teaga": {
@@ -62144,10 +62144,10 @@
       "company_names": [
         "Grupo TEAGA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo tecfibras": {
@@ -62155,10 +62155,10 @@
       "company_names": [
         "Grupo Tecfibras"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo tecnospeed": {
@@ -62166,21 +62166,21 @@
       "company_names": [
         "Grupo TecnoSpeed"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo telecel": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Telecel"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.5,
+      "review_count": 7,
+      "status": "matched",
       "url": null
     },
     "grupo tesoura de ouro": {
@@ -62188,32 +62188,32 @@
       "company_names": [
         "Grupo Tesoura de Ouro"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo the best": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo The Best"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.4,
+      "review_count": 176,
+      "status": "matched",
       "url": null
     },
     "grupo tigre": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Tigre"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.2,
+      "review_count": 823,
+      "status": "matched",
       "url": null
     },
     "grupo timbre": {
@@ -62221,10 +62221,10 @@
       "company_names": [
         "Grupo Timbre"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo tix": {
@@ -62232,10 +62232,10 @@
       "company_names": [
         "Grupo TIX"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo tozzo": {
@@ -62243,10 +62243,10 @@
       "company_names": [
         "Grupo Tozzo"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo tracan": {
@@ -62254,32 +62254,32 @@
       "company_names": [
         "Grupo Tracan"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo tracbel": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO TRACBEL"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.5,
+      "review_count": 7,
+      "status": "matched",
       "url": null
     },
     "grupo tracker": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Tracker"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.2,
+      "review_count": 79,
+      "status": "matched",
       "url": null
     },
     "grupo tragga": {
@@ -62287,21 +62287,21 @@
       "company_names": [
         "Grupo Tragga"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo treviso": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO TREVISO"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 38,
+      "status": "matched",
       "url": null
     },
     "grupo trigo": {
@@ -62309,10 +62309,10 @@
       "company_names": [
         "Grupo Trigo"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo tupan": {
@@ -62320,10 +62320,10 @@
       "company_names": [
         "Grupo Tupan"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo tutano": {
@@ -62331,10 +62331,10 @@
       "company_names": [
         "Grupo Tutano"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo ultra": {
@@ -62342,10 +62342,10 @@
       "company_names": [
         "Grupo Ultra"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo unifor": {
@@ -62353,10 +62353,10 @@
       "company_names": [
         "Grupo UNIFOR"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo uniggel": {
@@ -62364,21 +62364,21 @@
       "company_names": [
         "GRUPO UNIGGEL"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo uninter": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo UNINTER"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.2,
+      "review_count": 746,
+      "status": "matched",
       "url": null
     },
     "grupo universal solucoes automotivas": {
@@ -62386,32 +62386,32 @@
       "company_names": [
         "Grupo Universal Soluções Automotivas"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo upper": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Upper"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 5,
+      "status": "matched",
       "url": null
     },
     "grupo urca energia": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Urca Energia"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.0,
+      "review_count": 29,
+      "status": "matched",
       "url": null
     },
     "grupo valdir saraiva": {
@@ -62419,54 +62419,54 @@
       "company_names": [
         "GRUPO VALDIR SARAIVA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo valence": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Valence"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 15,
+      "status": "matched",
       "url": null
     },
     "grupo valure": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Valure"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 13,
+      "status": "matched",
       "url": null
     },
     "grupo vamos": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Vamos"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 214,
+      "status": "matched",
       "url": null
     },
     "grupo vanguarda": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Vanguarda"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.0,
+      "review_count": 47,
+      "status": "matched",
       "url": null
     },
     "grupo verdao": {
@@ -62474,10 +62474,10 @@
       "company_names": [
         "Grupo Verdão"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo verona": {
@@ -62485,65 +62485,65 @@
       "company_names": [
         "Grupo Verona"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo vertical": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Vertical"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.2,
+      "review_count": 15,
+      "status": "matched",
       "url": null
     },
     "grupo via mondo": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Via Mondo"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.4,
+      "review_count": 7,
+      "status": "matched",
       "url": null
     },
     "grupo vigorito": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Vigorito"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.5,
+      "review_count": 28,
+      "status": "matched",
       "url": null
     },
     "grupo vila nova": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Vila Nova"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.7,
+      "review_count": 5,
+      "status": "matched",
       "url": null
     },
     "grupo vila rica portarias": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO VILA RICA PORTARIAS"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.6,
+      "review_count": 7,
+      "status": "matched",
       "url": null
     },
     "grupo vilela": {
@@ -62551,10 +62551,10 @@
       "company_names": [
         "GRUPO VILELA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo villela": {
@@ -62562,21 +62562,21 @@
       "company_names": [
         "Grupo Villela"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo voetur": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Voetur"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.9,
+      "review_count": 77,
+      "status": "matched",
       "url": null
     },
     "grupo vpa": {
@@ -62584,10 +62584,10 @@
       "company_names": [
         "Grupo VPA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo vr": {
@@ -62595,10 +62595,10 @@
       "company_names": [
         "GRUPO VR"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo vrs": {
@@ -62606,21 +62606,21 @@
       "company_names": [
         "Grupo VRS"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo vyas": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Vyas"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 11,
+      "status": "matched",
       "url": null
     },
     "grupo webpic": {
@@ -62628,10 +62628,10 @@
       "company_names": [
         "Grupo WebPic"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo widi care": {
@@ -62639,21 +62639,21 @@
       "company_names": [
         "Grupo Widi Care"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo wish": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO WISH"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 26,
+      "status": "matched",
       "url": null
     },
     "grupo yamaha brasil": {
@@ -62661,10 +62661,10 @@
       "company_names": [
         "Grupo Yamaha Brasil"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo ybera paris": {
@@ -62672,10 +62672,10 @@
       "company_names": [
         "Grupo Ybera Paris"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo ype": {
@@ -62683,32 +62683,32 @@
       "company_names": [
         "Grupo Ypê"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo zaffari": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Zaffari"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.0,
+      "review_count": 1443,
+      "status": "matched",
       "url": null
     },
     "grupo zancanaro": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Zancanaro"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.8,
+      "review_count": 5,
+      "status": "matched",
       "url": null
     },
     "grupo zcm": {
@@ -62716,21 +62716,21 @@
       "company_names": [
         "GRUPO ZCM"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupo zelo": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo Zelo"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 325,
+      "status": "matched",
       "url": null
     },
     "grupo zema": {
@@ -62738,21 +62738,21 @@
       "company_names": [
         "Grupo Zema"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "gruposc": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GrupoSC"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.2,
+      "review_count": 550,
+      "status": "matched",
       "url": null
     },
     "gruposc distribuidora de medicamentos": {
@@ -62760,10 +62760,10 @@
       "company_names": [
         "GrupoSC Distribuidora de Medicamentos"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupotlog": {
@@ -62771,10 +62771,10 @@
       "company_names": [
         "GrupoTLOG"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupovillela gestao de carreiras": {
@@ -62782,10 +62782,10 @@
       "company_names": [
         "GrupoVillela | Gestão de Carreiras"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "grupozenir gupy io": {
@@ -62793,10 +62793,10 @@
       "company_names": [
         "grupozenir.gupy.io"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "gs business": {
@@ -62804,10 +62804,10 @@
       "company_names": [
         "GS BUSINESS"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "gs consultoria comercial": {
@@ -62815,21 +62815,21 @@
       "company_names": [
         "GS Consultoria Comercial"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "gs gestao de talentos": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GS Gestão de Talentos"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.5,
+      "review_count": 2,
+      "status": "matched",
       "url": null
     },
     "gs1": {
@@ -62837,10 +62837,10 @@
       "company_names": [
         "GS1"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "gsa incorporacoes 03": {
@@ -62848,10 +62848,10 @@
       "company_names": [
         "GSA INCORPORACOES 03"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "gsb solutions": {
@@ -62859,10 +62859,10 @@
       "company_names": [
         "GSB Solutions"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "gsc fabrica de alimentos ltda": {
@@ -62870,10 +62870,10 @@
       "company_names": [
         "GSC FABRICA DE ALIMENTOS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "gsi medical health services ltda": {
@@ -62881,21 +62881,21 @@
       "company_names": [
         "GSI MEDICAL HEALTH SERVICES LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "gsk": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GSK"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 16135,
+      "status": "matched",
       "url": null
     },
     "gsm bahia provedor de internet ltda": {
@@ -62903,10 +62903,10 @@
       "company_names": [
         "GSM BAHIA PROVEDOR DE INTERNET LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "gsp urbanizacao e engenharia ltda": {
@@ -62914,21 +62914,21 @@
       "company_names": [
         "GSP URBANIZACAO E ENGENHARIA LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "gsstech group": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GSSTech Group"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.0,
+      "review_count": 1,
+      "status": "matched",
       "url": null
     },
     "gst polimeros": {
@@ -62936,32 +62936,32 @@
       "company_names": [
         "GST Polímeros"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "gsw": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GSW"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 26,
+      "status": "matched",
       "url": null
     },
     "gt": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GT"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.4,
+      "review_count": 17,
+      "status": "matched",
       "url": null
     },
     "gt multimarcas comercio de veiculos ltda": {
@@ -62969,10 +62969,10 @@
       "company_names": [
         "GT MULTIMARCAS COMERCIO DE VEICULOS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "gtcon": {
@@ -62980,21 +62980,21 @@
       "company_names": [
         "GTCON"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "gtf": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GTF"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 7,
+      "status": "matched",
       "url": null
     },
     "gtm alimentos": {
@@ -63002,10 +63002,10 @@
       "company_names": [
         "GTM ALIMENTOS"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "gto rh": {
@@ -63013,10 +63013,10 @@
       "company_names": [
         "GTO RH"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "gtop engenharia sa": {
@@ -63024,10 +63024,10 @@
       "company_names": [
         "GTOP ENGENHARIA SA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "guabi nutricao e saude animal": {
@@ -63035,10 +63035,10 @@
       "company_names": [
         "Guabi Nutrição e Saúde Animal"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "gualapack brasil industria e comercio s a": {
@@ -63046,43 +63046,43 @@
       "company_names": [
         "GUALAPACK BRASIL INDUSTRIA E COMERCIO S.A."
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "guanabara": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Guanabara"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 76,
+      "status": "matched",
       "url": null
     },
     "guaracamp": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Guaracamp"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.0,
+      "review_count": 56,
+      "status": "matched",
       "url": null
     },
     "guarana mineiro": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Guaraná Mineiro"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 12,
+      "status": "matched",
       "url": null
     },
     "guararapes paineis": {
@@ -63090,10 +63090,10 @@
       "company_names": [
         "Guararapes Painéis"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "guardian properties llc": {
@@ -63101,10 +63101,10 @@
       "company_names": [
         "Guardian Properties LLC"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "guarida": {
@@ -63112,10 +63112,10 @@
       "company_names": [
         "Guarida"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "guarulhos comercio de sucatas ltda": {
@@ -63123,10 +63123,10 @@
       "company_names": [
         "GUARULHOS COMERCIO DE SUCATAS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "guedes paixao ltda": {
@@ -63134,21 +63134,21 @@
       "company_names": [
         "GUEDES & PAIXAO LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "guesty": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Guesty"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.5,
+      "review_count": 278,
+      "status": "matched",
       "url": null
     },
     "guguy": {
@@ -63156,21 +63156,21 @@
       "company_names": [
         "GUGUY"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "guiainvest": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GuiaInvest"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.2,
+      "review_count": 50,
+      "status": "matched",
       "url": null
     },
     "guiarh consultoria e treinamentos ltda": {
@@ -63178,10 +63178,10 @@
       "company_names": [
         "GUIARH CONSULTORIA E TREINAMENTOS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "guiauto ltda": {
@@ -63189,10 +63189,10 @@
       "company_names": [
         "GUIAUTO LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "guide rh": {
@@ -63200,21 +63200,21 @@
       "company_names": [
         "Guide RH"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "guidehouse": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Guidehouse"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.1,
+      "review_count": 3090,
+      "status": "matched",
       "url": null
     },
     "guidewire software": {
@@ -63222,10 +63222,10 @@
       "company_names": [
         "Guidewire Software"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "guido": {
@@ -63233,10 +63233,10 @@
       "company_names": [
         "Guido"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "guimaraes consultoria organizacional": {
@@ -63244,10 +63244,10 @@
       "company_names": [
         "Guimarães Consultoria Organizacional"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "guimaraes filho consultoria": {
@@ -63255,10 +63255,10 @@
       "company_names": [
         "Guimarães Filho Consultoria"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "guimaraes vieira de mello": {
@@ -63266,10 +63266,10 @@
       "company_names": [
         "GUIMARAES & VIEIRA DE MELLO"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "guina s food": {
@@ -63277,10 +63277,10 @@
       "company_names": [
         "Guina ´s Food"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "gurgelmix maquinas e ferramentas sa": {
@@ -63288,10 +63288,10 @@
       "company_names": [
         "gurgelmix maquinas e ferramentas sa"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "gurpo afeet": {
@@ -63299,10 +63299,10 @@
       "company_names": [
         "Gurpo Afeet"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "gurume": {
@@ -63310,10 +63310,10 @@
       "company_names": [
         "Gurumê"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "gusti leder gmbh": {
@@ -63321,10 +63321,10 @@
       "company_names": [
         "Gusti Leder GmbH"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "gusto inc": {
@@ -63332,10 +63332,10 @@
       "company_names": [
         "Gusto, Inc."
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "gv condicionamento fisico ltda": {
@@ -63343,10 +63343,10 @@
       "company_names": [
         "GV CONDICIONAMENTO FISICO LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "gv2c consulting solutions": {
@@ -63354,10 +63354,10 @@
       "company_names": [
         "GV2C Consulting & Solutions"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "gvc rodobens": {
@@ -63365,21 +63365,21 @@
       "company_names": [
         "GVC - Rodobens"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "gvc solucoes em cobranca": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GVC SOLUÇÕES EM COBRANÇA"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.5,
+      "review_count": 14,
+      "status": "matched",
       "url": null
     },
     "gw processamento de informacoes ltda": {
@@ -63387,10 +63387,10 @@
       "company_names": [
         "GW- PROCESSAMENTO DE INFORMACOES LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "gwl formaturas ltda": {
@@ -63398,21 +63398,21 @@
       "company_names": [
         "GWL FORMATURAS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "gwm": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GWM"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 18,
+      "status": "matched",
       "url": null
     },
     "gx med solucoes ltda": {
@@ -63420,32 +63420,32 @@
       "company_names": [
         "GX MED SOLUCOES LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "gx2 tecnologia": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GX2 Tecnologia"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.0,
+      "review_count": 135,
+      "status": "matched",
       "url": null
     },
     "gxa": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GXA"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.0,
+      "review_count": 29,
+      "status": "matched",
       "url": null
     },
     "gxm recruiter": {
@@ -63453,21 +63453,21 @@
       "company_names": [
         "GXM RECRUITER"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "gxo logistics": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GXO Logistics"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.3,
+      "review_count": 2453,
+      "status": "matched",
       "url": null
     },
     "gympass": {
@@ -63475,21 +63475,21 @@
       "company_names": [
         "gympass"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "gymshark": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Gymshark"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.5,
+      "review_count": 434,
+      "status": "matched",
       "url": null
     },
     "h d log transportes ltda": {
@@ -63497,10 +63497,10 @@
       "company_names": [
         "H. D. LOG TRANSPORTES LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "h hemo hemoterapia brasil s a": {
@@ -63508,54 +63508,54 @@
       "company_names": [
         "H. HEMO - HEMOTERAPIA BRASIL S.A."
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "h m": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "H&M"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.5,
+      "review_count": 21822,
+      "status": "matched",
       "url": null
     },
     "h m group": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "H&M Group"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.6,
+      "review_count": 164,
+      "status": "matched",
       "url": null
     },
     "h olhos": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "H.Olhos"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.5,
+      "review_count": 56,
+      "status": "matched",
       "url": null
     },
     "h r block": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "H&R Block"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 8773,
+      "status": "matched",
       "url": null
     },
     "h r participacoes e servicos ltda": {
@@ -63563,21 +63563,21 @@
       "company_names": [
         "H R PARTICIPACOES E SERVICOS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "h tech supports": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "H-Tech Supports"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 10,
+      "status": "matched",
       "url": null
     },
     "h wagner partner": {
@@ -63585,21 +63585,21 @@
       "company_names": [
         "H. Wagner + Partner"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "h1": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "H1"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 138,
+      "status": "matched",
       "url": null
     },
     "h2m industria e comercio de embalagens ltda": {
@@ -63607,32 +63607,32 @@
       "company_names": [
         "H2M INDUSTRIA E COMERCIO DE EMBALAGENS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hackerone": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HackerOne"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 315,
+      "status": "matched",
       "url": null
     },
     "hadley designs": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hadley Designs"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.6,
+      "review_count": 41,
+      "status": "matched",
       "url": null
     },
     "hadley designs llc": {
@@ -63640,21 +63640,21 @@
       "company_names": [
         "Hadley Designs LLC"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "haight": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Haight"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.2,
+      "review_count": 10,
+      "status": "matched",
       "url": null
     },
     "hair club": {
@@ -63662,21 +63662,21 @@
       "company_names": [
         "Hair Club"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "halcyon": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Halcyon"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.2,
+      "review_count": 43,
+      "status": "matched",
       "url": null
     },
     "haller recursos humanos": {
@@ -63684,32 +63684,32 @@
       "company_names": [
         "HALLER RECURSOS HUMANOS"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "halter": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Halter"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.2,
+      "review_count": 21,
+      "status": "matched",
       "url": null
     },
     "hamilton medical": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hamilton Medical"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.2,
+      "review_count": 49,
+      "status": "matched",
       "url": null
     },
     "hana electronics": {
@@ -63717,10 +63717,10 @@
       "company_names": [
         "Hana Electronics"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hand line transportes internacionais ltda": {
@@ -63728,21 +63728,21 @@
       "company_names": [
         "HAND LINE TRANSPORTES INTERNACIONAIS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "handit": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Handit"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.4,
+      "review_count": 19,
+      "status": "matched",
       "url": null
     },
     "hanna restaurante ltda": {
@@ -63750,10 +63750,10 @@
       "company_names": [
         "HANNA RESTAURANTE LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hanwha defence deutschland gmbh": {
@@ -63761,43 +63761,43 @@
       "company_names": [
         "Hanwha Defence Deutschland GmbH"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hapvida": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hapvida"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.3,
+      "review_count": 10,
+      "status": "matched",
       "url": null
     },
     "harald": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Harald"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.3,
+      "review_count": 145,
+      "status": "matched",
       "url": null
     },
     "harbor": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Harbor"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.2,
+      "review_count": 84,
+      "status": "matched",
       "url": null
     },
     "harborglobal": {
@@ -149766,7 +149766,7 @@
       "url": null
     }
   },
-  "generated_at": "2026-11-13T05:54:28.824702+00:00",
+  "generated_at": "2026-11-13T06:30:10.102796+00:00",
   "profiles": {
     "accenture": {
       "checked_at": "2026-11-13",
