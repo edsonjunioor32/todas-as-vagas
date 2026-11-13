@@ -15,7 +15,7 @@ from pathlib import Path
 
 
 SCHEMA_VERSION = 2
-PARSER_VERSION = "description-crawler-v3"
+PARSER_VERSION = "description-crawler-v4"
 TERMINAL_FAILURE_STATUSES = frozenset({"gone", "removed", "not_found"})
 
 
