@@ -41273,14 +41273,14 @@
       "url": null
     },
     "directv": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "DIRECTV"
       ],
       "last_attempted_date": "2026-11-13",
-      "rating": null,
-      "review_count": null,
-      "status": "unavailable",
+      "rating": 3.1,
+      "review_count": 707,
+      "status": "matched",
       "url": null
     },
     "direta cursos": {
@@ -41849,10 +41849,10 @@
       "company_names": [
         "DLN Consulting Group"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "dlocal": {
@@ -64879,14 +64879,14 @@
       "url": null
     },
     "grupo ok": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Grupo OK"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.5,
+      "review_count": 4,
+      "status": "matched",
       "url": null
     },
     "grupo olx": {
@@ -141714,14 +141714,14 @@
       "url": null
     },
     "terminal de conteineres de paranagua": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Terminal de Contêineres de Paranaguá"
       ],
       "last_attempted_date": "2026-11-13",
-      "rating": null,
-      "review_count": null,
-      "status": "unavailable",
+      "rating": 4.1,
+      "review_count": 205,
+      "status": "matched",
       "url": null
     },
     "termios": {
@@ -160370,7 +160370,7 @@
       "url": null
     }
   },
-  "generated_at": "2026-11-13T20:52:19.977456+00:00",
+  "generated_at": "2026-11-13T21:13:23.030513+00:00",
   "profiles": {
     "accenture": {
       "checked_at": "2026-11-13",
