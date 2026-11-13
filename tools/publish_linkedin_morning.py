@@ -218,12 +218,20 @@ def compose_morning_digest(vacancies: list[dict], today: date | None = None) -> 
 
 
 def publish_morning(dry_run: bool = False, force: bool = False, webhook_url: str | None = None) -> int:
-    today = datetime.now(BRASILIA).date()
+    now_brt = datetime.now(BRASILIA)
+    today = now_brt.date()
 
-    if not force and is_already_posted_this_morning(today):
-        print(f"Aviso: O 'Desperta Vagas' de hoje ({today:%d/%m/%Y}) já foi realizado anteriormente.")
-        print("Encerrando execução de forma segura para impedir publicações duplicadas.")
-        return 0
+    if not force:
+        # Trava de segurança de horário: só publica a partir das 07h17 BRT e dentro da janela matinal (< 13h00 BRT)
+        if now_brt.hour < 7 or (now_brt.hour == 7 and now_brt.minute < 17) or now_brt.hour >= 13:
+            print(f"Aviso: Horário atual ({now_brt:%H:%M} BRT) está fora da janela matinal (07h17 - 12h59 BRT).")
+            print("Encerrando execução de forma segura.")
+            return 0
+
+        if is_already_posted_this_morning(today):
+            print(f"Aviso: O 'Desperta Vagas' de hoje ({today:%d/%m/%Y}) já foi realizado anteriormente.")
+            print("Encerrando execução de forma segura para impedir publicações duplicadas.")
+            return 0
 
     webhook_url = webhook_url or os.environ.get("MAKE_LINKEDIN_WEBHOOK_URL") or DEFAULT_WEBHOOK_URL
     print(f"Buscando catálogo de vagas de {DEFAULT_SNAPSHOT_URL}...")

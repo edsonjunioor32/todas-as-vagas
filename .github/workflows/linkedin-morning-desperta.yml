@@ -2,10 +2,18 @@ name: LinkedIn Morning Desperta Vagas
 
 on:
   schedule:
-    # 10:17 UTC = 07:17 BRT (Horário de Brasília - Edição Matinal Desperta Vagas)
-    - cron: '17 10 * * *'
-    # 10:47 UTC = 07:47 BRT (Catchup automático em caso de retenção de runners matinais)
-    - cron: '47 10 * * *'
+    # 10:18 UTC = 07:18 BRT (Horário de Brasília com múltiplos ticks para imunidade a atrasos na fila do GitHub)
+    - cron: '18 10 * * *'
+    - cron: '28 10 * * *'
+    - cron: '38 10 * * *'
+    - cron: '48 10 * * *'
+    - cron: '08 11 * * *'
+  workflow_run:
+    workflows:
+      - "Atualizar vagas multiportal e publicar GitHub Pages"
+      - "Catálogo — recuperar agenda perdida"
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
     inputs:
       force:

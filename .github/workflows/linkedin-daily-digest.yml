@@ -2,10 +2,20 @@ name: LinkedIn Daily Best Jobs Digest
 
 on:
   schedule:
-    # 21:15 UTC = 18:15 BRT (Horário principal de segunda a sexta-feira)
-    - cron: '15 21 * * 1-5'
-    # 21:45 UTC = 18:45 BRT (Catchup automático caso o runner atrase no horário principal)
-    - cron: '45 21 * * 1-5'
+    # 21:16 UTC = 18:16 BRT (Horário principal com ticks múltiplos fora dos minutos cheios para imunidade a atrasos na fila do GitHub)
+    - cron: '16 21 * * 1-5'
+    - cron: '26 21 * * 1-5'
+    - cron: '36 21 * * 1-5'
+    - cron: '51 21 * * 1-5'
+    - cron: '06 22 * * 1-5'
+    - cron: '21 22 * * 1-5'
+  workflow_run:
+    workflows:
+      - "Atualizar vagas multiportal e publicar GitHub Pages"
+      - "Catálogo — recuperar agenda perdida"
+      - "Coleta Diária LinkedIn (Vagas Públicas)"
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
     inputs:
       force:

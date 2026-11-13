@@ -2,10 +2,18 @@ name: LinkedIn Weekly Best Jobs Digest
 
 on:
   schedule:
-    # 22:15 UTC = 19:15 BRT (Horário especial da edição executiva de Sexta-feira)
-    - cron: '15 22 * * 5'
-    # 22:45 UTC = 19:45 BRT (Catchup automático na Sexta-feira)
-    - cron: '45 22 * * 5'
+    # 22:16 UTC = 19:16 BRT (Horário especial da edição executiva de Sexta-feira com ticks múltiplos anti-concorrência)
+    - cron: '16 22 * * 5'
+    - cron: '26 22 * * 5'
+    - cron: '36 22 * * 5'
+    - cron: '51 22 * * 5'
+    - cron: '06 23 * * 5'
+  workflow_run:
+    workflows:
+      - "Atualizar vagas multiportal e publicar GitHub Pages"
+      - "Catálogo — recuperar agenda perdida"
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
     inputs:
       force:

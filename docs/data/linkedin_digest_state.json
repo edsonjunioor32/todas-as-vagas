@@ -1,5 +1,5 @@
 {
-  "last_daily_posted_date": null,
+  "last_daily_posted_date": "2026-11-13",
   "last_weekly_posted_date": null,
   "history": [
     {
@@ -13,6 +13,12 @@
       "type": "morning_desperta",
       "jobs_count": 12,
       "timestamp": "2026-11-13T08:02:58.944689-03:00"
+    },
+    {
+      "date": "2026-11-13",
+      "type": "daily",
+      "jobs_count": 12,
+      "timestamp": "2026-11-13T20:24:44.199064-03:00"
     }
   ],
   "last_morning_posted_date": "2026-11-13",
@@ -96,7 +102,19 @@
     "https://bradesco.csod.com/ux/ats/careersite/1/home/requisition/92641",
     "https://jobs.quickin.io/mollicait/jobs/6aabe7cf6dbc7300133b4129",
     "https://jobs.quickin.io/mollicait/jobs/6aabe7aa093d170014611d00",
-    "https://jobs.quickin.io/mollicait/jobs/6aabe7a76dbc7300133b1b95"
+    "https://jobs.quickin.io/mollicait/jobs/6aabe7a76dbc7300133b1b95",
+    "https://tarken.inhire.app/vagas/80600e9c-6a34-4319-a1fe-40b5487d9df8/sdr-pleno",
+    "https://db1.inhire.app/vagas/9d3398e8-c5c5-45a1-8366-a6d985cabcf2/analista-de-growth-performance-senior",
+    "https://carreiras-semantix.inhire.app/vagas/1a299133-b7ed-42dd-88f4-e8542711a962/analista-de-dados-bi-bigquery-looker-studio",
+    "https://projectivaholding.inhire.app/vagas/fa64693a-c4a3-40e8-bf11-3f288f3dd726/engenheiro-a-de-software-full-stack-javascript-com-foco-em-ia",
+    "https://certsys.gupy.io/job/eyjqb2jjzci6mti4ntaxntgsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://hapvidandi.gupy.io/job/eyjqb2jjzci6mti4otiymjesinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://unicredbr.gupy.io/job/eyjqb2jjzci6mti4otawnzusinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://mjv.inhire.app/vagas/b362300d-2663-4773-b651-6415fb5b1fc8/pessoa-desenvolvedora-back-end-java",
+    "https://convisoappsec.gupy.io/job/eyjqb2jjzci6mti4njm4ndisinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://lyncas.inhire.app/vagas/6b54597c-595b-4556-913c-ea31550ab74a/ai-driven-software-engineer-typescript-node-js-sr",
+    "https://frameworkdigital.inhire.app/vagas/25775135-7e15-4311-9d04-5f2b91ea6377/desenvolvedor-a-fullstack-react-python-node-senior",
+    "https://sejaglobalweb.gupy.io/job/eyjqb2jjzci6mti4nji1ndqsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq=="
   ],
   "posted_job_signatures": [
     "centauro talentos:vendedor a  bh shopping",
@@ -165,6 +183,18 @@
     "avantti:principal technical consultant",
     "bradesco:pessoa engenheira de software ",
     "mollica it:pessoa consultora servicenow n",
-    "mollica it:analista de requisitos service"
+    "mollica it:analista de requisitos service",
+    "tarken:sdr pleno",
+    "db1 group:analista de growth performance",
+    "semantix:analista de dados  bi  bigquer",
+    "projectiva holding:engenheiroa de software fullst",
+    "certsys:desenvolvedor baixa plataforma",
+    "página de carreira:analista sap basis sênior",
+    "unicred:analista de relacionamento jún",
+    "mjv innovation:pessoa desenvolvedora backend ",
+    "conviso application secur:juniorpleno application securi",
+    "lyncas:aidriven software engineer typ",
+    "framework:desenvolvedora fullstack react",
+    "globalweb:analista de sistemas jr"
   ]
 }

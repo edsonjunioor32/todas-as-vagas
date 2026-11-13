@@ -355,12 +355,20 @@ def compose_weekly_digest(vacancies: list[dict], today: date | None = None) -> s
 
 
 def publish_weekly(dry_run: bool = False, force: bool = False, webhook_url: str | None = None) -> int:
-    today = datetime.now(BRASILIA).date()
+    now_brt = datetime.now(BRASILIA)
+    today = now_brt.date()
 
-    if not force and is_already_posted_this_week(today):
-        print(f"Aviso: O resumo semanal da semana ({today:%d/%m/%Y}) já foi realizado anteriormente.")
-        print("Encerrando execução de forma segura para impedir publicações duplicadas.")
-        return 0
+    if not force:
+        # Trava de segurança de horário: só publica às sextas-feiras (weekday == 4) a partir das 19h15 BRT
+        if now_brt.weekday() != 4 or now_brt.hour < 19 or (now_brt.hour == 19 and now_brt.minute < 15):
+            print(f"Aviso: Horário atual ({now_brt:%A %H:%M} BRT) está fora da janela semanal permitida (Sexta-feira a partir das 19h15 BRT).")
+            print("Encerrando execução de forma segura.")
+            return 0
+
+        if is_already_posted_this_week(today):
+            print(f"Aviso: O resumo semanal da semana ({today:%d/%m/%Y}) já foi realizado anteriormente.")
+            print("Encerrando execução de forma segura para impedir publicações duplicadas.")
+            return 0
 
     webhook_url = webhook_url or os.environ.get("MAKE_LINKEDIN_WEBHOOK_URL") or DEFAULT_WEBHOOK_URL
     print(f"Buscando catálogo de vagas de {DEFAULT_SNAPSHOT_URL}...")
