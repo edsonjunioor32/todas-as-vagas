@@ -43,6 +43,7 @@ DEFAULT_MIN_DESCRIPTION_CHARS = 120
 ROBOTS_RETRY_BASE_SECONDS = 24 * 60 * 60
 DEFAULT_OBSCURA_BIN = "/usr/local/bin/obscura"
 OBSCURA_FALLBACK_STATUSES = {"http_403", "network_error", "response_too_large"}
+ORACLE_HCM_URL_MARKER = ".oraclecloud.com/hcmui/candidateexperience/"
 SKIP_TAGS = {"script", "style", "noscript", "svg", "nav", "footer", "header", "form"}
 VOID_TAGS = {
     "area", "base", "br", "col", "embed", "hr", "img", "input", "link",
@@ -371,6 +372,7 @@ def fetch_description_with_obscura(
     executable = str(binary or "").strip()
     if not executable:
         return "", "", "obscura desabilitado"
+    render_wait = 3 if ORACLE_HCM_URL_MARKER in url.casefold() else 1
     command = [
         executable,
         "fetch",
@@ -380,7 +382,7 @@ def fetch_description_with_obscura(
         "--wait-until",
         "load",
         "--wait",
-        "1",
+        str(render_wait),
         "--eval",
         OBSCURA_DESCRIPTION_EXPRESSION,
         "--quiet",
