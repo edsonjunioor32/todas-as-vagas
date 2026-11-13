@@ -50517,10 +50517,10 @@
       "company_names": [
         "EXTRA NATAL"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "extra natal centauro": {
@@ -64989,14 +64989,14 @@
       "url": null
     },
     "grupo pampa": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "GRUPO PAMPA"
       ],
       "last_attempted_date": "2026-11-13",
-      "rating": null,
-      "review_count": null,
-      "status": "unavailable",
+      "rating": 3.0,
+      "review_count": 1,
+      "status": "matched",
       "url": null
     },
     "grupo panvel": {
@@ -74757,14 +74757,14 @@
       "url": null
     },
     "inetum": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Inetum"
       ],
       "last_attempted_date": "2026-11-13",
-      "rating": null,
-      "review_count": null,
-      "status": "unavailable",
+      "rating": 3.2,
+      "review_count": 4241,
+      "status": "matched",
       "url": null
     },
     "inex": {
@@ -121874,10 +121874,10 @@
       "company_names": [
         "RHVille Soluções em RH"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "ria com": {
@@ -125104,14 +125104,14 @@
       "url": null
     },
     "salonkee": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Salonkee"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.3,
+      "review_count": 12,
+      "status": "matched",
       "url": null
     },
     "salvher do brasil ltda": {
@@ -125944,10 +125944,10 @@
       "company_names": [
         "SAP IT Business Systeme"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "saphira tech": {
@@ -160370,7 +160370,7 @@
       "url": null
     }
   },
-  "generated_at": "2026-11-13T19:39:20.686197+00:00",
+  "generated_at": "2026-11-13T20:37:19.115314+00:00",
   "profiles": {
     "accenture": {
       "checked_at": "2026-11-13",
