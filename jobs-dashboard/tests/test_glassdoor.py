@@ -455,7 +455,7 @@ class GlassdoorTests(unittest.TestCase):
         self.assertEqual(summary["attempted"], 2)
         self.assertEqual(summary["succeeded"], 2)
         self.assertEqual(
-            updated["catalog_profiles"][glassdoor.company_key("Empresa C")]["rating"],
+            updated["catalog_profiles"][glassdoor.company_key("Empresa A")]["rating"],
             4.4,
         )
 
