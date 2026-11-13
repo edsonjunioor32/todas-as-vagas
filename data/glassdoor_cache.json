@@ -63805,10 +63805,10 @@
       "company_names": [
         "Harborglobal"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "harbourvest partners": {
@@ -63816,21 +63816,21 @@
       "company_names": [
         "HarbourVest Partners"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hard rock digital": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hard Rock Digital"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.1,
+      "review_count": 56,
+      "status": "matched",
       "url": null
     },
     "hardi personal": {
@@ -63838,10 +63838,10 @@
       "company_names": [
         "Härdi Personal"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "harman international": {
@@ -63849,10 +63849,10 @@
       "company_names": [
         "HARMAN International"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "harmattan ai": {
@@ -63860,10 +63860,10 @@
       "company_names": [
         "Harmattan Ai"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "harmonia sfa participacoes societarias ltda": {
@@ -63871,10 +63871,10 @@
       "company_names": [
         "HARMONIA SFA PARTICIPACOES SOCIETARIAS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "harmonic security inc": {
@@ -63882,10 +63882,10 @@
       "company_names": [
         "Harmonic Security Inc"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "harms holding gmbh": {
@@ -63893,43 +63893,43 @@
       "company_names": [
         "Harms Holding GmbH"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "harness": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Harness"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 525,
+      "status": "matched",
       "url": null
     },
     "harper": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Harper"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.9,
+      "review_count": 20,
+      "status": "matched",
       "url": null
     },
     "harpia": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Harpia"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.2,
+      "review_count": 5,
+      "status": "matched",
       "url": null
     },
     "harpia it": {
@@ -63937,32 +63937,32 @@
       "company_names": [
         "Harpia IT"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "harris": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Harris"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.6,
+      "review_count": 84,
+      "status": "matched",
       "url": null
     },
     "harrison consulting solutions": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Harrison Consulting Solutions"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 5.0,
+      "review_count": 1,
+      "status": "matched",
       "url": null
     },
     "harsco environmental": {
@@ -63970,32 +63970,32 @@
       "company_names": [
         "HARSCO ENVIRONMENTAL"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "harte hanks": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Harte Hanks"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 1278,
+      "status": "matched",
       "url": null
     },
     "harvey": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Harvey"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 66,
+      "status": "matched",
       "url": null
     },
     "harvita": {
@@ -64003,10 +64003,10 @@
       "company_names": [
         "Harvita"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "harzspots gmbh": {
@@ -64014,21 +64014,21 @@
       "company_names": [
         "Harzspots GmbH"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hatch it": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hatch IT"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 5.0,
+      "review_count": 3,
+      "status": "matched",
       "url": null
     },
     "hathiant": {
@@ -64036,43 +64036,43 @@
       "company_names": [
         "Hathiant"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hawk": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hawk"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.8,
+      "review_count": 20,
+      "status": "matched",
       "url": null
     },
     "hayamax distribuidora": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hayamax Distribuidora"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 66,
+      "status": "matched",
       "url": null
     },
     "hays": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HAYS"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 8276,
+      "status": "matched",
       "url": null
     },
     "hb hesselbach company": {
@@ -64080,43 +64080,43 @@
       "company_names": [
         "HB | Hesselbach Company"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hbj biomassa": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HBJ Biomassa"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 16,
+      "status": "matched",
       "url": null
     },
     "hbr realty": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HBR Realty"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.5,
+      "review_count": 24,
+      "status": "matched",
       "url": null
     },
     "hbs": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hbs"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.6,
+      "review_count": 27,
+      "status": "matched",
       "url": null
     },
     "hc hornburg implementos rodoviarios ltda": {
@@ -64124,10 +64124,10 @@
       "company_names": [
         "HC HORNBURG IMPLEMENTOS RODOVIARIOS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hc pneus s a": {
@@ -64135,21 +64135,21 @@
       "company_names": [
         "HC PNEUS S/A"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hcltech": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HCLTech"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.5,
+      "review_count": 57198,
+      "status": "matched",
       "url": null
     },
     "hcompany": {
@@ -64157,10 +64157,10 @@
       "company_names": [
         "Hcompany"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hcp gestao": {
@@ -64168,10 +64168,10 @@
       "company_names": [
         "HCP GESTÃO"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "he net manutencao e servicos digitais ltda": {
@@ -64179,10 +64179,10 @@
       "company_names": [
         "HE-NET MANUTENCAO E SERVICOS DIGITAIS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "head5 engenharia ltda": {
@@ -64190,10 +64190,10 @@
       "company_names": [
         "Head5 Engenharia Ltda"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "headquarters": {
@@ -64201,21 +64201,21 @@
       "company_names": [
         "HeadQuarters"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "heads": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Heads"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 49,
+      "status": "matched",
       "url": null
     },
     "headway co": {
@@ -64223,10 +64223,10 @@
       "company_names": [
         "Headway.co"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "healprime ltda": {
@@ -64234,10 +64234,10 @@
       "company_names": [
         "HEALPRIME LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "health brasil comercio atacadista de medicamentos ltda": {
@@ -64245,21 +64245,21 @@
       "company_names": [
         "HEALTH BRASIL COMERCIO ATACADISTA DE MEDICAMENTOS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "health catalyst": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Health Catalyst"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.3,
+      "review_count": 864,
+      "status": "matched",
       "url": null
     },
     "health safety experts gmbh": {
@@ -64267,21 +64267,21 @@
       "company_names": [
         "Health & Safety Experts GmbH"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "health services advisory group": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Health Services Advisory Group"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 212,
+      "status": "matched",
       "url": null
     },
     "health tecnologia em manutencao de equipamentos hospitalares ltda": {
@@ -64289,10 +64289,10 @@
       "company_names": [
         "HEALTH TECNOLOGIA EM MANUTENCAO DE EQUIPAMENTOS HOSPITALARES LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "healthbit inteligencia em saude": {
@@ -64300,32 +64300,32 @@
       "company_names": [
         "HealthBit - Inteligência em Saúde"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "healthcare strategies": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HealthCare Strategies"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 18,
+      "status": "matched",
       "url": null
     },
     "healthfirst": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Healthfirst"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.3,
+      "review_count": 1183,
+      "status": "matched",
       "url": null
     },
     "healthink gestao estrategica e inteligencia de negocios ltda": {
@@ -64333,54 +64333,54 @@
       "company_names": [
         "HEALTHINK GESTAO ESTRATEGICA E INTELIGENCIA DE NEGOCIOS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "healthmap solutions": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Healthmap Solutions"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.0,
+      "review_count": 228,
+      "status": "matched",
       "url": null
     },
     "healthtech 1": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Healthtech 1"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.4,
+      "review_count": 3,
+      "status": "matched",
       "url": null
     },
     "healthtrust workforce solutions": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HealthTrust Workforce Solutions"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.2,
+      "review_count": 394,
+      "status": "matched",
       "url": null
     },
     "hearst": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hearst"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.6,
+      "review_count": 1784,
+      "status": "matched",
       "url": null
     },
     "heartman house": {
@@ -64388,21 +64388,21 @@
       "company_names": [
         "Heartman House"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "heavenly international school": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Heavenly International School"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.0,
+      "review_count": 4,
+      "status": "matched",
       "url": null
     },
     "hebu gmbh": {
@@ -64410,10 +64410,10 @@
       "company_names": [
         "HEBU GmbH"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hecke representacoes comerciais ltda": {
@@ -64421,10 +64421,10 @@
       "company_names": [
         "HECKE REPRESENTACOES COMERCIAIS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hect consultoria": {
@@ -64432,10 +64432,10 @@
       "company_names": [
         "HECT CONSULTORIA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "heero motors": {
@@ -64443,21 +64443,21 @@
       "company_names": [
         "HEERO Motors"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "heidi": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Heidi"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.0,
+      "review_count": 2,
+      "status": "matched",
       "url": null
     },
     "heineken randstad": {
@@ -64465,10 +64465,10 @@
       "company_names": [
         "Heineken- Randstad"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "heinenoordzicht groep": {
@@ -64476,10 +64476,10 @@
       "company_names": [
         "HeinenoordZicht Groep"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hela service gmbh": {
@@ -64487,10 +64487,10 @@
       "company_names": [
         "HELA Service GmbH"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "helbor empreendimentos s a": {
@@ -64498,10 +64498,10 @@
       "company_names": [
         "Helbor Empreendimentos S. A."
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "helena solucoes globais para rh": {
@@ -64509,10 +64509,10 @@
       "company_names": [
         "Helena Soluções Globais para RH"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "helfy": {
@@ -64520,10 +64520,10 @@
       "company_names": [
         "Helfy"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "helisul aviacao": {
@@ -64531,21 +64531,21 @@
       "company_names": [
         "Helisul Aviação"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "helix international group": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Helix International Group"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 5.0,
+      "review_count": 2,
+      "status": "matched",
       "url": null
     },
     "hellen carolina massuda castro": {
@@ -64553,10 +64553,10 @@
       "company_names": [
         "HELLEN CAROLINA MASSUDA CASTRO"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hello lemon gmbh": {
@@ -64564,21 +64564,21 @@
       "company_names": [
         "Hello Lemon GmbH"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hellofresh": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "hellofresh"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.2,
+      "review_count": 4093,
+      "status": "matched",
       "url": null
     },
     "hellokindred": {
@@ -64586,21 +64586,21 @@
       "company_names": [
         "HelloKindred"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "helloprint": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Helloprint"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 163,
+      "status": "matched",
       "url": null
     },
     "hellpi": {
@@ -64608,10 +64608,10 @@
       "company_names": [
         "Hellpi"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "helper tecnologia de seguranca s a": {
@@ -64619,43 +64619,43 @@
       "company_names": [
         "HELPER TECNOLOGIA DE SEGURANCA S/A"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "helppi": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Helppi"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 8,
+      "status": "matched",
       "url": null
     },
     "helyo": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Helyo"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.0,
+      "review_count": 2,
+      "status": "matched",
       "url": null
     },
     "hemeria": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HEMERIA"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.1,
+      "review_count": 15,
+      "status": "matched",
       "url": null
     },
     "hemoclin clinica hematologica ltda": {
@@ -64663,10 +64663,10 @@
       "company_names": [
         "HEMOCLIN CLINICA HEMATOLOGICA LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hengstler dynapar": {
@@ -64674,10 +64674,10 @@
       "company_names": [
         "Hengstler-Dynapar"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "henrique souza gomes ltda": {
@@ -64685,54 +64685,54 @@
       "company_names": [
         "HENRIQUE SOUZA GOMES LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "henry meds": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Henry Meds"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.2,
+      "review_count": 165,
+      "status": "matched",
       "url": null
     },
     "henry schein": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Henry Schein"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.0,
+      "review_count": 2144,
+      "status": "matched",
       "url": null
     },
     "hepta": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hepta"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 20,
+      "status": "matched",
       "url": null
     },
     "her campus media": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Her Campus Media"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.5,
+      "review_count": 164,
+      "status": "matched",
       "url": null
     },
     "heras b v": {
@@ -64740,10 +64740,10 @@
       "company_names": [
         "Heras B.V."
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "herbarium laboratorio botanico": {
@@ -64751,10 +64751,10 @@
       "company_names": [
         "HERBARIUM LABORATÓRIO BOTÂNICO"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "herculano mineracao ltda": {
@@ -64762,21 +64762,21 @@
       "company_names": [
         "HERCULANO MINERACAO LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "here technologies": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Here Technologies"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 3651,
+      "status": "matched",
       "url": null
     },
     "hermeneutic investments": {
@@ -64784,10 +64784,10 @@
       "company_names": [
         "hermeneutic Investments"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hero cell comercio de produtos de telecomunicacoes ltda": {
@@ -64795,21 +64795,21 @@
       "company_names": [
         "HERO CELL COMERCIO DE PRODUTOS DE TELECOMUNICACOES LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hero software": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HERO Software"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.4,
+      "review_count": 8,
+      "status": "matched",
       "url": null
     },
     "herodevs inc": {
@@ -64817,10 +64817,10 @@
       "company_names": [
         "HeroDevs, Inc."
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "herval industrias": {
@@ -64828,10 +64828,10 @@
       "company_names": [
         "Herval Indústrias"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hewlett packard enterprise": {
@@ -64839,10 +64839,10 @@
       "company_names": [
         "Hewlett Packard Enterprise"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hexa it": {
@@ -64850,21 +64850,21 @@
       "company_names": [
         "Hexa IT"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hey peppers": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hey Peppers!"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.2,
+      "review_count": 17,
+      "status": "matched",
       "url": null
     },
     "heyvera gmbh": {
@@ -64872,21 +64872,21 @@
       "company_names": [
         "HeyVera GmbH"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hfc saude": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HFC Saúde"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.3,
+      "review_count": 7,
+      "status": "matched",
       "url": null
     },
     "hfs solutions": {
@@ -64894,10 +64894,10 @@
       "company_names": [
         "HFS Solutions"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hg international b v": {
@@ -64905,10 +64905,10 @@
       "company_names": [
         "HG International b.v."
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hg rh": {
@@ -64916,10 +64916,10 @@
       "company_names": [
         "HG RH"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hgs solucoes em gestao ltda": {
@@ -64927,32 +64927,32 @@
       "company_names": [
         "HGS SOLUCOES EM GESTAO LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hi": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hi"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 50,
+      "status": "matched",
       "url": null
     },
     "hibob": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HiBob"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.3,
+      "review_count": 583,
+      "status": "matched",
       "url": null
     },
     "hico group ag": {
@@ -64960,10 +64960,10 @@
       "company_names": [
         "HICO Group AG"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hiconium ag": {
@@ -64971,21 +64971,21 @@
       "company_names": [
         "Hiconium AG"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hiddenlayer": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HiddenLayer"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.0,
+      "review_count": 3,
+      "status": "matched",
       "url": null
     },
     "hidrau maquinas mangueiras e conexoes ltda": {
@@ -64993,10 +64993,10 @@
       "company_names": [
         "HIDRAU MAQUINAS MANGUEIRAS E CONEXOES LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hidraupallet comercio e servicos hidraulicos ltda": {
@@ -65004,21 +65004,21 @@
       "company_names": [
         "HIDRAUPALLET COMERCIO E SERVICOS HIDRAULICOS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hidrobr": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HIDROBR"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.2,
+      "review_count": 38,
+      "status": "matched",
       "url": null
     },
     "hidrogeron tratamento de agua e esgoto ltda": {
@@ -65026,32 +65026,32 @@
       "company_names": [
         "HIDROGERON TRATAMENTO DE AGUA E ESGOTO LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hidrolight": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hidrolight"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 20,
+      "status": "matched",
       "url": null
     },
     "hidrovias do brasil": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hidrovias do Brasil"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.0,
+      "review_count": 280,
+      "status": "matched",
       "url": null
     },
     "higex industria e comercio de produtos saneantes ltda": {
@@ -65059,10 +65059,10 @@
       "company_names": [
         "HIGEX - INDUSTRIA E COMERCIO DE PRODUTOS SANEANTES LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "high5": {
@@ -65070,43 +65070,43 @@
       "company_names": [
         "High5"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "higher logic": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Higher Logic"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 208,
+      "status": "matched",
       "url": null
     },
     "highlevel": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HighLevel"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.6,
+      "review_count": 280,
+      "status": "matched",
       "url": null
     },
     "highmark health": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Highmark Health"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.2,
+      "review_count": 1531,
+      "status": "matched",
       "url": null
     },
     "hightouch inc": {
@@ -65114,10 +65114,10 @@
       "company_names": [
         "Hightouch Inc"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "higie plus cottonbaby industria e comercio ltda": {
@@ -65125,10 +65125,10 @@
       "company_names": [
         "HIGIE PLUS COTTONBABY INDUSTRIA E COMERCIO LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hillside assets limited": {
@@ -65136,10 +65136,10 @@
       "company_names": [
         "HILLSIDE ASSETS LIMITED"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hilobyaktiia": {
@@ -65147,21 +65147,21 @@
       "company_names": [
         "Hilobyaktiia"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hilton": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hilton"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 13778,
+      "status": "matched",
       "url": null
     },
     "hilton brasil": {
@@ -65169,10 +65169,10 @@
       "company_names": [
         "Hilton Brasil"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hims 038 hers": {
@@ -65180,10 +65180,10 @@
       "company_names": [
         "hims &#038; hers"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hims and hers": {
@@ -65191,10 +65191,10 @@
       "company_names": [
         "Hims And Hers"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hinduja global solutions ltd": {
@@ -65202,10 +65202,10 @@
       "company_names": [
         "Hinduja Global Solutions Ltd"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hine do brasil industria e comercio de hidraulicos e pneumat": {
@@ -65213,43 +65213,43 @@
       "company_names": [
         "HINE DO BRASIL INDUSTRIA E COMERCIO DE HIDRAULICOS E PNEUMAT"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hinfoluz": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HINFOLUZ"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 7,
+      "status": "matched",
       "url": null
     },
     "hinode group": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hinode Group"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 10,
+      "status": "matched",
       "url": null
     },
     "hint health": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hint Health"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.2,
+      "review_count": 14,
+      "status": "matched",
       "url": null
     },
     "hioffice": {
@@ -65257,10 +65257,10 @@
       "company_names": [
         "HiOffice"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hiper saude ltda": {
@@ -65268,10 +65268,10 @@
       "company_names": [
         "HIPER SAUDE LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hipercg comercio e importacao de pecas ltda": {
@@ -65279,10 +65279,10 @@
       "company_names": [
         "HIPERCG COMERCIO E IMPORTACAO DE PECAS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hiperfoco prestacao e gestao de servicos administrativos ltda": {
@@ -65290,32 +65290,32 @@
       "company_names": [
         "HIPERFOCO PRESTACAO E GESTAO DE SERVICOS ADMINISTRATIVOS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hiperideal supermercados": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hiperideal Supermercados"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.3,
+      "review_count": 117,
+      "status": "matched",
       "url": null
     },
     "hiperpan": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hiperpan"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.2,
+      "review_count": 15,
+      "status": "matched",
       "url": null
     },
     "hipolabor farmaceutica ltda": {
@@ -65323,10 +65323,10 @@
       "company_names": [
         "HIPOLABOR FARMACEUTICA LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hippocratic": {
@@ -65334,21 +65334,21 @@
       "company_names": [
         "Hippocratic"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hippocratic ai": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hippocratic AI"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.3,
+      "review_count": 58,
+      "status": "matched",
       "url": null
     },
     "hire hangar": {
@@ -65356,10 +65356,10 @@
       "company_names": [
         "Hire Hangar"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hire now": {
@@ -65367,21 +65367,21 @@
       "company_names": [
         "Hire Now®"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hire overseas": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hire Overseas"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.4,
+      "review_count": 40,
+      "status": "matched",
       "url": null
     },
     "hiredbuddy": {
@@ -65389,10 +65389,10 @@
       "company_names": [
         "HiredBuddy"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hiregummy": {
@@ -65400,21 +65400,21 @@
       "company_names": [
         "HireGummy"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hirehawk": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HireHawk"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 5.0,
+      "review_count": 28,
+      "status": "matched",
       "url": null
     },
     "hirehire": {
@@ -65422,10 +65422,10 @@
       "company_names": [
         "Hirehire"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hirota food supermercados": {
@@ -65433,10 +65433,10 @@
       "company_names": [
         "Hirota Food Supermercados"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hit tecnologia ltda": {
@@ -65444,10 +65444,10 @@
       "company_names": [
         "HIT TECNOLOGIA LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hita comercio e servicos s a": {
@@ -65455,32 +65455,32 @@
       "company_names": [
         "HITA COMERCIO E SERVICOS S/A"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hitachi energy": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hitachi Energy"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.2,
+      "review_count": 2351,
+      "status": "matched",
       "url": null
     },
     "hitachi solutions": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hitachi Solutions"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 573,
+      "status": "matched",
       "url": null
     },
     "hitchman partners ag": {
@@ -65488,10 +65488,10 @@
       "company_names": [
         "Hitchman Partners AG"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hitisy gmbh": {
@@ -65499,10 +65499,10 @@
       "company_names": [
         "Hitisy GmbH"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hitss brasil": {
@@ -65510,21 +65510,21 @@
       "company_names": [
         "Hitss Brasil"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hived": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hived"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 62,
+      "status": "matched",
       "url": null
     },
     "hj sport fitness ltda": {
@@ -65532,10 +65532,10 @@
       "company_names": [
         "HJ SPORT FITNESS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hla services": {
@@ -65543,10 +65543,10 @@
       "company_names": [
         "HLA SERVICES"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hm cooperativa de profissionais autonomos da area da saude": {
@@ -65554,21 +65554,21 @@
       "company_names": [
         "HM COOPERATIVA DE PROFISSIONAIS AUTONOMOS DA AREA DA SAUDE"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hm engenharia": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HM Engenharia"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 187,
+      "status": "matched",
       "url": null
     },
     "hmz solucoes ltda": {
@@ -65576,10 +65576,10 @@
       "company_names": [
         "HMZ SOLUCOES LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hochschild": {
@@ -65587,10 +65587,10 @@
       "company_names": [
         "Hochschild"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hof lobke gmbh co kg": {
@@ -65598,10 +65598,10 @@
       "company_names": [
         "Hof Löbke GmbH & Co. KG"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hofbrauhaus bh": {
@@ -65609,10 +65609,10 @@
       "company_names": [
         "Hofbrauhaus BH"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hoftalon centro de estudo e pesquisa da visao": {
@@ -65620,21 +65620,21 @@
       "company_names": [
         "Hoftalon Centro de Estudo e Pesquisa da Visão"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "holambelo flores e plantas": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Holambelo Flores e Plantas"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 11,
+      "status": "matched",
       "url": null
     },
     "holegal rechtsanwaltsgesellschaft mbh": {
@@ -65642,21 +65642,21 @@
       "company_names": [
         "Holegal Rechtsanwaltsgesellschaft mbH"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "holidu": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Holidu"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.5,
+      "review_count": 293,
+      "status": "matched",
       "url": null
     },
     "hollytec comercio e industria de materiais eletricos ltda": {
@@ -65664,21 +65664,21 @@
       "company_names": [
         "HOLLYTEC COMERCIO E INDUSTRIA DE MATERIAIS ELETRICOS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "holy learning": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Holy Learning"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.5,
+      "review_count": 15,
+      "status": "matched",
       "url": null
     },
     "homaris service gmbh": {
@@ -65686,21 +65686,21 @@
       "company_names": [
         "Homaris Service GmbH"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "home": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HOME"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 50,
+      "status": "matched",
       "url": null
     },
     "home doctor fornecimento de infraestrutura de apoio e assistencia ao paciente em domicilio ltda": {
@@ -65708,10 +65708,10 @@
       "company_names": [
         "HOME DOCTOR FORNECIMENTO DE INFRAESTRUTURA DE APOIO E ASSISTENCIA AO PACIENTE EM DOMICILIO LTDA."
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "homine": {
@@ -65719,10 +65719,10 @@
       "company_names": [
         "Homine"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "homologacao vagas": {
@@ -65730,21 +65730,21 @@
       "company_names": [
         "Homologação - Vagas"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "honda": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Honda"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 5119,
+      "status": "matched",
       "url": null
     },
     "honest market brasil gestao e participacoes ltda": {
@@ -65752,10 +65752,10 @@
       "company_names": [
         "HONEST MARKET BRASIL GESTAO E PARTICIPACOES LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "honeywell international inc": {
@@ -65763,32 +65763,32 @@
       "company_names": [
         "Honeywell International Inc."
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "honor": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Honor"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.1,
+      "review_count": 380,
+      "status": "matched",
       "url": null
     },
     "hope": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hope"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 31,
+      "status": "matched",
       "url": null
     },
     "hope participacoes e investimentos ltda": {
@@ -65796,32 +65796,32 @@
       "company_names": [
         "HOPE PARTICIPACOES E INVESTIMENTOS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hopi hari": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hopi Hari"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.6,
+      "review_count": 123,
+      "status": "matched",
       "url": null
     },
     "hopper": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hopper"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.3,
+      "review_count": 475,
+      "status": "matched",
       "url": null
     },
     "hops operacoes e servicos para eventos ltda": {
@@ -65829,10 +65829,10 @@
       "company_names": [
         "HOPS - OPERACOES E SERVICOS PARA EVENTOS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "horfran comercial eletro moveis ltda": {
@@ -65840,21 +65840,21 @@
       "company_names": [
         "HORFRAN - COMERCIAL ELETRO MOVEIS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "horizon servitas": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Horizon Servitas"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.0,
+      "review_count": 1,
+      "status": "matched",
       "url": null
     },
     "horizon3 ai": {
@@ -65862,10 +65862,10 @@
       "company_names": [
         "Horizon3.ai"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "horizon3ai": {
@@ -65873,10 +65873,10 @@
       "company_names": [
         "Horizon3Ai"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "horizonte do sucesso assessoria digital ltda": {
@@ -65884,10 +65884,10 @@
       "company_names": [
         "HORIZONTE DO SUCESSO ASSESSORIA DIGITAL LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "horizonte logistica ltda": {
@@ -65895,10 +65895,10 @@
       "company_names": [
         "HORIZONTE LOGISTICA LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "horizonte marketing e assessoria ltda": {
@@ -65906,10 +65906,10 @@
       "company_names": [
         "HORIZONTE MARKETING E ASSESSORIA LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "horizonte restaurantes s a": {
@@ -65917,10 +65917,10 @@
       "company_names": [
         "HORIZONTE RESTAURANTES S.A."
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "horizontradingsolutions": {
@@ -65928,32 +65928,32 @@
       "company_names": [
         "Horizontradingsolutions"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hornetsecurity": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hornetsecurity"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 105,
+      "status": "matched",
       "url": null
     },
     "hortifruti": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hortifruti"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.6,
+      "review_count": 655,
+      "status": "matched",
       "url": null
     },
     "hospcom equipamentos hospitalares ltda": {
@@ -65961,21 +65961,21 @@
       "company_names": [
         "HOSPCOM Equipamentos Hospitalares Ltda"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hospital adventista de manaus": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hospital Adventista de Manaus"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.4,
+      "review_count": 165,
+      "status": "matched",
       "url": null
     },
     "hospital adventista do penfigo unidade centro": {
@@ -65983,21 +65983,21 @@
       "company_names": [
         "HOSPITAL ADVENTISTA DO PENFIGO - UNIDADE CENTRO"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hospital alemao oswaldo cruz": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hospital Alemão Oswaldo Cruz"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 848,
+      "status": "matched",
       "url": null
     },
     "hospital alemao oswaldo cruz vagas corporativas administrativas e de atendimento": {
@@ -66005,21 +66005,21 @@
       "company_names": [
         "Hospital Alemão Oswaldo Cruz - Vagas Corporativas, Administrativas e de Atendimento"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hospital bruno born": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HOSPITAL BRUNO BORN"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 41,
+      "status": "matched",
       "url": null
     },
     "hospital da baleia": {
@@ -66027,54 +66027,54 @@
       "company_names": [
         "Hospital da Baleia"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hospital de base": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HOSPITAL DE BASE"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.3,
+      "review_count": 3,
+      "status": "matched",
       "url": null
     },
     "hospital de cancer de pernambuco": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hospital de Câncer de Pernambuco"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 60,
+      "status": "matched",
       "url": null
     },
     "hospital de caridade sao vicente de paulo": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hospital de Caridade São Vicente de Paulo"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 55,
+      "status": "matched",
       "url": null
     },
     "hospital de olhos leiria de andrade": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hospital de Olhos Leiria de Andrade"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.6,
+      "review_count": 18,
+      "status": "matched",
       "url": null
     },
     "hospital de olhos rui marinho ltda": {
@@ -66082,10 +66082,10 @@
       "company_names": [
         "HOSPITAL DE OLHOS RUI MARINHO LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hospital de transplantes dr euryclides de jesus zerbini spdm afiliadas": {
@@ -66093,10 +66093,10 @@
       "company_names": [
         "Hospital de Transplantes Dr. Euryclides de Jesus Zerbini - SPDM Afiliadas"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hospital do coracao": {
@@ -66104,10 +66104,10 @@
       "company_names": [
         "HOSPITAL DO CORAÇÃO"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hospital e clinica sao lucas ltda": {
@@ -66115,10 +66115,10 @@
       "company_names": [
         "HOSPITAL E CLINICA SAO LUCAS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hospital e maternidade municipal dr odelmo leao carneiro spdm afiliadas": {
@@ -66126,10 +66126,10 @@
       "company_names": [
         "Hospital e Maternidade Municipal Dr. Odelmo Leão Carneiro - SPDM Afiliadas"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hospital evandro ribeiro ltda": {
@@ -66137,10 +66137,10 @@
       "company_names": [
         "HOSPITAL EVANDRO RIBEIRO LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hospital evangelico": {
@@ -66148,21 +66148,21 @@
       "company_names": [
         "HOSPITAL EVANGELICO"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hospital felicio rocho": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hospital Felício Rocho"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 238,
+      "status": "matched",
       "url": null
     },
     "hospital geral de pedreira spdm afiliadas": {
@@ -66170,10 +66170,10 @@
       "company_names": [
         "Hospital Geral de Pedreira - SPDM Afiliadas"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hospital geral de pirajussara spdm afiliadas": {
@@ -66181,10 +66181,10 @@
       "company_names": [
         "Hospital Geral de Pirajussara - SPDM Afiliadas"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hospital geral e maternidade de cuiaba": {
@@ -66192,43 +66192,43 @@
       "company_names": [
         "HOSPITAL GERAL E MATERNIDADE DE CUIABA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hospital igesp": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hospital IGESP"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 391,
+      "status": "matched",
       "url": null
     },
     "hospital jacob facuri": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hospital Jacob Facuri"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.6,
+      "review_count": 7,
+      "status": "matched",
       "url": null
     },
     "hospital jardim helena": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hospital Jardim Helena"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.1,
+      "review_count": 7,
+      "status": "matched",
       "url": null
     },
     "hospital lacan spdm afiliadas": {
@@ -66236,10 +66236,10 @@
       "company_names": [
         "Hospital Lacan - SPDM Afiliadas"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hospital mater dei": {
@@ -66247,21 +66247,21 @@
       "company_names": [
         "HOSPITAL MATER DEI"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hospital materno infantil francisco de assis": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HOSPITAL MATERNO INFANTIL - FRANCISCO DE ASSIS"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.6,
+      "review_count": 15,
+      "status": "matched",
       "url": null
     },
     "hospital meridional serra": {
@@ -66269,10 +66269,10 @@
       "company_names": [
         "HOSPITAL MERIDIONAL SERRA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hospital metropolitano dr celio de castro": {
@@ -66280,21 +66280,21 @@
       "company_names": [
         "Hospital Metropolitano Dr. Célio de Castro"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hospital moinhos de vento": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hospital Moinhos de Vento"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 610,
+      "status": "matched",
       "url": null
     },
     "hospital municipal de barueri dr francisco moran spdm afiliadas": {
@@ -66302,10 +66302,10 @@
       "company_names": [
         "Hospital Municipal de Barueri Dr.Francisco Moran - SPDM Afiliadas"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hospital municipal de mogi das cruzes spdm afiliadas": {
@@ -66313,10 +66313,10 @@
       "company_names": [
         "Hospital Municipal de Mogi das Cruzes - SPDM Afiliadas"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hospital municipal de parelheiros spdm afiliadas": {
@@ -66324,10 +66324,10 @@
       "company_names": [
         "Hospital Municipal de Parelheiros - SPDM Afiliadas"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hospital municipal dr jose carvalho florence spdm afiliadas": {
@@ -66335,10 +66335,10 @@
       "company_names": [
         "Hospital Municipal Dr. José Carvalho Florence - SPDM Afiliadas"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hospital municipal vereador jose storopolli spdm afiliadas": {
@@ -66346,21 +66346,21 @@
       "company_names": [
         "Hospital Municipal Vereador José Storopolli - SPDM Afiliadas"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hospital nossa senhora das gracas": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HOSPITAL NOSSA SENHORA DAS GRAÇAS"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 32,
+      "status": "matched",
       "url": null
     },
     "hospital oftalmologico santa beatriz ltda": {
@@ -66368,43 +66368,43 @@
       "company_names": [
         "HOSPITAL OFTALMOLOGICO SANTA BEATRIZ LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hospital pequeno principe": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hospital Pequeno Príncipe"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 411,
+      "status": "matched",
       "url": null
     },
     "hospital porto dias": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hospital Porto Dias"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 104,
+      "status": "matched",
       "url": null
     },
     "hospital prontocardio": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hospital Prontocardio"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.3,
+      "review_count": 26,
+      "status": "matched",
       "url": null
     },
     "hospital regional de sorocaba bata branca spdm afiliadas": {
@@ -66412,21 +66412,21 @@
       "company_names": [
         "Hospital Regional de Sorocaba - Bata Branca - SPDM Afiliadas"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hospital santa barbara": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HOSPITAL SANTA BARBARA"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.3,
+      "review_count": 3,
+      "status": "matched",
       "url": null
     },
     "hospital santa genoveva ltda": {
@@ -66434,54 +66434,54 @@
       "company_names": [
         "HOSPITAL SANTA GENOVEVA LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hospital santa lucinda": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hospital Santa Lucinda"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 20,
+      "status": "matched",
       "url": null
     },
     "hospital santa marcelina": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HOSPITAL SANTA MARCELINA"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 1577,
+      "status": "matched",
       "url": null
     },
     "hospital santa marta": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hospital Santa Marta"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.5,
+      "review_count": 267,
+      "status": "matched",
       "url": null
     },
     "hospital sao camilo": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hospital São Camilo"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.0,
+      "review_count": 237,
+      "status": "matched",
       "url": null
     },
     "hospital sao francisco": {
@@ -66489,10 +66489,10 @@
       "company_names": [
         "Hospital São Francisco"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hospital sao jose": {
@@ -66500,43 +66500,43 @@
       "company_names": [
         "HOSPITAL SÃO JOSÉ"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hospital sao lucas da pucrs": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hospital São Lucas da PUCRS"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 282,
+      "status": "matched",
       "url": null
     },
     "hospital sao marcelino champagnat": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hospital São Marcelino Champagnat"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.2,
+      "review_count": 93,
+      "status": "matched",
       "url": null
     },
     "hospital sao marcos": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hospital São Marcos"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.2,
+      "review_count": 104,
+      "status": "matched",
       "url": null
     },
     "hospital sao rafael s a": {
@@ -66544,43 +66544,43 @@
       "company_names": [
         "HOSPITAL SAO RAFAEL S.A."
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hospital sao vicente de paulo": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hospital São Vicente de Paulo"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 224,
+      "status": "matched",
       "url": null
     },
     "hospital sirio libanes": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hospital Sírio-Libanês"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 1586,
+      "status": "matched",
       "url": null
     },
     "hospital sofia feldman": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hospital Sofia Feldman"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 60,
+      "status": "matched",
       "url": null
     },
     "hospital unimed sul mineira": {
@@ -66588,21 +66588,21 @@
       "company_names": [
         "Hospital Unimed Sul Mineira"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hospital universitario cajuru": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hospital Universitário Cajuru"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.3,
+      "review_count": 48,
+      "status": "matched",
       "url": null
     },
     "hospital valore ltda": {
@@ -66610,10 +66610,10 @@
       "company_names": [
         "HOSPITAL VALORE LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hospital veterinario": {
@@ -66621,10 +66621,10 @@
       "company_names": [
         "Hospital veterinário"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "host participacoes": {
@@ -66632,21 +66632,21 @@
       "company_names": [
         "Host Participações"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hostaway": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hostaway"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 117,
+      "status": "matched",
       "url": null
     },
     "hostfiber comunicacao multimidia ltda": {
@@ -66654,43 +66654,43 @@
       "company_names": [
         "HOSTFIBER COMUNICACAO MULTIMIDIA LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hoteis deville": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hotéis Deville"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 121,
+      "status": "matched",
       "url": null
     },
     "hoteis ponta verde": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hotéis Ponta Verde"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.2,
+      "review_count": 5,
+      "status": "matched",
       "url": null
     },
     "hotel": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hotel"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 72,
+      "status": "matched",
       "url": null
     },
     "hotel carima ltda": {
@@ -66698,10 +66698,10 @@
       "company_names": [
         "HOTEL CARIMA LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hotel coral plaza": {
@@ -66709,10 +66709,10 @@
       "company_names": [
         "Hotel Coral Plaza"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hotel das cataratas a belmond hotel": {
@@ -66720,32 +66720,32 @@
       "company_names": [
         "Hotel das Cataratas, A Belmond Hotel"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hotel domani": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HOTEL DOMANI"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.0,
+      "review_count": 3,
+      "status": "matched",
       "url": null
     },
     "hotel emiliano": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hotel Emiliano"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.3,
+      "review_count": 130,
+      "status": "matched",
       "url": null
     },
     "hotel gontijo ltda": {
@@ -66753,21 +66753,21 @@
       "company_names": [
         "HOTEL GONTIJO LTDA."
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hotel inter cuiaba": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HOTEL INTER CUIABÁ"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 1.0,
+      "review_count": 1,
+      "status": "matched",
       "url": null
     },
     "hotel j p ltda": {
@@ -66775,10 +66775,10 @@
       "company_names": [
         "HOTEL J P LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hotel nacional inn jaragua ltda": {
@@ -66786,10 +66786,10 @@
       "company_names": [
         "HOTEL NACIONAL INN JARAGUA LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hotel nacional inn pocos de caldas": {
@@ -66797,10 +66797,10 @@
       "company_names": [
         "Hotel Nacional Inn Poços de Caldas"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hotel nacional inn sao carlos ltda": {
@@ -66808,10 +66808,10 @@
       "company_names": [
         "HOTEL NACIONAL INN SAO CARLOS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hotel ponta verde maceio": {
@@ -66819,10 +66819,10 @@
       "company_names": [
         "Hotel Ponta Verde Maceió"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hotel premium norte ltda": {
@@ -66830,10 +66830,10 @@
       "company_names": [
         "HOTEL PREMIUM NORTE LTDA."
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hotel tow cachoeira ltda": {
@@ -66841,21 +66841,21 @@
       "company_names": [
         "HOTEL TOW CACHOEIRA LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hotmart": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hotmart"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 1593,
+      "status": "matched",
       "url": null
     },
     "houer consultoria e concessoes ltda": {
@@ -66863,10 +66863,10 @@
       "company_names": [
         "HOUER CONSULTORIA E CONCESSOES LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "house beach country": {
@@ -66874,21 +66874,21 @@
       "company_names": [
         "HOUSE BEACH & COUNTRY"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "house performance": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HOUSE PERFORMANCE"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.5,
+      "review_count": 6,
+      "status": "matched",
       "url": null
     },
     "house rottas vendas": {
@@ -66896,32 +66896,32 @@
       "company_names": [
         "House Rottas Vendas"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "housecall pro": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Housecall Pro"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 527,
+      "status": "matched",
       "url": null
     },
     "houst": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Houst"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.6,
+      "review_count": 97,
+      "status": "matched",
       "url": null
     },
     "howbe": {
@@ -66929,43 +66929,43 @@
       "company_names": [
         "HowBe"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "howdy": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Howdy"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.7,
+      "review_count": 108,
+      "status": "matched",
       "url": null
     },
     "hoylu": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hoylu"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.9,
+      "review_count": 6,
+      "status": "matched",
       "url": null
     },
     "hozah": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hozah"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.6,
+      "review_count": 13,
+      "status": "matched",
       "url": null
     },
     "hp": {
@@ -66973,10 +66973,10 @@
       "company_names": [
         "HP"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hp industria e comercio ltda": {
@@ -66984,10 +66984,10 @@
       "company_names": [
         "HP INDUSTRIA E COMÉRCIO LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hp mobilidade": {
@@ -66995,10 +66995,10 @@
       "company_names": [
         "HP Mobilidade"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hpa corporate resourcing limited": {
@@ -67006,43 +67006,43 @@
       "company_names": [
         "HPA Corporate Resourcing Limited"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hpe automotores do brasil": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HPE Automotores do Brasil"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 145,
+      "status": "matched",
       "url": null
     },
     "hplus hotelaria": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hplus Hotelaria"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 53,
+      "status": "matched",
       "url": null
     },
     "hr path": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HR Path"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 278,
+      "status": "matched",
       "url": null
     },
     "hr plus talent limited": {
@@ -67050,32 +67050,32 @@
       "company_names": [
         "HR Plus (Talent) Limited"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hr tech automacao": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HR Tech Automação"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.0,
+      "review_count": 58,
+      "status": "matched",
       "url": null
     },
     "hr ways": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HR Ways"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.4,
+      "review_count": 4,
+      "status": "matched",
       "url": null
     },
     "hrin gestao de pessoas": {
@@ -67083,10 +67083,10 @@
       "company_names": [
         "HRin Gestão de Pessoas"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hrr contrucoes civis ltda": {
@@ -67094,21 +67094,21 @@
       "company_names": [
         "HRR CONTRUÇÕES CIVIS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hrsi": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HRSI"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.0,
+      "review_count": 7,
+      "status": "matched",
       "url": null
     },
     "hrsolutions consultoria empresarial ltda": {
@@ -67116,10 +67116,10 @@
       "company_names": [
         "HRSOLUTIONS CONSULTORIA EMPRESARIAL LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hrsoul hunting relationship": {
@@ -67127,10 +67127,10 @@
       "company_names": [
         "HRSoul - Hunting Relationship"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hs financeira s a cfi": {
@@ -67138,10 +67138,10 @@
       "company_names": [
         "HS FINANCEIRA S/A - CFI"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hs informatica ag": {
@@ -67149,21 +67149,21 @@
       "company_names": [
         "hs informatica ag"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hsi": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HSI"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 37,
+      "status": "matched",
       "url": null
     },
     "hsmed equipamentos": {
@@ -67171,10 +67171,10 @@
       "company_names": [
         "HSMED EQUIPAMENTOS"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hsogroupbv": {
@@ -67182,10 +67182,10 @@
       "company_names": [
         "Hsogroupbv"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hsr specialist researcher": {
@@ -67193,10 +67193,10 @@
       "company_names": [
         "Hsr Specialist Researcher"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hstern": {
@@ -67204,21 +67204,21 @@
       "company_names": [
         "HStern"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "ht micron": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HT Micron"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 114,
+      "status": "matched",
       "url": null
     },
     "htm industria de equipamentos eletro eletronicos ltda": {
@@ -67226,10 +67226,10 @@
       "company_names": [
         "HTM INDUSTRIA DE EQUIPAMENTOS ELETRO-ELETRONICOS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "htri": {
@@ -67237,10 +67237,10 @@
       "company_names": [
         "HTRI"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "https br linkedin com company imdepa": {
@@ -67248,10 +67248,10 @@
       "company_names": [
         "https://br.linkedin.com/company/imdepa"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "https www linkedin com company avantiatecnologiaeseguranca mycompany": {
@@ -67259,10 +67259,10 @@
       "company_names": [
         "https://www.linkedin.com/company/avantiatecnologiaeseguranca/mycompany/"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "https www linkedin com company boston metal do brasil viewasmember true": {
@@ -67270,10 +67270,10 @@
       "company_names": [
         "https://www.linkedin.com/company/boston-metal-do-brasil/?viewAsMember=true"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "huawei": {
@@ -67281,10 +67281,10 @@
       "company_names": [
         "Huawei"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hub formaturas cx ltda": {
@@ -67292,10 +67292,10 @@
       "company_names": [
         "HUB FORMATURAS CX LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hub gestao de negocios cg ltda": {
@@ -67303,10 +67303,10 @@
       "company_names": [
         "HUB GESTAO DE NEGOCIOS CG LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hub xp": {
@@ -67314,10 +67314,10 @@
       "company_names": [
         "hub xp"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hubside die recruitingwerkstatt": {
@@ -67325,21 +67325,21 @@
       "company_names": [
         "hubside - Die Recruitingwerkstatt"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hubspot": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HubSpot"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 5022,
+      "status": "matched",
       "url": null
     },
     "hubspot inc": {
@@ -67347,43 +67347,43 @@
       "company_names": [
         "Hubspot Inc"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hubvisory": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hubvisory"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.3,
+      "review_count": 56,
+      "status": "matched",
       "url": null
     },
     "hudl": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hudl"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 1317,
+      "status": "matched",
       "url": null
     },
     "hudson global scholars": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hudson Global Scholars"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.7,
+      "review_count": 46,
+      "status": "matched",
       "url": null
     },
     "hudson manpower": {
@@ -67391,43 +67391,43 @@
       "company_names": [
         "Hudson Manpower"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hudson river trading": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hudson River Trading"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.3,
+      "review_count": 158,
+      "status": "matched",
       "url": null
     },
     "human rights watch": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Human Rights Watch"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.2,
+      "review_count": 332,
+      "status": "matched",
       "url": null
     },
     "humana": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Humana"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.6,
+      "review_count": 8379,
+      "status": "matched",
       "url": null
     },
     "humana alimentar distribuidora de medicamentos e produtos nutricionais ltda": {
@@ -67435,10 +67435,10 @@
       "company_names": [
         "HUMANA ALIMENTAR - DISTRIBUIDORA DE MEDICAMENTOS E PRODUTOS NUTRICIONAIS LTDA."
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "humania": {
@@ -67446,10 +67446,10 @@
       "company_names": [
         "Humânia"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "humanize consultoria ltda": {
@@ -67457,21 +67457,21 @@
       "company_names": [
         "HUMANIZE CONSULTORIA LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "humansignal": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HumanSignal"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 11,
+      "status": "matched",
       "url": null
     },
     "hummanos consultoria rh": {
@@ -67479,10 +67479,10 @@
       "company_names": [
         "HUMMANOS CONSULTORIA RH"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "humtech recrutando para tecnologia": {
@@ -67490,10 +67490,10 @@
       "company_names": [
         "Humtech - Recrutando para Tecnologia"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hunt it": {
@@ -67501,10 +67501,10 @@
       "company_names": [
         "Hunt IT"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hunt it recrutamento especializado para ti": {
@@ -67512,21 +67512,21 @@
       "company_names": [
         "HUNT IT - Recrutamento Especializado para TI"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hunt st": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hunt St"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 5.0,
+      "review_count": 4,
+      "status": "matched",
       "url": null
     },
     "hunter douglas do brasil": {
@@ -67534,32 +67534,32 @@
       "company_names": [
         "Hunter Douglas do Brasil"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "huntress": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Huntress"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 187,
+      "status": "matched",
       "url": null
     },
     "huntress labs": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Huntress Labs"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 5.0,
+      "review_count": 1,
+      "status": "matched",
       "url": null
     },
     "hurbana empreendimentos imobiliarios s a": {
@@ -67567,10 +67567,10 @@
       "company_names": [
         "HURBANA EMPREENDIMENTOS IMOBILIARIOS S.A"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "husser und palkoska ag": {
@@ -67578,32 +67578,32 @@
       "company_names": [
         "Hüsser und Palkoska AG"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hustler marketing": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hustler Marketing"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 29,
+      "status": "matched",
       "url": null
     },
     "huzzle": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Huzzle"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.5,
+      "review_count": 32,
+      "status": "matched",
       "url": null
     },
     "hvs consulting gmbh": {
@@ -67611,10 +67611,10 @@
       "company_names": [
         "HvS-Consulting GmbH"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hx brasil informatica ltda": {
@@ -67622,10 +67622,10 @@
       "company_names": [
         "HX BRASIL INFORMATICA LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hydromapper gmbh": {
@@ -67633,32 +67633,32 @@
       "company_names": [
         "HydroMapper GmbH"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hydronorth": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hydronorth"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.2,
+      "review_count": 52,
+      "status": "matched",
       "url": null
     },
     "hyland": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hyland"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.6,
+      "review_count": 1676,
+      "status": "matched",
       "url": null
     },
     "hyosung brasil industria e comercio de fibras ltda": {
@@ -67666,10 +67666,10 @@
       "company_names": [
         "HYOSUNG BRASIL INDUSTRIA E COMERCIO DE FIBRAS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hype hr": {
@@ -67677,21 +67677,21 @@
       "company_names": [
         "Hype HR"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hyper": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hyper"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.3,
+      "review_count": 12,
+      "status": "matched",
       "url": null
     },
     "hypera": {
@@ -67699,32 +67699,32 @@
       "company_names": [
         "Hypera"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hypera pharma": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hypera Pharma"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 1482,
+      "status": "matched",
       "url": null
     },
     "hyperexponential": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "hyperexponential"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 79,
+      "status": "matched",
       "url": null
     },
     "hypergrowth recruitment": {
@@ -67732,10 +67732,10 @@
       "company_names": [
         "HyperGrowth Recruitment"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hyperhug": {
@@ -67743,21 +67743,21 @@
       "company_names": [
         "HyperHug"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hyperiondev": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HyperionDev"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.5,
+      "review_count": 168,
+      "status": "matched",
       "url": null
     },
     "hyperscale power": {
@@ -67765,32 +67765,32 @@
       "company_names": [
         "Hyperscale Power"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hypersonica": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hypersonica"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.0,
+      "review_count": 1,
+      "status": "matched",
       "url": null
     },
     "hypori": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hypori"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.8,
+      "review_count": 25,
+      "status": "matched",
       "url": null
     },
     "hyprwork": {
@@ -67798,32 +67798,32 @@
       "company_names": [
         "Hyprwork"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hyre": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Hyre"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.8,
+      "review_count": 47,
+      "status": "matched",
       "url": null
     },
     "hyros": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HYROS"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.6,
+      "review_count": 2,
+      "status": "matched",
       "url": null
     },
     "hyti": {
@@ -67831,10 +67831,10 @@
       "company_names": [
         "Hyti"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hyundai mobis brasil": {
@@ -67842,21 +67842,21 @@
       "company_names": [
         "Hyundai Mobis Brasil"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "hyundai transys": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "HYUNDAI TRANSYS"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.2,
+      "review_count": 127,
+      "status": "matched",
       "url": null
     },
     "hyva do brasil": {
@@ -67864,10 +67864,10 @@
       "company_names": [
         "HYVA DO BRASIL"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "i mov": {
@@ -67875,10 +67875,10 @@
       "company_names": [
         "I-MOV"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "i thales representacoes e comercio": {
@@ -67886,10 +67886,10 @@
       "company_names": [
         "I'THALES REPRESENTACOES E COMERCIO"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "i v transportes e locacoes ltda": {
@@ -67897,21 +67897,21 @@
       "company_names": [
         "I.V TRANSPORTES E LOCACOES LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "i2g systems": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "i2G Systems"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.4,
+      "review_count": 3,
+      "status": "matched",
       "url": null
     },
     "i3d": {
@@ -67919,10 +67919,10 @@
       "company_names": [
         "I3D"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "ia consultoria": {
@@ -67930,10 +67930,10 @@
       "company_names": [
         "IA CONSULTORIA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "iaco solucoes em educacao tecnologia ltda": {
@@ -67941,21 +67941,21 @@
       "company_names": [
         "IACO SOLUCOES EM EDUCACAO & TECNOLOGIA LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "iap cosmeticos": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "IAP Cosméticos"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.6,
+      "review_count": 67,
+      "status": "matched",
       "url": null
     },
     "iapwe": {
@@ -67963,21 +67963,21 @@
       "company_names": [
         "IAPWE"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "iara barbosa desenvolvimento humano": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Iara Barbosa Desenvolvimento Humano"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 5.0,
+      "review_count": 2,
+      "status": "matched",
       "url": null
     },
     "iara schneider advogados associados": {
@@ -67985,10 +67985,10 @@
       "company_names": [
         "IARA SCHNEIDER - ADVOGADOS ASSOCIADOS"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "ib2tech solutions ltda": {
@@ -67996,32 +67996,32 @@
       "company_names": [
         "IB2TECH SOLUTIONS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "ibema": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Ibema"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 111,
+      "status": "matched",
       "url": null
     },
     "iberdrola": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Iberdrola"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 751,
+      "status": "matched",
       "url": null
     },
     "ibeu ingles global": {
@@ -68029,10 +68029,10 @@
       "company_names": [
         "Ibeu - Inglês Global"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "ibh i servicos e participacoes s a": {
@@ -68040,10 +68040,10 @@
       "company_names": [
         "IBH I Serviços e Participações S.A."
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "ibis ibis styles ibis budget": {
@@ -68051,21 +68051,21 @@
       "company_names": [
         "ibis, ibis Styles, ibis budget"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "ibm": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "IBM"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 133771,
+      "status": "matched",
       "url": null
     },
     "ibn pinto e silva cia ltda": {
@@ -68073,21 +68073,21 @@
       "company_names": [
         "IBN PINTO E SILVA & CIA LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "ibope": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "IBOPE"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.6,
+      "review_count": 96,
+      "status": "matched",
       "url": null
     },
     "ibrep": {
@@ -68095,21 +68095,21 @@
       "company_names": [
         "Ibrep"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "ibrowse": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Ibrowse"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 15,
+      "status": "matched",
       "url": null
     },
     "ibrowse consultoria e informatica": {
@@ -68117,10 +68117,10 @@
       "company_names": [
         "Ibrowse Consultoria E Informatica"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "ibs tecnologia ltda": {
@@ -68128,10 +68128,10 @@
       "company_names": [
         "IBS TECNOLOGIA LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "ibyte get": {
@@ -68139,21 +68139,21 @@
       "company_names": [
         "Ibyte | Get"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "ic transportes": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "IC Transportes"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 110,
+      "status": "matched",
       "url": null
     },
     "ical industria de calcinacao ltda em recuperacao judicial": {
@@ -68161,32 +68161,32 @@
       "company_names": [
         "ICAL INDUSTRIA DE CALCINACAO LTDA EM RECUPERACAO JUDICIAL"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "icapital": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "iCapital"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 460,
+      "status": "matched",
       "url": null
     },
     "icatel": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Icatel"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.1,
+      "review_count": 19,
+      "status": "matched",
       "url": null
     },
     "icatu brasil servicos ltda": {
@@ -68194,32 +68194,32 @@
       "company_names": [
         "Icatu Brasil Servicos Ltda"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "icatu seguros": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Icatu Seguros"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.2,
+      "review_count": 998,
+      "status": "matched",
       "url": null
     },
     "ice": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "ICE"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 22,
+      "status": "matched",
       "url": null
     },
     "ice churros": {
@@ -68227,43 +68227,43 @@
       "company_names": [
         "ICE CHURROS"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "icf": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "ICF"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.6,
+      "review_count": 3056,
+      "status": "matched",
       "url": null
     },
     "icomm group": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Icomm Group"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.9,
+      "review_count": 165,
+      "status": "matched",
       "url": null
     },
     "icon": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "ICON"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.5,
+      "review_count": 6734,
+      "status": "matched",
       "url": null
     },
     "icon it": {
@@ -68271,10 +68271,10 @@
       "company_names": [
         "Icon IT"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "icon solutions do brasil": {
@@ -68282,21 +68282,21 @@
       "company_names": [
         "ICON Solutions do Brasil"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "iconic": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "ICONIC"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.0,
+      "review_count": 254,
+      "status": "matched",
       "url": null
     },
     "icql quimica ltda": {
@@ -68304,21 +68304,21 @@
       "company_names": [
         "ICQL QUIMICA LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "icts security": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "ICTS Security"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 12,
+      "status": "matched",
       "url": null
     },
     "id do brasil logistica ltda": {
@@ -68326,10 +68326,10 @@
       "company_names": [
         "ID DO BRASIL LOGISTICA LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "id logistics brasil": {
@@ -68337,10 +68337,10 @@
       "company_names": [
         "ID Logistics - Brasil"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "idbrasil cultura educacao e esporte": {
@@ -68348,10 +68348,10 @@
       "company_names": [
         "IDBRASIL CULTURA, EDUCACAO E ESPORTE"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "ideal pecas ltda": {
@@ -68359,10 +68359,10 @@
       "company_names": [
         "IDEAL PECAS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "idealo internet gmbh": {
@@ -68370,54 +68370,54 @@
       "company_names": [
         "idealo internet GmbH"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "ideals": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Ideals"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.0,
+      "review_count": 187,
+      "status": "matched",
       "url": null
     },
     "idg": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "IDG"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.1,
+      "review_count": 115,
+      "status": "matched",
       "url": null
     },
     "idnow": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "idnow"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.3,
+      "review_count": 101,
+      "status": "matched",
       "url": null
     },
     "idomed": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "IDOMED"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.5,
+      "review_count": 6,
+      "status": "matched",
       "url": null
     },
     "idp": {
@@ -68425,21 +68425,21 @@
       "company_names": [
         "IDP"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "iebt innovation": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "IEBT Innovation"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.4,
+      "review_count": 30,
+      "status": "matched",
       "url": null
     },
     "ieda peters": {
@@ -68447,10 +68447,10 @@
       "company_names": [
         "Ieda Peters"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "iel empregos": {
@@ -68458,10 +68458,10 @@
       "company_names": [
         "IEL Empregos"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "iel mt": {
@@ -68469,10 +68469,10 @@
       "company_names": [
         "IEL MT"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "iel rn": {
@@ -68480,10 +68480,10 @@
       "company_names": [
         "IEL/RN"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "iel sc": {
@@ -68491,10 +68491,10 @@
       "company_names": [
         "IEL/SC"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "iereg instituto educar ltda": {
@@ -68502,10 +68502,10 @@
       "company_names": [
         "IEREG - INSTITUTO EDUCAR LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "iesa projetos equipamentos e montagens s a": {
@@ -68513,10 +68513,10 @@
       "company_names": [
         "IESA - PROJETOS, EQUIPAMENTOS E MONTAGENS S/A."
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "iesb": {
@@ -68524,21 +68524,21 @@
       "company_names": [
         "IESB"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "iesde": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "IESDE"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.3,
+      "review_count": 185,
+      "status": "matched",
       "url": null
     },
     "iese instituto de ensino em saude e especializacao ltda": {
@@ -68546,10 +68546,10 @@
       "company_names": [
         "IESE - INSTITUTO DE ENSINO EM SAUDE E ESPECIALIZACAO LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "iestro": {
@@ -68557,10 +68557,10 @@
       "company_names": [
         "iestro"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "ifa by lopesan hotels": {
@@ -68568,10 +68568,10 @@
       "company_names": [
         "IFA by Lopesan Hotels"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "ifbm et qualtech groupe": {
@@ -68579,21 +68579,21 @@
       "company_names": [
         "IFBM et Qualtech Groupe"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "ifeel": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "ifeel"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 37,
+      "status": "matched",
       "url": null
     },
     "iff instituto fernando filgueiras": {
@@ -68601,21 +68601,21 @@
       "company_names": [
         "(IFF) Instituto Fernando Filgueiras"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "ifood": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "iFood"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.2,
+      "review_count": 5648,
+      "status": "matched",
       "url": null
     },
     "ifood indicacoes": {
@@ -68623,10 +68623,10 @@
       "company_names": [
         "iFood Indicações"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "ifsa institute for study abroad": {
@@ -68634,21 +68634,21 @@
       "company_names": [
         "IFSA (Institute for Study Abroad)"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "ig h": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "IG&H"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 35,
+      "status": "matched",
       "url": null
     },
     "iga niteroi": {
@@ -68656,21 +68656,21 @@
       "company_names": [
         "IGA Niterói"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "igc": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "IGC"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.3,
+      "review_count": 23,
+      "status": "matched",
       "url": null
     },
     "igm odontopediatria sociedade simples limitada": {
@@ -68678,32 +68678,32 @@
       "company_names": [
         "IGM ODONTOPEDIATRIA SOCIEDADE SIMPLES LIMITADA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "igma": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Igma"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.3,
+      "review_count": 11,
+      "status": "matched",
       "url": null
     },
     "ignition inc": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Ignition, Inc."
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 18,
+      "status": "matched",
       "url": null
     },
     "igreja universal": {
@@ -68711,21 +68711,21 @@
       "company_names": [
         "Igreja Universal"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "igua saneamento": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Iguá Saneamento"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.4,
+      "review_count": 590,
+      "status": "matched",
       "url": null
     },
     "iguacu maquinas agricolas ltda": {
@@ -68733,10 +68733,10 @@
       "company_names": [
         "Iguaçu Máquinas Agrícolas LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "ihara agricultura e a nossa vida": {
@@ -68744,10 +68744,10 @@
       "company_names": [
         "IHARA - Agricultura é a nossa vida"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "ihunters": {
@@ -68755,10 +68755,10 @@
       "company_names": [
         "iHunters"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "iibb": {
@@ -68766,10 +68766,10 @@
       "company_names": [
         "IIBB"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "ikatec engenharia de software": {
@@ -68777,10 +68777,10 @@
       "company_names": [
         "IKATEC ENGENHARIA DE SOFTWARE"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "ilf consulting engineers germany gmbh": {
@@ -68788,10 +68788,10 @@
       "company_names": [
         "ILF Consulting Engineers Germany GmbH"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "ilheus medicina laboratorial ltda": {
@@ -68799,10 +68799,10 @@
       "company_names": [
         "ILHEUS MEDICINA LABORATORIAL LTDA."
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "ilia": {
@@ -68810,10 +68810,10 @@
       "company_names": [
         "ília"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "ilimit marketing ltda": {
@@ -68821,10 +68821,10 @@
       "company_names": [
         "ILIMIT MARKETING LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "illa fellicidade industria e comercio de gelados ltda": {
@@ -68832,43 +68832,43 @@
       "company_names": [
         "ILLA FELLICIDADE INDUSTRIA E COMERCIO DE GELADOS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "illuin technology": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "ILLUIN Technology"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.6,
+      "review_count": 26,
+      "status": "matched",
       "url": null
     },
     "illumina": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Illumina"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.3,
+      "review_count": 3026,
+      "status": "matched",
       "url": null
     },
     "illumio": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Illumio"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 294,
+      "status": "matched",
       "url": null
     },
     "ilpea": {
@@ -68876,10 +68876,10 @@
       "company_names": [
         "ILPEA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "ils cargo transportes internacionais ltda": {
@@ -68887,32 +68887,32 @@
       "company_names": [
         "ILS CARGO TRANSPORTES INTERNACIONAIS LTDA."
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "imaflora": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Imaflora"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 37,
+      "status": "matched",
       "url": null
     },
     "imagem geosistemas": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Imagem Geosistemas"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 207,
+      "status": "matched",
       "url": null
     },
     "imagem tecnologia e seguranca": {
@@ -68920,54 +68920,54 @@
       "company_names": [
         "Imagem Tecnologia e Segurança"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "imaginary cloud": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Imaginary Cloud"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.5,
+      "review_count": 68,
+      "status": "matched",
       "url": null
     },
     "imagine worldwide": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Imagine Worldwide"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.0,
+      "review_count": 1,
+      "status": "matched",
       "url": null
     },
     "imap": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "IMAP"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.2,
+      "review_count": 34,
+      "status": "matched",
       "url": null
     },
     "imc saste": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "IMC Saste"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 202,
+      "status": "matched",
       "url": null
     },
     "imc vagas": {
@@ -68975,10 +68975,10 @@
       "company_names": [
         "IMC Vagas"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "imd ar medicina diagnostica ltda": {
@@ -68986,10 +68986,10 @@
       "company_names": [
         "IMD AR MEDICINA DIAGNOSTICA LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "imd igesp medicina diagnostica": {
@@ -68997,10 +68997,10 @@
       "company_names": [
         "IMD - IGESP Medicina Diagnóstica"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "imediato": {
@@ -69008,21 +69008,21 @@
       "company_names": [
         "Imediato"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "imediato nexway": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Imediato Nexway"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.5,
+      "review_count": 17,
+      "status": "matched",
       "url": null
     },
     "imediatta rh": {
@@ -69030,10 +69030,10 @@
       "company_names": [
         "IMEDIATTA RH"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "imepp instituto med psicologia pesquisa": {
@@ -69041,21 +69041,21 @@
       "company_names": [
         "IMEPP Instituto Med Psicologia Pesquisa"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "imerit": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "iMerit"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 538,
+      "status": "matched",
       "url": null
     },
     "imerit technology": {
@@ -69063,10 +69063,10 @@
       "company_names": [
         "iMerit Technology"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "imigrantes mercantil ltda": {
@@ -69074,21 +69074,21 @@
       "company_names": [
         "IMIGRANTES MERCANTIL LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "imm": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "IMM"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 5.0,
+      "review_count": 1,
+      "status": "matched",
       "url": null
     },
     "immodo berlin": {
@@ -69096,10 +69096,10 @@
       "company_names": [
         "IMMODO Berlin"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "immofynn": {
@@ -69107,10 +69107,10 @@
       "company_names": [
         "ImmoFynn"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "imnoo ag": {
@@ -69118,10 +69118,10 @@
       "company_names": [
         "Imnoo AG"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "imobilead": {
@@ -69129,10 +69129,10 @@
       "company_names": [
         "Imobilead"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "imobiliaria biguacu ltda": {
@@ -69140,10 +69140,10 @@
       "company_names": [
         "IMOBILIARIA BIGUACU LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "imobiliaria halca e daniel ltda": {
@@ -69151,32 +69151,32 @@
       "company_names": [
         "IMOBILIARIA HALCA E DANIEL LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "imoveis credito real": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "IMÓVEIS CRÉDITO REAL"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 106,
+      "status": "matched",
       "url": null
     },
     "impact association management": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Impact Association Management"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.6,
+      "review_count": 6,
+      "status": "matched",
       "url": null
     },
     "impact clients": {
@@ -69184,32 +69184,32 @@
       "company_names": [
         "Impact Clients"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "impact com": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "impact.com"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.6,
+      "review_count": 431,
+      "status": "matched",
       "url": null
     },
     "impacta": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Impacta"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.1,
+      "review_count": 9,
+      "status": "matched",
       "url": null
     },
     "impacta tecnologia": {
@@ -69217,10 +69217,10 @@
       "company_names": [
         "IMPACTA TECNOLOGIA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "impacto contabilidade e planejamento tributario ltda": {
@@ -69228,10 +69228,10 @@
       "company_names": [
         "IMPACTO - CONTABILIDADE E PLANEJAMENTO TRIBUTARIO LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "impakto sistemas de limpeza e descartaveis": {
@@ -69239,21 +69239,21 @@
       "company_names": [
         "IMPAKTO SISTEMAS DE LIMPEZA E DESCARTAVEIS"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "impartner": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Impartner"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.0,
+      "review_count": 143,
+      "status": "matched",
       "url": null
     },
     "imparts distribuidora automotiva ltda": {
@@ -69261,10 +69261,10 @@
       "company_names": [
         "IMPARTS DISTRIBUIDORA AUTOMOTIVA LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "imperio desentupidora e dedetizadora ltda": {
@@ -69272,10 +69272,10 @@
       "company_names": [
         "IMPERIO DESENTUPIDORA E DEDETIZADORA LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "imperium organizacao educacional colegio imperium": {
@@ -69283,10 +69283,10 @@
       "company_names": [
         "IMPERIUM ORGANIZACAO EDUCACIONAL -Colégio Imperium"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "impersik comercio e servicos ltda": {
@@ -69294,10 +69294,10 @@
       "company_names": [
         "IMPERSIK COMERCIO E SERVICOS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "impinj": {
@@ -149766,7 +149766,7 @@
       "url": null
     }
   },
-  "generated_at": "2026-11-13T06:30:10.102796+00:00",
+  "generated_at": "2026-11-13T06:44:48.704924+00:00",
   "profiles": {
     "accenture": {
       "checked_at": "2026-11-13",
