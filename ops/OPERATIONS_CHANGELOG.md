@@ -1,3 +1,9 @@
+## 2026-11-13 — Ordenação dos lotes Glassdoor por relevância
+
+- Empresas sem média geral passam à frente das já classificadas, ordenadas pela quantidade de vagas associadas em ordem decrescente.
+- Empregadores com nota válida permanecem no cache e são preservados, evitando chamadas repetidas; empates usam nome normalizado e posição original como fallback determinístico.
+- O offset agora percorre somente o conjunto pendente nessa ordem, mantendo a retomada entre lotes sem desperdiçar consultas.
+
 ## 2026-11-13 — Lotes Glassdoor por offset explícito
 
 - O workflow agora aceita `catalog_offset` junto de `catalog_batch_size`.

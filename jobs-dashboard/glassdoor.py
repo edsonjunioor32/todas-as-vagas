@@ -1217,21 +1217,56 @@ def update_cache(
     return cache, summary
 
 
-def _snapshot_company_names(snapshot: dict | None) -> list[tuple[str, str]]:
-    """Return stable, deduplicated company candidates from a public snapshot."""
+def _snapshot_company_candidates(
+    snapshot: dict | None,
+) -> list[tuple[str, str, int, int]]:
+    """Return company candidates with job counts and stable source positions."""
     if not isinstance(snapshot, dict):
         return []
     dictionaries = snapshot.get("dict") or {}
     raw_companies = dictionaries.get("company") if isinstance(dictionaries, dict) else []
     if not isinstance(raw_companies, list):
         return []
-    candidates: dict[str, str] = {}
-    for raw_name in raw_companies:
+
+    jobs = snapshot.get("jobs") or {}
+    raw_company_indexes = jobs.get("cmp") if isinstance(jobs, dict) else []
+    job_counts: dict[str, int] = {}
+    if isinstance(raw_company_indexes, list):
+        for raw_index in raw_company_indexes:
+            if isinstance(raw_index, bool):
+                continue
+            try:
+                company_index = int(raw_index)
+            except (TypeError, ValueError):
+                continue
+            if not 0 <= company_index < len(raw_companies):
+                continue
+            key = company_key(raw_companies[company_index])
+            if key:
+                job_counts[key] = job_counts.get(key, 0) + 1
+
+    candidates: dict[str, tuple[str, int]] = {}
+    for position, raw_name in enumerate(raw_companies):
         company_name = str(raw_name or "").strip()
         key = company_key(company_name)
         if key and key not in candidates:
-            candidates[key] = company_name
-    return sorted(candidates.items(), key=lambda item: item[0])
+            candidates[key] = (company_name, position)
+
+    return sorted(
+        [
+            (key, company_name, job_counts.get(key, 0), position)
+            for key, (company_name, position) in candidates.items()
+        ],
+        key=lambda item: (item[0], item[3]),
+    )
+
+
+def _snapshot_company_names(snapshot: dict | None) -> list[tuple[str, str]]:
+    """Return stable, deduplicated company names from a public snapshot."""
+    return [
+        (key, company_name)
+        for key, company_name, _job_count, _position in _snapshot_company_candidates(snapshot)
+    ]
 
 
 def update_catalog_cache(
@@ -1249,11 +1284,13 @@ def update_catalog_cache(
     backoff: float = DEFAULT_BACKOFF_SECONDS,
     force: bool = False,
 ) -> tuple[dict, dict]:
-    """Refresh exact-match ratings for every company in resumable batches.
+    """Refresh exact-match ratings in relevance-ordered resumable batches.
 
-    The Omkar fetcher receives one catalog name as its sole approved alias.
-    Its parser therefore rejects a different returned company instead of
-    attaching the first similarly named profile to a vacancy.
+    Unrated companies are ordered by associated job count (descending), then
+    by normalized name and source position for deterministic fallback. Existing
+    ratings remain in the cache and are not queried again. The Omkar fetcher
+    receives one catalog name as its sole approved alias, so its parser rejects
+    a different returned company instead of attaching a similar profile.
     """
     cache = copy.deepcopy(previous_cache or {})
     raw_catalog = cache.get("catalog_profiles")
@@ -1271,12 +1308,14 @@ def update_catalog_cache(
         )
 
     discovered = [
-        (key, name)
-        for key, name in _snapshot_company_names(snapshot)
-        if key not in canonical_keys
+        candidate
+        for candidate in _snapshot_company_candidates(snapshot)
+        if candidate[0] not in canonical_keys
     ]
     summary = {
         "discovered": len(discovered),
+        "unrated": 0,
+        "preserved": 0,
         "attempted": 0,
         "skipped": 0,
         "succeeded": 0,
@@ -1290,11 +1329,28 @@ def update_catalog_cache(
     limit = min(max(1, int(batch_size)), MAX_CATALOG_BATCH_SIZE)
     offset = min(max(0, int(catalog_offset)), MAX_CATALOG_OFFSET)
     summary["offset"] = offset
-    selected = 0
 
-    for position, (key, company_name) in enumerate(discovered):
+    pending: list[tuple[str, str, int, int, dict]] = []
+    for key, company_name, job_count, source_position in discovered:
         entry = _catalog_cache_metrics(catalog_profiles.get(key), company_name)
         catalog_profiles[key] = entry
+        if _rating(entry.get("rating")) is not None:
+            summary["preserved"] += 1
+            continue
+        pending.append((key, company_name, job_count, source_position, entry))
+
+    pending.sort(
+        key=lambda item: (
+            -item[2],
+            item[1].casefold(),
+            item[0],
+            item[3],
+        )
+    )
+    summary["unrated"] = len(pending)
+    selected = 0
+
+    for position, (key, company_name, _job_count, _source_position, entry) in enumerate(pending):
         if position < offset:
             summary["before_offset"] += 1
             continue

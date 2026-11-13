@@ -362,11 +362,70 @@ class GlassdoorTests(unittest.TestCase):
         )
         self.assertNotIn(glassdoor.company_key("Empresa Teste"), updated["catalog_profiles"])
 
+    def test_catalog_refresh_prioritizes_unrated_by_job_count_and_preserves_classified(self):
+        snapshot = {
+            "count": 8,
+            "dict": {
+                "company": [
+                    "Empresa Z",
+                    "Empresa Beta",
+                    "Empresa Alpha",
+                    "Empresa Classificada",
+                ]
+            },
+            "jobs": {"cmp": [0, 0, 0, 1, 1, 2, 2, 3]},
+        }
+        classified_key = glassdoor.company_key("Empresa Classificada")
+        previous = {
+            "schema_version": 1,
+            "profiles": manifest()["profiles"],
+            "catalog_profiles": {
+                classified_key: {
+                    "company_names": ["Empresa Classificada"],
+                    "rating": 4.8,
+                    "review_count": 120,
+                    "checked_at": "2026-11-12",
+                    "last_attempted_date": "2026-11-12",
+                }
+            },
+        }
+        calls = []
+
+        def succeed(profile, **kwargs):
+            calls.append(profile["scraper_company"])
+            return {"rating": 4.4, "review_count": 31}
+
+        updated, summary = glassdoor.update_catalog_cache(
+            snapshot,
+            previous,
+            now=datetime(2026, 11, 13, 8, 0),
+            batch_size=3,
+            force=True,
+            fetcher=succeed,
+            sleeper=lambda _seconds: None,
+            profile_delay=0,
+        )
+
+        self.assertEqual(calls, ["Empresa Z", "Empresa Alpha", "Empresa Beta"])
+        self.assertEqual(summary["discovered"], 4)
+        self.assertEqual(summary["unrated"], 3)
+        self.assertEqual(summary["preserved"], 1)
+        self.assertEqual(summary["attempted"], 3)
+        self.assertEqual(summary["succeeded"], 3)
+        self.assertEqual(
+            updated["catalog_profiles"][classified_key]["rating"],
+            4.8,
+        )
+        self.assertEqual(
+            updated["catalog_profiles"][classified_key]["checked_at"],
+            "2026-11-12",
+        )
+
     def test_catalog_refresh_uses_requested_offset_for_distinct_forced_batch(self):
         snapshot = {
-            "count": 4,
-            "dict": {"company": ["Empresa A", "Empresa B", "Empresa C", "Empresa Teste"]},
-            "jobs": {"cmp": [0, 1, 2, 3]},
+            "count": 7,
+            "dict": {"company": ["Empresa C", "Empresa A", "Empresa B", "Empresa Teste"]},
+            "jobs": {"cmp": [0, 0, 0, 1, 2, 2, 3]},
         }
         calls = []
 
@@ -390,17 +449,17 @@ class GlassdoorTests(unittest.TestCase):
             profile_delay=0,
         )
 
-        self.assertEqual(calls, ["Empresa B", "Empresa C"])
+        self.assertEqual(calls, ["Empresa B", "Empresa A"])
         self.assertEqual(summary["offset"], 1)
         self.assertEqual(summary["before_offset"], 1)
         self.assertEqual(summary["attempted"], 2)
         self.assertEqual(summary["succeeded"], 2)
         self.assertEqual(
-            updated["catalog_profiles"][glassdoor.company_key("Empresa C")]["rating"],
+            updated["catalog_profiles"][glassdoor.company_key("Empresa A")]["rating"],
             4.4,
         )
 
-    def test_catalog_refresh_preserves_previous_rating_when_source_fails(self):
+    def test_catalog_refresh_preserves_previous_review_count_when_source_fails(self):
         snapshot = {
             "count": 1,
             "dict": {"company": ["Empresa Nova"]},
@@ -413,7 +472,7 @@ class GlassdoorTests(unittest.TestCase):
             "catalog_profiles": {
                 key: {
                     "company_names": ["Empresa Nova"],
-                    "rating": 4.2,
+                    "rating": None,
                     "review_count": 18,
                     "checked_at": "2026-11-11",
                     "last_attempted_date": "2026-11-11",
@@ -435,7 +494,7 @@ class GlassdoorTests(unittest.TestCase):
 
         entry = updated["catalog_profiles"][key]
         self.assertEqual(summary["failed"], 1)
-        self.assertEqual(entry["rating"], 4.2)
+        self.assertIsNone(entry["rating"])
         self.assertEqual(entry["review_count"], 18)
         self.assertEqual(entry["checked_at"], "2026-11-11")
         self.assertEqual(entry["last_attempted_date"], "2026-11-12")
