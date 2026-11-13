@@ -1,3 +1,11 @@
+## 2026-11-13 — Filtros de empresa e avaliação na interface
+
+- **Interface:** adicionados filtros dedicados por empresa e por avaliação oficial do Glassdoor, incluindo a opção de mostrar somente vagas sem avaliação.
+- **Ordenação:** adicionada a opção `Melhor avaliação`; notas oficiais são ordenadas de forma decrescente e vagas sem nota ficam no final.
+- **Persistência:** os novos critérios são preservados na URL, nos chips de filtros, na limpeza e na exportação CSV.
+- **Regra de dados:** o filtro e a ordenação usam somente `glassdoorRating`; o fallback não é misturado com a nota oficial.
+- **Validação:** a sintaxe e os workflows do frontend devem confirmar a alteração antes da publicação.
+
 ## 2026-11-12 — Cobertura Glassdoor para todas as empresas do catálogo
 
 - A rotina deixou de limitar o enriquecimento às quatro empresas do manifesto canônico. Ela agora extrai todos os nomes únicos do snapshot público e mantém uma fila `catalog_profiles` resumível no cache público.
