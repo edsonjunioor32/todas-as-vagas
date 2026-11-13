@@ -33,7 +33,7 @@ jobs:
     # O scraper local roda em container no runner dedicado do catálogo. Ele
     # fica exposto apenas em loopback durante esta execução.
     runs-on: self-hosted
-    timeout-minutes: 20
+    timeout-minutes: 45
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
