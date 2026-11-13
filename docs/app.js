@@ -144,6 +144,7 @@
     searchInput: document.querySelector('#searchInput'),
     excludeTerms: document.querySelector('#excludeTerms'),
     companyFilter: document.querySelector('#companyFilter'),
+    companyOptions: document.querySelector('#companyOptions'),
     sourceFilter: document.querySelector('#sourceFilter'),
     workplaceFilter: document.querySelector('#workplaceFilter'),
     contractFilter: document.querySelector('#contractFilter'),
@@ -627,7 +628,10 @@
       appendOption(elements.sourceFilter, value, `${sourceLabel(value)} (${numberFormatter.format(count)})`);
     }
     for (const [value, count] of countValues(state.jobs.map(job => job.company))) {
-      appendOption(elements.companyFilter, value, `${value} (${numberFormatter.format(count)})`);
+      const option = document.createElement('option');
+      option.value = value;
+      option.label = `${numberFormatter.format(count)} ${count === 1 ? 'vaga' : 'vagas'}`;
+      elements.companyOptions.append(option);
     }
     for (const [value, count] of countValues(state.jobs.map(job => job.workplaceType))) {
       appendOption(elements.workplaceFilter, value, `${value} (${numberFormatter.format(count)})`);
@@ -692,7 +696,7 @@
     const values = {
       q: elements.searchInput.value.trim(),
       excluir: elements.excludeTerms.value.trim(),
-      empresa: elements.companyFilter.value,
+      empresa: elements.companyFilter.value.trim(),
       portal: elements.sourceFilter.value,
       modalidade: elements.workplaceFilter.value,
       contratacao: elements.contractFilter.value,
@@ -721,7 +725,7 @@
     };
     add('q', 'Busca', elements.searchInput.value.trim());
     add('excluir', 'Não exibir vagas com', elements.excludeTerms.value.trim());
-    add('empresa', 'Empresa', elements.companyFilter.value);
+    add('empresa', 'Empresa', elements.companyFilter.value.trim());
     add('cidade', 'Local', elements.cityFilter.value.trim());
     add('modalidade', 'Modalidade', elements.workplaceFilter.value);
     add('contratacao', 'Contrato', contractLabel(elements.contractFilter.value));
@@ -850,7 +854,7 @@
     const search = normalize(elements.searchInput.value);
     const excludedTerms = window.TodasAsVagasFilterTerms.parseExcludedTerms(elements.excludeTerms.value);
     const source = elements.sourceFilter.value;
-    const company = elements.companyFilter.value;
+    const company = normalize(elements.companyFilter.value);
     const workplace = elements.workplaceFilter.value;
     const contract = elements.contractFilter.value;
     const city = normalize(elements.cityFilter.value);
@@ -869,7 +873,7 @@
       if (search && !job._search.includes(search)) return false;
       if (window.TodasAsVagasFilterTerms.matchesExcludedTerm(job._search, excludedTerms)) return false;
       if (source && job.source !== source) return false;
-      if (company && job.company !== company) return false;
+      if (company && !normalize(job.company).includes(company)) return false;
       if (workplace && job.workplaceType !== workplace) return false;
       if (contract) {
         const target = normalize(contractLabel(contract));
@@ -1312,6 +1316,7 @@
       searchAnalyticsTimer = setTimeout(trackKeywordSearch, 450);
     });
     elements.excludeTerms.addEventListener('input', scheduleRender);
+    elements.companyFilter.addEventListener('input', scheduleRender);
     elements.cityFilter.addEventListener('input', scheduleRender);
     elements.filtersForm.addEventListener('change', event => {
       state.page = 1;
@@ -1348,12 +1353,13 @@
 
   function resetFilterOptions() {
     const selects = [
-      elements.companyFilter, elements.sourceFilter, elements.workplaceFilter, elements.contractFilter,
+      elements.sourceFilter, elements.workplaceFilter, elements.contractFilter,
       elements.marketFilter, elements.categoryFilter, elements.seniorityFilter
     ];
     for (const select of selects) {
       while (select.options.length > 1) select.remove(1);
     }
+    elements.companyOptions.replaceChildren();
     elements.cityOptions.replaceChildren();
   }
 
