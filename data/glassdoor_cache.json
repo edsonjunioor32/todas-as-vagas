@@ -149766,7 +149766,7 @@
       "url": null
     }
   },
-  "generated_at": "2026-11-13T12:34:12.056175+00:00",
+  "generated_at": "2026-11-13T15:08:21.663629+00:00",
   "profiles": {
     "accenture": {
       "checked_at": "2026-11-13",
@@ -149782,7 +149782,58 @@
       "last_attempted_date": "2026-11-13",
       "rating": 3.7,
       "review_count": 231289,
+      "source": null,
       "url": "https://www.glassdoor.com.br/Vis%C3%A3o-geral/Trabalhar-na-Accenture-EI_IE4138.13%2C22.htm"
+    },
+    "assai-atacadista": {
+      "checked_at": "2026-11-13",
+      "company_names": [
+        "Assaí Atacadista"
+      ],
+      "hasdata_checked_at": null,
+      "hasdata_last_attempted_date": null,
+      "hasdata_rating": null,
+      "hasdata_reference_url": null,
+      "id": "assai-atacadista",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.6,
+      "review_count": 5710,
+      "source": "omkar",
+      "url": "https://www.glassdoor.com.br/Avalia%C3%A7%C3%B5es/Assa%C3%AD-Atacadista-Avalia%C3%A7%C3%B5es-E2482699.htm"
+    },
+    "bosch": {
+      "checked_at": "2026-11-13",
+      "company_names": [
+        "Bosch",
+        "Bosch Group"
+      ],
+      "hasdata_checked_at": null,
+      "hasdata_last_attempted_date": null,
+      "hasdata_rating": null,
+      "hasdata_reference_url": null,
+      "id": "bosch",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 4656,
+      "source": "omkar",
+      "url": "https://www.glassdoor.com.br/Vis%C3%A3o-geral/Trabalhar-na-Bosch-EI_IE4293.13%2C18.htm"
+    },
+    "cresol": {
+      "checked_at": "2026-11-13",
+      "company_names": [
+        "Cresol",
+        "Cresol Oficial"
+      ],
+      "hasdata_checked_at": null,
+      "hasdata_last_attempted_date": null,
+      "hasdata_rating": null,
+      "hasdata_reference_url": null,
+      "id": "cresol",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.7,
+      "review_count": 1288,
+      "source": "omkar",
+      "url": "https://www.glassdoor.com.br/Avalia%C3%A7%C3%B5es/Cresol-Avalia%C3%A7%C3%B5es-E665894.htm"
     },
     "heineken-brasil": {
       "checked_at": "2026-11-13",
@@ -149801,7 +149852,25 @@
       "last_attempted_date": "2026-11-13",
       "rating": 4.0,
       "review_count": 245,
+      "source": null,
       "url": "https://www.glassdoor.com.br/Avalia%C3%A7%C3%B5es/Heineken-Brasil-Avalia%C3%A7%C3%B5es-E8990981.htm"
+    },
+    "minsait": {
+      "checked_at": "2026-11-13",
+      "company_names": [
+        "Minsait",
+        "Minsait Brasil"
+      ],
+      "hasdata_checked_at": null,
+      "hasdata_last_attempted_date": null,
+      "hasdata_rating": null,
+      "hasdata_reference_url": null,
+      "id": "minsait",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 3104,
+      "source": "omkar",
+      "url": "https://www.glassdoor.com.br/Avalia%C3%A7%C3%B5es/Minsait-Avalia%C3%A7%C3%B5es-E1201389.htm"
     },
     "sicredi": {
       "checked_at": "2026-11-13",
@@ -149816,6 +149885,7 @@
       "last_attempted_date": "2026-11-13",
       "rating": 4.3,
       "review_count": 5482,
+      "source": null,
       "url": "https://www.glassdoor.com.br/Avalia%C3%A7%C3%B5es/Sicredi-Avalia%C3%A7%C3%B5es-E661772.htm"
     },
     "skeelo": {
@@ -149831,6 +149901,7 @@
       "last_attempted_date": "2026-11-13",
       "rating": 4.2,
       "review_count": 142,
+      "source": null,
       "url": "https://www.glassdoor.com.br/Vis%C3%A3o-geral/Trabalhar-na-Skeelo-EI_IE3556448.13%2C19.htm"
     }
   },
