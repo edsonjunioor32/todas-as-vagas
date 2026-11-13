@@ -143,6 +143,7 @@
     activeFilters: document.querySelector('#activeFilters'),
     searchInput: document.querySelector('#searchInput'),
     excludeTerms: document.querySelector('#excludeTerms'),
+    companyFilter: document.querySelector('#companyFilter'),
     sourceFilter: document.querySelector('#sourceFilter'),
     workplaceFilter: document.querySelector('#workplaceFilter'),
     contractFilter: document.querySelector('#contractFilter'),
@@ -150,6 +151,7 @@
     cityOptions: document.querySelector('#cityOptions'),
     marketFilter: document.querySelector('#marketFilter'),
     categoryFilter: document.querySelector('#categoryFilter'),
+    ratingFilter: document.querySelector('#ratingFilter'),
     seniorityFilter: document.querySelector('#seniorityFilter'),
     periodFilter: document.querySelector('#periodFilter'),
     pcdOnly: document.querySelector('#pcdOnly'),
@@ -624,6 +626,9 @@
       if (['nao informado', 'portal nao informado'].includes(normalize(value))) continue;
       appendOption(elements.sourceFilter, value, `${sourceLabel(value)} (${numberFormatter.format(count)})`);
     }
+    for (const [value, count] of countValues(state.jobs.map(job => job.company))) {
+      appendOption(elements.companyFilter, value, `${value} (${numberFormatter.format(count)})`);
+    }
     for (const [value, count] of countValues(state.jobs.map(job => job.workplaceType))) {
       appendOption(elements.workplaceFilter, value, `${value} (${numberFormatter.format(count)})`);
     }
@@ -658,6 +663,7 @@
     const params = new URLSearchParams(window.location.search);
     elements.searchInput.value = params.get('q') || '';
     elements.excludeTerms.value = params.get('excluir') || '';
+    elements.companyFilter.value = params.get('empresa') || '';
     elements.sourceFilter.value = params.get('portal') || '';
     elements.workplaceFilter.value = params.get('modalidade') || '';
     const requestedContract = params.get('contratacao') || '';
@@ -669,6 +675,9 @@
     elements.cityFilter.value = params.get('cidade') || '';
     elements.marketFilter.value = params.get('mercado') || '';
     elements.categoryFilter.value = params.get('area') || '';
+    elements.ratingFilter.value = ['2', '3', '4', 'unrated'].includes(params.get('avaliacao') || '')
+      ? params.get('avaliacao')
+      : '';
     elements.seniorityFilter.value = params.get('senioridade') || '';
     elements.periodFilter.value = params.get('dias') || '';
     elements.pcdOnly.checked = params.get('pcd') === '1';
@@ -683,12 +692,14 @@
     const values = {
       q: elements.searchInput.value.trim(),
       excluir: elements.excludeTerms.value.trim(),
+      empresa: elements.companyFilter.value,
       portal: elements.sourceFilter.value,
       modalidade: elements.workplaceFilter.value,
       contratacao: elements.contractFilter.value,
       cidade: elements.cityFilter.value.trim(),
       mercado: elements.marketFilter.value,
       area: elements.categoryFilter.value,
+      avaliacao: elements.ratingFilter.value,
       senioridade: elements.seniorityFilter.value,
       dias: elements.periodFilter.value,
       pcd: elements.pcdOnly.checked ? '1' : '',
@@ -710,10 +721,13 @@
     };
     add('q', 'Busca', elements.searchInput.value.trim());
     add('excluir', 'Não exibir vagas com', elements.excludeTerms.value.trim());
+    add('empresa', 'Empresa', elements.companyFilter.value);
     add('cidade', 'Local', elements.cityFilter.value.trim());
     add('modalidade', 'Modalidade', elements.workplaceFilter.value);
     add('contratacao', 'Contrato', contractLabel(elements.contractFilter.value));
     add('area', 'Área', elements.categoryFilter.value);
+    const ratingLabels = { '2': '2,0 ou mais', '3': '3,0 ou mais', '4': '4,0 ou mais', unrated: 'Sem avaliação' };
+    add('avaliacao', 'Avaliação', ratingLabels[elements.ratingFilter.value] || '');
     add('senioridade', 'Senioridade', elements.seniorityFilter.value);
     add('portal', 'Portal', selectedLabel(elements.sourceFilter.value, sourceLabel));
     add('mercado', 'Mercado', selectedLabel(elements.marketFilter.value, marketLabel));
@@ -751,10 +765,12 @@
     const fields = {
       q: elements.searchInput,
       excluir: elements.excludeTerms,
+      empresa: elements.companyFilter,
       cidade: elements.cityFilter,
       modalidade: elements.workplaceFilter,
       contratacao: elements.contractFilter,
       area: elements.categoryFilter,
+      avaliacao: elements.ratingFilter,
       senioridade: elements.seniorityFilter,
       portal: elements.sourceFilter,
       mercado: elements.marketFilter,
@@ -816,16 +832,32 @@
     elements.filterToggle.addEventListener('click', () => setFilterPanelCollapsed(!state.filtersCollapsed));
   }
 
+  function officialRating(job) {
+    const rating = optionalGlassdoorNumber(job?.glassdoorRating);
+    return rating !== null && rating >= 0 && rating <= 5 ? rating : null;
+  }
+
+  function compareRatings(a, b) {
+    const ratingA = officialRating(a);
+    const ratingB = officialRating(b);
+    if (ratingA === null && ratingB !== null) return 1;
+    if (ratingA !== null && ratingB === null) return -1;
+    if (ratingA !== null && ratingB !== null && ratingA !== ratingB) return ratingB - ratingA;
+    return activityTime(b) - activityTime(a) || collator.compare(a.title, b.title);
+  }
+
   function filterJobs() {
     const search = normalize(elements.searchInput.value);
     const excludedTerms = window.TodasAsVagasFilterTerms.parseExcludedTerms(elements.excludeTerms.value);
     const source = elements.sourceFilter.value;
+    const company = elements.companyFilter.value;
     const workplace = elements.workplaceFilter.value;
     const contract = elements.contractFilter.value;
     const city = normalize(elements.cityFilter.value);
     const market = elements.marketFilter.value;
     const category = elements.categoryFilter.value;
     const seniority = elements.seniorityFilter.value;
+    const rating = elements.ratingFilter.value;
     // The published snapshot already applies the two-month retention window.
     // An empty period means that default snapshot, not a second rolling filter.
     const days = Number(elements.periodFilter.value || 0);
@@ -837,6 +869,7 @@
       if (search && !job._search.includes(search)) return false;
       if (window.TodasAsVagasFilterTerms.matchesExcludedTerm(job._search, excludedTerms)) return false;
       if (source && job.source !== source) return false;
+      if (company && job.company !== company) return false;
       if (workplace && job.workplaceType !== workplace) return false;
       if (contract) {
         const target = normalize(contractLabel(contract));
@@ -849,6 +882,9 @@
       if (market && job.market !== market) return false;
       if (category && job.category !== category) return false;
       if (seniority && job.seniority !== seniority) return false;
+      const jobRating = officialRating(job);
+      if (rating === 'unrated' && jobRating !== null) return false;
+      if (rating && rating !== 'unrated' && (jobRating === null || jobRating < Number(rating))) return false;
       if (pcdOnly && !job.pcd) return false;
       if (duplicatesOnly && job.portals <= 1) return false;
       if (days) {
@@ -864,6 +900,7 @@
     if (sort !== 'recent') state.filtered.sort((a, b) => {
       if (sort === 'company') return collator.compare(a.company, b.company) || activityTime(b) - activityTime(a);
       if (sort === 'title') return collator.compare(a.title, b.title) || activityTime(b) - activityTime(a);
+      if (sort === 'rating') return compareRatings(a, b);
       if (sort === 'portals') return (b.portals - a.portals) || activityTime(b) - activityTime(a);
       return activityTime(b) - activityTime(a) || collator.compare(a.title, b.title);
     });
@@ -1207,9 +1244,11 @@
   }
 
   function downloadCsv() {
-    const headers = ['Cargo', 'Empresa', 'Portal', 'Área', 'Senioridade', 'Modalidade', 'Mercado', 'Local', 'Contrato', 'Palavras-chave', 'PcD', 'Seleção às cegas', 'Salário', 'Publicada em', 'Vista em', 'Link'];
+    const headers = ['Cargo', 'Empresa', 'Avaliação Glassdoor', 'Avaliações Glassdoor', 'Portal', 'Área', 'Senioridade', 'Modalidade', 'Mercado', 'Local', 'Contrato', 'Palavras-chave', 'PcD', 'Seleção às cegas', 'Salário', 'Publicada em', 'Vista em', 'Link'];
     const rows = state.filtered.map(job => [
-      job.title, job.company, job.sourceLabel, job.category, job.seniority,
+      job.title, job.company,
+      officialRating(job) === null ? '' : officialRating(job).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 2 }),
+      job.glassdoorReviewCount ?? '', job.sourceLabel, job.category, job.seniority,
       job.workplaceType, job.market, job.location, job.contractTypes, job.keywords,
       job.pcd ? 'Sim' : 'Não',
       job.blindSelection ? 'Sim' : 'Não', formatSalary(job), job.publishedAt,
@@ -1309,7 +1348,7 @@
 
   function resetFilterOptions() {
     const selects = [
-      elements.sourceFilter, elements.workplaceFilter, elements.contractFilter,
+      elements.companyFilter, elements.sourceFilter, elements.workplaceFilter, elements.contractFilter,
       elements.marketFilter, elements.categoryFilter, elements.seniorityFilter
     ];
     for (const select of selects) {
