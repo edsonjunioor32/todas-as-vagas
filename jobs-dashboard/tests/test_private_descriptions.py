@@ -565,6 +565,7 @@ class PrivateDescriptionTests(unittest.TestCase):
         self.assertIn(".job-details__description-content", expression)
         self.assertIn(".job-details__section", expression)
         self.assertIn('"oracle_hcm"', expression)
+        self.assertIn("node.innerText || node.textContent", expression)
 
     def test_crawler_uses_obscura_when_static_page_has_no_description(self):
         jobs = [{
