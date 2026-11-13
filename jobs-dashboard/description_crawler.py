@@ -111,6 +111,15 @@ OBSCURA_DESCRIPTION_EXPRESSION = r"""
   ].forEach((selector) => {
     document.querySelectorAll(selector).forEach((node) => add(node.innerHTML, "selector"));
   });
+  [
+    '.job-details__description-content',
+    '.job-details__section'
+  ].forEach((selector) => {
+    const nodes = Array.from(document.querySelectorAll(selector));
+    if (nodes.length) {
+      add(nodes.map((node) => node.innerHTML).join("\n"), "oracle_hcm");
+    }
+  });
   const unique = new Map();
   candidates.forEach((candidate) => {
     if (!unique.has(candidate.description)) unique.set(candidate.description, candidate);

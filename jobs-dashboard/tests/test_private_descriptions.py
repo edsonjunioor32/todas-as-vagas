@@ -559,6 +559,13 @@ class PrivateDescriptionTests(unittest.TestCase):
         self.assertIn("--eval", command)
         self.assertNotIn("--dump", command)
 
+    def test_obscura_expression_targets_oracle_hcm_description_sections(self):
+        expression = description_crawler.OBSCURA_DESCRIPTION_EXPRESSION
+
+        self.assertIn(".job-details__description-content", expression)
+        self.assertIn(".job-details__section", expression)
+        self.assertIn('"oracle_hcm"', expression)
+
     def test_crawler_uses_obscura_when_static_page_has_no_description(self):
         jobs = [{
             "source": "workday",
