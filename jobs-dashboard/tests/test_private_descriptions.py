@@ -567,6 +567,30 @@ class PrivateDescriptionTests(unittest.TestCase):
         self.assertIn('"oracle_hcm"', expression)
         self.assertIn("node.innerText || node.textContent", expression)
 
+    def test_obscura_waits_for_oracle_hcm_rendering(self):
+        completed = subprocess.CompletedProcess(
+            args=["obscura"],
+            returncode=0,
+            stdout=json.dumps({
+                "description": "Descrição Oracle HCM renderizada. " * 8,
+                "kind": "oracle_hcm",
+            }),
+            stderr="",
+        )
+
+        with patch.object(
+            description_crawler.subprocess, "run", return_value=completed
+        ) as run:
+            description_crawler.fetch_description_with_obscura(
+                "https://emqm.fa.us6.oraclecloud.com/hcmUI/CandidateExperience/pt-BR/sites/NossasVagas/job/47125",
+                binary="obscura",
+                timeout=20,
+                min_chars=20,
+            )
+
+        command = run.call_args.args[0]
+        self.assertEqual(command[command.index("--wait") + 1], "3")
+
     def test_crawler_uses_obscura_when_static_page_has_no_description(self):
         jobs = [{
             "source": "workday",
