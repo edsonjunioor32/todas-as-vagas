@@ -6,6 +6,7 @@ import sqlite3
 import sys
 import tempfile
 import time
+import urllib.error
 from datetime import date
 import unittest
 from pathlib import Path
@@ -92,11 +93,21 @@ class CollectionTests(unittest.TestCase):
         self.assertEqual([item["name"] for item in metrics], ["first", "broken", "last"])
 
     def test_partial_source_failure_keeps_rows_and_marks_source_failed(self):
+        health = {
+            "boards": {
+                "ilia": {"status": "ok", "uids": ["greenhouse:1"]},
+                "broken": {"status": "failed", "uids": []},
+            },
+            "failed_boards": ["broken"],
+            "complete": False,
+        }
+
         def partial_failure():
             raise ats_boards.GreenhouseCollectionError(
                 "1 Greenhouse board failed",
                 rows=[sample_job("greenhouse", "1")],
                 failed_boards=["example"],
+                board_health=health,
             )
 
         rows, failed, metrics = pipeline.collect([("greenhouse", partial_failure)])
@@ -104,6 +115,61 @@ class CollectionTests(unittest.TestCase):
         self.assertEqual([row["native_id"] for row in rows], ["1"])
         self.assertEqual(failed, ["greenhouse"])
         self.assertEqual(metrics[0]["status"], "falha")
+        self.assertEqual(metrics[0]["health"], health)
+
+    def test_greenhouse_404_board_is_retired_without_failing_the_source(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            catalog = Path(temporary) / "greenhouse.json"
+            catalog.write_text(
+                json.dumps({"companies": [{"board": "retired-board"}]}),
+                encoding="utf-8",
+            )
+
+            def not_found(*_args, **_kwargs):
+                raise urllib.error.HTTPError(
+                    "https://boards-api.greenhouse.io/v1/boards/retired-board/jobs",
+                    404,
+                    "not found",
+                    {},
+                    None,
+                )
+
+            with patch.object(ats_boards, "GREENHOUSE_BR_CATALOG", catalog), \
+                    patch.dict(ats_boards.REQUIRED_GREENHOUSE_BOARDS, {}, clear=True), \
+                    patch.dict(ats_boards.MONITORED_GREENHOUSE_BOARDS, {}, clear=True), \
+                    patch.object(ats_boards, "get_json", side_effect=not_found):
+                result = ats_boards.fetch_greenhouse()
+
+            self.assertEqual(result, [])
+            self.assertEqual(
+                result.greenhouse_health["boards"]["retired-board"]["status"],
+                "retired",
+            )
+            self.assertEqual(result.greenhouse_health["failed_boards"], [])
+
+    def test_greenhouse_incomplete_meta_is_reported_as_board_failure(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            catalog = Path(temporary) / "greenhouse.json"
+            catalog.write_text(
+                json.dumps({"companies": [{"board": "partial-board"}]}),
+                encoding="utf-8",
+            )
+
+            with patch.object(ats_boards, "GREENHOUSE_BR_CATALOG", catalog), \
+                    patch.dict(ats_boards.REQUIRED_GREENHOUSE_BOARDS, {}, clear=True), \
+                    patch.dict(ats_boards.MONITORED_GREENHOUSE_BOARDS, {}, clear=True), \
+                    patch.object(
+                        ats_boards,
+                        "get_json",
+                        return_value={"jobs": [], "meta": {"total": 1}},
+                    ):
+                with self.assertRaises(ats_boards.GreenhouseCollectionError) as context:
+                    ats_boards.fetch_greenhouse()
+
+            self.assertEqual(
+                context.exception.greenhouse_health["boards"]["partial-board"]["status"],
+                "failed",
+            )
 
     def test_failed_gupy_is_not_added_to_sources_to_preserve(self):
         self.assertNotIn("gupy", pipeline.sources_to_preserve(["gupy"]))
@@ -506,6 +572,39 @@ class StorageTests(unittest.TestCase):
                 failed_sources=["greenhouse"],
             )
             self.assertEqual(count, 1)
+            conn.close()
+
+    def test_greenhouse_reconciles_healthy_boards_without_touching_failed_boards(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            conn = storage.connect(str(Path(temporary) / "jobs.db"))
+            current = sample_job("greenhouse", "1")
+            current["url"] = "https://job-boards.greenhouse.io/ilia/jobs/1"
+            stale = sample_job("greenhouse", "2")
+            stale["url"] = "https://job-boards.greenhouse.io/ilia/jobs/2"
+            failed = sample_job("greenhouse", "3")
+            failed["url"] = "https://job-boards.greenhouse.io/broken/jobs/3"
+            retired = sample_job("greenhouse", "4")
+            retired["url"] = "https://job-boards.greenhouse.io/gone/jobs/4"
+            storage.upsert(conn, [current, stale, failed, retired], today="2026-11-13")
+
+            removed = storage.reconcile_greenhouse_boards(
+                conn,
+                {
+                    "boards": {
+                        "ilia": {"status": "ok", "uids": ["greenhouse:1"]},
+                        "broken": {"status": "failed", "uids": []},
+                        "gone": {"status": "retired", "uids": []},
+                    }
+                },
+            )
+
+            self.assertEqual(removed, 2)
+            remaining = conn.execute(
+                "SELECT job_uid FROM jobs ORDER BY job_uid"
+            ).fetchall()
+            self.assertEqual(
+                [row[0] for row in remaining], ["greenhouse:1", "greenhouse:3"]
+            )
             conn.close()
 
     def test_source_health_delays_warning_for_a_full_day_and_keeps_first_failure(self):

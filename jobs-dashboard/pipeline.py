@@ -208,12 +208,14 @@ def _validate_source_rows(name, rows):
 
 def _collect_source(index, name, fetch):
     started = time.perf_counter()
+    source_health = None
     try:
         fetched = fetch()
         if fetched is None:
             fetched = []
         if isinstance(fetched, dict):
             raise TypeError("the adapter returned an object instead of a job list")
+        source_health = getattr(fetched, "greenhouse_health", None)
         fetched = list(fetched)
         valid, dropped = _validate_source_rows(name, fetched)
         error = (
@@ -230,6 +232,7 @@ def _collect_source(index, name, fetch):
             "dropped": dropped,
             "seconds": time.perf_counter() - started,
             "error": error,
+            "health": source_health,
         }
     except Exception as error:
         # Some adapters can return a useful partial result while reporting
@@ -237,6 +240,9 @@ def _collect_source(index, name, fetch):
         # mark the source unhealthy so storage keeps the last valid snapshot
         # for boards that were temporarily blocked.
         partial = getattr(error, "rows", None) or []
+        source_health = getattr(error, "greenhouse_health", None) or getattr(
+            partial, "greenhouse_health", None
+        )
         valid_partial, dropped = _validate_source_rows(name, partial)
         detail = str(error)[:180]
         if dropped:
@@ -248,6 +254,7 @@ def _collect_source(index, name, fetch):
             "dropped": dropped,
             "seconds": time.perf_counter() - started,
             "error": detail,
+            "health": source_health,
         }
 
 
@@ -287,6 +294,7 @@ def _read_checkpoint(checkpoint_dir, name):
         "rows": rows,
         "dropped": int(payload.get("dropped") or 0),
         "seconds": float(payload.get("seconds") or 0.0),
+        "health": payload.get("health"),
     }
 
 
@@ -303,6 +311,7 @@ def _write_checkpoint(checkpoint_dir, name, result):
         "rows": result.get("rows") or [],
         "dropped": result.get("dropped") or 0,
         "seconds": result.get("seconds") or 0.0,
+        "health": result.get("health"),
     }
     temporary = None
     try:
@@ -347,6 +356,7 @@ def collect(registry, checkpoint_dir=None):
             "dropped": cached["dropped"],
             "seconds": cached["seconds"],
             "error": "",
+            "health": cached.get("health"),
             "resumed": True,
         }
         print(
@@ -363,6 +373,7 @@ def collect(registry, checkpoint_dir=None):
                 "jobs": len(result["rows"]),
                 "dropped": result["dropped"],
                 "seconds": result["seconds"],
+                "health": result.get("health"),
                 "resumed": True,
             }
             for result in results
@@ -400,6 +411,7 @@ def collect(registry, checkpoint_dir=None):
             "dropped": result["dropped"],
             "seconds": result["seconds"],
             "resumed": bool(result.get("resumed")),
+            "health": result.get("health"),
         }
         for result in results
     ]
@@ -733,8 +745,23 @@ def main(before_persist=None):
         )
     modality_inferred = storage.infer_missing_work_models(conn)
     greenhouse_removed = 0
+    greenhouse_health = next(
+        (
+            metric.get("health")
+            for metric in metrics
+            if metric.get("name") == "greenhouse"
+        ),
+        None,
+    )
+    if "greenhouse" in selected_sources and greenhouse_health:
+        # Reconcile board-by-board. A partial source failure must not prevent
+        # healthy boards (such as ilia) from removing jobs that disappeared,
+        # while failed boards keep their last valid rows for a later retry.
+        greenhouse_removed = storage.reconcile_greenhouse_boards(
+            conn, greenhouse_health
+        )
     if "greenhouse" in selected_sources and "greenhouse" not in failed:
-        greenhouse_removed = storage.purge_greenhouse_non_brazil(
+        greenhouse_removed += storage.purge_greenhouse_non_brazil(
             conn,
             [
                 f"greenhouse:{row.get('native_id') or row['url']}"
@@ -774,7 +801,7 @@ def main(before_persist=None):
     conn.close()
     phases["Banco e fotografia pública"] = time.perf_counter() - stage_started
     phases["total"] = time.perf_counter() - pipeline_started
-    print(f"  base histórica: {after} vagas ({after-before+pruned:+d} nesta execução; {pruned} removidas; {greenhouse_removed} Greenhouse fora do Brasil; {totvs_removed} TOTVS obsoletas/inválidas; {solides_urls_repaired} links Sólides corrigidos; {senior_markets_repaired} mercados Senior corrigidos; {yellowipe_markets_repaired} mercados YellowIpe corrigidos; {recrutei_repaired} localizações Recrutei reparadas; {modality_inferred} modalidades inferidas; {linkedin_work_models_reset} rótulos LinkedIn antigos limpos)")
+    print(f"  base histórica: {after} vagas ({after-before+pruned:+d} nesta execução; {pruned} removidas; {greenhouse_removed} Greenhouse reconciliadas; {totvs_removed} TOTVS obsoletas/inválidas; {solides_urls_repaired} links Sólides corrigidos; {senior_markets_repaired} mercados Senior corrigidos; {yellowipe_markets_repaired} mercados YellowIpe corrigidos; {recrutei_repaired} localizações Recrutei reparadas; {modality_inferred} modalidades inferidas; {linkedin_work_models_reset} rótulos LinkedIn antigos limpos)")
     print(f"  base pública: {count} vagas · {size_mb:.2f} MB · {JSON_PATH.relative_to(ROOT)}")
     print(
         "  tempos: "
