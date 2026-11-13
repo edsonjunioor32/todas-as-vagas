@@ -68,6 +68,8 @@ _ALLOWED_HOSTS = {"glassdoor.com", "glassdoor.com.br"}
 _MCP_ALLOWED_DOMAINS = _ALLOWED_HOSTS | {"www.glassdoor.com", "www.glassdoor.com.br"}
 _MCP_QUERY_ID_RE = re.compile(r"^[a-z0-9][a-z0-9._-]{0,79}$")
 _OMKAR_ENABLED_VALUES = {"1", "true", "yes", "on"}
+_BROWSERLESS_ENABLED_VALUES = {"1", "true", "yes", "on"}
+_BROWSERLESS_LOCAL_HOSTS = {"127.0.0.1", "localhost", "::1"}
 
 
 class GlassdoorError(RuntimeError):
@@ -337,6 +339,7 @@ def load_manifest(path: str | os.PathLike[str] = DEFAULT_MANIFEST_PATH) -> dict:
             "company_keys": clean_keys,
             "scraper_company": scraper_company,
             "url": url,
+            "browserless_fallback": raw.get("browserless_fallback") is True,
         }
     return {"schema_version": SCHEMA_VERSION, "profiles": profiles}
 
@@ -371,6 +374,12 @@ def _cache_metrics(raw: object, profile: dict, *, reset: bool = False) -> dict:
         "hasdata_reference_url": reference_url,
         "hasdata_checked_at": _iso_date(source.get("hasdata_checked_at")),
         "hasdata_last_attempted_date": _iso_date(source.get("hasdata_last_attempted_date")),
+        "source": (
+            str(source.get("source") or "").strip().casefold()
+            if str(source.get("source") or "").strip().casefold()
+            in {"omkar", "direct", "browserless"}
+            else None
+        ),
     }
 
 
@@ -617,6 +626,7 @@ def parse_omkar_company_ratings(payload: bytes | str | dict, profile: dict) -> d
     return {
         "rating": rating,
         "review_count": _review_count(payload.get("reviews_count")),
+        "source": "omkar",
     }
 
 
@@ -706,18 +716,182 @@ def _robots_allowed(
     return parser.can_fetch(DEFAULT_USER_AGENT, target_url)
 
 
-def fetch_profile(
+def browserless_enabled() -> bool:
+    """Return whether the optional rendered-page fallback is enabled."""
+    return str(os.environ.get("BROWSERLESS_GLASSDOOR_ENABLED", "false")).strip().casefold() in _BROWSERLESS_ENABLED_VALUES
+
+
+def _browserless_endpoint() -> str:
+    """Validate a Browserless Content API endpoint without permitting SSRF."""
+    raw = str(os.environ.get("BROWSERLESS_ENDPOINT") or "").strip().rstrip("/")
+    if not raw:
+        raise GlassdoorConfigurationError("BROWSERLESS_ENDPOINT ausente")
+    parsed = urllib.parse.urlsplit(raw)
+    host = (parsed.hostname or "").casefold()
+    if parsed.scheme.casefold() not in {"http", "https"} or not host:
+        raise GlassdoorConfigurationError("endpoint Browserless deve usar HTTP(S)")
+    if parsed.username or parsed.password:
+        raise GlassdoorConfigurationError("endpoint Browserless não pode conter credenciais")
+    if host not in _BROWSERLESS_LOCAL_HOSTS and not (
+        host == "browserless.io" or host.endswith(".browserless.io")
+    ):
+        raise GlassdoorConfigurationError("host não aprovado para Browserless")
+    try:
+        port = parsed.port
+    except ValueError as error:
+        raise GlassdoorConfigurationError("porta inválida no endpoint Browserless") from error
+    if port is not None and host not in _BROWSERLESS_LOCAL_HOSTS:
+        raise GlassdoorConfigurationError("endpoint Browserless remoto não pode informar porta")
+    path = parsed.path.rstrip("/")
+    if not (path.endswith("/content") or path.endswith("/chromium/content")):
+        raise GlassdoorConfigurationError(
+            "endpoint Browserless deve terminar em /content ou /chromium/content"
+        )
+    return raw
+
+
+def _browserless_token() -> str:
+    token = str(os.environ.get("BROWSERLESS_TOKEN") or "").strip()
+    if not token:
+        raise GlassdoorConfigurationError("BROWSERLESS_TOKEN ausente")
+    return token
+
+
+def _post_json(
+    target_url: str,
+    payload: dict,
+    *,
+    timeout: float,
+    opener=urllib.request.urlopen,
+) -> bytes:
+    request = urllib.request.Request(
+        target_url,
+        data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
+        headers={
+            "User-Agent": DEFAULT_USER_AGENT,
+            "Accept": "text/html,application/xhtml+xml",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+    with opener(request, timeout=timeout) as response:
+        content = response.read(MAX_RESPONSE_BYTES + 1)
+    if len(content) > MAX_RESPONSE_BYTES:
+        raise GlassdoorFetchError(f"resposta excedeu {MAX_RESPONSE_BYTES} bytes")
+    return content
+
+
+class _VisibleTextParser(HTMLParser):
+    """Collect transient visible text for narrow aggregate-metric parsing."""
+
+    _IGNORED = {"script", "style", "noscript", "template", "svg"}
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.parts: list[str] = []
+        self._ignored_depth = 0
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag.casefold() in self._IGNORED:
+            self._ignored_depth += 1
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag.casefold() in self._IGNORED and self._ignored_depth:
+            self._ignored_depth -= 1
+
+    def handle_data(self, data: str) -> None:
+        if not self._ignored_depth and data.strip():
+            self.parts.append(data)
+
+
+def parse_browserless_profile(payload: bytes | str) -> dict:
+    """Extract only the overall rating and exact review count from rendered HTML."""
+    text = payload.decode("utf-8", "replace") if isinstance(payload, bytes) else str(payload)
+    parser = _VisibleTextParser()
+    try:
+        parser.feed(text)
+        parser.close()
+    except (TypeError, ValueError):
+        pass
+    visible = re.sub(r"\s+", " ", " ".join(parser.parts)).strip()
+    marker = re.search(r"avaliações\s+da\s+empresa", visible, flags=re.IGNORECASE)
+    segment = visible[marker.end():] if marker else visible
+    cutoff = re.search(
+        r"classificação\s+por\s+categoria|avaliações\s+e\s+benefícios",
+        segment,
+        flags=re.IGNORECASE,
+    )
+    if cutoff:
+        segment = segment[:cutoff.start()]
+    rating = None
+    rating_window = segment[:320]
+    for pattern in (
+        r"(?<![\d.,])([0-5](?:[.,]\d{1,2})?)\s*[★☆]",
+        r"(?<![\d.,])([0-5](?:[.,]\d{1,2})?)\s+de\s+5\b",
+        r"(?<![\d.,])([0-5][.,]\d{1,2})(?![\d.])",
+    ):
+        match = re.search(pattern, rating_window, flags=re.IGNORECASE)
+        if match:
+            rating = _rating(match.group(1))
+            if rating is not None:
+                break
+    if rating is None:
+        description_match = re.search(
+            r"a\s+classificação\s+da\s+empresa\b.*?\bé\s+de\s+([0-5](?:[.,]\d{1,2})?)\s+de\s+5",
+            visible,
+            flags=re.IGNORECASE,
+        )
+        if description_match:
+            rating = _rating(description_match.group(1))
+    count_match = re.search(
+        r"total\s+de\s*([\d., ]+)\s+avaliações",
+        segment,
+        flags=re.IGNORECASE,
+    )
+    count = _review_count(count_match.group(1)) if count_match else None
+    if rating is None and count is None:
+        raise ProfileDataUnavailable(
+            "página renderizada sem média geral/quantidade exata de avaliações"
+        )
+    return {"rating": rating, "review_count": count}
+
+
+def fetch_browserless_profile(
     profile: dict,
     *,
+    endpoint: str | None = None,
     timeout: float = DEFAULT_TIMEOUT_SECONDS,
-    retries: int = DEFAULT_RETRIES,
-    backoff: float = DEFAULT_BACKOFF_SECONDS,
-    sleeper=time.sleep,
     opener=urllib.request.urlopen,
 ) -> dict:
-    """Read one approved public profile, respecting robots.txt and backoff."""
-    if str(os.environ.get("OMKAR_GLASSDOOR_ENABLED") or "").strip().casefold() in _OMKAR_ENABLED_VALUES:
-        return fetch_omkar_profile(profile, timeout=timeout, opener=opener)
+    """Render one approved Glassdoor page through Browserless Content API."""
+    url = canonical_profile_url(profile.get("url"))
+    if not _robots_allowed(url, timeout=timeout, opener=opener):
+        raise GlassdoorFetchError("robots.txt não autorizou o fallback Browserless")
+    base = _browserless_endpoint() if endpoint is None else endpoint.rstrip("/")
+    token = _browserless_token()
+    separator = "&" if "?" in base else "?"
+    target = f"{base}{separator}{urllib.parse.urlencode({'token': token})}"
+    payload = {
+        "url": url,
+        "waitForTimeout": _env_int("BROWSERLESS_WAIT_MS", 3000, 0, 15000),
+        "gotoOptions": {"waitUntil": "networkidle2"},
+    }
+    body = _post_json(target, payload, timeout=timeout, opener=opener)
+    result = parse_browserless_profile(body)
+    result["source"] = "browserless"
+    return result
+
+
+def _fetch_direct_profile(
+    profile: dict,
+    *,
+    timeout: float,
+    retries: int,
+    backoff: float,
+    sleeper,
+    opener,
+) -> dict:
+    """Fetch a public profile without a rendering proxy."""
     url = profile["url"]
     if not _robots_allowed(url, timeout=timeout, opener=opener):
         raise GlassdoorFetchError("robots.txt não autorizou ou não respondeu com segurança")
@@ -731,7 +905,9 @@ def fetch_profile(
                 opener=opener,
                 accept="text/html,application/xhtml+xml",
             )
-            return parse_public_profile(body)
+            result = parse_public_profile(body)
+            result["source"] = "direct"
+            return result
         except urllib.error.HTTPError as error:
             last_error = error
             retryable = error.code == 429 or error.code >= 500
@@ -741,8 +917,43 @@ def fetch_profile(
             last_error = error
         if attempt < attempts:
             sleeper(max(0.0, float(backoff)) * attempt)
-    raise GlassdoorFetchError(f"consulta Glassdoor falhou após {attempts} tentativas: {last_error}") from last_error
+    raise GlassdoorFetchError(
+        f"consulta Glassdoor falhou após {attempts} tentativas: {last_error}"
+    ) from last_error
 
+
+def fetch_profile(
+    profile: dict,
+    *,
+    timeout: float = DEFAULT_TIMEOUT_SECONDS,
+    retries: int = DEFAULT_RETRIES,
+    backoff: float = DEFAULT_BACKOFF_SECONDS,
+    sleeper=time.sleep,
+    opener=urllib.request.urlopen,
+) -> dict:
+    """Fetch primary data and use Browserless only for curated profiles on failure."""
+    use_fallback = profile.get("browserless_fallback") is True and browserless_enabled()
+    omkar_enabled = str(os.environ.get("OMKAR_GLASSDOOR_ENABLED") or "").strip().casefold() in _OMKAR_ENABLED_VALUES
+    try:
+        if omkar_enabled:
+            return fetch_omkar_profile(profile, timeout=timeout, opener=opener)
+        return _fetch_direct_profile(
+            profile,
+            timeout=timeout,
+            retries=retries,
+            backoff=backoff,
+            sleeper=sleeper,
+            opener=opener,
+        )
+    except Exception as primary_error:
+        if not use_fallback:
+            raise
+        try:
+            return fetch_browserless_profile(profile, timeout=timeout, opener=opener)
+        except Exception as fallback_error:
+            raise GlassdoorFetchError(
+                f"fonte primária falhou ({primary_error}); fallback Browserless falhou ({fallback_error})"
+            ) from fallback_error
 
 def _local_date(value: date | datetime | None = None) -> date:
     if value is None:
@@ -993,6 +1204,9 @@ def update_cache(
                 entry["rating"] = rating
             if count is not None:
                 entry["review_count"] = count
+            source = str(result.get("source") or "").strip().casefold()
+            if source in {"omkar", "direct", "browserless"}:
+                entry["source"] = source
             entry["checked_at"] = current_date
             summary["succeeded"] += 1
         except Exception as error:  # one optional profile never blocks others
