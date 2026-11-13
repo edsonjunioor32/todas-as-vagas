@@ -169,7 +169,7 @@ class GlassdoorTests(unittest.TestCase):
         }
         self.assertEqual(
             glassdoor.parse_omkar_company_ratings(body, profile),
-            {"rating": 4.0, "review_count": 245},
+            {"rating": 4.0, "review_count": 245, "source": "omkar"},
         )
 
     def test_parse_omkar_company_ratings_rejects_wrong_company(self):
