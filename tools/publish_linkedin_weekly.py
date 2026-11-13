@@ -74,12 +74,57 @@ def load_state() -> dict:
             return json.loads(STATE_PATH.read_text(encoding="utf-8"))
         except Exception as e:
             print(f"Aviso ao ler {STATE_PATH}: {e}")
-    return {"last_daily_posted_date": None, "last_weekly_posted_date": None, "last_morning_posted_date": None, "history": []}
+    return {
+        "last_daily_posted_date": None,
+        "last_weekly_posted_date": None,
+        "last_morning_posted_date": None,
+        "posted_job_urls": [],
+        "posted_job_signatures": [],
+        "history": []
+    }
 
 
 def save_state(state: dict) -> None:
     STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
     STATE_PATH.write_text(json.dumps(state, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def normalize_job_url(url: str) -> str:
+    if not url:
+        return ""
+    clean = url.split("?")[0].split("#")[0].strip().rstrip("/")
+    return clean.lower()
+
+
+def make_job_signature(company: str, title: str) -> str:
+    c = re.sub(r"[^\w\s]", "", (company or "").lower()).strip()
+    t = re.sub(r"[^\w\s]", "", (title or "").lower()).strip()
+    return f"{c[:25]}:{t[:30]}"
+
+
+def get_posted_signatures(state: dict) -> set[str]:
+    return set(state.get("posted_job_signatures") or [])
+
+
+def get_posted_urls(state: dict) -> set[str]:
+    return set(state.get("posted_job_urls") or [])
+
+
+def record_posted_jobs(state: dict, vacancies: list[dict]) -> None:
+    posted_urls = state.setdefault("posted_job_urls", [])
+    posted_sigs = state.setdefault("posted_job_signatures", [])
+
+    for v in vacancies:
+        norm_url = normalize_job_url(v.get("url", ""))
+        sig = make_job_signature(v.get("company", ""), v.get("cleaned_title") or v.get("title", ""))
+        if norm_url and norm_url not in posted_urls:
+            posted_urls.append(norm_url)
+        if sig and sig not in posted_sigs:
+            posted_sigs.append(sig)
+
+    # Mantém os últimos 1500 registros para evitar crescimento ilimitado
+    state["posted_job_urls"] = posted_urls[-1500:]
+    state["posted_job_signatures"] = posted_sigs[-1500:]
 
 
 def is_already_posted_this_week(today: date) -> bool:
@@ -178,6 +223,8 @@ def clean_job_title(raw_title: str) -> str:
 
 def clean_company_name(company: str) -> str:
     company = (company or "").strip()
+    if "sanguelaranja" in company.lower() or "fcamara" in company.lower():
+        return "FCamara"
     if "avantiatecnologia" in company.lower():
         return "Avantia Tecnologia"
     if "linkedin.com/company/" in company:

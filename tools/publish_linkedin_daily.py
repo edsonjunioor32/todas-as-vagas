@@ -49,23 +49,28 @@ def is_already_posted_today(today: date) -> bool:
     return state.get("last_daily_posted_date") == today.isoformat()
 
 
-def mark_posted_today(today: date, jobs_count: int) -> None:
+def mark_posted_today(today: date, vacancies: list[dict]) -> None:
     state = load_state()
     state["last_daily_posted_date"] = today.isoformat()
     history = state.setdefault("history", [])
     history.append({
         "date": today.isoformat(),
         "type": "daily",
-        "jobs_count": jobs_count,
+        "jobs_count": len(vacancies),
         "timestamp": datetime.now(BRASILIA).isoformat()
     })
     # Manter no máximo 60 dias de histórico
     state["history"] = history[-60:]
+    utils.record_posted_jobs(state, vacancies)
     save_state(state)
 
 
 def select_daily_vacancies(snapshot: dict, target_count: int = 12) -> list[dict]:
     all_jobs = utils.decode_snapshot(snapshot)
+
+    state = load_state()
+    posted_urls = utils.get_posted_urls(state)
+    posted_sigs = utils.get_posted_signatures(state)
 
     candidates = []
     seen_companies = set()
@@ -76,12 +81,22 @@ def select_daily_vacancies(snapshot: dict, target_count: int = 12) -> list[dict]
         if not any(domain in job_url for domain in utils.VALID_BRAZIL_DOMAINS):
             continue
 
+        # Tratamento para não repetir vagas já postadas em qualquer edição anterior
+        norm_url = utils.normalize_job_url(job_url)
+        if norm_url in posted_urls:
+            continue
+
         city = (job.get("city") or "").lower()
         company = (job.get("company") or "").strip()
         model = (job.get("work_model") or "").lower()
         raw_title = (job.get("title") or "").strip()
 
         if any(f in city or f in company.lower() or f in raw_title.lower() for f in utils.FOREIGN_EXCLUSIONS):
+            continue
+
+        # Evita repetição por assinatura empresa + cargo
+        sig = utils.make_job_signature(company, raw_title)
+        if sig in posted_sigs:
             continue
 
         # Apenas Remotas ou Híbridas
@@ -101,7 +116,7 @@ def select_daily_vacancies(snapshot: dict, target_count: int = 12) -> list[dict]
         if not any(k in t_lower for k in utils.HIGH_DEMAND_KEYWORDS):
             continue
 
-        # Deduplicação
+        # Deduplicação no lote atual
         t_prefix = t_lower[:25]
         if comp_lower in seen_companies or t_prefix in seen_title_prefixes:
             continue
@@ -202,7 +217,7 @@ def publish_daily(dry_run: bool = False, force: bool = False, webhook_url: str |
         with urllib.request.urlopen(webhook_req, timeout=25) as resp:
             print(f"Resposta do Webhook: HTTP {resp.status} - {resp.read().decode('utf-8')}")
             print("Publicação diária agendada/disparada com sucesso no LinkedIn!")
-            mark_posted_today(today, len(vacancies))
+            mark_posted_today(today, vacancies)
             return 0
     except Exception as exc:
         print(f"Erro ao disparar webhook: {exc}", file=sys.stderr)

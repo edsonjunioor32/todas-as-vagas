@@ -84,17 +84,18 @@ def is_already_posted_this_morning(today: date) -> bool:
     return state.get("last_morning_posted_date") == today.isoformat()
 
 
-def mark_posted_this_morning(today: date, jobs_count: int) -> None:
+def mark_posted_this_morning(today: date, vacancies: list[dict]) -> None:
     state = load_state()
     state["last_morning_posted_date"] = today.isoformat()
     history = state.setdefault("history", [])
     history.append({
         "date": today.isoformat(),
         "type": "morning_desperta",
-        "jobs_count": jobs_count,
+        "jobs_count": len(vacancies),
         "timestamp": datetime.now(BRASILIA).isoformat()
     })
     state["history"] = history[-60:]
+    utils.record_posted_jobs(state, vacancies)
     save_state(state)
 
 
@@ -115,6 +116,10 @@ def _format_location(job: dict) -> str:
 def select_morning_vacancies(snapshot: dict, target_count: int = 12) -> list[dict]:
     all_jobs = utils.decode_snapshot(snapshot)
 
+    state = load_state()
+    posted_urls = utils.get_posted_urls(state)
+    posted_sigs = utils.get_posted_signatures(state)
+
     candidates = []
     seen_companies = set()
     seen_title_prefixes = set()
@@ -133,6 +138,11 @@ def select_morning_vacancies(snapshot: dict, target_count: int = 12) -> list[dic
             if not any(domain in job_url for domain in utils.VALID_BRAZIL_DOMAINS):
                 continue
 
+            # Não repetir vagas já enviadas em qualquer edição anterior
+            norm_url = utils.normalize_job_url(job_url)
+            if norm_url in posted_urls:
+                continue
+
             city = (job.get("city") or "").lower()
             company = (job.get("company") or "").strip()
             raw_title = (job.get("title") or "").strip()
@@ -142,6 +152,11 @@ def select_morning_vacancies(snapshot: dict, target_count: int = 12) -> list[dic
                 continue
 
             if any(ex in t_lower for ex in ["telemarketing", "cobrança", "cobranca", "sac ativo", "operador de telemarketing"]):
+                continue
+
+            # Evita repetição por assinatura empresa + cargo
+            sig = utils.make_job_signature(company, raw_title)
+            if sig in posted_sigs:
                 continue
 
             if not any(k in t_lower for k in keywords):
@@ -254,7 +269,7 @@ def publish_morning(dry_run: bool = False, force: bool = False, webhook_url: str
         with urllib.request.urlopen(webhook_req, timeout=25) as resp:
             print(f"Resposta do Webhook: HTTP {resp.status} - {resp.read().decode('utf-8')}")
             print("Publicação do Desperta Vagas enviada com sucesso ao LinkedIn!")
-            mark_posted_this_morning(today, len(vacancies))
+            mark_posted_this_morning(today, vacancies)
             return 0
     except Exception as exc:
         print(f"Erro ao disparar webhook: {exc}", file=sys.stderr)
