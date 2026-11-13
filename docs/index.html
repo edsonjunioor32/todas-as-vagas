@@ -32,7 +32,7 @@
     <link rel="stylesheet" href="./fit-entry.css?v=2">
     <script src="./fit-entry.js?v=1" defer></script>
     <script src="./filter-terms.js?v=1" defer></script>
-    <script src="./app.js?v=21" defer></script>
+    <script src="./app.js?v=22" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#resultados">Pular para os resultados</a>
@@ -186,6 +186,13 @@
             </div>
 
             <div class="field field-compact">
+              <label for="companyFilter">Empresa</label>
+              <select id="companyFilter" name="empresa">
+                <option value="">Todas as empresas</option>
+              </select>
+            </div>
+
+            <div class="field field-compact">
               <label for="cityFilter">Localização</label>
               <input id="cityFilter" name="cidade" type="search" list="cityOptions" placeholder="Ex.: João Pessoa" spellcheck="false" aria-describedby="cityFilterHint">
               <datalist id="cityOptions"></datalist>
@@ -203,6 +210,17 @@
               <label for="contractFilter">Tipo de contrato</label>
               <select id="contractFilter" name="contratacao">
                 <option value="">Todos os modelos</option>
+              </select>
+            </div>
+
+            <div class="field field-compact">
+              <label for="ratingFilter">Avaliação da empresa</label>
+              <select id="ratingFilter" name="avaliacao">
+                <option value="">Todas as avaliações</option>
+                <option value="4">4,0 ou mais</option>
+                <option value="3">3,0 ou mais</option>
+                <option value="2">2,0 ou mais</option>
+                <option value="unrated">Sem avaliação</option>
               </select>
             </div>
 
@@ -282,6 +300,7 @@
                   <option value="portals">Mais portais</option>
                   <option value="company">Empresa: A–Z</option>
                   <option value="title">Cargo: A–Z</option>
+                  <option value="rating">Melhor avaliação</option>
                 </select>
               </label>
               <button class="secondary-button" id="downloadCsv" type="button">Baixar CSV</button>
