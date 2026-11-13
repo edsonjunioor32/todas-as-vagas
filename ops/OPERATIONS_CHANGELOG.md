@@ -1,3 +1,9 @@
+## 2026-11-13 — Lotes Glassdoor por offset explícito
+
+- O workflow agora aceita `catalog_offset` junto de `catalog_batch_size`.
+- Lotes forçados podem consultar faixas distintas do catálogo no mesmo dia, sem repetir automaticamente as primeiras empresas.
+- A proteção diária permanece ativa quando `force_refresh` não é usado; a seleção por offset foi coberta por teste antes do merge.
+
 ## 2026-11-13 — Filtros de empresa e avaliação na interface
 
 - **Interface:** adicionados filtros dedicados por empresa e por avaliação oficial do Glassdoor, incluindo a opção de mostrar somente vagas sem avaliação.

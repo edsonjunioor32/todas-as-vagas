@@ -362,6 +362,44 @@ class GlassdoorTests(unittest.TestCase):
         )
         self.assertNotIn(glassdoor.company_key("Empresa Teste"), updated["catalog_profiles"])
 
+    def test_catalog_refresh_uses_requested_offset_for_distinct_forced_batch(self):
+        snapshot = {
+            "count": 4,
+            "dict": {"company": ["Empresa A", "Empresa B", "Empresa C", "Empresa Teste"]},
+            "jobs": {"cmp": [0, 1, 2, 3]},
+        }
+        calls = []
+
+        def succeed(profile, **kwargs):
+            calls.append(profile["scraper_company"])
+            return {"rating": 4.4, "review_count": 31}
+
+        updated, summary = glassdoor.update_catalog_cache(
+            snapshot,
+            {
+                "schema_version": 1,
+                "profiles": manifest()["profiles"],
+                "catalog_profiles": {},
+            },
+            now=datetime(2026, 11, 13, 8, 0),
+            batch_size=2,
+            catalog_offset=1,
+            force=True,
+            fetcher=succeed,
+            sleeper=lambda _seconds: None,
+            profile_delay=0,
+        )
+
+        self.assertEqual(calls, ["Empresa B", "Empresa C"])
+        self.assertEqual(summary["offset"], 1)
+        self.assertEqual(summary["before_offset"], 1)
+        self.assertEqual(summary["attempted"], 2)
+        self.assertEqual(summary["succeeded"], 2)
+        self.assertEqual(
+            updated["catalog_profiles"][glassdoor.company_key("Empresa C")]["rating"],
+            4.4,
+        )
+
     def test_catalog_refresh_preserves_previous_rating_when_source_fails(self):
         snapshot = {
             "count": 1,
@@ -583,7 +621,9 @@ class GlassdoorTests(unittest.TestCase):
         self.assertIn("--timeout 15", workflow)
         self.assertIn("--profile-delay 1", workflow)
         self.assertIn("catalog_batch_size", workflow)
+        self.assertIn("catalog_offset", workflow)
         self.assertIn("--catalog-batch-size", workflow)
+        self.assertIn("--catalog-offset", workflow)
         self.assertIn("force_refresh", workflow)
         self.assertIn("extra_args+=(--force)", workflow)
         self.assertIn('"${extra_args[@]}"', workflow)

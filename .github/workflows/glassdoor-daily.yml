@@ -13,6 +13,11 @@ on:
         required: false
         default: 100
         type: number
+      catalog_offset:
+        description: "Posição inicial do lote no catálogo ordenado (use com force_refresh)"
+        required: false
+        default: 0
+        type: number
   schedule:
     # GitHub Actions uses UTC; Brasília/Fortaleza is UTC-3.
     - cron: "23 6 * * *"
@@ -111,12 +116,14 @@ jobs:
             extra_args+=(--force)
           fi
           catalog_batch_size="${{ inputs.catalog_batch_size || '100' }}"
+          catalog_offset="${{ inputs.catalog_offset || '0' }}"
           python jobs-dashboard/glassdoor.py \
             --timeout 15 \
             --retries 2 \
             --backoff 2 \
             --profile-delay 1 \
             --catalog-batch-size "$catalog_batch_size" \
+            --catalog-offset "$catalog_offset" \
             --catalog-profile-delay 0.25 \
             "${extra_args[@]}"
 

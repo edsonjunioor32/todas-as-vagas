@@ -48,6 +48,7 @@ DEFAULT_PROFILE_DELAY_SECONDS = 1.0
 DEFAULT_CATALOG_BATCH_SIZE = 100
 DEFAULT_CATALOG_PROFILE_DELAY_SECONDS = 0.25
 MAX_CATALOG_BATCH_SIZE = 1000
+MAX_CATALOG_OFFSET = 100_000
 MAX_RESPONSE_BYTES = 2 * 1024 * 1024
 MAX_PROFILES = 100
 DEFAULT_MCP_QUERY_PATH = PROJECT_ROOT / "jobs-dashboard" / "data" / "glassdoor_mcp_queries.json"
@@ -1239,6 +1240,7 @@ def update_catalog_cache(
     *,
     now: date | datetime | None = None,
     batch_size: int = DEFAULT_CATALOG_BATCH_SIZE,
+    catalog_offset: int = 0,
     fetcher=fetch_profile,
     sleeper=time.sleep,
     profile_delay: float = DEFAULT_CATALOG_PROFILE_DELAY_SECONDS,
@@ -1280,15 +1282,22 @@ def update_catalog_cache(
         "succeeded": 0,
         "failed": 0,
         "queued": 0,
+        "before_offset": 0,
+        "offset": 0,
         "errors": {},
     }
     current_date = _local_date(now).isoformat()
     limit = min(max(1, int(batch_size)), MAX_CATALOG_BATCH_SIZE)
+    offset = min(max(0, int(catalog_offset)), MAX_CATALOG_OFFSET)
+    summary["offset"] = offset
     selected = 0
 
-    for key, company_name in discovered:
+    for position, (key, company_name) in enumerate(discovered):
         entry = _catalog_cache_metrics(catalog_profiles.get(key), company_name)
         catalog_profiles[key] = entry
+        if position < offset:
+            summary["before_offset"] += 1
+            continue
         if not force and (
             entry.get("last_attempted_date") == current_date
             or entry.get("checked_at") == current_date
@@ -1436,6 +1445,7 @@ def run_daily(
     backoff: float = DEFAULT_BACKOFF_SECONDS,
     profile_delay: float = DEFAULT_PROFILE_DELAY_SECONDS,
     catalog_batch_size: int = DEFAULT_CATALOG_BATCH_SIZE,
+    catalog_offset: int = 0,
     catalog_profile_delay: float = DEFAULT_CATALOG_PROFILE_DELAY_SECONDS,
     force: bool = False,
 ) -> dict:
@@ -1477,6 +1487,7 @@ def run_daily(
             cache,
             now=None,
             batch_size=catalog_batch_size,
+            catalog_offset=catalog_offset,
             timeout=timeout,
             retries=retries,
             backoff=backoff,
@@ -1535,6 +1546,12 @@ def _parser() -> argparse.ArgumentParser:
         help="quantidade máxima de empresas novas consultadas por execução",
     )
     parser.add_argument(
+        "--catalog-offset",
+        type=int,
+        default=0,
+        help="posição inicial do lote no catálogo ordenado; use com --force",
+    )
+    parser.add_argument(
         "--catalog-profile-delay",
         type=float,
         default=DEFAULT_CATALOG_PROFILE_DELAY_SECONDS,
@@ -1559,6 +1576,7 @@ def main(argv: list[str] | None = None) -> int:
         backoff=max(0.0, args.backoff),
         profile_delay=max(0.0, args.profile_delay),
         catalog_batch_size=max(1, args.catalog_batch_size),
+        catalog_offset=max(0, min(MAX_CATALOG_OFFSET, args.catalog_offset)),
         catalog_profile_delay=max(0.0, args.catalog_profile_delay),
         force=args.force,
     )
@@ -1577,7 +1595,8 @@ def main(argv: list[str] | None = None) -> int:
         f"{catalog.get('discovered', 0)} empresas descobertas · "
         f"{catalog.get('succeeded', 0)} atualizadas · "
         f"{catalog.get('failed', 0)} falhas · "
-        f"{catalog.get('queued', 0)} na fila"
+        f"{catalog.get('queued', 0)} na fila · "
+        f"offset {catalog.get('offset', 0)}"
     )
     for profile_id, error in sorted(result["errors"].items()):
         print(f"  [{profile_id}] aviso: {error}")
