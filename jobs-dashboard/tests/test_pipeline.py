@@ -40,6 +40,20 @@ def sample_job(source, native_id, *, work_model="", city="São Paulo", country="
 
 
 class CollectionTests(unittest.TestCase):
+    def test_greenhouse_health_is_read_from_source_metrics(self):
+        health = {"boards": {"ilia": {"status": "ok", "uids": ["greenhouse:1"]}}}
+
+        self.assertEqual(
+            pipeline.greenhouse_health_from_metrics(
+                [
+                    {"name": "gupy", "health": None},
+                    {"name": "greenhouse", "health": health},
+                ]
+            ),
+            health,
+        )
+        self.assertIsNone(pipeline.greenhouse_health_from_metrics([]))
+
     def test_empty_response_policy_covers_registry_except_explicit_empty_feeds(self):
         registry_sources = {name for name, _fetch in pipeline.REGISTRY}
         allow_empty = {
