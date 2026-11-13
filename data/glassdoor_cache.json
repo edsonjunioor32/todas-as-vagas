@@ -16505,10 +16505,10 @@
       "company_names": [
         "Bitwarden"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "biud tecnologia ltda": {
@@ -16516,10 +16516,10 @@
       "company_names": [
         "BIUD TECNOLOGIA LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bix tecnologia consultoria de dados": {
@@ -16527,32 +16527,32 @@
       "company_names": [
         "BIX Tecnologia - Consultoria de Dados"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "biz": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Biz"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.0,
+      "review_count": 48,
+      "status": "matched",
       "url": null
     },
     "biza": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Biza"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 1.8,
+      "review_count": 9,
+      "status": "matched",
       "url": null
     },
     "bizmoni corp": {
@@ -16560,10 +16560,10 @@
       "company_names": [
         "Bizmoni Corp."
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "biznews": {
@@ -16571,10 +16571,10 @@
       "company_names": [
         "BizNews"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bj l comercio e servicos de informatica ltda": {
@@ -16582,32 +16582,32 @@
       "company_names": [
         "BJ & L COMERCIO E SERVICOS DE INFORMATICA LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bjak": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Bjak"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.5,
+      "review_count": 221,
+      "status": "matched",
       "url": null
     },
     "bk consultoria e servicos": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "BK Consultoria e Serviços"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.6,
+      "review_count": 612,
+      "status": "matched",
       "url": null
     },
     "bk importacoes de adesivos plasticos ltda": {
@@ -16615,21 +16615,21 @@
       "company_names": [
         "BK IMPORTACOES DE ADESIVOS PLASTICOS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "blablacar": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Blablacar"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.2,
+      "review_count": 620,
+      "status": "matched",
       "url": null
     },
     "black lion": {
@@ -16637,21 +16637,21 @@
       "company_names": [
         "Black Lion"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "black pen recruitment": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Black Pen Recruitment"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.2,
+      "review_count": 4,
+      "status": "matched",
       "url": null
     },
     "black poke": {
@@ -16659,10 +16659,10 @@
       "company_names": [
         "Black Poke"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "black semiconductor gmbh": {
@@ -16670,76 +16670,76 @@
       "company_names": [
         "Black Semiconductor GmbH"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "blackbaud": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Blackbaud"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.2,
+      "review_count": 1829,
+      "status": "matched",
       "url": null
     },
     "blackbird": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Blackbird"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 26,
+      "status": "matched",
       "url": null
     },
     "blackrock": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "BlackRock"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 7962,
+      "status": "matched",
       "url": null
     },
     "blacksmith agency": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Blacksmith Agency"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.5,
+      "review_count": 32,
+      "status": "matched",
       "url": null
     },
     "blackstone eit": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "BlackStone eIT"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.3,
+      "review_count": 74,
+      "status": "matched",
       "url": null
     },
     "blake willson group": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Blake Willson Group"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 31,
+      "status": "matched",
       "url": null
     },
     "blanver": {
@@ -16747,43 +16747,43 @@
       "company_names": [
         "Blanver"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "blattner": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Blattner"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.4,
+      "review_count": 5,
+      "status": "matched",
       "url": null
     },
     "blau farmaceutica": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Blau Farmacêutica"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.0,
+      "review_count": 515,
+      "status": "matched",
       "url": null
     },
     "blaze": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Blaze"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 19,
+      "status": "matched",
       "url": null
     },
     "blbw tecnologia e automacao ltda": {
@@ -16791,21 +16791,21 @@
       "company_names": [
         "BLBW TECNOLOGIA E AUTOMACAO LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "blend360": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Blend360"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.1,
+      "review_count": 367,
+      "status": "matched",
       "url": null
     },
     "blenheimchalcot": {
@@ -16813,10 +16813,10 @@
       "company_names": [
         "Blenheimchalcot"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "blessed consultoria em negocios e servicos": {
@@ -16824,10 +16824,10 @@
       "company_names": [
         "BLESSED CONSULTORIA EM NEGOCIOS E SERVICOS"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "blink charging inc": {
@@ -16835,10 +16835,10 @@
       "company_names": [
         "Blink Charging Inc."
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "blink interactive inc": {
@@ -16846,21 +16846,21 @@
       "company_names": [
         "Blink Interactive, Inc."
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "blip": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Blip"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 1323,
+      "status": "matched",
       "url": null
     },
     "blip global": {
@@ -16868,10 +16868,10 @@
       "company_names": [
         "Blip Global"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "blite tecnologia": {
@@ -16879,21 +16879,21 @@
       "company_names": [
         "Blite Tecnologia"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "blitz recursos humanos": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Blitz Recursos Humanos"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.4,
+      "review_count": 41,
+      "status": "matched",
       "url": null
     },
     "blitzed": {
@@ -16901,32 +16901,32 @@
       "company_names": [
         "Blitzed"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bll compras": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "BLL Compras"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.5,
+      "review_count": 14,
+      "status": "matched",
       "url": null
     },
     "block labs": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Block Labs"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.5,
+      "review_count": 2,
+      "status": "matched",
       "url": null
     },
     "blockvora": {
@@ -16934,10 +16934,10 @@
       "company_names": [
         "Blockvora"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bloom future": {
@@ -16945,32 +16945,32 @@
       "company_names": [
         "Bloom Future"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bloomin brands": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Bloomin' Brands"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.5,
+      "review_count": 546,
+      "status": "matched",
       "url": null
     },
     "bloomreach": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Bloomreach"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.5,
+      "review_count": 509,
+      "status": "matched",
       "url": null
     },
     "bloomy ltda": {
@@ -16978,10 +16978,10 @@
       "company_names": [
         "BLOOMY LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "blp digital ag": {
@@ -16989,21 +16989,21 @@
       "company_names": [
         "BLP Digital AG"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "blu": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "BLU"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.5,
+      "review_count": 223,
+      "status": "matched",
       "url": null
     },
     "blue manager solucoes e servicos ltda": {
@@ -17011,10 +17011,10 @@
       "company_names": [
         "BLUE MANAGER SOLUCOES E SERVICOS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "blue ocean brasil": {
@@ -17022,21 +17022,21 @@
       "company_names": [
         "Blue ocean brasil"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "blue3 investimentos": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Blue3 Investimentos"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.0,
+      "review_count": 175,
+      "status": "matched",
       "url": null
     },
     "bluecatnetworks": {
@@ -17044,32 +17044,32 @@
       "company_names": [
         "Bluecatnetworks"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bluecross blueshield of south carolina": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "BlueCross BlueShield of South Carolina"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.5,
+      "review_count": 891,
+      "status": "matched",
       "url": null
     },
     "bluecross blueshield of tennessee": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "BlueCross BlueShield of Tennessee"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 682,
+      "status": "matched",
       "url": null
     },
     "bluefit academias": {
@@ -17077,65 +17077,65 @@
       "company_names": [
         "BLUEFIT ACADEMIAS"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "blueground": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Blueground"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.2,
+      "review_count": 435,
+      "status": "matched",
       "url": null
     },
     "bluehost": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Bluehost"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.7,
+      "review_count": 266,
+      "status": "matched",
       "url": null
     },
     "bluelight consulting": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Bluelight Consulting"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 5.0,
+      "review_count": 21,
+      "status": "matched",
       "url": null
     },
     "blueprint technologies": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Blueprint Technologies"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.2,
+      "review_count": 319,
+      "status": "matched",
       "url": null
     },
     "bluesix": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Bluesix"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.0,
+      "review_count": 6,
+      "status": "matched",
       "url": null
     },
     "bluevix comercio e servico ltda": {
@@ -17143,21 +17143,21 @@
       "company_names": [
         "BLUEVIX COMERCIO E SERVICO LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "blukit": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "BLUKIT"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.8,
+      "review_count": 76,
+      "status": "matched",
       "url": null
     },
     "blume alimentos oh a agua": {
@@ -17165,10 +17165,10 @@
       "company_names": [
         "Blume Alimentos | OH! A Água"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "blumen energia ltda": {
@@ -17176,10 +17176,10 @@
       "company_names": [
         "Blumen Energia LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "blumenau iluminacao ltda": {
@@ -17187,10 +17187,10 @@
       "company_names": [
         "BLUMENAU ILUMINACAO LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bluwe comercio e imp de cosmeticos e cutelaria ltda": {
@@ -17198,10 +17198,10 @@
       "company_names": [
         "BLUWE COMERCIO E IMP DE COSMETICOS E CUTELARIA LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bm vagas": {
@@ -17209,10 +17209,10 @@
       "company_names": [
         "BM VAGAS"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bm vagas consultoria": {
@@ -17220,10 +17220,10 @@
       "company_names": [
         "Bm Vagas Consultoria"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bm vagas empregos e rh estrategico": {
@@ -17231,10 +17231,10 @@
       "company_names": [
         "BM VAGAS EMPREGOS E RH ESTRATÉGICO."
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bm vagas xavier de oliveira": {
@@ -17242,10 +17242,10 @@
       "company_names": [
         "BM VAGAS XAVIER DE OLIVEIRA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bm1 digital importacao exportacao e comercio de maquinas e e": {
@@ -17253,10 +17253,10 @@
       "company_names": [
         "BM1 DIGITAL IMPORTACAO,EXPORTACAO E COMERCIO DE MAQUINAS E E"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bma advogados": {
@@ -17264,21 +17264,21 @@
       "company_names": [
         "BMA Advogados"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bmc hyundai": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "BMC Hyundai"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.9,
+      "review_count": 45,
+      "status": "matched",
       "url": null
     },
     "bmo": {
@@ -17286,10 +17286,10 @@
       "company_names": [
         "BMO"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bmw group brasil": {
@@ -17297,10 +17297,10 @@
       "company_names": [
         "BMW Group Brasil"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bmz battery solutions gmbh": {
@@ -17308,21 +17308,21 @@
       "company_names": [
         "BMZ Battery Solutions GmbH"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bnberry": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "BnBerry"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.6,
+      "review_count": 13,
+      "status": "matched",
       "url": null
     },
     "bnrv transporte de cargas ltda": {
@@ -17330,21 +17330,21 @@
       "company_names": [
         "BNRV TRANSPORTE DE CARGAS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "board of innovation": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Board of Innovation"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.2,
+      "review_count": 49,
+      "status": "matched",
       "url": null
     },
     "boardwise gmbh": {
@@ -17352,10 +17352,10 @@
       "company_names": [
         "Boardwise GmbH"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bocatv": {
@@ -17363,21 +17363,21 @@
       "company_names": [
         "BocaTV"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bode do no": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Bode Do Nô"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.2,
+      "review_count": 10,
+      "status": "matched",
       "url": null
     },
     "bodyfast gmbh": {
@@ -17385,32 +17385,32 @@
       "company_names": [
         "BodyFast GmbH"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bogaard group international": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Bogaard Group International"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 4.4,
+      "review_count": 4,
+      "status": "matched",
       "url": null
     },
     "boggi milano": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Boggi Milano"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.0,
+      "review_count": 147,
+      "status": "matched",
       "url": null
     },
     "boi brabo guarulhos": {
@@ -17418,10 +17418,10 @@
       "company_names": [
         "Boi Brabo Guarulhos"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bola show sports": {
@@ -17429,21 +17429,21 @@
       "company_names": [
         "Bola Show Sports"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bold": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Bold"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.6,
+      "review_count": 783,
+      "status": "matched",
       "url": null
     },
     "bolder medical ltda": {
@@ -17451,32 +17451,32 @@
       "company_names": [
         "BOLDER MEDICAL LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "boldr": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "Boldr"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 2.7,
+      "review_count": 186,
+      "status": "matched",
       "url": null
     },
     "boldscience": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "BOLDSCIENCE"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.7,
+      "review_count": 33,
+      "status": "matched",
       "url": null
     },
     "bollhoff brasil": {
@@ -17484,10 +17484,10 @@
       "company_names": [
         "Böllhoff Brasil"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bom futuro": {
@@ -17495,10 +17495,10 @@
       "company_names": [
         "Bom Futuro"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bom leite industrial ltda": {
@@ -17506,10 +17506,10 @@
       "company_names": [
         "BOM LEITE INDUSTRIAL LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bomfim cargas e encomendas ltda": {
@@ -17517,10 +17517,10 @@
       "company_names": [
         "BOMFIM CARGAS E ENCOMENDAS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bomfim maquinas agricolas ltda": {
@@ -17528,10 +17528,10 @@
       "company_names": [
         "BOMFIM MAQUINAS AGRICOLAS LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bonerjao supermercado ltda": {
@@ -17539,21 +17539,21 @@
       "company_names": [
         "BONERJAO SUPERMERCADO LTDA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bonifiq": {
-      "checked_at": null,
+      "checked_at": "2026-11-13",
       "company_names": [
         "BonifiQ"
       ],
-      "last_attempted_date": null,
-      "rating": null,
-      "review_count": null,
-      "status": "",
+      "last_attempted_date": "2026-11-13",
+      "rating": 3.2,
+      "review_count": 4,
+      "status": "matched",
       "url": null
     },
     "bonin engenharia": {
@@ -17561,10 +17561,10 @@
       "company_names": [
         "BONIN ENGENHARIA"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bonoboo gmbh": {
@@ -17572,10 +17572,10 @@
       "company_names": [
         "Bonoboo GmbH"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bonsai motors nissan": {
@@ -17583,10 +17583,10 @@
       "company_names": [
         "Bonsai Motors - Nissan"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "bonuscred": {
@@ -17594,10 +17594,10 @@
       "company_names": [
         "BônusCred"
       ],
-      "last_attempted_date": null,
+      "last_attempted_date": "2026-11-13",
       "rating": null,
       "review_count": null,
-      "status": "",
+      "status": "unavailable",
       "url": null
     },
     "boon": {
@@ -149766,7 +149766,7 @@
       "url": null
     }
   },
-  "generated_at": "2026-11-13T03:56:45.364836+00:00",
+  "generated_at": "2026-11-13T04:44:03.631520+00:00",
   "profiles": {
     "accenture": {
       "checked_at": "2026-11-13",
