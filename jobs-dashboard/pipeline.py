@@ -87,6 +87,18 @@ def sources_to_preserve(failed_sources):
     return sorted(failed | PAUSED_SOURCES)
 
 
+def greenhouse_health_from_metrics(source_metrics):
+    """Return Greenhouse board health without coupling callers to metric layout."""
+    return next(
+        (
+            metric.get("health")
+            for metric in source_metrics or []
+            if metric.get("name") == "greenhouse"
+        ),
+        None,
+    )
+
+
 def selected_registry(names):
     if not names:
         return [
@@ -745,14 +757,7 @@ def main(before_persist=None):
         )
     modality_inferred = storage.infer_missing_work_models(conn)
     greenhouse_removed = 0
-    greenhouse_health = next(
-        (
-            metric.get("health")
-            for metric in metrics
-            if metric.get("name") == "greenhouse"
-        ),
-        None,
-    )
+    greenhouse_health = greenhouse_health_from_metrics(source_metrics)
     if "greenhouse" in selected_sources and greenhouse_health:
         # Reconcile board-by-board. A partial source failure must not prevent
         # healthy boards (such as ilia) from removing jobs that disappeared,
