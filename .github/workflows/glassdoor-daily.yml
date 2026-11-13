@@ -100,6 +100,11 @@ jobs:
           HASDATA_MCP_MAX_CALLS: ${{ vars.HASDATA_MCP_MAX_CALLS || '3' }}
           OMKAR_GLASSDOOR_ENABLED: "true"
           OMKAR_GLASSDOOR_ENDPOINT: "http://127.0.0.1:18081"
+          # Browserless is an opt-in fallback for explicitly curated profiles.
+          # Configure the variable/secret in the github-pages environment before enabling it.
+          BROWSERLESS_GLASSDOOR_ENABLED: \${{ vars.BROWSERLESS_GLASSDOOR_ENABLED || 'false' }}
+          BROWSERLESS_ENDPOINT: \${{ vars.BROWSERLESS_ENDPOINT || 'http://127.0.0.1:3000/chromium/content' }}
+          BROWSERLESS_TOKEN: \${{ secrets.BROWSERLESS_TOKEN }}
         run: |
           extra_args=()
           if [[ "${{ inputs.force_refresh }}" == "true" ]]; then

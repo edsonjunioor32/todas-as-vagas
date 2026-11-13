@@ -1,5 +1,6 @@
 import json
 import sys
+import urllib.error
 import tempfile
 import unittest
 from datetime import datetime
@@ -57,6 +58,104 @@ class GlassdoorTests(unittest.TestCase):
             {"rating": 4.0, "review_count": None},
         )
 
+    def test_parse_browserless_profile_reads_only_aggregate_metrics(self):
+        body = """
+        <h1>Avaliações da empresa Cresol</h1>
+        <div>4,7 ★</div>
+        <div>94% recomendariam a amigos</div>
+        <div>(Total de 1.087 avaliações)</div>
+        <h2>Classificação por categoria</h2>
+        <div>texto de avaliação que não deve ser capturado</div>
+        """
+        self.assertEqual(
+            glassdoor.parse_browserless_profile(body),
+            {"rating": 4.7, "review_count": 1087},
+        )
+
+    def test_fetch_profile_falls_back_to_browserless_for_curated_profile(self):
+        requests = []
+
+        class Response:
+            def __init__(self, body):
+                self.body = body
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_args):
+                return False
+
+            def read(self, _limit):
+                return self.body
+
+        rendered = """
+        <h1>Avaliações da empresa Cresol</h1>
+        <div>4,7 ★</div>
+        <div>(Total de 1.087 avaliações)</div>
+        <h2>Classificação por categoria</h2>
+        """.encode("utf-8")
+
+        def opener(request, timeout):
+            requests.append((request.full_url, request.data, timeout))
+            if "18081/companies/ratings" in request.full_url:
+                raise urllib.error.HTTPError(request.full_url, 503, "temporário", {}, None)
+            if request.full_url.endswith("/robots.txt"):
+                return Response(b"User-agent: *\nAllow: /\n")
+            if "3000/chromium/content" in request.full_url:
+                return Response(rendered)
+            raise AssertionError(request.full_url)
+
+        profile = {
+            "company_names": ["Cresol"],
+            "scraper_company": "Cresol",
+            "browserless_fallback": True,
+            "url": "https://www.glassdoor.com.br/Avaliações/Cresol-Avaliações-E665894.htm",
+        }
+        with patch.dict(
+            "os.environ",
+            {
+                "OMKAR_GLASSDOOR_ENABLED": "true",
+                "OMKAR_GLASSDOOR_ENDPOINT": "http://127.0.0.1:18081",
+                "BROWSERLESS_GLASSDOOR_ENABLED": "true",
+                "BROWSERLESS_ENDPOINT": "http://127.0.0.1:3000/chromium/content",
+                "BROWSERLESS_TOKEN": "test-token",
+            },
+        ):
+            result = glassdoor.fetch_profile(
+                profile,
+                timeout=7,
+                retries=1,
+                opener=opener,
+            )
+        self.assertEqual(result, {"rating": 4.7, "review_count": 1087, "source": "browserless"})
+        self.assertEqual(len(requests), 3)
+        self.assertIn("token=test-token", requests[2][0])
+        self.assertEqual(json.loads(requests[2][1].decode("utf-8"))["url"], profile["url"])
+
+    def test_browserless_fallback_requires_explicit_profile_opt_in(self):
+        calls = []
+
+        def opener(request, timeout):
+            calls.append(request.full_url)
+            if "18081/companies/ratings" in request.full_url:
+                raise urllib.error.HTTPError(request.full_url, 503, "temporário", {}, None)
+            raise AssertionError("Browserless não deveria ser chamado")
+
+        profile = manifest()["profiles"]["empresa-teste"]
+        with patch.dict(
+            "os.environ",
+            {
+                "OMKAR_GLASSDOOR_ENABLED": "true",
+                "OMKAR_GLASSDOOR_ENDPOINT": "http://127.0.0.1:18081",
+                "BROWSERLESS_GLASSDOOR_ENABLED": "true",
+                "BROWSERLESS_ENDPOINT": "http://127.0.0.1:3000/chromium/content",
+                "BROWSERLESS_TOKEN": "test-token",
+            },
+        ):
+            with self.assertRaises(urllib.error.HTTPError):
+                glassdoor.fetch_profile(profile, timeout=7, retries=1, opener=opener)
+        self.assertEqual(len(calls), 1)
+
     def test_parse_omkar_company_ratings_reads_only_overall_rating(self):
         body = {
             "company": {"id": 8990981, "name": "Heineken Brasil"},
@@ -70,7 +169,7 @@ class GlassdoorTests(unittest.TestCase):
         }
         self.assertEqual(
             glassdoor.parse_omkar_company_ratings(body, profile),
-            {"rating": 4.0, "review_count": 245},
+            {"rating": 4.0, "review_count": 245, "source": "omkar"},
         )
 
     def test_parse_omkar_company_ratings_rejects_wrong_company(self):
@@ -116,7 +215,7 @@ class GlassdoorTests(unittest.TestCase):
         ):
             self.assertEqual(
                 glassdoor.fetch_profile(profile, timeout=7, opener=opener),
-                {"rating": 4.6, "review_count": 17},
+                {"rating": 4.6, "review_count": 17, "source": "omkar"},
             )
         self.assertEqual(requests[0][0], "http://127.0.0.1:18081/companies/ratings?company=Empresa+Teste")
         self.assertEqual(requests[0][1], 7)
@@ -490,6 +589,8 @@ class GlassdoorTests(unittest.TestCase):
         self.assertIn('"${extra_args[@]}"', workflow)
         self.assertIn("runs-on: self-hosted", workflow)
         self.assertIn("OMKAR_GLASSDOOR_ENDPOINT", workflow)
+        self.assertIn("BROWSERLESS_GLASSDOOR_ENABLED", workflow)
+        self.assertIn("BROWSERLESS_ENDPOINT", workflow)
         self.assertIn("glassdoor-scraper.git", workflow)
         self.assertNotIn("JOBS_SOURCE_WORKERS", workflow)
 
