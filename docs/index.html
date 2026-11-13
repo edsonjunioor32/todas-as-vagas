@@ -32,7 +32,7 @@
     <link rel="stylesheet" href="./fit-entry.css?v=2">
     <script src="./fit-entry.js?v=1" defer></script>
     <script src="./filter-terms.js?v=1" defer></script>
-    <script src="./app.js?v=22" defer></script>
+    <script src="./app.js?v=23" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#resultados">Pular para os resultados</a>
@@ -187,9 +187,9 @@
 
             <div class="field field-compact">
               <label for="companyFilter">Empresa</label>
-              <select id="companyFilter" name="empresa">
-                <option value="">Todas as empresas</option>
-              </select>
+              <input id="companyFilter" name="empresa" type="search" list="companyOptions" placeholder="Ex.: Itaú" spellcheck="false" aria-describedby="companyFilterHint">
+              <datalist id="companyOptions"></datalist>
+              <small id="companyFilterHint">Digite livremente; as sugestões priorizam as empresas mais frequentes.</small>
             </div>
 
             <div class="field field-compact">
