@@ -2,9 +2,9 @@
 
 ## Fonte de configuração
 
-`jobs-dashboard/data/glassdoor_profiles.json` é o manifesto explícito de perfis aprovados. Cada entrada ativa precisa de `approved: true`, um `id`, uma lista manual de `company_names` e uma URL HTTPS pública do Glassdoor. O primeiro lote contém Skeelo, Heineken Brasil, Sicredi e Accenture. Novas entradas continuam exigindo conferência manual para evitar inferência de perfis, URLs ou notas.
+`jobs-dashboard/data/glassdoor_profiles.json` continua sendo o manifesto explícito de perfis canônicos aprovados. Cada entrada ativa precisa de `approved: true`, um `id`, uma lista manual de `company_names` e uma URL HTTPS pública do Glassdoor. Ele mantém os perfis com link canônico revisado, como Skeelo, Heineken Brasil, Sicredi e Accenture.
 
-O cache gerado em `jobs-dashboard/data/glassdoor_cache.json` é publicado junto do snapshot no ramo `public-data`. Ele retém `rating`, `review_count`, `checked_at` e o marcador interno da última tentativa do dia. O cache é filtrado novamente pelo manifesto a cada execução; perfis removidos ou remapeados não continuam associados às vagas.
+O cache gerado em `jobs-dashboard/data/glassdoor_cache.json` é publicado junto do snapshot no ramo `public-data`. Ele retém `rating`, `review_count`, `checked_at` e o marcador interno da última tentativa do dia. Os perfis canônicos continuam sendo filtrados pelo manifesto; as empresas descobertas no catálogo são mantidas separadamente em `catalog_profiles`, com chave derivada do nome normalizado.
 
 Exemplo de entrada aprovada (substitua a URL pelo perfil público correto e valide o nome antes de habilitar):
 
@@ -23,7 +23,26 @@ Exemplo de entrada aprovada (substitua a URL pelo perfil público correto e vali
 }
 ```
 
-O manifesto não faz descoberta automática: isso evita associar uma empresa à página errada. Empresas que ainda não estiverem aprovadas continuam aparecendo normalmente, mas sem nota e sem link específico do Glassdoor.
+## Cobertura de todas as empresas do catálogo
+
+Além dos perfis canônicos, o workflow consulta os nomes únicos presentes em
+`public-data/data/vagas.json` por meio do scraper local fixado no commit
+aprovado. A descoberta é resumível e limitada por execução (`100` empresas
+por padrão, ajustável manualmente até `1000`), para não transformar uma
+execução diária em uma rajada de chamadas ou exceder o tempo do runner.
+
+Cada nome do catálogo é enviado como seu único alias permitido. A resposta só
+é aceita quando o nome retornado pelo Glassdoor coincide exatamente, após a
+normalização de acentos, caixa e pontuação. O resultado de outra empresa,
+uma resposta ambígua ou uma ausência de média fica como indisponível e não é
+publicado. A rotina preserva a última nota válida quando uma nova tentativa
+falha.
+
+Empresas descobertas sem URL canônica validada podem exibir a média e a
+quantidade de avaliações, mas não recebem um link inventado. O link só é
+publicado quando vem de um perfil HTTPS canônico aprovado. Essa separação
+permite cobrir todas as empresas sem transformar uma busca aproximada em uma
+associação incorreta.
 
 ## Fallback opcional HasData Glassdoor MCP
 
@@ -82,11 +101,17 @@ As propriedades opcionais ficam em `jobs` e têm exatamente `count` posições q
 | `gdu` | `glassdoor_url` | URL HTTPS canônica pública ou `null` |
 | `gdt` | `glassdoor_checked_at` | data ISO da última verificação bem-sucedida ou `null` |
 
-A associação é feita somente por nomes exatos normalizados e declarados no manifesto. Empresas sem perfil aprovado ficam sem avaliação. A interface mostra nota, quantidade e link somente quando o respectivo valor existe e nunca converte `null` em `0,0/5`; portanto, uma nota zero só pode aparecer quando o provedor realmente retornar o valor numérico zero.
+A associação é feita somente por nomes exatos normalizados: aliases do
+manifesto canônico ou nomes confirmados na fila do catálogo. Empresas ainda
+não confirmadas ficam sem avaliação. A interface mostra nota, quantidade e
+link somente quando o respectivo valor existe e nunca converte `null` em
+`0,0/5`; portanto, uma nota zero só pode aparecer quando o provedor realmente
+retornar o valor numérico zero.
 
 ## Limitações operacionais
 
-- A rotina diária é independente da coleta principal e usa uma consulta sequencial por perfil, com no máximo uma tentativa lógica por perfil em cada data local.
+- A rotina diária é independente da coleta principal: perfis canônicos são consultados sequencialmente e empresas novas entram em lotes resumíveis, com no máximo uma tentativa lógica por empresa em cada data local.
+- `workflow_dispatch` aceita `catalog_batch_size` para acelerar uma recuperação controlada; a agenda diária permanece com o limite padrão de `100` empresas novas.
 - `robots.txt` é consultado antes da página; bloqueio, timeout, HTTP não permitido ou falha de parser não removem vagas nem apagam o último valor válido.
 - Mesmo quando a leitura é bloqueada, o link canônico aprovado pode continuar sendo exibido; a nota só aparece depois de uma leitura estruturada bem-sucedida.
 - Uma verificação visual pelo navegador automatizado também pode encontrar a proteção "Humans only"/Cloudflare; esse desafio não deve ser contornado automaticamente.

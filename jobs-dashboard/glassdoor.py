@@ -9,6 +9,7 @@ values when a request or parser fails.
 from __future__ import annotations
 
 import argparse
+import copy
 import html
 import json
 import os
@@ -44,6 +45,9 @@ DEFAULT_TIMEOUT_SECONDS = 15
 DEFAULT_RETRIES = 2
 DEFAULT_BACKOFF_SECONDS = 2.0
 DEFAULT_PROFILE_DELAY_SECONDS = 1.0
+DEFAULT_CATALOG_BATCH_SIZE = 100
+DEFAULT_CATALOG_PROFILE_DELAY_SECONDS = 0.25
+MAX_CATALOG_BATCH_SIZE = 1000
 MAX_RESPONSE_BYTES = 2 * 1024 * 1024
 MAX_PROFILES = 100
 DEFAULT_MCP_QUERY_PATH = PROJECT_ROOT / "jobs-dashboard" / "data" / "glassdoor_mcp_queries.json"
@@ -370,6 +374,23 @@ def _cache_metrics(raw: object, profile: dict, *, reset: bool = False) -> dict:
     }
 
 
+def _catalog_cache_metrics(raw: object, company_name: str) -> dict:
+    """Normalize one automatically discovered catalog company entry."""
+    source = raw if isinstance(raw, dict) else {}
+    status = str(source.get("status") or "").strip().casefold()
+    if status not in {"matched", "unavailable"}:
+        status = ""
+    return {
+        "company_names": [company_name],
+        "url": None,
+        "rating": _rating(source.get("rating")),
+        "review_count": _review_count(source.get("review_count")),
+        "checked_at": _iso_date(source.get("checked_at")),
+        "last_attempted_date": _iso_date(source.get("last_attempted_date")),
+        "status": status,
+    }
+
+
 def align_cache(manifest: dict, raw_cache: dict | None) -> dict:
     """Keep cache entries only for the currently approved manifest profiles."""
     raw_profiles = raw_cache.get("profiles") if isinstance(raw_cache, dict) else {}
@@ -389,6 +410,18 @@ def align_cache(manifest: dict, raw_cache: dict | None) -> dict:
             }
             reset = previous_url != profile["url"] or previous_names != set(profile["company_keys"])
         profiles[profile_id] = _cache_metrics(previous, profile, reset=reset)
+    catalog_profiles: dict[str, dict] = {}
+    raw_catalog = raw_cache.get("catalog_profiles") if isinstance(raw_cache, dict) else {}
+    if isinstance(raw_catalog, dict):
+        for raw_key, raw_entry in raw_catalog.items():
+            if not isinstance(raw_entry, dict):
+                continue
+            raw_names = raw_entry.get("company_names") or []
+            company_name = str(raw_names[0] if isinstance(raw_names, list) and raw_names else "").strip()
+            key = company_key(company_name)
+            if not key or key != str(raw_key).strip():
+                continue
+            catalog_profiles[key] = _catalog_cache_metrics(raw_entry, company_name)
     generated_at = (
         str(raw_cache.get("generated_at") or "").strip()
         if isinstance(raw_cache, dict)
@@ -398,6 +431,7 @@ def align_cache(manifest: dict, raw_cache: dict | None) -> dict:
         "schema_version": SCHEMA_VERSION,
         "generated_at": generated_at,
         "profiles": profiles,
+        "catalog_profiles": catalog_profiles,
     }
 
 
@@ -416,49 +450,50 @@ def load_cache(
 
 
 def build_snapshot_index(cache: dict | None) -> dict[str, dict]:
-    """Index cache entries by exact approved company aliases."""
+    """Index canonical and exact-match catalog entries by company alias."""
     if not isinstance(cache, dict):
         return {}
-    raw_profiles = cache.get("profiles") or {}
-    if not isinstance(raw_profiles, dict):
-        return {}
     indexed: dict[str, dict] = {}
-    for raw in raw_profiles.values():
-        if not isinstance(raw, dict):
+    for section in ("profiles", "catalog_profiles"):
+        raw_profiles = cache.get(section) or {}
+        if not isinstance(raw_profiles, dict):
             continue
-        aliases = raw.get("company_names") or []
-        if not isinstance(aliases, list):
-            continue
-        try:
-            url = canonical_profile_url(raw.get("url")) if raw.get("url") else None
-        except GlassdoorConfigurationError:
-            url = None
-        try:
-            fallback_url = (
-                canonical_reference_url(raw.get("hasdata_reference_url"))
-                if raw.get("hasdata_reference_url") else None
-            )
-        except GlassdoorConfigurationError:
-            fallback_url = None
-        primary_rating = _rating(raw.get("rating"))
-        entry = {
-            "glassdoor_rating": primary_rating,
-            "glassdoor_review_count": _review_count(raw.get("review_count")),
-            "glassdoor_url": url,
-            "glassdoor_checked_at": _iso_date(raw.get("checked_at")),
-            # A HasData job-listing rating is only a fallback when the
-            # official company profile has no rating.  Never show two
-            # different numbers for the same employer.
-            "glassdoor_fallback_rating": None if primary_rating is not None else _rating(raw.get("hasdata_rating")),
-            "glassdoor_fallback_url": None if primary_rating is not None else fallback_url,
-            "glassdoor_fallback_checked_at": (
-                None if primary_rating is not None else _iso_date(raw.get("hasdata_checked_at"))
-            ),
-        }
-        for alias in aliases:
-            key = company_key(alias)
-            if key and key not in indexed:
-                indexed[key] = entry
+        for raw in raw_profiles.values():
+            if not isinstance(raw, dict):
+                continue
+            aliases = raw.get("company_names") or []
+            if not isinstance(aliases, list):
+                continue
+            try:
+                url = canonical_profile_url(raw.get("url")) if raw.get("url") else None
+            except GlassdoorConfigurationError:
+                url = None
+            try:
+                fallback_url = (
+                    canonical_reference_url(raw.get("hasdata_reference_url"))
+                    if raw.get("hasdata_reference_url") else None
+                )
+            except GlassdoorConfigurationError:
+                fallback_url = None
+            primary_rating = _rating(raw.get("rating"))
+            entry = {
+                "glassdoor_rating": primary_rating,
+                "glassdoor_review_count": _review_count(raw.get("review_count")),
+                "glassdoor_url": url,
+                "glassdoor_checked_at": _iso_date(raw.get("checked_at")),
+                # A HasData job-listing rating is only a fallback when the
+                # official company profile has no rating.  Never show two
+                # different numbers for the same employer.
+                "glassdoor_fallback_rating": None if primary_rating is not None else _rating(raw.get("hasdata_rating")),
+                "glassdoor_fallback_url": None if primary_rating is not None else fallback_url,
+                "glassdoor_fallback_checked_at": (
+                    None if primary_rating is not None else _iso_date(raw.get("hasdata_checked_at"))
+                ),
+            }
+            for alias in aliases:
+                key = company_key(alias)
+                if key and key not in indexed:
+                    indexed[key] = entry
     return indexed
 
 
@@ -967,6 +1002,125 @@ def update_cache(
     return cache, summary
 
 
+def _snapshot_company_names(snapshot: dict | None) -> list[tuple[str, str]]:
+    """Return stable, deduplicated company candidates from a public snapshot."""
+    if not isinstance(snapshot, dict):
+        return []
+    dictionaries = snapshot.get("dict") or {}
+    raw_companies = dictionaries.get("company") if isinstance(dictionaries, dict) else []
+    if not isinstance(raw_companies, list):
+        return []
+    candidates: dict[str, str] = {}
+    for raw_name in raw_companies:
+        company_name = str(raw_name or "").strip()
+        key = company_key(company_name)
+        if key and key not in candidates:
+            candidates[key] = company_name
+    return sorted(candidates.items(), key=lambda item: item[0])
+
+
+def update_catalog_cache(
+    snapshot: dict,
+    previous_cache: dict | None,
+    *,
+    now: date | datetime | None = None,
+    batch_size: int = DEFAULT_CATALOG_BATCH_SIZE,
+    fetcher=fetch_profile,
+    sleeper=time.sleep,
+    profile_delay: float = DEFAULT_CATALOG_PROFILE_DELAY_SECONDS,
+    timeout: float = DEFAULT_TIMEOUT_SECONDS,
+    retries: int = DEFAULT_RETRIES,
+    backoff: float = DEFAULT_BACKOFF_SECONDS,
+    force: bool = False,
+) -> tuple[dict, dict]:
+    """Refresh exact-match ratings for every company in resumable batches.
+
+    The Omkar fetcher receives one catalog name as its sole approved alias.
+    Its parser therefore rejects a different returned company instead of
+    attaching the first similarly named profile to a vacancy.
+    """
+    cache = copy.deepcopy(previous_cache or {})
+    raw_catalog = cache.get("catalog_profiles")
+    catalog_profiles = raw_catalog if isinstance(raw_catalog, dict) else {}
+    cache["catalog_profiles"] = catalog_profiles
+
+    canonical_keys = set()
+    for profile in (cache.get("profiles") or {}).values():
+        if not isinstance(profile, dict):
+            continue
+        canonical_keys.update(
+            company_key(alias)
+            for alias in (profile.get("company_names") or [])
+            if company_key(alias)
+        )
+
+    discovered = [
+        (key, name)
+        for key, name in _snapshot_company_names(snapshot)
+        if key not in canonical_keys
+    ]
+    summary = {
+        "discovered": len(discovered),
+        "attempted": 0,
+        "skipped": 0,
+        "succeeded": 0,
+        "failed": 0,
+        "queued": 0,
+        "errors": {},
+    }
+    current_date = _local_date(now).isoformat()
+    limit = min(max(1, int(batch_size)), MAX_CATALOG_BATCH_SIZE)
+    selected = 0
+
+    for key, company_name in discovered:
+        entry = _catalog_cache_metrics(catalog_profiles.get(key), company_name)
+        catalog_profiles[key] = entry
+        if not force and (
+            entry.get("last_attempted_date") == current_date
+            or entry.get("checked_at") == current_date
+        ):
+            summary["skipped"] += 1
+            continue
+        if selected >= limit:
+            summary["queued"] += 1
+            continue
+        if selected and profile_delay > 0:
+            sleeper(profile_delay)
+        selected += 1
+        summary["attempted"] += 1
+        entry["last_attempted_date"] = current_date
+        profile = {
+            "company_names": [company_name],
+            "scraper_company": company_name,
+        }
+        try:
+            result = fetcher(
+                profile,
+                timeout=timeout,
+                retries=retries,
+                backoff=backoff,
+                sleeper=sleeper,
+            )
+            if not isinstance(result, dict):
+                raise ProfileDataUnavailable("coletor não retornou métricas")
+            rating = _rating(result.get("rating"))
+            count = _review_count(result.get("review_count"))
+            if rating is None:
+                raise ProfileDataUnavailable("coletor não retornou média geral válida")
+            entry["rating"] = rating
+            if count is not None:
+                entry["review_count"] = count
+            entry["checked_at"] = current_date
+            entry["status"] = "matched"
+            summary["succeeded"] += 1
+        except Exception as error:  # one optional company never blocks the catalog
+            entry["status"] = "unavailable"
+            summary["failed"] += 1
+            summary["errors"][key] = str(error)[:180]
+    cache["generated_at"] = _utc_iso(now)
+    return cache, summary
+
+
 def write_cache(path: str | os.PathLike[str], cache: dict) -> None:
     output = Path(path)
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -974,6 +1128,7 @@ def write_cache(path: str | os.PathLike[str], cache: dict) -> None:
         "schema_version": SCHEMA_VERSION,
         "generated_at": str(cache.get("generated_at") or _utc_iso()),
         "profiles": cache.get("profiles") or {},
+        "catalog_profiles": cache.get("catalog_profiles") or {},
     }
     temporary = output.with_name(f".{output.name}.{os.getpid()}.tmp")
     try:
@@ -1066,6 +1221,8 @@ def run_daily(
     retries: int = DEFAULT_RETRIES,
     backoff: float = DEFAULT_BACKOFF_SECONDS,
     profile_delay: float = DEFAULT_PROFILE_DELAY_SECONDS,
+    catalog_batch_size: int = DEFAULT_CATALOG_BATCH_SIZE,
+    catalog_profile_delay: float = DEFAULT_CATALOG_PROFILE_DELAY_SECONDS,
     force: bool = False,
 ) -> dict:
     manifest = load_manifest(manifest_path)
@@ -1079,6 +1236,40 @@ def run_daily(
         profile_delay=profile_delay,
         force=force,
     )
+    catalog_summary = {
+        "enabled": False,
+        "discovered": 0,
+        "attempted": 0,
+        "skipped": 0,
+        "succeeded": 0,
+        "failed": 0,
+        "queued": 0,
+        "errors": {},
+    }
+    snapshot = Path(snapshot_path)
+    snapshot_payload = None
+    if snapshot.exists():
+        try:
+            snapshot_payload = json.loads(snapshot.read_text(encoding="utf-8"))
+        except (OSError, ValueError, TypeError, json.JSONDecodeError) as error:
+            catalog_summary["errors"]["snapshot"] = str(error)[:180]
+    if (
+        snapshot_payload is not None
+        and str(os.environ.get("OMKAR_GLASSDOOR_ENABLED") or "").strip().casefold()
+        in _OMKAR_ENABLED_VALUES
+    ):
+        cache, catalog_summary = update_catalog_cache(
+            snapshot_payload,
+            cache,
+            now=None,
+            batch_size=catalog_batch_size,
+            timeout=timeout,
+            retries=retries,
+            backoff=backoff,
+            profile_delay=catalog_profile_delay,
+            force=force,
+        )
+        catalog_summary["enabled"] = True
     try:
         mcp_queries_path = Path(
             os.environ.get("HASDATA_MCP_QUERIES_PATH") or DEFAULT_MCP_QUERY_PATH
@@ -1100,13 +1291,14 @@ def run_daily(
     write_cache(cache_path, cache)
     snapshot_changed = False
     matched = 0
-    snapshot = Path(snapshot_path)
     if snapshot.exists():
         snapshot_changed, matched = update_snapshot_file(snapshot, cache)
     result = {
         **summary,
+        "catalog": catalog_summary,
         "hasdata_mcp": mcp_summary,
         "profiles": len(manifest.get("profiles") or {}),
+        "catalog_profiles": len(cache.get("catalog_profiles") or {}),
         "snapshot_changed": snapshot_changed,
         "matched_jobs": matched,
     }
@@ -1122,6 +1314,18 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--retries", type=int, default=DEFAULT_RETRIES)
     parser.add_argument("--backoff", type=float, default=DEFAULT_BACKOFF_SECONDS)
     parser.add_argument("--profile-delay", type=float, default=DEFAULT_PROFILE_DELAY_SECONDS)
+    parser.add_argument(
+        "--catalog-batch-size",
+        type=int,
+        default=DEFAULT_CATALOG_BATCH_SIZE,
+        help="quantidade máxima de empresas novas consultadas por execução",
+    )
+    parser.add_argument(
+        "--catalog-profile-delay",
+        type=float,
+        default=DEFAULT_CATALOG_PROFILE_DELAY_SECONDS,
+        help="intervalo entre consultas de empresas descobertas",
+    )
     parser.add_argument(
         "--force",
         action="store_true",
@@ -1140,6 +1344,8 @@ def main(argv: list[str] | None = None) -> int:
         retries=max(1, args.retries),
         backoff=max(0.0, args.backoff),
         profile_delay=max(0.0, args.profile_delay),
+        catalog_batch_size=max(1, args.catalog_batch_size),
+        catalog_profile_delay=max(0.0, args.catalog_profile_delay),
         force=args.force,
     )
     print(
@@ -1149,6 +1355,15 @@ def main(argv: list[str] | None = None) -> int:
         f"{result['failed']} falhas · "
         f"{result['skipped']} já verificados hoje · "
         f"{result['matched_jobs']} vagas associadas"
+    )
+    catalog = result.get("catalog") or {}
+    print(
+        "Glassdoor catálogo: "
+        f"{'ativo' if catalog.get('enabled') else 'desativado'} · "
+        f"{catalog.get('discovered', 0)} empresas descobertas · "
+        f"{catalog.get('succeeded', 0)} atualizadas · "
+        f"{catalog.get('failed', 0)} falhas · "
+        f"{catalog.get('queued', 0)} na fila"
     )
     for profile_id, error in sorted(result["errors"].items()):
         print(f"  [{profile_id}] aviso: {error}")

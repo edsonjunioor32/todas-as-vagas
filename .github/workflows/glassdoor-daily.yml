@@ -8,6 +8,11 @@ on:
         required: false
         default: false
         type: boolean
+      catalog_batch_size:
+        description: "Máximo de empresas novas do catálogo nesta execução"
+        required: false
+        default: 100
+        type: number
   schedule:
     # GitHub Actions uses UTC; Brasília/Fortaleza is UTC-3.
     - cron: "23 6 * * *"
@@ -86,7 +91,7 @@ jobs:
           test -s docs/data/vagas.json
           test -s docs/data/fit.json
 
-      - name: Atualizar somente perfis Glassdoor aprovados
+      - name: Atualizar perfis aprovados e empresas do catálogo
         env:
           # Optional HasData fallback. The secret is never stored in the repo;
           # the provider remains disabled unless the repository variable is true.
@@ -100,11 +105,14 @@ jobs:
           if [[ "${{ inputs.force_refresh }}" == "true" ]]; then
             extra_args+=(--force)
           fi
+          catalog_batch_size="${{ inputs.catalog_batch_size || '100' }}"
           python jobs-dashboard/glassdoor.py \
             --timeout 15 \
             --retries 2 \
             --backoff 2 \
             --profile-delay 1 \
+            --catalog-batch-size "$catalog_batch_size" \
+            --catalog-profile-delay 0.25 \
             "${extra_args[@]}"
 
       - name: Validar snapshot enriquecido

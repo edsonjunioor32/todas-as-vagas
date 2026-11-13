@@ -227,6 +227,82 @@ class GlassdoorTests(unittest.TestCase):
         self.assertEqual(updated["profiles"]["empresa-teste"]["rating"], 4.6)
         self.assertEqual(updated["profiles"]["empresa-teste"]["checked_at"], "2026-11-12")
 
+    def test_catalog_refresh_discovers_all_companies_in_a_resumable_batch(self):
+        snapshot = {
+            "count": 3,
+            "dict": {"company": ["Empresa Nova", "Outra Empresa", "Empresa Teste"]},
+            "jobs": {"cmp": [0, 1, 2]},
+        }
+        calls = []
+
+        def succeed(profile, **kwargs):
+            calls.append(profile["scraper_company"])
+            return {"rating": 4.4, "review_count": 31}
+
+        updated, summary = glassdoor.update_catalog_cache(
+            snapshot,
+            {
+                "schema_version": 1,
+                "profiles": manifest()["profiles"],
+                "catalog_profiles": {},
+            },
+            now=datetime(2026, 11, 12, 8, 0),
+            batch_size=1,
+            fetcher=succeed,
+            sleeper=lambda _seconds: None,
+            profile_delay=0,
+        )
+
+        self.assertEqual(calls, ["Empresa Nova"])
+        self.assertEqual(summary["discovered"], 2)
+        self.assertEqual(summary["attempted"], 1)
+        self.assertEqual(summary["succeeded"], 1)
+        self.assertEqual(
+            updated["catalog_profiles"][glassdoor.company_key("Empresa Nova")]["rating"],
+            4.4,
+        )
+        self.assertNotIn(glassdoor.company_key("Empresa Teste"), updated["catalog_profiles"])
+
+    def test_catalog_refresh_preserves_previous_rating_when_source_fails(self):
+        snapshot = {
+            "count": 1,
+            "dict": {"company": ["Empresa Nova"]},
+            "jobs": {"cmp": [0]},
+        }
+        key = glassdoor.company_key("Empresa Nova")
+        previous = {
+            "schema_version": 1,
+            "profiles": manifest()["profiles"],
+            "catalog_profiles": {
+                key: {
+                    "company_names": ["Empresa Nova"],
+                    "rating": 4.2,
+                    "review_count": 18,
+                    "checked_at": "2026-11-11",
+                    "last_attempted_date": "2026-11-11",
+                }
+            },
+        }
+
+        def fail(_profile, **kwargs):
+            raise TimeoutError("timeout")
+
+        updated, summary = glassdoor.update_catalog_cache(
+            snapshot,
+            previous,
+            now=datetime(2026, 11, 12, 8, 0),
+            fetcher=fail,
+            sleeper=lambda _seconds: None,
+            profile_delay=0,
+        )
+
+        entry = updated["catalog_profiles"][key]
+        self.assertEqual(summary["failed"], 1)
+        self.assertEqual(entry["rating"], 4.2)
+        self.assertEqual(entry["review_count"], 18)
+        self.assertEqual(entry["checked_at"], "2026-11-11")
+        self.assertEqual(entry["last_attempted_date"], "2026-11-12")
+
     def test_enrich_snapshot_uses_nulls_for_unconfigured_companies(self):
         payload = {
             "schema_version": 3,
@@ -333,6 +409,33 @@ class GlassdoorTests(unittest.TestCase):
         self.assertEqual(enriched["jobs"]["gfu"], ["https://www.glassdoor.com.br/job-listing/vaga-1.htm"])
         self.assertEqual(enriched["jobs"]["gft"], ["2026-11-12"])
 
+    def test_enrich_snapshot_matches_discovered_catalog_company(self):
+        payload = {
+            "schema_version": 3,
+            "count": 1,
+            "dict": {"company": ["Empresa Nova"]},
+            "jobs": {"cmp": [0]},
+        }
+        cache = {
+            "schema_version": 1,
+            "profiles": {},
+            "catalog_profiles": {
+                "empresa nova": {
+                    "company_names": ["Empresa Nova"],
+                    "rating": 4.4,
+                    "review_count": 31,
+                    "checked_at": "2026-11-12",
+                }
+            },
+        }
+
+        enriched, matched = glassdoor.enrich_snapshot(payload, cache)
+
+        self.assertEqual(matched, 1)
+        self.assertEqual(enriched["jobs"]["gdr"], [4.4])
+        self.assertEqual(enriched["jobs"]["gdc"], [31])
+        self.assertEqual(enriched["jobs"]["gdu"], [None])
+
     def test_export_snapshot_includes_optional_arrays_without_changing_job_count(self):
         with tempfile.TemporaryDirectory() as directory:
             conn = storage.connect(str(Path(directory) / "jobs.db"))
@@ -380,6 +483,8 @@ class GlassdoorTests(unittest.TestCase):
         self.assertIn("glassdoor.py", workflow)
         self.assertIn("--timeout 15", workflow)
         self.assertIn("--profile-delay 1", workflow)
+        self.assertIn("catalog_batch_size", workflow)
+        self.assertIn("--catalog-batch-size", workflow)
         self.assertIn("force_refresh", workflow)
         self.assertIn("extra_args+=(--force)", workflow)
         self.assertIn('"${extra_args[@]}"', workflow)
