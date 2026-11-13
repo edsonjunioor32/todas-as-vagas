@@ -392,6 +392,10 @@
     "tenantName": "BRQ"
   },
   {
+    "slug": "bussola",
+    "tenantName": "bussola"
+  },
+  {
     "slug": "cactus",
     "tenantName": "Cactus Gaming"
   },
@@ -1224,6 +1228,10 @@
     "tenantName": "iSystems"
   },
   {
+    "slug": "it4us-trial",
+    "tenantName": "it4us-trial"
+  },
+  {
     "slug": "iteris",
     "tenantName": "Iteris"
   },
@@ -1510,6 +1518,10 @@
   {
     "slug": "monkey",
     "tenantName": "Monkey"
+  },
+  {
+    "slug": "moonventures",
+    "tenantName": "moonventures"
   },
   {
     "slug": "motim",
