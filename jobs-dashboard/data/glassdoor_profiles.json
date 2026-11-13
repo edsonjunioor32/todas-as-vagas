@@ -5,33 +5,97 @@
       "id": "skeelo",
       "approved": true,
       "enabled": true,
-      "company_names": ["Skeelo"],
+      "company_names": [
+        "Skeelo"
+      ],
       "scraper_company": "Skeelo",
-      "url": "https://www.glassdoor.com.br/Vis%C3%A3o-geral/Trabalhar-na-Skeelo-EI_IE3556448.13%2C19.htm"
+      "url": "https://www.glassdoor.com.br/Vis%C3%A3o-geral/Trabalhar-na-Skeelo-EI_IE3556448.13%2C19.htm",
+      "browserless_fallback": true
     },
     {
       "id": "heineken-brasil",
       "approved": true,
       "enabled": true,
-      "company_names": ["Heineken", "Heineken N.V.", "Heineken Brasil", "Heineken Brasil S.A.", "HEINEKEN Brazil"],
+      "company_names": [
+        "Heineken",
+        "Heineken N.V.",
+        "Heineken Brasil",
+        "Heineken Brasil S.A.",
+        "HEINEKEN Brazil"
+      ],
       "scraper_company": "Heineken Brasil",
-      "url": "https://www.glassdoor.com.br/Avalia%C3%A7%C3%B5es/Heineken-Brasil-Avalia%C3%A7%C3%B5es-E8990981.htm"
+      "url": "https://www.glassdoor.com.br/Avalia%C3%A7%C3%B5es/Heineken-Brasil-Avalia%C3%A7%C3%B5es-E8990981.htm",
+      "browserless_fallback": true
     },
     {
       "id": "sicredi",
       "approved": true,
       "enabled": true,
-      "company_names": ["Sicredi"],
+      "company_names": [
+        "Sicredi"
+      ],
       "scraper_company": "Sicredi",
-      "url": "https://www.glassdoor.com.br/Avalia%C3%A7%C3%B5es/Sicredi-Avalia%C3%A7%C3%B5es-E661772.htm"
+      "url": "https://www.glassdoor.com.br/Avalia%C3%A7%C3%B5es/Sicredi-Avalia%C3%A7%C3%B5es-E661772.htm",
+      "browserless_fallback": true
     },
     {
       "id": "accenture",
       "approved": true,
       "enabled": true,
-      "company_names": ["Accenture", "Accenture Brasil"],
+      "company_names": [
+        "Accenture",
+        "Accenture Brasil"
+      ],
       "scraper_company": "Accenture",
-      "url": "https://www.glassdoor.com.br/Vis%C3%A3o-geral/Trabalhar-na-Accenture-EI_IE4138.13%2C22.htm"
+      "url": "https://www.glassdoor.com.br/Vis%C3%A3o-geral/Trabalhar-na-Accenture-EI_IE4138.13%2C22.htm",
+      "browserless_fallback": true
+    },
+    {
+      "id": "cresol",
+      "approved": true,
+      "enabled": true,
+      "company_names": [
+        "Cresol",
+        "Cresol Oficial"
+      ],
+      "scraper_company": "Cresol",
+      "browserless_fallback": true,
+      "url": "https://www.glassdoor.com.br/Avalia%C3%A7%C3%B5es/Cresol-Avalia%C3%A7%C3%B5es-E665894.htm"
+    },
+    {
+      "id": "assai-atacadista",
+      "approved": true,
+      "enabled": true,
+      "company_names": [
+        "Assaí Atacadista"
+      ],
+      "scraper_company": "Assaí Atacadista",
+      "browserless_fallback": true,
+      "url": "https://www.glassdoor.com.br/Avalia%C3%A7%C3%B5es/Assa%C3%AD-Atacadista-Avalia%C3%A7%C3%B5es-E2482699.htm"
+    },
+    {
+      "id": "bosch",
+      "approved": true,
+      "enabled": true,
+      "company_names": [
+        "Bosch",
+        "Bosch Group"
+      ],
+      "scraper_company": "Bosch",
+      "browserless_fallback": true,
+      "url": "https://www.glassdoor.com.br/Vis%C3%A3o-geral/Trabalhar-na-Bosch-EI_IE4293.13%2C18.htm"
+    },
+    {
+      "id": "minsait",
+      "approved": true,
+      "enabled": true,
+      "company_names": [
+        "Minsait",
+        "Minsait Brasil"
+      ],
+      "scraper_company": "Minsait",
+      "browserless_fallback": true,
+      "url": "https://www.glassdoor.com.br/Avalia%C3%A7%C3%B5es/Minsait-Avalia%C3%A7%C3%B5es-E1201389.htm"
     }
   ]
 }
