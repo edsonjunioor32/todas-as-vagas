@@ -117,7 +117,10 @@ OBSCURA_DESCRIPTION_EXPRESSION = r"""
   ].forEach((selector) => {
     const nodes = Array.from(document.querySelectorAll(selector));
     if (nodes.length) {
-      add(nodes.map((node) => node.innerHTML).join("\n"), "oracle_hcm");
+      add(
+        nodes.map((node) => node.innerText || node.textContent || node.innerHTML).join("\n"),
+        "oracle_hcm"
+      );
     }
   });
   const unique = new Map();
