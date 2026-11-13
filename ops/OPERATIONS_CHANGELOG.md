@@ -1,3 +1,12 @@
+## 2026-11-12 — Cobertura Glassdoor para todas as empresas do catálogo
+
+- A rotina deixou de limitar o enriquecimento às quatro empresas do manifesto canônico. Ela agora extrai todos os nomes únicos do snapshot público e mantém uma fila `catalog_profiles` resumível no cache público.
+- Empresas novas são consultadas pelo scraper Omkar em lotes de até 100 por execução agendada, com limite manual configurável até 1.000. O workflow continua separado da coleta de vagas e a execução diária permanece idempotente por empresa e data local.
+- Cada consulta usa o nome do catálogo como único alias aprovado. O retorno só é aceito com correspondência exata após normalização; colisões, empresa divergente, ausência de média e falhas permanecem sem nota e não apagam a última nota válida.
+- Perfis descobertos sem URL canônica confirmada podem fornecer apenas média e quantidade de avaliações. Nenhuma URL de Glassdoor é inventada; links continuam restritos a perfis HTTPS validados.
+- O fallback HasData segue separado e limitado aos perfis canônicos aprovados. Nenhum texto de avaliação é coletado ou publicado.
+- Foram adicionados testes de descoberta em lote, preservação de cache, enriquecimento de empresa descoberta e validação do novo parâmetro do workflow. A suíte completa local passou com 455 testes.
+
 ## 2026-11-12 — Reprocessamento de descrições vazias após evolução do parser
 
 - A fila privada agora reprocessa imediatamente registros sem descrição cujo `parser_version` ficou atrás do parser atual. O backoff continua valendo depois que a tentativa já passou pelo parser vigente.
