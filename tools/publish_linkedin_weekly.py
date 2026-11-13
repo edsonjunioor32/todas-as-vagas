@@ -178,6 +178,8 @@ def clean_job_title(raw_title: str) -> str:
 
 def clean_company_name(company: str) -> str:
     company = (company or "").strip()
+    if "avantiatecnologia" in company.lower():
+        return "Avantia Tecnologia"
     if "linkedin.com/company/" in company:
         match = re.search(r"company/([^/?]+)", company)
         if match:

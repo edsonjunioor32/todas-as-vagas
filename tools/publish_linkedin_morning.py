@@ -141,6 +141,9 @@ def select_morning_vacancies(snapshot: dict, target_count: int = 12) -> list[dic
             if any(f in city or f in company.lower() or f in t_lower for f in utils.FOREIGN_EXCLUSIONS):
                 continue
 
+            if any(ex in t_lower for ex in ["telemarketing", "cobrança", "cobranca", "sac ativo", "operador de telemarketing"]):
+                continue
+
             if not any(k in t_lower for k in keywords):
                 continue
 
