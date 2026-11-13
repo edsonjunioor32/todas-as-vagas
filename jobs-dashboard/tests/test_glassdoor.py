@@ -88,12 +88,12 @@ class GlassdoorTests(unittest.TestCase):
             def read(self, _limit):
                 return self.body
 
-        rendered = b"""
+        rendered = """
         <h1>Avaliações da empresa Cresol</h1>
         <div>4,7 ★</div>
         <div>(Total de 1.087 avaliações)</div>
         <h2>Classificação por categoria</h2>
-        """
+        """.encode("utf-8")
 
         def opener(request, timeout):
             requests.append((request.full_url, request.data, timeout))
