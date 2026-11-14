@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-14T00:42:51.618596+00:00",
+  "generated_at": "2026-11-14T11:31:50.560435+00:00",
   "candidate_count": 8331,
-  "company_count": 183,
+  "company_count": 149,
   "companies": [
     {
       "board": "abinbev",
@@ -212,7 +212,7 @@
     {
       "board": "clara",
       "company": "Clara",
-      "brazil_jobs": 70
+      "brazil_jobs": 69
     },
     {
       "board": "clinchoice",
@@ -545,11 +545,6 @@
       "brazil_jobs": 4
     },
     {
-      "board": "tripactions",
-      "company": "Navan",
-      "brazil_jobs": 2
-    },
-    {
       "board": "neo4j",
       "company": "Neo4j",
       "brazil_jobs": 1
@@ -582,7 +577,7 @@
     {
       "board": "okx",
       "company": "OKX",
-      "brazil_jobs": 7
+      "brazil_jobs": 6
     },
     {
       "board": "oneacrefund",
@@ -617,11 +612,6 @@
     {
       "board": "phdata",
       "company": "phData",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "try-picnic",
-      "company": "Picnic Delivery",
       "brazil_jobs": 1
     },
     {
@@ -668,11 +658,6 @@
       "board": "rdsourcing",
       "company": "RD Station - Sourcing",
       "brazil_jobs": 4
-    },
-    {
-      "board": "thoughtworksreferral",
-      "company": "Referrals Only",
-      "brazil_jobs": 1
     },
     {
       "board": "ripple",
@@ -745,134 +730,9 @@
       "brazil_jobs": 7
     },
     {
-      "board": "sterlingtonpllc",
-      "company": "Sterlington, PLLC",
-      "brazil_jobs": 4
-    },
-    {
-      "board": "stonepatrocina",
-      "company": "Stone - Indeed",
-      "brazil_jobs": 228
-    },
-    {
-      "board": "stripe",
-      "company": "Stripe",
-      "brazil_jobs": 3
-    },
-    {
-      "board": "studycontractors",
-      "company": "Study.com C",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "sumup",
-      "company": "SumUp",
-      "brazil_jobs": 33
-    },
-    {
-      "board": "syndigo",
-      "company": "Syndigo",
-      "brazil_jobs": 3
-    },
-    {
-      "board": "taboola",
-      "company": "Taboola",
-      "brazil_jobs": 2
-    },
-    {
-      "board": "takealotcom",
-      "company": "takealot.com",
-      "brazil_jobs": 2
-    },
-    {
-      "board": "telnyx54",
-      "company": "Telnyx",
-      "brazil_jobs": 2
-    },
-    {
-      "board": "thanx",
-      "company": "Thanx",
-      "brazil_jobs": 2
-    },
-    {
-      "board": "theknotworldwide",
-      "company": "The Knot Worldwide",
-      "brazil_jobs": 2
-    },
-    {
       "board": "cloudbedsthirdpartyboard",
       "company": "Third-Party Job Posts",
       "brazil_jobs": 1
-    },
-    {
-      "board": "thoughtworks",
-      "company": "Thoughtworks",
-      "brazil_jobs": 2
-    },
-    {
-      "board": "thunes",
-      "company": "Thunes",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "toradex",
-      "company": "Toradex",
-      "brazil_jobs": 13
-    },
-    {
-      "board": "trinks",
-      "company": "Trinks",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "truecaller",
-      "company": "Truecaller",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "turing",
-      "company": "Turing",
-      "brazil_jobs": 5
-    },
-    {
-      "board": "twilio",
-      "company": "Twilio",
-      "brazil_jobs": 2
-    },
-    {
-      "board": "usergems",
-      "company": "UserGems",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "valtech",
-      "company": "Valtech",
-      "brazil_jobs": 7
-    },
-    {
-      "board": "verve",
-      "company": "Verve",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "vitta",
-      "company": "Vitta",
-      "brazil_jobs": 3
-    },
-    {
-      "board": "wundermanthompson",
-      "company": "VML",
-      "brazil_jobs": 19
-    },
-    {
-      "board": "vmlenterprisesolutions",
-      "company": "VML/WPP Enterprise Solutions",
-      "brazil_jobs": 24
-    },
-    {
-      "board": "vtex",
-      "company": "VTEX",
-      "brazil_jobs": 17
     },
     {
       "board": "gympass",
@@ -880,39 +740,9 @@
       "brazil_jobs": 38
     },
     {
-      "board": "wildlifestudios",
-      "company": "Wildlife Studios",
-      "brazil_jobs": 14
-    },
-    {
       "board": "agencywithin",
       "company": "WITHIN",
       "brazil_jobs": 1
-    },
-    {
-      "board": "wizinc",
-      "company": "Wiz, Inc.",
-      "brazil_jobs": 3
-    },
-    {
-      "board": "wpp",
-      "company": "WPP",
-      "brazil_jobs": 4
-    },
-    {
-      "board": "wppmedia",
-      "company": "WPP Media",
-      "brazil_jobs": 45
-    },
-    {
-      "board": "xpinc",
-      "company": "XP Inc.",
-      "brazil_jobs": 112
-    },
-    {
-      "board": "xpengmotors",
-      "company": "XPENG",
-      "brazil_jobs": 2
     },
     {
       "board": "ilia",
