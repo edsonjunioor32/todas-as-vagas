@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-13T22:43:30.502768+00:00",
+  "generated_at": "2026-11-14T00:42:51.618596+00:00",
   "candidate_count": 8331,
   "company_count": 183,
   "companies": [
@@ -172,7 +172,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 157
+      "brazil_jobs": 156
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -652,12 +652,12 @@
     {
       "board": "pfm",
       "company": "Precision for Medicine",
-      "brazil_jobs": 8
+      "brazil_jobs": 7
     },
     {
       "board": "precisionmedicinegroup",
       "company": "Precision Medicine Group",
-      "brazil_jobs": 7
+      "brazil_jobs": 6
     },
     {
       "board": "rdstation",
