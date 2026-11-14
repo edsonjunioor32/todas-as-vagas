@@ -1,6 +1,6 @@
 {
   "last_daily_posted_date": "2026-11-13",
-  "last_weekly_posted_date": null,
+  "last_weekly_posted_date": "2026-11-13",
   "history": [
     {
       "date": "2026-11-12",
@@ -19,6 +19,12 @@
       "type": "daily",
       "jobs_count": 12,
       "timestamp": "2026-11-13T20:24:44.199064-03:00"
+    },
+    {
+      "date": "2026-11-13",
+      "type": "weekly_executive",
+      "jobs_count": 12,
+      "timestamp": "2026-11-13T21:05:39.829700-03:00"
     }
   ],
   "last_morning_posted_date": "2026-11-13",
