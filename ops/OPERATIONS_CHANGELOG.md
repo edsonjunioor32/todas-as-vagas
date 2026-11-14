@@ -660,6 +660,14 @@ Foram adicionados testes para preservar o primeiro instante da falha, atualizar 
 - O fallback permanece desligado por padrão e é limitado por execução. Quando indisponível, a coleta principal continua e publica o catálogo sem o enriquecimento.
 - Validação do PR: testes direcionados do Glassdoor/HasData, compilação dos módulos alterados, verificação de sintaxe do JavaScript, leitura do YAML e `git diff --check`.
 
+## 2026-11-13 — Fallback seguro para o catálogo Glassdoor
+
+- Causa raiz confirmada: empresas descobertas pelo catálogo traziam apenas nome e contagem de vagas. Sem URL canônica, o coletor não podia acionar Browserless com segurança; isso produzia centenas de falhas sem permitir distinguir ausência de perfil, ambiguidade e falha do Omkar.
+- A correção adiciona um adapter injetável de resolução. Ele fica desativado por padrão porque o repositório não possui uma fonte segura de pesquisa de perfis. Quando habilitado por integração futura, aceita somente uma correspondência exata normalizada em domínio Glassdoor aprovado, HTTPS e caminho de perfil empresarial; URLs de vagas, URLs inventadas e resultados ambíguos são rejeitados.
+- O cache preserva a média e `review_count` anteriores em qualquer falha e registra apenas metadados controlados de resolução. O fallback Browserless só pode ocorrer depois de uma resolução válida e possui orçamento explícito por lote; o padrão é `0`, e o workflow zera o orçamento se não houver `BROWSERLESS_TOKEN`.
+- O resumo do catálogo passou a separar falhas do Omkar, ausência de perfil, ambiguidade, sucesso/falha do Browserless e erros sanitizados. As expressões do workflow foram corrigidas para não receberem barra invertida.
+- Validação: testes unitários simulados, sem chamadas reais ao Glassdoor, devem cobrir o adapter, preservação do cache, ordenação/offset e contrato do workflow. A resolução real depende de uma fonte/adapter aprovado a ser conectado posteriormente; até lá, a execução permanece segura e explícita como desativada.
+
 ## 2026-11-11 — Runner hospedado para a atualização diária do Glassdoor
 
 - O workflow `glassdoor-daily.yml` deixou de depender do runner ARM64 da VPS e passou a usar `ubuntu-latest`.

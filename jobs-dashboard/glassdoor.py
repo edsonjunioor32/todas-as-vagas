@@ -49,6 +49,8 @@ DEFAULT_CATALOG_BATCH_SIZE = 100
 DEFAULT_CATALOG_PROFILE_DELAY_SECONDS = 0.25
 MAX_CATALOG_BATCH_SIZE = 1000
 MAX_CATALOG_OFFSET = 100_000
+DEFAULT_CATALOG_BROWSERLESS_MAX_CALLS = 0
+MAX_CATALOG_BROWSERLESS_MAX_CALLS = 100
 MAX_RESPONSE_BYTES = 2 * 1024 * 1024
 MAX_PROFILES = 100
 DEFAULT_MCP_QUERY_PATH = PROJECT_ROOT / "jobs-dashboard" / "data" / "glassdoor_mcp_queries.json"
@@ -71,6 +73,14 @@ _MCP_QUERY_ID_RE = re.compile(r"^[a-z0-9][a-z0-9._-]{0,79}$")
 _OMKAR_ENABLED_VALUES = {"1", "true", "yes", "on"}
 _BROWSERLESS_ENABLED_VALUES = {"1", "true", "yes", "on"}
 _BROWSERLESS_LOCAL_HOSTS = {"127.0.0.1", "localhost", "::1"}
+_CATALOG_RESOLUTION_STATUSES = {"matched", "missing", "ambiguous", "disabled", "error"}
+_CATALOG_RESOLUTION_SOURCES = {"cache", "injected", "disabled"}
+_COMPANY_PROFILE_PATH_RE = re.compile(
+    r"^/(?:avalia(?:coes|ções)|reviews|vis(?:ao|ão)-geral|overview|"
+    r"sal(?:arios|ários)|salaries|benefits|entrevistas|interviews)/"
+    r"[^/]+-(?:e\d+|ei_ie\d+)(?:[.,_%\-][^/]+)?\.htm$",
+    flags=re.IGNORECASE,
+)
 
 
 class GlassdoorError(RuntimeError):
@@ -87,6 +97,18 @@ class GlassdoorFetchError(GlassdoorError):
 
 class ProfileDataUnavailable(GlassdoorError):
     """Raised when a public page has no supported structured metrics."""
+
+
+def _safe_error(error: object) -> str:
+    """Return a short diagnostic without leaking tokens or request URLs."""
+    message = re.sub(r"\s+", " ", str(error or "")).strip()
+    message = re.sub(r"https?://\S+", "[url-redacted]", message, flags=re.IGNORECASE)
+    message = re.sub(
+        r"(?i)(token|api[_-]?key|authorization)=\S+",
+        r"\1=[redacted]",
+        message,
+    )
+    return message[:180]
 
 
 def company_key(value: object) -> str:
@@ -173,6 +195,22 @@ def is_canonical_profile_url(value: object) -> bool:
         return str(value or "").strip() == canonical_profile_url(value)
     except (GlassdoorConfigurationError, TypeError, ValueError):
         return False
+
+
+def canonical_company_profile_url(value: object) -> str:
+    """Validate a canonical Glassdoor company profile URL.
+
+    This intentionally rejects job listings and generic search pages.  It only
+    accepts a URL already supplied by a trusted resolver or manifest; it never
+    derives a URL from a company name.
+    """
+    canonical = canonical_profile_url(value)
+    path = urllib.parse.unquote(urllib.parse.urlsplit(canonical).path)
+    if not _COMPANY_PROFILE_PATH_RE.fullmatch(path):
+        raise GlassdoorConfigurationError(
+            "Glassdoor URL não corresponde ao caminho de perfil empresarial aprovado"
+        )
+    return canonical
 
 
 def canonical_reference_url(value: object) -> str:
@@ -390,14 +428,37 @@ def _catalog_cache_metrics(raw: object, company_name: str) -> dict:
     status = str(source.get("status") or "").strip().casefold()
     if status not in {"matched", "unavailable"}:
         status = ""
+    try:
+        resolved_url = canonical_company_profile_url(source.get("resolved_url"))
+    except (GlassdoorConfigurationError, TypeError, ValueError):
+        resolved_url = None
+    resolution_status = str(source.get("resolution_status") or "").strip().casefold()
+    if resolution_status not in _CATALOG_RESOLUTION_STATUSES:
+        resolution_status = ""
+    resolution_source = str(source.get("resolution_source") or "").strip().casefold()
+    if resolution_source not in _CATALOG_RESOLUTION_SOURCES:
+        resolution_source = None
+    resolution_reason = str(source.get("resolution_reason") or "").strip().casefold()
+    if resolution_reason not in {
+        "resolver_not_configured",
+        "no_exact_profile",
+        "multiple_exact_profiles",
+        "resolver_error",
+    }:
+        resolution_reason = None
     return {
         "company_names": [company_name],
         "url": None,
+        "resolved_url": resolved_url,
         "rating": _rating(source.get("rating")),
         "review_count": _review_count(source.get("review_count")),
         "checked_at": _iso_date(source.get("checked_at")),
         "last_attempted_date": _iso_date(source.get("last_attempted_date")),
         "status": status,
+        "resolution_status": resolution_status,
+        "resolution_reason": resolution_reason,
+        "resolution_checked_at": _iso_date(source.get("resolution_checked_at")),
+        "resolution_source": resolution_source,
     }
 
 
@@ -865,7 +926,7 @@ def fetch_browserless_profile(
     opener=urllib.request.urlopen,
 ) -> dict:
     """Render one approved Glassdoor page through Browserless Content API."""
-    url = canonical_profile_url(profile.get("url"))
+    url = canonical_company_profile_url(profile.get("url"))
     if not _robots_allowed(url, timeout=timeout, opener=opener):
         raise GlassdoorFetchError("robots.txt não autorizou o fallback Browserless")
     base = _browserless_endpoint() if endpoint is None else endpoint.rstrip("/")
@@ -952,9 +1013,11 @@ def fetch_profile(
         try:
             return fetch_browserless_profile(profile, timeout=timeout, opener=opener)
         except Exception as fallback_error:
-            raise GlassdoorFetchError(
+            combined_error = GlassdoorFetchError(
                 f"fonte primária falhou ({primary_error}); fallback Browserless falhou ({fallback_error})"
-            ) from fallback_error
+            )
+            combined_error.fallback_attempted = True
+            raise combined_error from fallback_error
 
 def _local_date(value: date | datetime | None = None) -> date:
     if value is None:
@@ -1269,6 +1332,62 @@ def _snapshot_company_names(snapshot: dict | None) -> list[tuple[str, str]]:
     ]
 
 
+def resolve_catalog_profile(company_name: str, resolver=None) -> dict:
+    """Resolve one catalog name through an injected, network-free adapter.
+
+    The production default is deliberately disabled because this repository
+    does not contain a safe Glassdoor profile-search contract.  An adapter may
+    return a list of candidate dictionaries with ``company_name`` (or ``name``)
+    and ``url``.  Only one candidate with an exact normalized name and an
+    approved company-profile URL is accepted.
+    """
+    if resolver is None:
+        return {
+            "status": "disabled",
+            "reason": "resolver_not_configured",
+            "source": "disabled",
+        }
+    try:
+        raw_candidates = resolver(company_name)
+    except Exception:
+        return {"status": "error", "reason": "resolver_error", "source": "injected"}
+    if isinstance(raw_candidates, dict):
+        raw_candidates = raw_candidates.get("candidates")
+    candidates = raw_candidates if isinstance(raw_candidates, list) else []
+    valid: list[dict] = []
+    for candidate in candidates:
+        if not isinstance(candidate, dict):
+            continue
+        returned_name = str(
+            candidate.get("company_name") or candidate.get("companyName") or candidate.get("name") or ""
+        ).strip()
+        if company_key(returned_name) != company_key(company_name):
+            continue
+        try:
+            url = canonical_company_profile_url(candidate.get("url"))
+        except (GlassdoorConfigurationError, TypeError, ValueError):
+            continue
+        valid.append({"company_name": returned_name, "url": url})
+    if len(valid) == 1:
+        return {
+            "status": "matched",
+            "company_name": valid[0]["company_name"],
+            "url": valid[0]["url"],
+            "source": "injected",
+        }
+    if len(valid) > 1:
+        return {
+            "status": "ambiguous",
+            "reason": "multiple_exact_profiles",
+            "source": "injected",
+        }
+    return {
+        "status": "missing",
+        "reason": "no_exact_profile",
+        "source": "injected",
+    }
+
+
 def update_catalog_cache(
     snapshot: dict,
     previous_cache: dict | None,
@@ -1277,20 +1396,24 @@ def update_catalog_cache(
     batch_size: int = DEFAULT_CATALOG_BATCH_SIZE,
     catalog_offset: int = 0,
     fetcher=fetch_profile,
+    resolver=None,
     sleeper=time.sleep,
     profile_delay: float = DEFAULT_CATALOG_PROFILE_DELAY_SECONDS,
     timeout: float = DEFAULT_TIMEOUT_SECONDS,
     retries: int = DEFAULT_RETRIES,
     backoff: float = DEFAULT_BACKOFF_SECONDS,
+    catalog_browserless_max_calls: int = DEFAULT_CATALOG_BROWSERLESS_MAX_CALLS,
     force: bool = False,
 ) -> tuple[dict, dict]:
     """Refresh exact-match ratings in relevance-ordered resumable batches.
 
     Unrated companies are ordered by associated job count (descending), then
     by normalized name and source position for deterministic fallback. Existing
-    ratings remain in the cache and are not queried again. The Omkar fetcher
-    receives one catalog name as its sole approved alias, so its parser rejects
-    a different returned company instead of attaching a similar profile.
+    ratings remain in the cache and are not queried again. A catalog company is
+    resolved through the injected adapter before any scraper call; without an
+    adapter, catalog enrichment stays disabled instead of inventing a URL.
+    Browserless is enabled only for a resolved company and within the explicit
+    per-batch budget.
     """
     cache = copy.deepcopy(previous_cache or {})
     raw_catalog = cache.get("catalog_profiles")
@@ -1320,6 +1443,14 @@ def update_catalog_cache(
         "skipped": 0,
         "succeeded": 0,
         "failed": 0,
+        "resolved": 0,
+        "resolution_missing": 0,
+        "resolution_ambiguous": 0,
+        "resolution_disabled": 0,
+        "resolution_errors": 0,
+        "omkar_failed": 0,
+        "browserless_succeeded": 0,
+        "browserless_failed": 0,
         "queued": 0,
         "before_offset": 0,
         "offset": 0,
@@ -1329,6 +1460,14 @@ def update_catalog_cache(
     limit = min(max(1, int(batch_size)), MAX_CATALOG_BATCH_SIZE)
     offset = min(max(0, int(catalog_offset)), MAX_CATALOG_OFFSET)
     summary["offset"] = offset
+    browserless_budget = min(
+        max(0, int(catalog_browserless_max_calls)),
+        MAX_CATALOG_BROWSERLESS_MAX_CALLS,
+    )
+    # Unit tests and callers that inject a fetcher may exercise the catalog
+    # loop without a URL resolver.  The production fetcher never takes this
+    # path: it remains disabled until an approved resolver is supplied.
+    legacy_injected_fetcher = resolver is None and fetcher is not fetch_profile
 
     pending: list[tuple[str, str, int, int, dict]] = []
     for key, company_name, job_count, source_position in discovered:
@@ -1368,10 +1507,65 @@ def update_catalog_cache(
         selected += 1
         summary["attempted"] += 1
         entry["last_attempted_date"] = current_date
+        resolved_url = None
+        cached_url = entry.get("resolved_url")
+        if cached_url:
+            try:
+                resolved_url = canonical_company_profile_url(cached_url)
+            except (GlassdoorConfigurationError, TypeError, ValueError):
+                resolved_url = None
+        resolution = (
+            {
+                "status": "matched",
+                "url": resolved_url,
+                "source": "cache",
+            }
+            if resolved_url
+            else (
+                {"status": "matched", "url": None, "source": "injected"}
+                if legacy_injected_fetcher
+                else resolve_catalog_profile(company_name, resolver)
+            )
+        )
+        resolution_status = str(resolution.get("status") or "error").strip().casefold()
+        entry["resolution_checked_at"] = current_date
+        entry["resolution_status"] = resolution_status
+        entry["resolution_reason"] = resolution.get("reason")
+        entry["resolution_source"] = resolution.get("source")
+        if resolution_status != "matched":
+            entry["status"] = "unavailable"
+            if resolution_status == "missing":
+                summary["resolution_missing"] += 1
+            elif resolution_status == "ambiguous":
+                summary["resolution_ambiguous"] += 1
+            elif resolution_status == "disabled":
+                summary["resolution_disabled"] += 1
+            else:
+                summary["resolution_errors"] += 1
+            summary["errors"][key] = _safe_error(
+                resolution.get("reason") or resolution_status
+            )
+            continue
+        resolved_url = resolution.get("url")
+        if resolved_url:
+            try:
+                resolved_url = canonical_company_profile_url(resolved_url)
+            except (GlassdoorConfigurationError, TypeError, ValueError) as error:
+                entry["status"] = "unavailable"
+                summary["resolution_errors"] += 1
+                summary["errors"][key] = _safe_error(error)
+                continue
+            entry["resolved_url"] = resolved_url
+        summary["resolved"] += 1
         profile = {
             "company_names": [company_name],
             "scraper_company": company_name,
         }
+        if resolved_url:
+            profile["url"] = resolved_url
+            profile["browserless_fallback"] = browserless_budget > 0 and browserless_enabled()
+        attempt_source = ""
+        failure_counted = False
         try:
             result = fetcher(
                 profile,
@@ -1382,20 +1576,36 @@ def update_catalog_cache(
             )
             if not isinstance(result, dict):
                 raise ProfileDataUnavailable("coletor não retornou métricas")
+            attempt_source = str(result.get("source") or "").strip().casefold()
             rating = _rating(result.get("rating"))
             count = _review_count(result.get("review_count"))
             if rating is None:
+                if attempt_source == "browserless":
+                    summary["browserless_failed"] += 1
+                    browserless_budget = max(0, browserless_budget - 1)
+                else:
+                    summary["omkar_failed"] += 1
+                failure_counted = True
                 raise ProfileDataUnavailable("coletor não retornou média geral válida")
             entry["rating"] = rating
             if count is not None:
                 entry["review_count"] = count
             entry["checked_at"] = current_date
             entry["status"] = "matched"
+            if attempt_source == "browserless":
+                summary["browserless_succeeded"] += 1
+                browserless_budget = max(0, browserless_budget - 1)
             summary["succeeded"] += 1
         except Exception as error:  # one optional company never blocks the catalog
             entry["status"] = "unavailable"
             summary["failed"] += 1
-            summary["errors"][key] = str(error)[:180]
+            if not failure_counted:
+                if getattr(error, "fallback_attempted", False):
+                    summary["browserless_failed"] += 1
+                    browserless_budget = max(0, browserless_budget - 1)
+                elif attempt_source != "browserless":
+                    summary["omkar_failed"] += 1
+            summary["errors"][key] = _safe_error(error)
     cache["generated_at"] = _utc_iso(now)
     return cache, summary
 
@@ -1503,6 +1713,7 @@ def run_daily(
     catalog_batch_size: int = DEFAULT_CATALOG_BATCH_SIZE,
     catalog_offset: int = 0,
     catalog_profile_delay: float = DEFAULT_CATALOG_PROFILE_DELAY_SECONDS,
+    catalog_browserless_max_calls: int = DEFAULT_CATALOG_BROWSERLESS_MAX_CALLS,
     force: bool = False,
 ) -> dict:
     manifest = load_manifest(manifest_path)
@@ -1524,6 +1735,14 @@ def run_daily(
         "succeeded": 0,
         "failed": 0,
         "queued": 0,
+        "resolved": 0,
+        "resolution_missing": 0,
+        "resolution_ambiguous": 0,
+        "resolution_disabled": 0,
+        "resolution_errors": 0,
+        "omkar_failed": 0,
+        "browserless_succeeded": 0,
+        "browserless_failed": 0,
         "errors": {},
     }
     snapshot = Path(snapshot_path)
@@ -1548,6 +1767,7 @@ def run_daily(
             retries=retries,
             backoff=backoff,
             profile_delay=catalog_profile_delay,
+            catalog_browserless_max_calls=catalog_browserless_max_calls,
             force=force,
         )
         catalog_summary["enabled"] = True
@@ -1614,6 +1834,12 @@ def _parser() -> argparse.ArgumentParser:
         help="intervalo entre consultas de empresas descobertas",
     )
     parser.add_argument(
+        "--catalog-browserless-max-calls",
+        type=int,
+        default=DEFAULT_CATALOG_BROWSERLESS_MAX_CALLS,
+        help="máximo de fallbacks Browserless no lote; 0 mantém desativado",
+    )
+    parser.add_argument(
         "--force",
         action="store_true",
         help="refaz a consulta dos perfis mesmo quando já houve tentativa hoje",
@@ -1634,6 +1860,10 @@ def main(argv: list[str] | None = None) -> int:
         catalog_batch_size=max(1, args.catalog_batch_size),
         catalog_offset=max(0, min(MAX_CATALOG_OFFSET, args.catalog_offset)),
         catalog_profile_delay=max(0.0, args.catalog_profile_delay),
+        catalog_browserless_max_calls=max(
+            0,
+            min(MAX_CATALOG_BROWSERLESS_MAX_CALLS, args.catalog_browserless_max_calls),
+        ),
         force=args.force,
     )
     print(
@@ -1651,9 +1881,16 @@ def main(argv: list[str] | None = None) -> int:
         f"{catalog.get('discovered', 0)} empresas descobertas · "
         f"{catalog.get('succeeded', 0)} atualizadas · "
         f"{catalog.get('failed', 0)} falhas · "
+        f"Omkar {catalog.get('omkar_failed', 0)} falhas · "
+        f"sem perfil {catalog.get('resolution_missing', 0)} · "
+        f"ambíguas {catalog.get('resolution_ambiguous', 0)} · "
+        f"Browserless ok {catalog.get('browserless_succeeded', 0)} · "
+        f"Browserless falhou {catalog.get('browserless_failed', 0)} · "
         f"{catalog.get('queued', 0)} na fila · "
         f"offset {catalog.get('offset', 0)}"
     )
+    for company_id, error in sorted((catalog.get("errors") or {}).items()):
+        print(f"  [Glassdoor catálogo:{company_id}] aviso: {_safe_error(error)}")
     for profile_id, error in sorted(result["errors"].items()):
         print(f"  [{profile_id}] aviso: {error}")
     mcp = result.get("hasdata_mcp") or {}

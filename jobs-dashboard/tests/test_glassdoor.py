@@ -459,6 +459,114 @@ class GlassdoorTests(unittest.TestCase):
             4.4,
         )
 
+    def test_catalog_resolution_injects_exact_canonical_profile_before_fetch(self):
+        snapshot = {
+            "count": 2,
+            "dict": {"company": ["Empresa Nova"]},
+            "jobs": {"cmp": [0, 0]},
+        }
+        resolved_url = (
+            "https://www.glassdoor.com.br/Avaliações/Empresa-Nova-Avaliações-E123.htm"
+        )
+        calls = []
+
+        def resolver(company_name):
+            self.assertEqual(company_name, "Empresa Nova")
+            return [{"company_name": "Empresa Nova", "url": resolved_url}]
+
+        def succeed(profile, **kwargs):
+            calls.append(profile)
+            return {"rating": 4.4, "review_count": 31, "source": "omkar"}
+
+        updated, summary = glassdoor.update_catalog_cache(
+            snapshot,
+            {"schema_version": 1, "profiles": manifest()["profiles"], "catalog_profiles": {}},
+            now=datetime(2026, 11, 13, 8, 0),
+            batch_size=1,
+            resolver=resolver,
+            fetcher=succeed,
+            sleeper=lambda _seconds: None,
+            profile_delay=0,
+        )
+
+        key = glassdoor.company_key("Empresa Nova")
+        self.assertEqual(summary["resolved"], 1)
+        self.assertEqual(summary["resolution_ambiguous"], 0)
+        self.assertEqual(summary["resolution_missing"], 0)
+        self.assertEqual(calls[0]["url"], resolved_url)
+        self.assertEqual(updated["catalog_profiles"][key]["rating"], 4.4)
+        self.assertEqual(
+            updated["catalog_profiles"][key]["resolved_url"],
+            resolved_url,
+        )
+
+    def test_catalog_resolution_rejects_noncanonical_or_ambiguous_candidates(self):
+        snapshot = {
+            "count": 2,
+            "dict": {"company": ["Empresa Nova", "Empresa Ambigua"]},
+            "jobs": {"cmp": [0, 1]},
+        }
+        ambiguous_key = glassdoor.company_key("Empresa Ambigua")
+        missing_key = glassdoor.company_key("Empresa Nova")
+        previous = {
+            "schema_version": 1,
+            "profiles": manifest()["profiles"],
+            "catalog_profiles": {
+                missing_key: {
+                    "company_names": ["Empresa Nova"],
+                    "rating": None,
+                    "review_count": 18,
+                    "checked_at": "2026-11-11",
+                }
+            },
+        }
+        calls = []
+
+        def resolver(company_name):
+            if company_name == "Empresa Nova":
+                return [{
+                    "company_name": "Empresa Nova",
+                    "url": "https://www.glassdoor.com.br/job-listing/vaga-E123.htm",
+                }]
+            return [
+                {
+                    "company_name": "Empresa Ambigua",
+                    "url": "https://www.glassdoor.com.br/Avaliações/Empresa-Ambigua-Avaliações-E1.htm",
+                },
+                {
+                    "company_name": "Empresa Ambigua",
+                    "url": "https://www.glassdoor.com.br/Reviews/Empresa-Ambigua-Reviews-E2.htm",
+                },
+            ]
+
+        def fail_if_called(profile, **kwargs):
+            calls.append(profile)
+            raise AssertionError("a fonte não deve ser chamada sem URL única aprovada")
+
+        updated, summary = glassdoor.update_catalog_cache(
+            snapshot,
+            previous,
+            now=datetime(2026, 11, 13, 8, 0),
+            batch_size=2,
+            resolver=resolver,
+            fetcher=fail_if_called,
+            sleeper=lambda _seconds: None,
+            profile_delay=0,
+        )
+
+        self.assertEqual(calls, [])
+        self.assertEqual(summary["resolution_missing"], 1)
+        self.assertEqual(summary["resolution_ambiguous"], 1)
+        self.assertIsNone(updated["catalog_profiles"][missing_key]["rating"])
+        self.assertEqual(
+            updated["catalog_profiles"][missing_key]["resolution_status"],
+            "missing",
+        )
+        self.assertEqual(
+            updated["catalog_profiles"][ambiguous_key]["resolution_status"],
+            "ambiguous",
+        )
+
     def test_catalog_refresh_preserves_previous_review_count_when_source_fails(self):
         snapshot = {
             "count": 1,
@@ -690,6 +798,9 @@ class GlassdoorTests(unittest.TestCase):
         self.assertIn("OMKAR_GLASSDOOR_ENDPOINT", workflow)
         self.assertIn("BROWSERLESS_GLASSDOOR_ENABLED", workflow)
         self.assertIn("BROWSERLESS_ENDPOINT", workflow)
+        self.assertIn("catalog_browserless_max_calls", workflow)
+        self.assertIn("--catalog-browserless-max-calls", workflow)
+        self.assertNotIn(r"\${{", workflow)
         self.assertIn("glassdoor-scraper.git", workflow)
         self.assertNotIn("JOBS_SOURCE_WORKERS", workflow)
 
