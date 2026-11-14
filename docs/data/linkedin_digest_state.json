@@ -25,9 +25,15 @@
       "type": "weekly_executive",
       "jobs_count": 12,
       "timestamp": "2026-11-13T21:05:39.829700-03:00"
+    },
+    {
+      "date": "2026-11-14",
+      "type": "morning_desperta",
+      "jobs_count": 12,
+      "timestamp": "2026-11-14T09:07:35.680524-03:00"
     }
   ],
-  "last_morning_posted_date": "2026-11-13",
+  "last_morning_posted_date": "2026-11-14",
   "posted_job_urls": [
     "https://centaurotalentos.gupy.io/job/eyjqb2jjzci6mti4nzk3ndasinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
     "https://localiza.gupy.io/job/eyjqb2jjzci6mti4njqxmtcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
@@ -120,7 +126,19 @@
     "https://convisoappsec.gupy.io/job/eyjqb2jjzci6mti4njm4ndisinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
     "https://lyncas.inhire.app/vagas/6b54597c-595b-4556-913c-ea31550ab74a/ai-driven-software-engineer-typescript-node-js-sr",
     "https://frameworkdigital.inhire.app/vagas/25775135-7e15-4311-9d04-5f2b91ea6377/desenvolvedor-a-fullstack-react-python-node-senior",
-    "https://sejaglobalweb.gupy.io/job/eyjqb2jjzci6mti4nji1ndqsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq=="
+    "https://sejaglobalweb.gupy.io/job/eyjqb2jjzci6mti4nji1ndqsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://cnaidiomas.gupy.io/job/eyjqb2jjzci6mti4oti4mdisinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://carajas.gupy.io/job/eyjqb2jjzci6mti4oti4mdmsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://positivotecnologia.gupy.io/job/eyjqb2jjzci6mti4oti2nzgsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://restaurantemc.gupy.io/job/eyjqb2jjzci6mti4oti2ntmsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://stoque.inhire.app/vagas/c89e3fb5-7328-4cff-8fd2-761512bbcca5/desenvolvedora-full-stack-pleno-produto",
+    "https://iorq.inhire.app/vagas/80c48588-242b-4412-a20d-08cbb9236b3d/engenheiro-de-software-jr",
+    "https://clicksign.gupy.io/job/eyjqb2jjzci6mti4oti4mdasinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://unicredbr.gupy.io/job/eyjqb2jjzci6mti4oti1mdusinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://aluguefoco.gupy.io/job/eyjqb2jjzci6mti4njawodmsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://vivo.gupy.io/job/eyjqb2jjzci6mti4odqxnzesinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://lotsgroup.gupy.io/job/eyjqb2jjzci6mti4oti3njmsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://suzano.gupy.io/job/eyjqb2jjzci6mti4nta3njasinnvdxjjzsi6im1jcf9jyw5kawrhdguifq=="
   ],
   "posted_job_signatures": [
     "centauro talentos:vendedor a  bh shopping",
@@ -201,6 +219,18 @@
     "conviso application secur:juniorpleno application securi",
     "lyncas:aidriven software engineer typ",
     "framework:desenvolvedora fullstack react",
-    "globalweb:analista de sistemas jr"
+    "globalweb:analista de sistemas jr",
+    "cna idiomas:consultora comercial",
+    "carajás home center:consultor de vendas  marechal",
+    "positivo tecnologia:analista de rh  relações traba",
+    "mcdonalds restaurante  ar:assistente administrativoa  ja",
+    "stoque:desenvolvedora full stack plen",
+    "iorq:engenheiro de software jr",
+    "clicksign:analista de customer success p",
+    "unicred:gerente de relacionamento  uni",
+    "foco aluguel de carros:analista de growth cro  seo jr",
+    "vem pra vivo:analista de trade marketing pl",
+    "lots group:analista de planejamento de ma",
+    "suzano:supervisora logistica i"
   ]
 }
