@@ -459,6 +459,418 @@ class GlassdoorTests(unittest.TestCase):
             4.4,
         )
 
+    def test_catalog_resolution_injects_exact_canonical_profile_before_fetch(self):
+        snapshot = {
+            "count": 2,
+            "dict": {"company": ["Empresa Nova"]},
+            "jobs": {"cmp": [0, 0]},
+        }
+        resolved_url = (
+            "https://www.glassdoor.com.br/Avaliações/Empresa-Nova-Avaliações-E123.htm"
+        )
+        calls = []
+
+        def resolver(company_name):
+            self.assertEqual(company_name, "Empresa Nova")
+            return [{"company_name": "Empresa Nova", "url": resolved_url}]
+
+        def succeed(profile, **kwargs):
+            calls.append(profile)
+            return {"rating": 4.4, "review_count": 31, "source": "omkar"}
+
+        updated, summary = glassdoor.update_catalog_cache(
+            snapshot,
+            {"schema_version": 1, "profiles": manifest()["profiles"], "catalog_profiles": {}},
+            now=datetime(2026, 11, 13, 8, 0),
+            batch_size=1,
+            resolver=resolver,
+            fetcher=succeed,
+            sleeper=lambda _seconds: None,
+            profile_delay=0,
+        )
+
+        key = glassdoor.company_key("Empresa Nova")
+        self.assertEqual(summary["resolved"], 1)
+        self.assertEqual(summary["resolution_ambiguous"], 0)
+        self.assertEqual(summary["resolution_missing"], 0)
+        self.assertEqual(calls[0]["url"], resolved_url)
+        self.assertEqual(updated["catalog_profiles"][key]["rating"], 4.4)
+        self.assertEqual(
+            updated["catalog_profiles"][key]["resolved_url"],
+            resolved_url,
+        )
+
+    def test_catalog_resolution_rejects_noncanonical_or_ambiguous_candidates(self):
+        snapshot = {
+            "count": 2,
+            "dict": {"company": ["Empresa Nova", "Empresa Ambigua"]},
+            "jobs": {"cmp": [0, 1]},
+        }
+        ambiguous_key = glassdoor.company_key("Empresa Ambigua")
+        missing_key = glassdoor.company_key("Empresa Nova")
+        previous = {
+            "schema_version": 1,
+            "profiles": manifest()["profiles"],
+            "catalog_profiles": {
+                missing_key: {
+                    "company_names": ["Empresa Nova"],
+                    "rating": None,
+                    "review_count": 18,
+                    "checked_at": "2026-11-11",
+                }
+            },
+        }
+        calls = []
+
+        def resolver(company_name):
+            if company_name == "Empresa Nova":
+                return [{
+                    "company_name": "Empresa Nova",
+                    "url": "https://www.glassdoor.com.br/job-listing/vaga-E123.htm",
+                }]
+            return [
+                {
+                    "company_name": "Empresa Ambigua",
+                    "url": "https://www.glassdoor.com.br/Avaliações/Empresa-Ambigua-Avaliações-E1.htm",
+                },
+                {
+                    "company_name": "Empresa Ambigua",
+                    "url": "https://www.glassdoor.com.br/Reviews/Empresa-Ambigua-Reviews-E2.htm",
+                },
+            ]
+
+        def fail_if_called(profile, **kwargs):
+            calls.append(profile)
+            raise AssertionError("a fonte não deve ser chamada sem URL única aprovada")
+
+        updated, summary = glassdoor.update_catalog_cache(
+            snapshot,
+            previous,
+            now=datetime(2026, 11, 13, 8, 0),
+            batch_size=2,
+            resolver=resolver,
+            fetcher=fail_if_called,
+            sleeper=lambda _seconds: None,
+            profile_delay=0,
+        )
+
+        self.assertEqual(calls, [])
+        self.assertEqual(summary["resolution_missing"], 1)
+        self.assertEqual(summary["resolution_ambiguous"], 1)
+        self.assertIsNone(updated["catalog_profiles"][missing_key]["rating"])
+        self.assertEqual(
+            updated["catalog_profiles"][missing_key]["resolution_status"],
+            "missing",
+        )
+        self.assertEqual(
+            updated["catalog_profiles"][ambiguous_key]["resolution_status"],
+            "ambiguous",
+        )
+
+    def test_browserless_catalog_resolver_accepts_one_exact_glassdoor_profile(self):
+        requests = []
+
+        class Response:
+            def __init__(self, body):
+                self.body = body
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_args):
+                return False
+
+            def read(self, _limit):
+                return self.body
+
+        def opener(request, timeout):
+            requests.append((request, timeout))
+            if request.full_url == "https://www.glassdoor.com.br/robots.txt":
+                return Response(b"User-agent: *\nAllow: /\n")
+            payload = json.loads(request.data.decode("utf-8"))
+            self.assertIn(
+                "https://www.glassdoor.com.br/Search/results.htm?keyword=Cresol",
+                payload["url"],
+            )
+            return Response(
+                b'<a href="/Avalia%C3%A7%C3%B5es/Cresol-Avalia%C3%A7%C3%B5es-E665894.htm">Cresol</a>'
+            )
+
+        with patch.dict(
+            "os.environ",
+            {
+                "BROWSERLESS_GLASSDOOR_ENABLED": "true",
+                "BROWSERLESS_ENDPOINT": "http://127.0.0.1:3000/chromium/content",
+                "BROWSERLESS_TOKEN": "test-token",
+            },
+        ):
+            result = glassdoor.resolve_catalog_profile_via_browserless(
+                "Cresol",
+                timeout=7,
+                opener=opener,
+            )
+
+        self.assertEqual(result["status"], "matched")
+        self.assertEqual(
+            result["url"],
+            "https://www.glassdoor.com.br/Avalia%C3%A7%C3%B5es/Cresol-Avalia%C3%A7%C3%B5es-E665894.htm",
+        )
+        self.assertEqual(result["source"], "browserless")
+        self.assertEqual(len(requests), 2)
+
+    def test_browserless_catalog_resolver_marks_zero_exact_profiles_missing(self):
+        class Response:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_args):
+                return False
+
+            def read(self, _limit):
+                return b"<main><p>Nenhum resultado relevante</p></main>"
+
+        def opener(request, timeout):
+            if request.full_url.endswith("/robots.txt"):
+                return Response()
+            return Response()
+
+        with patch.dict(
+            "os.environ",
+            {
+                "BROWSERLESS_GLASSDOOR_ENABLED": "true",
+                "BROWSERLESS_ENDPOINT": "http://127.0.0.1:3000/chromium/content",
+                "BROWSERLESS_TOKEN": "test-token",
+            },
+        ):
+            result = glassdoor.resolve_catalog_profile_via_browserless(
+                "Cresol",
+                opener=opener,
+            )
+
+        self.assertEqual(
+            result,
+            {
+                "status": "missing",
+                "reason": "no_exact_profile",
+                "source": "browserless",
+            },
+        )
+
+    def test_browserless_catalog_resolver_marks_multiple_exact_profiles_ambiguous(self):
+        class Response:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_args):
+                return False
+
+            def read(self, _limit):
+                return (
+                    b'<a href="/Avalia%C3%A7%C3%B5es/Cresol-Avalia%C3%A7%C3%B5es-E1.htm">Cresol</a>'
+                    b'<a href="/Overview/Working-at-Cresol-EI_IE2.htm">Cresol</a>'
+                )
+
+        def opener(request, timeout):
+            return Response()
+
+        with patch.dict(
+            "os.environ",
+            {
+                "BROWSERLESS_GLASSDOOR_ENABLED": "true",
+                "BROWSERLESS_ENDPOINT": "http://127.0.0.1:3000/chromium/content",
+                "BROWSERLESS_TOKEN": "test-token",
+            },
+        ):
+            result = glassdoor.resolve_catalog_profile_via_browserless(
+                "Cresol",
+                opener=opener,
+            )
+
+        self.assertEqual(result["status"], "ambiguous")
+        self.assertEqual(result["reason"], "multiple_exact_profiles")
+        self.assertEqual(result["source"], "browserless")
+
+    def test_browserless_catalog_resolver_rejects_jobs_generic_search_and_other_domains(self):
+        class Response:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_args):
+                return False
+
+            def read(self, _limit):
+                return (
+                    b'<a href="/job-listing/Cresol-E1.htm">Cresol</a>'
+                    b'<a href="https://evil.example/Avalia%C3%A7%C3%B5es/Cresol-Avalia%C3%A7%C3%B5es-E2.htm">Cresol</a>'
+                    b'<a href="/Search/results.htm?keyword=Cresol">Cresol</a>'
+                )
+
+        with patch.dict(
+            "os.environ",
+            {
+                "BROWSERLESS_GLASSDOOR_ENABLED": "true",
+                "BROWSERLESS_ENDPOINT": "http://127.0.0.1:3000/chromium/content",
+                "BROWSERLESS_TOKEN": "test-token",
+            },
+        ):
+            result = glassdoor.resolve_catalog_profile_via_browserless(
+                "Cresol",
+                opener=lambda _request, _timeout: Response(),
+            )
+
+        self.assertEqual(result["status"], "missing")
+        self.assertEqual(result["reason"], "no_exact_profile")
+
+    def test_browserless_catalog_resolver_does_not_call_browserless_when_disabled(self):
+        calls = []
+
+        def opener(request, timeout):
+            calls.append(request.full_url)
+            raise AssertionError("Browserless não deveria ser chamado")
+
+        with patch.dict(
+            "os.environ",
+            {
+                "BROWSERLESS_GLASSDOOR_ENABLED": "false",
+                "BROWSERLESS_ENDPOINT": "http://127.0.0.1:3000/chromium/content",
+                "BROWSERLESS_TOKEN": "test-token",
+            },
+        ):
+            result = glassdoor.resolve_catalog_profile_via_browserless(
+                "Cresol",
+                opener=opener,
+            )
+
+        self.assertEqual(
+            result,
+            {
+                "status": "disabled",
+                "reason": "browserless_disabled",
+                "source": "disabled",
+            },
+        )
+        self.assertEqual(calls, [])
+
+    def test_catalog_browserless_budget_covers_resolution_and_profile_fallback(self):
+        snapshot = {
+            "count": 2,
+            "dict": {"company": ["Empresa A", "Empresa B"]},
+            "jobs": {"cmp": [0, 1]},
+        }
+        resolver_calls = []
+        fetch_calls = []
+
+        def resolved(company_name, **kwargs):
+            resolver_calls.append(company_name)
+            return {
+                "status": "matched",
+                "url": "https://www.glassdoor.com.br/Avalia%C3%A7%C3%B5es/Empresa-A-Avalia%C3%A7%C3%B5es-E1.htm",
+                "source": "browserless",
+            }
+
+        def fail_after_primary(profile, **kwargs):
+            fetch_calls.append(profile)
+            self.assertTrue(profile["browserless_fallback"])
+            error = glassdoor.GlassdoorFetchError("fonte primária indisponível")
+            error.fallback_attempted = True
+            raise error
+
+        with patch.dict(
+            "os.environ",
+            {
+                "BROWSERLESS_GLASSDOOR_ENABLED": "true",
+                "BROWSERLESS_ENDPOINT": "http://127.0.0.1:3000/chromium/content",
+                "BROWSERLESS_TOKEN": "test-token",
+            },
+        ), patch.object(
+            glassdoor,
+            "resolve_catalog_profile_via_browserless",
+            side_effect=resolved,
+        ):
+            updated, summary = glassdoor.update_catalog_cache(
+                snapshot,
+                {"schema_version": 1, "profiles": manifest()["profiles"], "catalog_profiles": {}},
+                now=datetime(2026, 11, 13, 8, 0),
+                batch_size=2,
+                fetcher=fail_after_primary,
+                sleeper=lambda _seconds: None,
+                profile_delay=0,
+                catalog_browserless_max_calls=2,
+            )
+
+        self.assertEqual(resolver_calls, ["Empresa A"])
+        self.assertEqual(len(fetch_calls), 1)
+        self.assertEqual(summary["browserless_failed"], 1)
+        self.assertEqual(summary["resolution_disabled"], 1)
+        self.assertEqual(
+            updated["catalog_profiles"][glassdoor.company_key("Empresa B")]["resolution_reason"],
+            "browserless_budget_exhausted",
+        )
+
+    def test_catalog_resolution_reuses_cached_url_without_spending_resolution_budget(self):
+        snapshot = {
+            "count": 1,
+            "dict": {"company": ["Empresa Cacheada"]},
+            "jobs": {"cmp": [0]},
+        }
+        key = glassdoor.company_key("Empresa Cacheada")
+        resolved_url = (
+            "https://www.glassdoor.com.br/Avalia%C3%A7%C3%B5es/Empresa-Cacheada-"
+            "Avalia%C3%A7%C3%B5es-E77.htm"
+        )
+        calls = []
+
+        def succeed(profile, **kwargs):
+            calls.append(profile)
+            self.assertEqual(profile["url"], resolved_url)
+            self.assertTrue(profile["browserless_fallback"])
+            return {"rating": 4.6, "review_count": 77, "source": "omkar"}
+
+        with patch.dict(
+            "os.environ",
+            {
+                "BROWSERLESS_GLASSDOOR_ENABLED": "true",
+                "BROWSERLESS_ENDPOINT": "http://127.0.0.1:3000/chromium/content",
+                "BROWSERLESS_TOKEN": "test-token",
+            },
+        ), patch.object(
+            glassdoor,
+            "resolve_catalog_profile_via_browserless",
+            side_effect=AssertionError("URL resolvida em cache não deve ser consultada"),
+        ):
+            updated, summary = glassdoor.update_catalog_cache(
+                snapshot,
+                {
+                    "schema_version": 1,
+                    "profiles": manifest()["profiles"],
+                    "catalog_profiles": {
+                        key: {
+                            "company_names": ["Empresa Cacheada"],
+                            "resolved_url": resolved_url,
+                            "resolution_status": "matched",
+                            "resolution_checked_at": "2026-11-12",
+                            "resolution_source": "browserless",
+                            "rating": None,
+                            "review_count": 12,
+                            "checked_at": None,
+                            "last_attempted_date": None,
+                        }
+                    },
+                },
+                now=datetime(2026, 11, 13, 8, 0),
+                batch_size=1,
+                fetcher=succeed,
+                sleeper=lambda _seconds: None,
+                profile_delay=0,
+                catalog_browserless_max_calls=1,
+            )
+
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(summary["resolved"], 1)
+        self.assertEqual(summary["resolution_errors"], 0)
+        self.assertEqual(updated["catalog_profiles"][key]["resolution_source"], "cache")
+        self.assertEqual(updated["catalog_profiles"][key]["rating"], 4.6)
+
     def test_catalog_refresh_preserves_previous_review_count_when_source_fails(self):
         snapshot = {
             "count": 1,
@@ -690,6 +1102,9 @@ class GlassdoorTests(unittest.TestCase):
         self.assertIn("OMKAR_GLASSDOOR_ENDPOINT", workflow)
         self.assertIn("BROWSERLESS_GLASSDOOR_ENABLED", workflow)
         self.assertIn("BROWSERLESS_ENDPOINT", workflow)
+        self.assertIn("catalog_browserless_max_calls", workflow)
+        self.assertIn("--catalog-browserless-max-calls", workflow)
+        self.assertNotIn(r"\${{", workflow)
         self.assertIn("glassdoor-scraper.git", workflow)
         self.assertNotIn("JOBS_SOURCE_WORKERS", workflow)
 
