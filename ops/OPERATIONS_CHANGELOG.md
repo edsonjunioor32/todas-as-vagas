@@ -666,7 +666,15 @@ Foram adicionados testes para preservar o primeiro instante da falha, atualizar 
 - A correção adiciona um adapter injetável de resolução. Ele fica desativado por padrão porque o repositório não possui uma fonte segura de pesquisa de perfis. Quando habilitado por integração futura, aceita somente uma correspondência exata normalizada em domínio Glassdoor aprovado, HTTPS e caminho de perfil empresarial; URLs de vagas, URLs inventadas e resultados ambíguos são rejeitados.
 - O cache preserva a média e `review_count` anteriores em qualquer falha e registra apenas metadados controlados de resolução. O fallback Browserless só pode ocorrer depois de uma resolução válida e possui orçamento explícito por lote; o padrão é `0`, e o workflow zera o orçamento se não houver `BROWSERLESS_TOKEN`.
 - O resumo do catálogo passou a separar falhas do Omkar, ausência de perfil, ambiguidade, sucesso/falha do Browserless e erros sanitizados. As expressões do workflow foram corrigidas para não receberem barra invertida.
-- Validação: testes unitários simulados, sem chamadas reais ao Glassdoor, devem cobrir o adapter, preservação do cache, ordenação/offset e contrato do workflow. A resolução real depende de uma fonte/adapter aprovado a ser conectado posteriormente; até lá, a execução permanece segura e explícita como desativada.
+- Validação: testes unitários simulados, sem chamadas reais ao Glassdoor, cobrem o adapter, preservação do cache, ordenação/offset e contrato do workflow. A resolução real foi adicionada posteriormente como fluxo Browserless opt-in, descrito abaixo.
+
+## 2026-11-13 — Resolver Browserless opt-in para empresas do catálogo
+
+- O resolver usa somente a busca pública `https://www.glassdoor.com.br/Search/results.htm?keyword=...`, renderizada pelo Browserless. Links são aceitos apenas quando apontam para `www.glassdoor.com.br`, usam HTTPS, têm caminho de perfil empresarial aceito por `canonical_company_profile_url` e o texto do link corresponde exatamente ao nome normalizado da empresa.
+- Links de vagas, páginas de busca, outros domínios, ausência de resultado e múltiplos perfis válidos não geram URL: ficam registrados como `missing` ou `ambiguous`, sem inventar correspondência. Falhas de rede/HTTP/Browserless permanecem `error`.
+- A resolução só é chamada quando `BROWSERLESS_GLASSDOOR_ENABLED=true`, `BROWSERLESS_ENDPOINT` e `BROWSERLESS_TOKEN` são válidos e ainda há orçamento `catalog_browserless_max_calls`. Cada tentativa de resolução e cada fallback de perfil consomem uma unidade; o padrão do CLI/workflow é `0`.
+- `resolved_url`, status, data de verificação e origem são normalizados no cache. URLs já resolvidas não são consultadas novamente no mesmo lote e avaliações anteriores permanecem intactas quando a resolução ou a coleta falham.
+- O workflow expõe `catalog_browserless_max_calls`, mantém o fallback desligado por padrão e zera o lote quando falta token. O CI usa somente fixtures simuladas; não há chamadas reais ao Glassdoor ou ao Browserless nos testes.
 
 ## 2026-11-11 — Runner hospedado para a atualização diária do Glassdoor
 

@@ -74,7 +74,7 @@ _OMKAR_ENABLED_VALUES = {"1", "true", "yes", "on"}
 _BROWSERLESS_ENABLED_VALUES = {"1", "true", "yes", "on"}
 _BROWSERLESS_LOCAL_HOSTS = {"127.0.0.1", "localhost", "::1"}
 _CATALOG_RESOLUTION_STATUSES = {"matched", "missing", "ambiguous", "disabled", "error"}
-_CATALOG_RESOLUTION_SOURCES = {"cache", "injected", "disabled"}
+_CATALOG_RESOLUTION_SOURCES = {"cache", "injected", "browserless", "disabled"}
 _COMPANY_PROFILE_PATH_RE = re.compile(
     r"^/(?:avalia(?:coes|ções)|reviews|vis(?:ao|ão)-geral|overview|"
     r"sal(?:arios|ários)|salaries|benefits|entrevistas|interviews)/"
@@ -444,6 +444,11 @@ def _catalog_cache_metrics(raw: object, company_name: str) -> dict:
         "no_exact_profile",
         "multiple_exact_profiles",
         "resolver_error",
+        "browserless_disabled",
+        "browserless_misconfigured",
+        "browserless_budget_exhausted",
+        "browserless_search_error",
+        "browserless_not_allowed",
     }:
         resolution_reason = None
     return {
@@ -775,6 +780,8 @@ def _robots_allowed(
         return False
     parser = urllib.robotparser.RobotFileParser()
     parser.parse(body.decode("utf-8", "replace").splitlines())
+    if not parser.entries and parser.default_entry is None:
+        return True
     return parser.can_fetch(DEFAULT_USER_AGENT, target_url)
 
 
@@ -916,6 +923,157 @@ def parse_browserless_profile(payload: bytes | str) -> dict:
             "página renderizada sem média geral/quantidade exata de avaliações"
         )
     return {"rating": rating, "review_count": count}
+
+
+def resolve_catalog_profile_via_browserless(
+    company_name: str,
+    *,
+    timeout: float = DEFAULT_TIMEOUT_SECONDS,
+    opener=urllib.request.urlopen,
+) -> dict:
+    """Resolve one catalog company through the public Glassdoor search page."""
+    if not browserless_enabled():
+        return {
+            "status": "disabled",
+            "reason": "browserless_disabled",
+            "source": "disabled",
+        }
+    try:
+        endpoint = _browserless_endpoint()
+        token = _browserless_token()
+    except GlassdoorConfigurationError:
+        return {
+            "status": "disabled",
+            "reason": "browserless_misconfigured",
+            "source": "disabled",
+        }
+
+    search_url = (
+        "https://www.glassdoor.com.br/Search/results.htm?"
+        f"{urllib.parse.urlencode({'keyword': str(company_name).strip()})}"
+    )
+    if not _robots_allowed(search_url, timeout=timeout, opener=opener):
+        return {
+            "status": "missing",
+            "reason": "no_exact_profile",
+            "source": "browserless",
+        }
+    separator = "&" if "?" in endpoint else "?"
+    browserless_url = f"{endpoint}{separator}{urllib.parse.urlencode({'token': token})}"
+    try:
+        body = _post_json(
+            browserless_url,
+            {
+                "url": search_url,
+                "waitForTimeout": _env_int("BROWSERLESS_WAIT_MS", 3000, 0, 15000),
+                "gotoOptions": {"waitUntil": "networkidle2"},
+            },
+            timeout=timeout,
+            opener=opener,
+        )
+    except Exception:
+        return {
+            "status": "error",
+            "reason": "browserless_search_error",
+            "source": "browserless",
+        }
+
+    class _SearchLinkParser(HTMLParser):
+        def __init__(self) -> None:
+            super().__init__(convert_charrefs=True)
+            self.links: list[tuple[str, str]] = []
+            self._href: str | None = None
+            self._text: list[str] = []
+            self._nested = 0
+
+        def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+            if tag.casefold() == "a" and self._href is None:
+                attributes = dict(attrs)
+                href = attributes.get("href")
+                if href:
+                    self._href = href
+                    self._text = []
+                    self._nested = 0
+            elif self._href is not None:
+                self._nested += 1
+
+        def handle_endtag(self, tag: str) -> None:
+            if self._href is None:
+                return
+            if tag.casefold() == "a" and self._nested == 0:
+                self.links.append((self._href, " ".join(self._text)))
+                self._href = None
+                self._text = []
+                return
+            if self._nested:
+                self._nested -= 1
+
+        def handle_data(self, data: str) -> None:
+            if self._href is not None and data.strip():
+                self._text.append(data)
+
+    parser = _SearchLinkParser()
+    try:
+        parser.feed(body.decode("utf-8", "replace") if isinstance(body, bytes) else str(body))
+        parser.close()
+    except (TypeError, ValueError):
+        return {
+            "status": "error",
+            "reason": "browserless_search_error",
+            "source": "browserless",
+        }
+
+    requested_key = company_key(company_name)
+    candidates: dict[str, str] = {}
+    for raw_href, raw_text in parser.links:
+        if company_key(raw_text) != requested_key:
+            continue
+        raw_href = html.unescape(str(raw_href or "").strip())
+        parsed = urllib.parse.urlsplit(raw_href)
+        if raw_href.startswith("//"):
+            continue
+        if raw_href.startswith("/"):
+            candidate_url = urllib.parse.urljoin(
+                "https://www.glassdoor.com.br", raw_href
+            )
+        elif parsed.scheme or parsed.netloc:
+            candidate_url = raw_href
+        else:
+            continue
+        candidate_parts = urllib.parse.urlsplit(candidate_url)
+        if (
+            candidate_parts.scheme.casefold() != "https"
+            or (candidate_parts.hostname or "").casefold() != "www.glassdoor.com.br"
+            or candidate_parts.username
+            or candidate_parts.password
+            or candidate_parts.port
+        ):
+            continue
+        try:
+            canonical = canonical_company_profile_url(candidate_url)
+        except (GlassdoorConfigurationError, TypeError, ValueError):
+            continue
+        candidates[canonical] = raw_text.strip() or str(company_name).strip()
+
+    if len(candidates) == 1:
+        url, returned_name = next(iter(candidates.items()))
+        return {
+            "status": "matched",
+            "company_name": returned_name,
+            "url": url,
+            "source": "browserless",
+        }
+    if len(candidates) > 1:
+        return {
+            "status": "ambiguous",
+            "reason": "multiple_exact_profiles",
+            "source": "browserless",
+        }
+    return {
+        "status": "missing",
+        "reason": "no_exact_profile",
+        "source": "browserless",
+    }
 
 
 def fetch_browserless_profile(
@@ -1410,9 +1568,9 @@ def update_catalog_cache(
     Unrated companies are ordered by associated job count (descending), then
     by normalized name and source position for deterministic fallback. Existing
     ratings remain in the cache and are not queried again. A catalog company is
-    resolved through the injected adapter before any scraper call; without an
-    adapter, catalog enrichment stays disabled instead of inventing a URL.
-    Browserless is enabled only for a resolved company and within the explicit
+    resolved through the injected adapter or the explicit Browserless opt-in
+    before any scraper call; without either, catalog enrichment stays disabled
+    instead of inventing a URL. Browserless is enabled only within the explicit
     per-batch budget.
     """
     cache = copy.deepcopy(previous_cache or {})
@@ -1467,7 +1625,11 @@ def update_catalog_cache(
     # Unit tests and callers that inject a fetcher may exercise the catalog
     # loop without a URL resolver.  The production fetcher never takes this
     # path: it remains disabled until an approved resolver is supplied.
-    legacy_injected_fetcher = resolver is None and fetcher is not fetch_profile
+    legacy_injected_fetcher = (
+        resolver is None
+        and fetcher is not fetch_profile
+        and not browserless_enabled()
+    )
 
     pending: list[tuple[str, str, int, int, dict]] = []
     for key, company_name, job_count, source_position in discovered:
@@ -1514,19 +1676,44 @@ def update_catalog_cache(
                 resolved_url = canonical_company_profile_url(cached_url)
             except (GlassdoorConfigurationError, TypeError, ValueError):
                 resolved_url = None
-        resolution = (
-            {
+        if resolved_url:
+            resolution = {
                 "status": "matched",
                 "url": resolved_url,
                 "source": "cache",
             }
-            if resolved_url
-            else (
-                {"status": "matched", "url": None, "source": "injected"}
-                if legacy_injected_fetcher
-                else resolve_catalog_profile(company_name, resolver)
-            )
-        )
+        elif legacy_injected_fetcher:
+            resolution = {"status": "matched", "url": None, "source": "injected"}
+        elif resolver is not None:
+            resolution = resolve_catalog_profile(company_name, resolver)
+        elif not browserless_enabled():
+            resolution = {
+                "status": "disabled",
+                "reason": "browserless_disabled",
+                "source": "disabled",
+            }
+        elif browserless_budget <= 0:
+            resolution = {
+                "status": "disabled",
+                "reason": "browserless_budget_exhausted",
+                "source": "disabled",
+            }
+        else:
+            try:
+                _browserless_endpoint()
+                _browserless_token()
+            except GlassdoorConfigurationError:
+                resolution = {
+                    "status": "disabled",
+                    "reason": "browserless_misconfigured",
+                    "source": "disabled",
+                }
+            else:
+                browserless_budget = max(0, browserless_budget - 1)
+                resolution = resolve_catalog_profile_via_browserless(
+                    company_name,
+                    timeout=timeout,
+                )
         resolution_status = str(resolution.get("status") or "error").strip().casefold()
         entry["resolution_checked_at"] = current_date
         entry["resolution_status"] = resolution_status
@@ -1563,7 +1750,14 @@ def update_catalog_cache(
         }
         if resolved_url:
             profile["url"] = resolved_url
-            profile["browserless_fallback"] = browserless_budget > 0 and browserless_enabled()
+            fallback_enabled = browserless_budget > 0 and browserless_enabled()
+            if fallback_enabled:
+                try:
+                    _browserless_endpoint()
+                    _browserless_token()
+                except GlassdoorConfigurationError:
+                    fallback_enabled = False
+            profile["browserless_fallback"] = fallback_enabled
         attempt_source = ""
         failure_counted = False
         try:
