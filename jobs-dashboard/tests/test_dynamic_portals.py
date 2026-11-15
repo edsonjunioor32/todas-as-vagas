@@ -16,7 +16,7 @@ sys.path.insert(0, str(DASHBOARD))
 from sources import REGISTRY  # noqa: E402
 from sources import (  # noqa: E402
     _http, compleo, digisystem, requested_careers, requested_portals_27082026,
-    requested_portals_29082026, sankhya_senior,
+    requested_portals_29082026, sankhya_senior, workday,
 )
 
 
@@ -212,7 +212,7 @@ class EdenredWorkdayTests(unittest.TestCase):
                 "postedOn": "2026-09-01",
             }],
         }
-        with patch.object(requested_portals_27082026, "post_json", return_value=payload) as request:
+        with patch.object(workday, "post_json", return_value=payload) as request:
             rows = requested_portals_27082026.fetch_edenred()
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]["source"], "edenred")
@@ -241,7 +241,7 @@ class AccionaWorkdayTests(unittest.TestCase):
             }],
         }
         with patch.object(
-            requested_portals_27082026, "post_json", return_value=payload
+            workday, "post_json", return_value=payload
         ) as request:
             rows = requested_portals_27082026.fetch_acciona()
 

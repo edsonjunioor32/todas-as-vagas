@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 """Adaptadores para os portais solicitados em 27/08/2026.
 
+Os quadros Workday, Abler e Lever por empresa vivem agora em ``workday.py``,
+``abler.py`` e ``ats_boards.py``; este módulo mantém apelidos para eles e os
+adaptadores específicos de cada empresa.
+
 As funções deste módulo são deliberadamente independentes do catálogo atual:
 a validação pode consultar as fontes e a mesclagem posterior pode substituir
 somente as linhas pertencentes a estas fontes.
@@ -13,75 +17,20 @@ import urllib.parse
 from html.parser import HTMLParser
 from urllib.parse import urljoin
 
-from ._common import is_brazil_location, iso_date, job, strip_html, work_model_label
-from ._http import get_json, get_text, post_json
+from ._common import BRAZIL_WORDS, is_brazil_location, iso_date, job, strip_html, work_model_label
+from ._http import get_text
+from . import abler as abler_source
+from . import ats_boards as ats_boards_source
 from . import compleo as compleo_source
+from . import workday as workday_source
 
 
-WORKDAY = {
-    "avanade": {
-        "host": "accenture.wd103.myworkdayjobs.com",
-        "tenant": "accenture",
-        "site": "AvanadeCareers",
-        "company": "Avanade",
-        "url": "https://accenture.wd103.myworkdayjobs.com/pt-BR/AvanadeCareers/",
-    },
-    "santander": {
-        "host": "santander.wd3.myworkdayjobs.com",
-        "tenant": "santander",
-        "site": "SantanderCareers",
-        "company": "Santander",
-        "url": "https://santander.wd3.myworkdayjobs.com/pt-BR/SantanderCareers",
-    },
-    "iberdrola": {
-        "host": "iberdrola.wd3.myworkdayjobs.com",
-        "tenant": "iberdrola",
-        "site": "Iberdrola",
-        "company": "Iberdrola",
-        "url": "https://iberdrola.wd3.myworkdayjobs.com/pt-BR/Iberdrola",
-    },
-    "iqvia": {
-        "host": "iqvia.wd1.myworkdayjobs.com",
-        "tenant": "iqvia",
-        "site": "IQVIA",
-        "company": "IQVIA",
-        "url": "https://iqvia.wd1.myworkdayjobs.com/pt-BR/IQVIA",
-    },
-    "mdlz": {
-        "host": "mdlz.wd3.myworkdayjobs.com",
-        "tenant": "mdlz",
-        "site": "External",
-        "company": "Mondelēz International",
-        "url": "https://mdlz.wd3.myworkdayjobs.com/pt-BR/External",
-    },
-    "edenred": {
-        "host": "wd3.myworkdaysite.com",
-        "tenant": "edenpeople",
-        "site": "Edenred_Careers",
-        "company": "Edenred",
-        "url": "https://wd3.myworkdaysite.com/recruiting/edenpeople/Edenred_Careers/1/refreshFacet/318c8bb6f553100021d223d9780d30be",
-        "detail_base": "https://wd3.myworkdaysite.com/recruiting/edenpeople/Edenred_Careers/1/",
-    },
-    "acciona": {
-        "host": "acciona.wd3.myworkdayjobs.com",
-        "tenant": "acciona",
-        "site": "ACCIONA_Employment_Channel",
-        "company": "ACCIONA",
-        "url": "https://acciona.wd3.myworkdayjobs.com/en-US/ACCIONA_Employment_Channel/",
-        "detail_base": "https://acciona.wd3.myworkdayjobs.com/en-US/ACCIONA_Employment_Channel/",
-        "brazil_facet": {
-            "Country": ["1a29bb1357b240ab99a2fa755cc87c0e"],
-        },
-    },
-}
+# Workday, Abler e Lever por empresa migraram em 15/11/2026 para módulos por
+# plataforma (workday.py, abler.py, ats_boards.py). Os nomes antigos seguem
+# disponíveis como apelidos para o validador/mesclador de portais dinâmicos.
+WORKDAY = workday_source.TENANTS
+WORKDAY_API = workday_source.API
 
-WORKDAY_API = "https://{host}/wday/cxs/{tenant}/{site}/jobs"
-BRAZIL_WORDS = re.compile(
-    r"brasil|brazil|s[aã]o paulo|rio de janeiro|campinas|curitiba|recife|"
-    r"bras[ií]lia|belo horizonte|salvador|fortaleza|porto alegre|paran[aá]|"
-    r"santa catarina|minas gerais|bahia|pernambuco|cear[aá]",
-    re.I,
-)
 BRAZIL_UFS = {
     "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS",
     "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC",
@@ -103,91 +52,14 @@ def _next_data(page):
 
 
 
-def _workday_rows(name):
-    config = WORKDAY[name]
-    rows, seen = [], set()
-    offset, limit = 0, 20
-    while offset < 5000:
-        payload = post_json(
-            WORKDAY_API.format(**config),
-            {
-                "appliedFacets": config.get("brazil_facet", {}),
-                "limit": limit,
-                "offset": offset,
-                "searchText": "",
-            },
-            headers={"Accept": "application/json", "Content-Type": "application/json"},
-            timeout=60,
-            retries=3,
-        )
-        postings = payload.get("jobPostings") or []
-        if not postings:
-            break
-        for item in postings:
-            title = str(item.get("title") or "").strip()
-            location = str(item.get("locationsText") or item.get("location") or "").strip()
-            external = str(item.get("externalPath") or "").strip()
-            native_id = str(item.get("bulletFields", [None])[0] or item.get("jobReqId") or external).strip()
-            if not title or not external or not native_id or native_id in seen:
-                continue
-            if (
-                not config.get("brazil_facet")
-                and not BRAZIL_WORDS.search(location)
-                and not is_brazil_location(location)
-            ):
-                continue
-            seen.add(native_id)
-            detail_base = str(config.get("detail_base") or "").strip()
-            detail_url = (
-                urljoin(detail_base.rstrip("/") + "/", external.lstrip("/"))
-                if detail_base
-                else urljoin(config["url"], external.lstrip("/"))
-            )
-            rows.append(job(
-                name, native_id, title=title, company=config["company"],
-                url=detail_url,
-                work_model=work_model_label(raw=f"{title} {location}"),
-                city=location or "Brasil", country="BR", market="BR",
-                published_date=iso_date(item.get("postedOn") or item.get("postedDate")),
-                description=strip_html(item.get("description") or ""),
-            ))
-        total = int(payload.get("total") or 0)
-        offset += limit
-        if total and offset >= total:
-            break
-        if len(postings) < limit:
-            break
-    if not rows:
-        raise RuntimeError(f"Workday/{name} returned no Brazilian vacancies")
-    return rows
-
-
-def fetch_avanade():
-    return _workday_rows("avanade")
-
-
-def fetch_santander():
-    return _workday_rows("santander")
-
-
-def fetch_iberdrola():
-    return _workday_rows("iberdrola")
-
-
-def fetch_iqvia():
-    return _workday_rows("iqvia")
-
-
-def fetch_mdlz():
-    return _workday_rows("mdlz")
-
-
-def fetch_edenred():
-    return _workday_rows("edenred")
-
-
-def fetch_acciona():
-    return _workday_rows("acciona")
+_workday_rows = workday_source.fetch_tenant
+fetch_avanade = workday_source.FETCHERS["avanade"]
+fetch_santander = workday_source.FETCHERS["santander"]
+fetch_iberdrola = workday_source.FETCHERS["iberdrola"]
+fetch_iqvia = workday_source.FETCHERS["iqvia"]
+fetch_mdlz = workday_source.FETCHERS["mdlz"]
+fetch_edenred = workday_source.FETCHERS["edenred"]
+fetch_acciona = workday_source.FETCHERS["acciona"]
 
 
 def _normalised_value(value):
@@ -474,82 +346,7 @@ def fetch_elis():
 
 
 
-def _abler_rows(source, subdomain, company):
-    """Read a generic Abler public JSON:API career page."""
-    encoded_subdomain = urllib.parse.quote(subdomain, safe="")
-    api_root = (
-        "https://hulk-smash.abler.com.br/api/company/v1/careers_pages/"
-        f"{encoded_subdomain}/vacancies"
-    )
-    public_root = f"https://ats.abler.com.br/jobs/{encoded_subdomain}"
-    rows, seen = [], set()
-    for page in range(1, 21):
-        query = urllib.parse.urlencode({
-            "page": page,
-            "per_page": 100,
-            "include": "area_of_interests,level_of_interest",
-        })
-        payload = get_json(
-            f"{api_root}?{query}",
-            headers={"Origin": "https://ats.abler.com.br", "Referer": public_root},
-            timeout=60,
-            retries=3,
-        )
-        values = payload.get("data") or []
-        if not isinstance(values, list):
-            raise RuntimeError(f"Abler/{subdomain} returned invalid data")
-        included = {
-            (str(item.get("type") or ""), str(item.get("id") or "")): item
-            for item in (payload.get("included") or [])
-            if isinstance(item, dict)
-        }
-        for item in values:
-            attrs = item.get("attributes") or {}
-            native_id = str(item.get("id") or "").strip()
-            title = str(attrs.get("title_formatted") or attrs.get("title") or "").strip()
-            country = str(attrs.get("country") or "").strip().casefold()
-            if not native_id or not title or native_id in seen:
-                continue
-            if country and country not in {"br", "bra", "brasil", "brazil"}:
-                continue
-            seen.add(native_id)
-            slug = str(attrs.get("slug") or "").strip()
-            url = f"{public_root}?slug={slug}" if slug else f"{public_root}?id={native_id}"
-            raw_model = " ".join(
-                str(value or "").strip()
-                for value in (attrs.get("work_type"), attrs.get("work_type_formatted"))
-            )
-            contract = str(attrs.get("contracting_regime") or "").strip()
-            description = " ".join(
-                str(attrs.get(field) or "")
-                for field in (
-                    "description", "role_description", "mandatory_requirements",
-                    "desirable_requirements", "results_and_deliveries",
-                )
-            )
-            rows.append(job(
-                source, native_id, title=title, company=company, url=url,
-                work_model=work_model_label(
-                    remote_flag=attrs.get("available_for_homeoffice") is True,
-                    raw=raw_model,
-                ),
-                city=str(attrs.get("city") or "Brasil").strip(),
-                state=str(attrs.get("state") or "").strip(),
-                country="BR", market="BR",
-                published_date=iso_date(
-                    attrs.get("republished_at") or attrs.get("published_at") or attrs.get("created_at")
-                ),
-                expires_date=iso_date(attrs.get("close_on")),
-                description=strip_html(description),
-                contract_types=[contract] if contract else [],
-            ))
-        meta = payload.get("meta") or {}
-        last_page = int(meta.get("last") or page)
-        if page >= last_page or not values:
-            break
-    if not rows:
-        raise RuntimeError(f"Abler/{subdomain} returned no public vacancies")
-    return rows
+_abler_rows = abler_source.fetch_board
 
 
 def _compleo_row(source, url, company):
@@ -560,52 +357,19 @@ def _compleo_rows(source, board, company):
     return compleo_source.fetch_board(source, board, company)
 
 
-def fetch_abler_talentodovalesc():
-    return _abler_rows("talentodovalesc", "talentodovalesc", "Talento do Vale SC")
-
-
-def fetch_precisionrh():
-    """Collect the open Brazilian vacancies on Precision RH's Abler board."""
-    return _abler_rows("precisionrh", "precision", "Precision RH")
+fetch_abler_talentodovalesc = abler_source.BOARD_FETCHERS["talentodovalesc"]
+fetch_precisionrh = abler_source.BOARD_FETCHERS["precisionrh"]
 
 
 def fetch_beq():
     return _compleo_rows("beq", "BEQ", "B&Q Energia")
 
 
-def fetch_lever_board(source, board, company):
-    payload = get_json(f"https://api.lever.co/v0/postings/{board}?mode=json", timeout=45, retries=3)
-    rows = []
-    for item in payload if isinstance(payload, list) else []:
-        categories = item.get("categories") or {}
-        location = str(categories.get("location") or "").strip()
-        rows.append(job(
-            source, item.get("id"), title=item.get("text"), company=company,
-            url=item.get("hostedUrl") or item.get("applyUrl") or "",
-            work_model=work_model_label(raw=f"{categories.get('commitment', '')} {location}"),
-            city=location or "Brasil", country="BR", market="BR",
-            published_date=iso_date(item.get("createdAt")),
-            categories=[str(categories.get("department") or "").strip()] if categories.get("department") else [],
-        ))
-    if not rows:
-        raise RuntimeError(f"Lever/{board} returned no vacancies")
-    return rows
-
-
-def fetch_flash():
-    return fetch_lever_board("flash", "flashapp", "Flash")
-
-
-def fetch_neon():
-    return fetch_lever_board("neon", "neon", "Neon Pagamentos")
-
-
-def fetch_zippi():
-    return fetch_lever_board("zippi", "zippi", "Zippi")
-
-
-def fetch_bv():
-    return fetch_lever_board("bv", "bv", "Banco BV")
+fetch_lever_board = ats_boards_source.fetch_lever_board
+fetch_flash = ats_boards_source.LEVER_BOARD_FETCHERS["flash"]
+fetch_neon = ats_boards_source.LEVER_BOARD_FETCHERS["neon"]
+fetch_zippi = ats_boards_source.LEVER_BOARD_FETCHERS["zippi"]
+fetch_bv = ats_boards_source.LEVER_BOARD_FETCHERS["bv"]
 
 
 TARGETS = (

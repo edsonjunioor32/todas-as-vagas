@@ -55,6 +55,16 @@ def is_brazil_location(value):
     return bool(BRAZIL_LOCATION_RE.search(str(value or "")))
 
 
+# Looser substring match (no word boundaries) kept for the Workday and
+# JSON-LD adapters that historically combined it with ``is_brazil_location``.
+BRAZIL_WORDS = re.compile(
+    r"brasil|brazil|s[aã]o paulo|rio de janeiro|campinas|curitiba|recife|"
+    r"bras[ií]lia|belo horizonte|salvador|fortaleza|porto alegre|paran[aá]|"
+    r"santa catarina|minas gerais|bahia|pernambuco|cear[aá]",
+    re.I,
+)
+
+
 def work_model_label(remote_flag=None, raw=None):
     if remote_flag is True:
         return "remote"
