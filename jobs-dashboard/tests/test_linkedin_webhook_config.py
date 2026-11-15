@@ -10,6 +10,7 @@ Nenhum teste acessa a rede: toda chamada a urllib.request.urlopen é substituíd
 import io
 import os
 import re
+import subprocess
 import sys
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
@@ -52,6 +53,26 @@ PUBLISHERS = (
     ("matinal", morning, "publish_morning", "select_morning_vacancies", "compose_morning_digest", "mark_posted_this_morning"),
     ("semanal", weekly, "publish_weekly", "select_weekly_vacancies", "compose_weekly_digest", "mark_posted_this_week"),
 )
+
+
+def _repository_files():
+    """Arquivos rastreados pelo Git; sem Git disponível, percorre a árvore inteira.
+
+    Usar o índice do Git evita falsos positivos com cópias locais não rastreadas.
+    """
+    try:
+        listed = subprocess.run(
+            ["git", "-C", str(REPO_ROOT), "ls-files", "-z"],
+            capture_output=True,
+            check=True,
+        ).stdout.decode("utf-8")
+    except (OSError, subprocess.CalledProcessError):
+        return [
+            path
+            for path in REPO_ROOT.rglob("*")
+            if not any(part in SKIPPED_DIRS for part in path.relative_to(REPO_ROOT).parts)
+        ]
+    return [REPO_ROOT / name for name in listed.split("\0") if name]
 
 
 class _FakeResponse:
@@ -121,10 +142,8 @@ class NoEmbeddedWebhookTests(unittest.TestCase):
 
     def test_repository_contains_no_make_webhook_url(self):
         offenders = []
-        for path in REPO_ROOT.rglob("*"):
+        for path in _repository_files():
             relative = path.relative_to(REPO_ROOT)
-            if any(part in SKIPPED_DIRS for part in relative.parts):
-                continue
             if not path.is_file() or path.suffix.lower() not in SCANNED_SUFFIXES:
                 continue
             text = path.read_text(encoding="utf-8", errors="ignore")
