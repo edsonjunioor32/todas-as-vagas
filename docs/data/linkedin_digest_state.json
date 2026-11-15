@@ -37,9 +37,15 @@
       "type": "daily",
       "jobs_count": 12,
       "timestamp": "2026-11-14T19:45:14.434918-03:00"
+    },
+    {
+      "date": "2026-11-15",
+      "type": "morning_desperta",
+      "jobs_count": 12,
+      "timestamp": "2026-11-15T09:13:32.503389-03:00"
     }
   ],
-  "last_morning_posted_date": "2026-11-14",
+  "last_morning_posted_date": "2026-11-15",
   "posted_job_urls": [
     "https://centaurotalentos.gupy.io/job/eyjqb2jjzci6mti4nzk3ndasinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
     "https://localiza.gupy.io/job/eyjqb2jjzci6mti4njqxmtcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
@@ -156,7 +162,19 @@
     "https://platformbuilders.inhire.app/vagas/18847288-9707-4835-84f7-cc146c730c81/desenvolvedor-a-react-especialista",
     "https://frameworkdigital.inhire.app/vagas/f1c93cdf-cb8c-4651-a2a9-6b05663071a9/engenheiro-a-de-ia-senior",
     "https://aarin.inhire.app/vagas/d940c7c5-73c4-47e1-8649-3a11d0bf4a73/pessoa-desenvolvedora-backend-senior",
-    "https://extremegroup.inhire.app/vagas/9932b75f-5bac-4c93-adaf-b5a23b38fa50/desenvolvedor-full-stack-java-ii"
+    "https://extremegroup.inhire.app/vagas/9932b75f-5bac-4c93-adaf-b5a23b38fa50/desenvolvedor-full-stack-java-ii",
+    "https://vagas.solides.com.br/vaga/953412/vendedor-a",
+    "https://solorecruiter.inhire.app/vagas/bf50b002-a760-4a69-b721-541814983802/executivo-a-comercial-software-de-gestao-erp-chapeco-sc",
+    "https://gocorpoesaude.inhire.app/vagas/6c377845-d6e6-4f4e-94c4-d302bb94800e/assistente-administrativo",
+    "https://vagas.solides.com.br/vaga/953414/analista-financeiro",
+    "https://extractta.inhire.app/vagas/636ee100-8886-498d-a488-6cac2d750808/pessoa-desenvolvedora-fullstack-senior-net-c-e-angular",
+    "https://sejaglobalweb.gupy.io/job/eyjqb2jjzci6mti4njc4mzcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://vemserpratica.gupy.io/job/eyjqb2jjzci6mti4nzy3mdasinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://www.vagas.com.br/vagas/v2838414/analista-de-atendimento-ao-cliente-bancario",
+    "https://eibeleza.gupy.io/job/eyjqb2jjzci6mti2nzg3nzysinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://qeevo.inhire.app/vagas/4179416c-f675-4dcd-85bd-aad0af73be7c/estagio-em-design-grafico-branding-e-marketing",
+    "https://www.infojobs.com.br/vaga-de-operador-logistica-em-parana__12219981.aspx",
+    "https://www.infojobs.com.br/vaga-de-supervisor-compras-em-alagoas__12220013.aspx"
   ],
   "posted_job_signatures": [
     "centauro talentos:vendedor a  bh shopping",
@@ -261,6 +279,18 @@
     "platform builders:desenvolvedora react especiali",
     "framework:engenheiroa de ia  sênior",
     "aarin techfin:pessoa desenvolvedora backend ",
-    "extreme digital solutions:desenvolvedor full stack java "
+    "extreme digital solutions:desenvolvedor full stack java ",
+    "r f cristovaokato solucoe:vendedora",
+    "solorecruiter:executivoa comercial  software",
+    "grupooliveirabsb:assistente administrativo",
+    "sobral gastronomia e even:analista financeiro",
+    "extractta:pessoa desenvolvedora fullstac",
+    "globalweb:serpro posto  desenvolvedor ja",
+    "pratica:operador de atendimento ao cli",
+    "confidencial:analista de atendimento ao cli",
+    "grupo ei beleza:assistente de trade marketing",
+    "qeevo:estágio em design gráfico  bra",
+    "mission brasil servicos m:operador de logistica",
+    "akuaba:supervisor de compras"
   ]
 }
