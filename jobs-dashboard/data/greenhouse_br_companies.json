@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-14T18:31:30.344543+00:00",
+  "generated_at": "2026-11-14T23:32:42.823803+00:00",
   "candidate_count": 8331,
-  "company_count": 166,
+  "company_count": 183,
   "companies": [
     {
       "board": "abinbev",
@@ -32,7 +32,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 101
+      "brazil_jobs": 100
     },
     {
       "board": "agilize",
@@ -620,6 +620,11 @@
       "brazil_jobs": 1
     },
     {
+      "board": "try-picnic",
+      "company": "Picnic Delivery",
+      "brazil_jobs": 1
+    },
+    {
       "board": "pinterest",
       "company": "Pinterest",
       "brazil_jobs": 1
@@ -820,14 +825,94 @@
       "brazil_jobs": 1
     },
     {
+      "board": "truecaller",
+      "company": "Truecaller",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "turing",
+      "company": "Turing",
+      "brazil_jobs": 5
+    },
+    {
+      "board": "twilio",
+      "company": "Twilio",
+      "brazil_jobs": 2
+    },
+    {
+      "board": "usergems",
+      "company": "UserGems",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "valtech",
+      "company": "Valtech",
+      "brazil_jobs": 7
+    },
+    {
+      "board": "verve",
+      "company": "Verve",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "vitta",
+      "company": "Vitta",
+      "brazil_jobs": 3
+    },
+    {
+      "board": "wundermanthompson",
+      "company": "VML",
+      "brazil_jobs": 19
+    },
+    {
+      "board": "vmlenterprisesolutions",
+      "company": "VML/WPP Enterprise Solutions",
+      "brazil_jobs": 24
+    },
+    {
+      "board": "vtex",
+      "company": "VTEX",
+      "brazil_jobs": 17
+    },
+    {
       "board": "gympass",
       "company": "Wellhub",
       "brazil_jobs": 38
     },
     {
+      "board": "wildlifestudios",
+      "company": "Wildlife Studios",
+      "brazil_jobs": 14
+    },
+    {
       "board": "agencywithin",
       "company": "WITHIN",
       "brazil_jobs": 1
+    },
+    {
+      "board": "wizinc",
+      "company": "Wiz, Inc.",
+      "brazil_jobs": 3
+    },
+    {
+      "board": "wpp",
+      "company": "WPP",
+      "brazil_jobs": 4
+    },
+    {
+      "board": "wppmedia",
+      "company": "WPP Media",
+      "brazil_jobs": 45
+    },
+    {
+      "board": "xpinc",
+      "company": "XP Inc.",
+      "brazil_jobs": 112
+    },
+    {
+      "board": "xpengmotors",
+      "company": "XPENG",
+      "brazil_jobs": 2
     },
     {
       "board": "ilia",
