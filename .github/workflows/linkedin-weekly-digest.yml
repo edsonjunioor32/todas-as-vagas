@@ -54,7 +54,7 @@ jobs:
       - name: Executar Curadoria e Disparo da Edição Semanal
         env:
           PYTHONPATH: tools
-          MAKE_LINKEDIN_WEBHOOK_URL: ${{ secrets.MAKE_LINKEDIN_WEBHOOK_URL || 'https://hook.us2.make.com/pmtttsu5fw61y2sjhyevac82zw74mwx0' }}
+          MAKE_LINKEDIN_WEBHOOK_URL: ${{ secrets.MAKE_LINKEDIN_WEBHOOK_URL }}
         run: |
           FLAGS=""
           if [ "${{ inputs.force }}" = "true" ]; then

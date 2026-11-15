@@ -1,3 +1,12 @@
+## 2026-11-15 — Webhook do Make do LinkedIn somente via secret
+
+- `linkedin-daily-digest.yml`, `linkedin-morning-desperta.yml` e `linkedin-weekly-digest.yml` passam `MAKE_LINKEDIN_WEBHOOK_URL` direto do secret, sem valor alternativo em texto puro no workflow.
+- `tools/publish_linkedin_daily.py`, `tools/publish_linkedin_morning.py` e `tools/publish_linkedin_weekly.py` deixam de ter URL padrão. Fora do `--dry-run`, exigem `MAKE_LINKEDIN_WEBHOOK_URL` ou `--webhook-url` e encerram com código 2 e mensagem no stderr quando nenhum dos dois existe, antes de baixar o catálogo. As travas de horário e de post já publicado continuam encerrando com sucesso antes dessa checagem; o `--dry-run` segue funcionando sem webhook.
+- O log de envio deixou de imprimir os primeiros 35 caracteres da URL, que incluíam parte do token: os logs do repositório são públicos e o GitHub só mascara o secret inteiro.
+- A URL anterior permanece no histórico do Git e deve ser tratada como comprometida: gerar um webhook novo no Make, atualizar o secret e desativar o antigo.
+- Impacto restrito às publicações no LinkedIn via Make; site, Telegram, `botwhats` e agente de vagas não usam esse webhook.
+- Cobertura sem rede em `jobs-dashboard/tests/test_linkedin_webhook_config.py`: ausência de URL do Make no repositório e nos workflows, erro sem configuração, dry-run sem webhook, precedência de `--webhook-url` e URL fora dos logs.
+
 ## 2026-11-13 — Ordenação dos lotes Glassdoor por relevância
 
 - Empresas sem média geral passam à frente das já classificadas, ordenadas pela quantidade de vagas associadas em ordem decrescente.
@@ -342,7 +351,10 @@ Escopo: 173 arquivos rastreados da branch `main` nesta revisão, incluindo `AGEN
 - `.github/workflows/catalog-catchup.yml` — vigia atrasos e despacha recuperação do catálogo.
 - `.github/workflows/catalog-ci.yml` — validação sem publicação em PRs filtrados ou manualmente.
 - `.github/workflows/fit-ci.yml` — testes e preview do analisador; verifica a entrada pública e dispara quando o CTA ou estilo do portal muda.
+- `.github/workflows/linkedin-daily-digest.yml` — publica a edição diária no LinkedIn via webhook do Make (secret `MAKE_LINKEDIN_WEBHOOK_URL`) e persiste o estado do digest.
 - `.github/workflows/linkedin-jobs.yml` — coleta diária pública do LinkedIn Easy Apply e validação do snapshot intermediário.
+- `.github/workflows/linkedin-morning-desperta.yml` — publica a edição matinal Desperta Vagas no LinkedIn via webhook do Make (secret `MAKE_LINKEDIN_WEBHOOK_URL`).
+- `.github/workflows/linkedin-weekly-digest.yml` — publica a edição semanal executiva de sexta-feira no LinkedIn via webhook do Make (secret `MAKE_LINKEDIN_WEBHOOK_URL`).
 - `.github/workflows/mercado-livre-isolated.yml` — validação isolada do coletor Mercado Livre.
 - `.github/workflows/merge-dynamic-portals.yml` — mesclagem controlada de portais dinâmicos.
 - `.github/workflows/pages.yml` — coleta em quatro horários diários e um horário semanal Greenhouse, acionamento manual/recuperação e deploy de interface em push; push comum pode publicar apenas a interface.
@@ -499,6 +511,7 @@ Todos os arquivos desta seção são testes automatizados; não são coletores n
 - `jobs-dashboard/tests/test_gupy.py` — fonte Gupy.
 - `jobs-dashboard/tests/test_homepage_cta_styles.py` — CTAs da página inicial.
 - `jobs-dashboard/tests/test_linkedin.py` — contrato do snapshot LinkedIn, janela de 30 dias e rejeição de dados inválidos.
+- `jobs-dashboard/tests/test_linkedin_webhook_config.py` — webhook do Make só via configuração: sem URL embutida, erro sem secret, dry-run sem webhook e URL fora dos logs.
 - `jobs-dashboard/tests/test_mercadolivre.py` — fonte Mercado Livre.
 - `jobs-dashboard/tests/test_merge_dynamic_portals.py` — mesclagem dinâmica.
 - `jobs-dashboard/tests/test_new_sources.py` — fontes recém-incorporadas.
@@ -542,6 +555,9 @@ Todos os arquivos desta seção são testes automatizados; não são coletores n
 - `tools/iniciar-preview.bat` — abre prévia local no Windows; uso manual.
 - `tools/prepare_fit_assets.py` — prepara ativos públicos do analisador.
 - `tools/preview_server.ps1` — servidor local de prévia; uso manual.
+- `tools/publish_linkedin_daily.py` — cura e envia a edição diária ao webhook do Make; exige `MAKE_LINKEDIN_WEBHOOK_URL` ou `--webhook-url` fora do `--dry-run`.
+- `tools/publish_linkedin_morning.py` — cura e envia a edição matinal ao webhook do Make; mesma exigência de configuração.
+- `tools/publish_linkedin_weekly.py` — cura e envia a edição semanal e concentra os utilitários compartilhados dos digests, incluindo a resolução do webhook.
 - `tools/refresh_request.txt` — registro histórico de pedido manual de atualização.
 - `tools/update_nerdin.py` — manutenção pontual da fonte Nerdin; uso manual.
 
