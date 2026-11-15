@@ -5,6 +5,7 @@ import json
 import os
 import re
 import sqlite3
+import statistics
 import unicodedata
 from datetime import date, datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
@@ -249,6 +250,12 @@ CREATE TABLE IF NOT EXISTS source_health (
     last_success_at     TEXT DEFAULT '',
     failure_started_at  TEXT DEFAULT ''
 );
+CREATE TABLE IF NOT EXISTS source_volume (
+    observed_at  TEXT NOT NULL,
+    source       TEXT NOT NULL,
+    jobs         INTEGER NOT NULL,
+    PRIMARY KEY (observed_at, source)
+);
 """
 
 MIGRATION_COLUMNS = {
@@ -357,6 +364,67 @@ def backfill_source_health(conn):
             (source, fallback),
         )
     conn.commit()
+
+
+SOURCE_VOLUME_WINDOW_DAYS = 7
+SOURCE_VOLUME_RETENTION_DAYS = 30
+SOURCE_VOLUME_MIN_BASELINE = 10
+SOURCE_VOLUME_DROP_RATIO = 0.5
+
+
+def source_volume_alerts(conn, counts, healthy_sources, observed_at=None,
+                         window_days=SOURCE_VOLUME_WINDOW_DAYS,
+                         min_baseline=SOURCE_VOLUME_MIN_BASELINE,
+                         drop_ratio=SOURCE_VOLUME_DROP_RATIO):
+    """Compare this run with the median of recent runs, per healthy source.
+
+    Sources that failed are already reported by ``source_health``; this only
+    catches silent degradation, when a source "succeeds" but returns far fewer
+    jobs than usual. Small baselines are ignored to avoid noise.
+    """
+    observed_at = str(observed_at or utc_now_iso()).strip()
+    since = (
+        datetime.fromisoformat(observed_at.replace("Z", "+00:00"))
+        - timedelta(days=window_days)
+    ).isoformat()
+    alerts = []
+    for source in sorted({str(s).strip() for s in healthy_sources if str(s).strip()}):
+        history = [
+            row[0] for row in conn.execute(
+                "SELECT jobs FROM source_volume WHERE source = ? AND observed_at >= ? "
+                "AND observed_at < ?",
+                (source, since, observed_at),
+            )
+        ]
+        if not history:
+            continue
+        baseline = statistics.median(history)
+        current = int(counts.get(source, 0))
+        if baseline >= min_baseline and current < baseline * drop_ratio:
+            alerts.append({
+                "source": source,
+                "jobs": current,
+                "baseline": baseline,
+                "runs": len(history),
+            })
+    return alerts
+
+
+def record_source_volumes(conn, counts, healthy_sources, observed_at=None,
+                          retention_days=SOURCE_VOLUME_RETENTION_DAYS):
+    """Store per-source job counts for healthy sources and prune old samples."""
+    observed_at = str(observed_at or utc_now_iso()).strip()
+    for source in sorted({str(s).strip() for s in healthy_sources if str(s).strip()}):
+        conn.execute(
+            "INSERT OR REPLACE INTO source_volume (observed_at, source, jobs) "
+            "VALUES (?, ?, ?)",
+            (observed_at, source, int(counts.get(source, 0))),
+        )
+    cutoff = (
+        datetime.fromisoformat(observed_at.replace("Z", "+00:00"))
+        - timedelta(days=retention_days)
+    ).isoformat()
+    conn.execute("DELETE FROM source_volume WHERE observed_at < ?", (cutoff,))
 
 
 def update_source_health(conn, attempted_sources, failed_sources, observed_at=None):
