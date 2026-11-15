@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-15T16:17:04.570209+00:00",
+  "generated_at": "2026-11-15T18:31:45.339784+00:00",
   "candidate_count": 8331,
-  "company_count": 147,
+  "company_count": 149,
   "companies": [
     {
       "board": "abinbev",
@@ -237,6 +237,11 @@
     {
       "board": "coursera",
       "company": "Coursera",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "sourcingcour",
+      "company": "Coursera Sourcing",
       "brazil_jobs": 1
     },
     {
@@ -718,6 +723,11 @@
       "board": "sohohouseco",
       "company": "Soho House & Co.",
       "brazil_jobs": 10
+    },
+    {
+      "board": "spacexglobal",
+      "company": "SpaceX_Global",
+      "brazil_jobs": 7
     },
     {
       "board": "cloudbedsthirdpartyboard",
