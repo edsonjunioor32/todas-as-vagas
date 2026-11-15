@@ -800,6 +800,10 @@
     "tenantName": "Exati"
   },
   {
+    "slug": "extractta",
+    "tenantName": "extractta"
+  },
+  {
     "slug": "extremegroup",
     "tenantName": "Extreme Digital Solutions"
   },
@@ -962,6 +966,10 @@
   {
     "slug": "gobravo",
     "tenantName": "Go Bravo"
+  },
+  {
+    "slug": "gocorpoesaude",
+    "tenantName": "gocorpoesaude"
   },
   {
     "slug": "goflow",
@@ -1990,6 +1998,10 @@
   {
     "slug": "solfacil",
     "tenantName": "Solfácil"
+  },
+  {
+    "slug": "solorecruiter",
+    "tenantName": "solorecruiter"
   },
   {
     "slug": "solutis",
