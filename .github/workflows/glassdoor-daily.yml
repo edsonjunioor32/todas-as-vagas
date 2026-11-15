@@ -18,6 +18,11 @@ on:
         required: false
         default: 0
         type: number
+      catalog_browserless_max_calls:
+        description: "Máximo de fallbacks Browserless no lote (0 mantém desativado)"
+        required: false
+        default: 0
+        type: number
   schedule:
     # GitHub Actions uses UTC; Brasília/Fortaleza is UTC-3.
     - cron: "23 6 * * *"
@@ -107,9 +112,9 @@ jobs:
           OMKAR_GLASSDOOR_ENDPOINT: "http://127.0.0.1:18081"
           # Browserless is an opt-in fallback for explicitly curated profiles.
           # Configure the variable/secret in the github-pages environment before enabling it.
-          BROWSERLESS_GLASSDOOR_ENABLED: \${{ vars.BROWSERLESS_GLASSDOOR_ENABLED || 'false' }}
-          BROWSERLESS_ENDPOINT: \${{ vars.BROWSERLESS_ENDPOINT || 'http://127.0.0.1:3000/chromium/content' }}
-          BROWSERLESS_TOKEN: \${{ secrets.BROWSERLESS_TOKEN }}
+          BROWSERLESS_GLASSDOOR_ENABLED: ${{ vars.BROWSERLESS_GLASSDOOR_ENABLED || 'false' }}
+          BROWSERLESS_ENDPOINT: ${{ vars.BROWSERLESS_ENDPOINT || 'http://127.0.0.1:3000/chromium/content' }}
+          BROWSERLESS_TOKEN: ${{ secrets.BROWSERLESS_TOKEN }}
         run: |
           extra_args=()
           if [[ "${{ inputs.force_refresh }}" == "true" ]]; then
@@ -117,6 +122,11 @@ jobs:
           fi
           catalog_batch_size="${{ inputs.catalog_batch_size || '100' }}"
           catalog_offset="${{ inputs.catalog_offset || '0' }}"
+          catalog_browserless_max_calls="${{ inputs.catalog_browserless_max_calls || '0' }}"
+          if [[ "$catalog_browserless_max_calls" != "0" && -z "${BROWSERLESS_TOKEN:-}" ]]; then
+            echo "catalog_browserless_max_calls requer BROWSERLESS_TOKEN; mantendo fallback desativado."
+            catalog_browserless_max_calls="0"
+          fi
           python jobs-dashboard/glassdoor.py \
             --timeout 15 \
             --retries 2 \
@@ -125,6 +135,7 @@ jobs:
             --catalog-batch-size "$catalog_batch_size" \
             --catalog-offset "$catalog_offset" \
             --catalog-profile-delay 0.25 \
+            --catalog-browserless-max-calls "$catalog_browserless_max_calls" \
             "${extra_args[@]}"
 
       - name: Validar snapshot enriquecido
