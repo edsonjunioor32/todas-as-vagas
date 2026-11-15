@@ -16,6 +16,11 @@ on:
 permissions:
   contents: read
 
+# Um novo push no mesmo PR cancela a validação anterior, que ficou obsoleta.
+concurrency:
+  group: ux-preview-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
     runs-on: ubuntu-latest

@@ -1,3 +1,13 @@
+## 2026-11-15 — Menos acionamentos vazios dos digests do LinkedIn e higiene de CI
+
+- **Evidência (API pública de runs, 12–15/11):** o digest diário teve 58 execuções, todas via `workflow_run` e nenhuma via `schedule`; 30 delas no sábado 14/11. O matinal teve 43 e o semanal 36, quase todas sem publicar (≈9 s cada). Entre 14 e 15/11, `catalog-catchup.yml` concluiu 20 vezes (16 encadeadas ao fim do catálogo) e cada conclusão acionava os digests outra vez.
+- **Gatilhos:** `Catálogo — recuperar agenda perdida` saiu do `workflow_run` dos três digests. O recuperador já roda encadeado ao catálogo e, quando recupera um slot, dispara o catálogo, cuja conclusão continua acionando os digests. Estimativa: cerca de 40 execuções vazias a menos por dia.
+- **Redundância restante:** os ticks de cron de cada digest ficaram intactos; a conclusão do catálogo (`pages.yml`) segue como gatilho dos três, e a da coleta LinkedIn segue no diário. As travas de horário e de estado (`linkedin_digest_state.json`) continuam impedindo duplicatas.
+- **Dias úteis no digest diário:** em 14/11 (sábado) a edição diária foi publicada porque o `workflow_run` não respeita o cron `1-5`. `tools/publish_linkedin_daily.py` agora encerra aos sábados e domingos, salvo `--force`. Matinal (diário) e semanal (sexta) não mudam.
+- **CI de PR:** `fit-ci.yml` e `ux-preview.yml` ganharam `concurrency` por PR/ref com `cancel-in-progress`, cancelando validações obsoletas.
+- **Checagem pós-implantação:** no próximo dia útil, confirmar um único post diário a partir das 18h15 BRT e o estado atualizado; no fim de semana, confirmar que o diário encerra com o aviso de fim de semana; contar execuções diárias dos digests (esperado bem abaixo de 30).
+- **Reversão:** `git revert` do commit; nenhum checkpoint ou estado foi apagado.
+
 ## 2026-11-13 — Ordenação dos lotes Glassdoor por relevância
 
 - Empresas sem média geral passam à frente das já classificadas, ordenadas pela quantidade de vagas associadas em ordem decrescente.
@@ -342,7 +352,10 @@ Escopo: 173 arquivos rastreados da branch `main` nesta revisão, incluindo `AGEN
 - `.github/workflows/catalog-catchup.yml` — vigia atrasos e despacha recuperação do catálogo.
 - `.github/workflows/catalog-ci.yml` — validação sem publicação em PRs filtrados ou manualmente.
 - `.github/workflows/fit-ci.yml` — testes e preview do analisador; verifica a entrada pública e dispara quando o CTA ou estilo do portal muda.
+- `.github/workflows/linkedin-daily-digest.yml` — digest diário do LinkedIn via Make, de segunda a sexta a partir das 18h15 BRT; ticks de cron mais conclusão do catálogo e da coleta LinkedIn como gatilhos redundantes.
 - `.github/workflows/linkedin-jobs.yml` — coleta diária pública do LinkedIn Easy Apply e validação do snapshot intermediário.
+- `.github/workflows/linkedin-morning-desperta.yml` — edição matinal do LinkedIn via Make (07h17–13h BRT); ticks de cron mais conclusão do catálogo.
+- `.github/workflows/linkedin-weekly-digest.yml` — edição executiva de sexta-feira via Make a partir das 19h15 BRT; ticks de cron mais conclusão do catálogo.
 - `.github/workflows/mercado-livre-isolated.yml` — validação isolada do coletor Mercado Livre.
 - `.github/workflows/merge-dynamic-portals.yml` — mesclagem controlada de portais dinâmicos.
 - `.github/workflows/pages.yml` — coleta em quatro horários diários e um horário semanal Greenhouse, acionamento manual/recuperação e deploy de interface em push; push comum pode publicar apenas a interface.
@@ -499,6 +512,7 @@ Todos os arquivos desta seção são testes automatizados; não são coletores n
 - `jobs-dashboard/tests/test_gupy.py` — fonte Gupy.
 - `jobs-dashboard/tests/test_homepage_cta_styles.py` — CTAs da página inicial.
 - `jobs-dashboard/tests/test_linkedin.py` — contrato do snapshot LinkedIn, janela de 30 dias e rejeição de dados inválidos.
+- `jobs-dashboard/tests/test_linkedin_digest_schedule.py` — trava de dias úteis do digest diário e ausência do recuperador como gatilho dos digests.
 - `jobs-dashboard/tests/test_mercadolivre.py` — fonte Mercado Livre.
 - `jobs-dashboard/tests/test_merge_dynamic_portals.py` — mesclagem dinâmica.
 - `jobs-dashboard/tests/test_new_sources.py` — fontes recém-incorporadas.

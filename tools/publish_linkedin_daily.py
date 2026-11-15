@@ -170,6 +170,13 @@ def publish_daily(dry_run: bool = False, force: bool = False, webhook_url: str |
     today = now_brt.date()
 
     if not force:
+        # Trava de dias úteis, alinhada ao cron '* * 1-5' do workflow: os gatilhos
+        # workflow_run também chegam aos sábados e domingos.
+        if now_brt.weekday() >= 5:
+            print(f"Aviso: {now_brt:%d/%m/%Y} é fim de semana; a edição diária sai apenas de segunda a sexta.")
+            print("Encerrando execução de forma segura.")
+            return 0
+
         # Trava de segurança de horário: só publica a partir das 18h15 BRT
         if now_brt.hour < 18 or (now_brt.hour == 18 and now_brt.minute < 15):
             print(f"Aviso: Horário atual ({now_brt:%H:%M} BRT) é anterior à janela permitida (a partir das 18h15 BRT).")

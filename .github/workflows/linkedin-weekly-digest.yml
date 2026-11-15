@@ -8,10 +8,12 @@ on:
     - cron: '36 22 * * 5'
     - cron: '51 22 * * 5'
     - cron: '06 23 * * 5'
+  # O recuperador "Catálogo — recuperar agenda perdida" não é gatilho: ele já
+  # roda encadeado ao fim de cada catálogo e, quando recupera um slot, dispara o
+  # catálogo, cuja conclusão aciona este digest. Listá-lo duplicava os acionamentos.
   workflow_run:
     workflows:
       - "Atualizar vagas multiportal e publicar GitHub Pages"
-      - "Catálogo — recuperar agenda perdida"
     types: [completed]
     branches: [main]
   workflow_dispatch:
