@@ -29,6 +29,8 @@ import urllib.request
 import urllib.error
 import urllib.parse
 
+from ._errors import exhausted
+
 DEFAULT_HEADERS = {
     "User-Agent": "Mozilla/5.0 (compatible; jobs-market-explorer/1.0)",
     "Accept": "application/json",
@@ -160,11 +162,11 @@ def get_text(url, headers=None, timeout=25, retries=3, backoff=2.0):
             last_err = error
             if error.code < 500 and error.code != 429:
                 raise
-        except Exception as error:  # timeout and URLError
+        except Exception as error:  # noqa: BLE001 - timeout, URLError: retried, then typed
             last_err = error
         if attempt < retries:
             time.sleep(retry_delay(attempt, backoff, last_err))
-    raise RuntimeError(f"get_text failed after {retries} attempts: {last_err}") from last_err
+    raise exhausted(f"get_text failed after {retries} attempts: {last_err}", last_err) from last_err
 
 
 def get_json(url, headers=None, timeout=25, retries=3, backoff=2.0,
@@ -216,11 +218,11 @@ def get_json(url, headers=None, timeout=25, retries=3, backoff=2.0,
             # blocked by an edge or content-negotiation layer.
             if e.code < 500 and e.code not in retry_http_codes:
                 raise
-        except Exception as e:  # timeout, URLError, JSONDecodeError
+        except Exception as e:  # noqa: BLE001 - timeout, URLError, JSON: retried, then typed
             last_err = e
         if attempt < retries:
             time.sleep(retry_delay(attempt, backoff, last_err))
-    raise RuntimeError(f"get_json failed after {retries} attempts: {last_err}") from last_err
+    raise exhausted(f"get_json failed after {retries} attempts: {last_err}", last_err) from last_err
 
 
 def post_form_json(url, data, headers=None, timeout=25, retries=3, backoff=2.0):
@@ -240,11 +242,11 @@ def post_form_json(url, data, headers=None, timeout=25, retries=3, backoff=2.0):
             last_err = error
             if error.code < 500 and error.code != 429:
                 raise
-        except Exception as error:
+        except Exception as error:  # noqa: BLE001 - retried, then typed
             last_err = error
         if attempt < retries:
             time.sleep(retry_delay(attempt, backoff, last_err))
-    raise RuntimeError(f"post_form_json failed after {retries} attempts: {last_err}") from last_err
+    raise exhausted(f"post_form_json failed after {retries} attempts: {last_err}", last_err) from last_err
 
 
 def post_json(url, data, headers=None, timeout=25, retries=3, backoff=2.0,
@@ -273,8 +275,8 @@ def post_json(url, data, headers=None, timeout=25, retries=3, backoff=2.0,
             last_err = error
             if error.code < 500 and error.code not in retry_http_codes:
                 raise
-        except Exception as error:
+        except Exception as error:  # noqa: BLE001 - retried, then typed
             last_err = error
         if attempt < retries:
             time.sleep(retry_delay(attempt, backoff, last_err))
-    raise RuntimeError(f"post_json failed after {retries} attempts: {last_err}") from last_err
+    raise exhausted(f"post_json failed after {retries} attempts: {last_err}", last_err) from last_err

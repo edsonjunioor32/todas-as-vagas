@@ -1,3 +1,13 @@
+## 2026-11-15 — Falhas de fonte classificadas por categoria
+
+- Novo `jobs-dashboard/sources/_errors.py`: erros tipados (`SourceBlocked`, `SourceUnavailable`, `SourceTimeout`, `SourceFormatError`), todos subclasses de `RuntimeError` para manter compatibilidade, e `classify_error`, que segue a cadeia `__cause__`/`__context__` e reconhece códigos HTTP, falhas de transporte, JSON inválido e marcadores de bloqueio na mensagem.
+- `sources/_http.py` passa a levantar o erro tipado correspondente ao esgotar as retentativas, com a mesma mensagem de antes.
+- `pipeline.py` registra `error_category` por fonte (`bloqueio`, `indisponivel`, `timeout`, `formato`, `linhas_invalidas`, `vazio_inesperado`, `outro`). O log mostra `FALHA [categoria]`, e o resumo do Actions lista "Fontes com falha" com a categoria, a contagem "Falhas por categoria" e a categoria na coluna Situação. `formato` indica que o adaptador provavelmente precisa de ajuste; `bloqueio` e `indisponivel` costumam se resolver sem mudança de código.
+- Nova trava `test_broad_except_ratchet.py` com baseline de 100 `except` amplos sem justificativa em 49 arquivos: o CI falha se algum arquivo ganhar um novo, a menos que a linha leve `# noqa: BLE001 - motivo` (convenção do ruff). As 4 retentativas do `_http.py` e a fronteira de isolamento por fonte do pipeline foram marcadas como justificadas.
+- Nenhum comportamento de coleta, retenção ou publicação muda: a categoria é só diagnóstico. Site, Telegram, `botwhats` e agente não são afetados.
+- **Checagem pós-implantação:** no próximo catálogo com falha de fonte, conferir a categoria no log e no resumo.
+- **Reversão:** `git revert`.
+
 ## 2026-11-15 — Retentativas HTTP com backoff exponencial, jitter e Retry-After
 
 - `jobs-dashboard/sources/_http.py` (usado por 49 módulos de fonte) trocou a espera linear fixa (2 s e 4 s com `retries=3`) por backoff exponencial com *equal jitter*: cada pausa cai entre metade e o passo inteiro (`backoff`, `2×`, `4×`…, teto de 30 s). Com `retries=3`, a espera média cai de 6 s para 4,5 s por requisição que falha, e fontes paralelas deixam de repetir em sincronia.
@@ -456,6 +466,7 @@ O registro de adaptadores fica em `jobs-dashboard/sources/__init__.py`. Cada mó
 
 - `jobs-dashboard/sources/__init__.py` — importa e registra as fontes ativas.
 - `jobs-dashboard/sources/_common.py` — utilitários comuns de normalização.
+- `jobs-dashboard/sources/_errors.py` — taxonomia de falhas (`bloqueio`, `indisponivel`, `timeout`, `formato`…) e classificador usado pelo pipeline.
 - `jobs-dashboard/sources/_html.py` — extração/parsing HTML compartilhados.
 - `jobs-dashboard/sources/_http.py` — requisições HTTP compartilhadas.
 - `jobs-dashboard/sources/_rendered.py` — captura de páginas renderizadas.
@@ -527,6 +538,8 @@ O registro de adaptadores fica em `jobs-dashboard/sources/__init__.py`. Cada mó
 Todos os arquivos desta seção são testes automatizados; não são coletores nem devem ser agendados como fontes.
 
 - `jobs-dashboard/tests/test_abler_precision.py` — precisão Abler e formato Telegram.
+- `jobs-dashboard/tests/broad_except_baseline.json` — baseline por arquivo de `except` amplos sem justificativa; só deve diminuir.
+- `jobs-dashboard/tests/test_broad_except_ratchet.py` — falha quando um arquivo ganha `except` amplo sem `# noqa: BLE001 - motivo`; `--update` regrava a baseline.
 - `jobs-dashboard/tests/test_catalog_catchup.py` — decisões e falhas do recuperador.
 - `jobs-dashboard/tests/test_description_crawler.py` — extração de descrições.
 - `jobs-dashboard/tests/test_inhire_descriptions.py` — contrato da API pública do InHire e classificação de anúncio removido.
@@ -543,7 +556,6 @@ Todos os arquivos desta seção são testes automatizados; não são coletores n
 - `jobs-dashboard/tests/test_linkedin_digest_schedule.py` — trava de dias úteis do digest diário e ausência do recuperador como gatilho dos digests.
 - `jobs-dashboard/tests/test_linkedin_webhook_config.py` — webhook do Make só via configuração: sem URL embutida, erro sem secret, dry-run sem webhook e URL fora dos logs.
 - `jobs-dashboard/tests/test_mercadolivre.py` — fonte Mercado Livre.
-- `jobs-dashboard/tests/test_source_volume.py` — detecção de queda de volume por fonte e resumo do Actions.
 - `jobs-dashboard/tests/test_merge_dynamic_portals.py` — mesclagem dinâmica.
 - `jobs-dashboard/tests/test_new_sources.py` — fontes recém-incorporadas.
 - `jobs-dashboard/tests/test_ngcash.py` — fonte NG.CASH.
@@ -561,6 +573,8 @@ Todos os arquivos desta seção são testes automatizados; não são coletores n
 - `jobs-dashboard/tests/test_requested_portals_16092026.py` — portais do lote de 16/09.
 - `jobs-dashboard/tests/test_schedule.py` — agenda e recuperação na VPS.
 - `jobs-dashboard/tests/test_smartrecruiters_brazil.py` — fonte SmartRecruiters.
+- `jobs-dashboard/tests/test_source_errors.py` — classificação de falhas das fontes, erros tipados do cliente HTTP e categorias no pipeline e no resumo do Actions.
+- `jobs-dashboard/tests/test_source_volume.py` — detecção de queda de volume por fonte e resumo do Actions.
 - `jobs-dashboard/tests/test_trakstar.py` — fonte Trakstar.
 - `jobs-dashboard/tests/test_vagascom.py` — fonte Vagas.com.
 - `jobs-dashboard/tests/test_validate_dynamic_portals.py` — seleção/validação dinâmica.

@@ -25,6 +25,7 @@ from sources import (
     recrutei as recrutei_source,
     solides as solides_source,
 )
+from sources import _errors as source_errors
 
 try:
     sys.stdout.reconfigure(encoding="utf-8")
@@ -234,9 +235,11 @@ def _collect_source(index, name, fetch):
             f"discarded {dropped} malformed vacancy row(s)"
             if dropped else ""
         )
+        error_category = source_errors.INVALID_ROWS if dropped else ""
         if name in NONEMPTY_SOURCES and not valid:
             empty_error = "returned zero vacancies; preserving the last valid snapshot"
             error = f"{error}; {empty_error}" if error else empty_error
+            error_category = source_errors.UNEXPECTED_EMPTY
         return {
             "index": index,
             "name": name,
@@ -244,9 +247,10 @@ def _collect_source(index, name, fetch):
             "dropped": dropped,
             "seconds": time.perf_counter() - started,
             "error": error,
+            "error_category": error_category,
             "health": source_health,
         }
-    except Exception as error:
+    except Exception as error:  # noqa: BLE001 - isolation boundary: one source never stops the run
         # Some adapters can return a useful partial result while reporting
         # board-level failures (notably Greenhouse). Preserve those rows and
         # mark the source unhealthy so storage keeps the last valid snapshot
@@ -266,6 +270,7 @@ def _collect_source(index, name, fetch):
             "dropped": dropped,
             "seconds": time.perf_counter() - started,
             "error": detail,
+            "error_category": source_errors.classify_error(error),
             "health": source_health,
         }
 
@@ -404,7 +409,11 @@ def collect(registry, checkpoint_dir=None):
             results[result["index"]] = result
             _write_checkpoint(checkpoint_dir, result["name"], result)
             if result["error"]:
-                print(f"  [{result['name']:14}] FALHA {result['error']} ({result['seconds']:.1f}s)")
+                category = source_errors.label(result.get("error_category"))
+                print(
+                    f"  [{result['name']:14}] FALHA [{category}] {result['error']} "
+                    f"({result['seconds']:.1f}s)"
+                )
                 continue
             suffix = f" · {result['dropped']} inválidas descartadas" if result["dropped"] else ""
             status = "ok" if result["rows"] else "vazio"
@@ -419,6 +428,7 @@ def collect(registry, checkpoint_dir=None):
         {
             "name": result["name"],
             "status": "falha" if result["error"] else ("ok" if result["rows"] else "vazio"),
+            "error_category": (result.get("error_category") or "") if result["error"] else "",
             "jobs": len(result["rows"]),
             "dropped": result["dropped"],
             "seconds": result["seconds"],
@@ -555,11 +565,27 @@ def write_actions_summary(source_metrics, phases, total_jobs, failed, volume_ale
         return
     ordered = sorted(source_metrics, key=lambda item: item["seconds"], reverse=True)
     volume_alerts = volume_alerts or []
+    categories = {
+        item.get("name"): source_errors.label(item.get("error_category"))
+        for item in source_metrics
+    }
+    failed_text = ", ".join(
+        f"{name} ({categories[name]})" if categories.get(name) else name
+        for name in failed
+    ) if failed else "nenhuma"
+    by_category = Counter(categories.get(name) or "sem categoria" for name in failed)
     lines = [
         "## Atualização do Portal Todas as Vagas",
         "",
         f"- **Vagas consolidadas:** {total_jobs:,}".replace(",", "."),
-        f"- **Fontes com falha:** {', '.join(failed) if failed else 'nenhuma'}",
+        f"- **Fontes com falha:** {failed_text}",
+    ]
+    if by_category:
+        lines.append(
+            "- **Falhas por categoria:** "
+            + ", ".join(f"{name} {count}" for name, count in sorted(by_category.items()))
+        )
+    lines += [
         f"- **Fontes com queda de volume:** "
         f"{', '.join(a['source'] for a in volume_alerts) if volume_alerts else 'nenhuma'}",
         f"- **Tempo total do pipeline Python:** {phases.get('total', 0):.1f}s",
@@ -592,7 +618,9 @@ def write_actions_summary(source_metrics, phases, total_jobs, failed, volume_ale
         "|---|---|---:|---:|",
     ])
     lines.extend(
-        f"| {item['name']} | {item['status']} | {item['jobs']} | {item['seconds']:.1f}s |"
+        f"| {item['name']} | {item['status']}"
+        f"{' (' + categories[item['name']] + ')' if categories.get(item['name']) else ''}"
+        f" | {item['jobs']} | {item['seconds']:.1f}s |"
         for item in ordered
     )
     try:
