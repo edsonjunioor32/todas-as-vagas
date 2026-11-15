@@ -39,6 +39,11 @@ on:
 permissions:
   contents: read
 
+# Um novo push no mesmo PR/branch cancela a validação anterior, que ficou obsoleta.
+concurrency:
+  group: fit-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test-fit:
     runs-on: ubuntu-latest
