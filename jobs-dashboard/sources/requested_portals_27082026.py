@@ -82,6 +82,11 @@ BRAZIL_WORDS = re.compile(
     r"santa catarina|minas gerais|bahia|pernambuco|cear[aá]",
     re.I,
 )
+BRAZIL_UFS = {
+    "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS",
+    "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC",
+    "SP", "SE", "TO",
+}
 
 
 NEXT_DATA_RE = re.compile(
@@ -185,6 +190,23 @@ def fetch_acciona():
     return _workday_rows("acciona")
 
 
+def _normalised_value(value):
+    if isinstance(value, dict):
+        value = value.get("name") or value.get("value") or value.get("code") or ""
+    return re.sub(r"\s+", " ", html.unescape(str(value or ""))).strip()
+
+
+def _is_brazilian_job_posting(country, region, location):
+    country_value = _normalised_value(country).casefold()
+    if country_value in {"br", "bra", "brasil", "brazil"}:
+        return True
+    if _normalised_value(region).upper() in BRAZIL_UFS:
+        return True
+    return bool(
+        is_brazil_location(location) or BRAZIL_WORDS.search(str(location or ""))
+    )
+
+
 
 def _structured_work_model(text):
     """Prefer an explicit hybrid/on-site declaration over prose mentions."""
@@ -196,6 +218,34 @@ def _structured_work_model(text):
     if re.search(r"\b(?:remote|remot[oa]|anywhere|home[- ]?office)\b", value):
         return "remote"
     return ""
+
+
+def _visible_page_text(page):
+    visible = re.sub(
+        r"<(script|style|noscript|template)\b[^>]*>.*?</\1>",
+        " ",
+        page or "",
+        flags=re.I | re.S,
+    )
+    return strip_html(visible, limit=max(6000, len(visible)))
+
+
+def _huntit_work_model(page, description):
+    """Read explicit Hunt IT badges before full-page prose."""
+    visible = _visible_page_text(page)
+    match = re.search(
+        r"\(\s*(presencial|h[ií]brido|remoto)\s*\)",
+        visible,
+        re.I,
+    )
+    if match:
+        model = match.group(1).casefold()
+        if model == "presencial":
+            return "on-site"
+        if model in {"híbrido", "hibrido"}:
+            return "hybrid"
+        return "remote"
+    return _structured_work_model(description) or _structured_work_model(visible)
 
 
 def _jsonld_rows_from_page(source, url, company, page):
@@ -222,21 +272,28 @@ def _jsonld_rows_from_page(source, url, company, page):
             address = (location_data.get("address") or {}) if isinstance(location_data, dict) else {}
             locality = str(address.get("addressLocality") or "").strip()
             region = str(address.get("addressRegion") or "").strip()
-            country = str(address.get("addressCountry") or "BR").strip()
+            raw_country = address.get("addressCountry")
+            country = _normalised_value(raw_country) or "BR"
             location = ", ".join(part for part in (locality, region) if part)
-            if location and not is_brazil_location(location) and not BRAZIL_WORDS.search(location):
+            if location and not _is_brazilian_job_posting(raw_country, region, location):
                 continue
             identifier = value.get("identifier") or {}
             native_id = str(
                 identifier.get("value")
                 if isinstance(identifier, dict) else identifier or title
             )
-            description = strip_html(value.get("description") or "")
+            raw_description = value.get("description") or ""
+            description = strip_html(raw_description)
+            full_description = _visible_page_text(raw_description)
             rows.append(job(
                 source, native_id, title=title, company=company,
                 url=str(value.get("url") or url),
-                work_model=_structured_work_model(
-                    f"{title} {location} {description[:1800]}"
+                work_model=(
+                    _huntit_work_model(page, full_description)
+                    if source == "huntit"
+                    else _structured_work_model(
+                        f"{title} {location} {description[:1800]}"
+                    )
                 ),
                 city=location, country=country or "BR", market="BR",
                 published_date=iso_date(value.get("datePosted")),
@@ -269,7 +326,8 @@ def _anchor_rows(source, url, company, pattern=r'/(?:vaga|vagas|job|jobs)/[^"?#]
         seen.add(absolute)
         rows.append(job(
             source, absolute.rstrip("/").split("/")[-1], title=title, company=company,
-            url=absolute, work_model=work_model_label(raw=title),
+            url=absolute,
+            work_model="" if source == "huntit" else work_model_label(raw=title),
             city="", country="BR", market="BR",
         ))
     if not rows:
@@ -295,6 +353,9 @@ def _enrich_huntit_rows(rows):
             detail["native_id"] = fallback["native_id"]
             detail["url"] = fallback["url"]
             detail["title"] = detail.get("title") or fallback["title"]
+            for field in ("work_model", "city", "state", "country", "market", "published_date"):
+                if not detail.get(field) and fallback.get(field):
+                    detail[field] = fallback[field]
             return index, detail
         except Exception:
             return index, fallback

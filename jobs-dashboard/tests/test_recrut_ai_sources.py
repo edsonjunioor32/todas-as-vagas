@@ -1,4 +1,5 @@
 import os
+import json
 import sys
 import unittest
 from pathlib import Path
@@ -100,6 +101,64 @@ class RecrutAiSourceTests(unittest.TestCase):
         self.assertEqual(rows[0]["published_date"], "2026-07-02T00:00:00-03:00")
         self.assertEqual(rows[0]["city"], "São Paulo, SP")
         self.assertEqual(rows[0]["work_model"], "hybrid")
+
+    def test_huntit_detail_accepts_brazilian_uf_and_visible_presencial_badge(self):
+        markup = """
+        <div>location_on Blumenau, SC (Presencial) schedule</div>
+        <script type="application/ld+json">
+        {"@type":"JobPosting","title":"Analista de Suporte",
+         "identifier":{"value":"huntit-blumenau-1"},
+         "description":"Atendimento ao cliente e suporte técnico.",
+         "jobLocation":{"address":{"addressLocality":"Blumenau",
+         "addressRegion":"SC","addressCountry":"BR"}}}
+        </script>
+        """
+        rows = requested._jsonld_rows_from_page(
+            "huntit",
+            "https://huntit.com.br/vaga/analista-de-suporte/",
+            "Hunt IT",
+            markup,
+        )
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["city"], "Blumenau, SC")
+        self.assertEqual(rows[0]["country"], "BR")
+        self.assertEqual(rows[0]["work_model"], "on-site")
+
+    def test_huntit_detail_reads_modality_after_description_prefix(self):
+        description = "Requisitos e responsabilidades. " * 80
+        description += " Local: Presencial em Blumenau - SC."
+        markup = f"""
+        <script type="application/ld+json">
+        {{"@type":"JobPosting","title":"Analista de Operações",
+         "description":{json.dumps(description)},
+         "jobLocation":{{"address":{{"addressLocality":"Blumenau",
+         "addressRegion":"SC","addressCountry":"BR"}}}}}}
+        </script>
+        """
+        rows = requested._jsonld_rows_from_page(
+            "huntit",
+            "https://huntit.com.br/vaga/analista-de-operacoes/",
+            "Hunt IT",
+            markup,
+        )
+        self.assertEqual(len(rows), 1)
+        self.assertGreater(len(description), 1800)
+        self.assertEqual(rows[0]["work_model"], "on-site")
+
+    def test_huntit_detail_failure_preserves_fallback_without_inventing_modality(self):
+        fallback = {
+            "native_id": "huntit-fallback-1",
+            "title": "Analista de Suporte",
+            "url": "https://huntit.com.br/vaga/analista-de-suporte/",
+            "work_model": "",
+            "city": "",
+            "country": "BR",
+            "market": "BR",
+        }
+        with patch.object(requested, "_jsonld_rows", side_effect=RuntimeError("timeout")):
+            rows = requested._enrich_huntit_rows([fallback])
+        self.assertEqual(rows, [fallback])
+        self.assertEqual(rows[0]["work_model"], "")
 
     def test_taggui_identity_canonicalization(self):
         url = taggui._canonical_url(
