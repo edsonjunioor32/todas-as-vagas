@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
 """Shared HTTP helper — stdlib only, with a bounded retry/backoff.
 
-Mirrors the resilience of commodity-risk-dashboard/pipeline.py::_download: retry
-transient failures (timeout, 5xx, JSON-decode) with linear backoff, then raise.
-Kept dependency-free (urllib) so the daily pipeline has zero third-party surface.
+Retry transient failures (timeout, 5xx, 429, JSON-decode) with exponential
+backoff and jitter, then raise.  A ``Retry-After`` sent with 429/503 is
+honoured up to a cap, so a throttled edge gets the pause it asked for without
+stalling a whole catalogue run.  Kept dependency-free (urllib) so the daily
+pipeline has zero third-party surface.
+
+The short fixed pauses between pages inside individual sources are deliberate
+politeness throttling, not retry logic, and are intentionally left in place.
 
 ``get_json`` also supports an optional small, private on-disk cache.  When a
 cache file contains an ``ETag``, the next request is conditional and a 304
@@ -11,9 +16,13 @@ response reuses the previous JSON payload.  This is useful for the large
 Sólides catalogue: unchanged pages are still checked, but their bodies do not
 need to be downloaded or decoded again.
 """
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 import json
+import math
 import os
 from pathlib import Path
+import random
 import threading
 import time
 import urllib.request
@@ -25,8 +34,66 @@ DEFAULT_HEADERS = {
     "Accept": "application/json",
 }
 
+# Upper bound for the exponential part of a retry pause.
+MAX_BACKOFF_SECONDS = 30.0
+# Upper bound for a server-requested pause.  One source worker waits at most
+# this long per retry, so a throttled edge cannot hold a catalogue slot for
+# minutes; if the server needs longer, the source fails as it did before.
+MAX_RETRY_AFTER_SECONDS = 30.0
+_RETRY_AFTER_CODES = frozenset({429, 503})
+
 _CACHE_STATS_LOCK = threading.Lock()
 _MISSING = object()
+
+
+def retry_after_seconds(error, now=None):
+    """Return the pause a 429/503 ``Retry-After`` header asks for, or ``None``.
+
+    Accepts both forms allowed by RFC 9110: delay in seconds or an HTTP date.
+    Anything unparseable is ignored so a malformed header never breaks a source.
+    """
+    if not isinstance(error, urllib.error.HTTPError):
+        return None
+    if error.code not in _RETRY_AFTER_CODES:
+        return None
+    headers = getattr(error, "headers", None)
+    value = headers.get("Retry-After") if headers is not None else None
+    value = str(value or "").strip()
+    if not value:
+        return None
+    try:
+        seconds = float(value)
+    except ValueError:
+        try:
+            when = parsedate_to_datetime(value)
+        except (TypeError, ValueError, IndexError):
+            return None
+        if when is None:
+            return None
+        if when.tzinfo is None:
+            when = when.replace(tzinfo=timezone.utc)
+        seconds = (when - (now or datetime.now(timezone.utc))).total_seconds()
+    if not math.isfinite(seconds):
+        return None
+    return max(0.0, seconds)
+
+
+def retry_delay(attempt, backoff=2.0, error=None, rand=None):
+    """Seconds to wait after failed ``attempt`` (1-based) before retrying.
+
+    Exponential backoff (``backoff``, ``2*backoff``, ``4*backoff``...) capped
+    at ``MAX_BACKOFF_SECONDS``, with equal jitter: the pause falls uniformly
+    between half and the whole step, so parallel workers that failed together
+    do not retry in lockstep.  A longer 429/503 ``Retry-After`` wins, capped at
+    ``MAX_RETRY_AFTER_SECONDS``.
+    """
+    step = min(MAX_BACKOFF_SECONDS, max(0.0, float(backoff)) * (2 ** (attempt - 1)))
+    jitter = (rand or random.random)()
+    delay = step / 2 + jitter * step / 2
+    requested = retry_after_seconds(error)
+    if requested is not None:
+        delay = max(delay, min(requested, MAX_RETRY_AFTER_SECONDS))
+    return delay
 
 
 def _cache_stat(stats, key):
@@ -96,7 +163,7 @@ def get_text(url, headers=None, timeout=25, retries=3, backoff=2.0):
         except Exception as error:  # timeout and URLError
             last_err = error
         if attempt < retries:
-            time.sleep(backoff * attempt)
+            time.sleep(retry_delay(attempt, backoff, last_err))
     raise RuntimeError(f"get_text failed after {retries} attempts: {last_err}") from last_err
 
 
@@ -152,7 +219,7 @@ def get_json(url, headers=None, timeout=25, retries=3, backoff=2.0,
         except Exception as e:  # timeout, URLError, JSONDecodeError
             last_err = e
         if attempt < retries:
-            time.sleep(backoff * attempt)
+            time.sleep(retry_delay(attempt, backoff, last_err))
     raise RuntimeError(f"get_json failed after {retries} attempts: {last_err}") from last_err
 
 
@@ -176,7 +243,7 @@ def post_form_json(url, data, headers=None, timeout=25, retries=3, backoff=2.0):
         except Exception as error:
             last_err = error
         if attempt < retries:
-            time.sleep(backoff * attempt)
+            time.sleep(retry_delay(attempt, backoff, last_err))
     raise RuntimeError(f"post_form_json failed after {retries} attempts: {last_err}") from last_err
 
 
@@ -209,5 +276,5 @@ def post_json(url, data, headers=None, timeout=25, retries=3, backoff=2.0,
         except Exception as error:
             last_err = error
         if attempt < retries:
-            time.sleep(backoff * attempt)
+            time.sleep(retry_delay(attempt, backoff, last_err))
     raise RuntimeError(f"post_json failed after {retries} attempts: {last_err}") from last_err

@@ -14,7 +14,7 @@ from ._common import (
     strip_html,
     work_model_label,
 )
-from ._http import get_text
+from ._http import get_text, retry_delay
 
 
 COMPANY = "Bradesco"
@@ -92,7 +92,7 @@ def _post_json(url, payload, headers, retries=3):
         except (urllib.error.HTTPError, urllib.error.URLError, json.JSONDecodeError) as exc:
             error = exc
         if attempt < retries:
-            time.sleep(2 * attempt)
+            time.sleep(retry_delay(attempt, 2.0, error))
     raise RuntimeError(f"CSOD job search failed: {error}") from error
 
 
