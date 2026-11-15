@@ -177,3 +177,106 @@ def fetch():
     if not rows:
         raise RuntimeError("Abler returned no public Agência Team vacancies")
     return rows
+
+
+# ---------------------------------------------------------------------------
+# Quadros Abler por empresa (formato genérico), migrados de
+# requested_portals_27082026 em 15/11/2026 sem mudança de comportamento.
+# Para incluir uma empresa, acrescente (fonte, subdomínio, empresa) em BOARDS.
+# ---------------------------------------------------------------------------
+
+BOARDS = (
+    ("talentodovalesc", "talentodovalesc", "Talento do Vale SC"),
+    ("precisionrh", "precision", "Precision RH"),
+)
+
+
+def fetch_board(source, subdomain, company):
+    """Read a generic Abler public JSON:API career page."""
+    encoded_subdomain = urllib.parse.quote(subdomain, safe="")
+    api_root = (
+        "https://hulk-smash.abler.com.br/api/company/v1/careers_pages/"
+        f"{encoded_subdomain}/vacancies"
+    )
+    public_root = f"https://ats.abler.com.br/jobs/{encoded_subdomain}"
+    rows, seen = [], set()
+    for page in range(1, 21):
+        query = urllib.parse.urlencode({
+            "page": page,
+            "per_page": 100,
+            "include": "area_of_interests,level_of_interest",
+        })
+        payload = get_json(
+            f"{api_root}?{query}",
+            headers={"Origin": "https://ats.abler.com.br", "Referer": public_root},
+            timeout=60,
+            retries=3,
+        )
+        values = payload.get("data") or []
+        if not isinstance(values, list):
+            raise RuntimeError(f"Abler/{subdomain} returned invalid data")
+        included = {
+            (str(item.get("type") or ""), str(item.get("id") or "")): item
+            for item in (payload.get("included") or [])
+            if isinstance(item, dict)
+        }
+        for item in values:
+            attrs = item.get("attributes") or {}
+            native_id = str(item.get("id") or "").strip()
+            title = str(attrs.get("title_formatted") or attrs.get("title") or "").strip()
+            country = str(attrs.get("country") or "").strip().casefold()
+            if not native_id or not title or native_id in seen:
+                continue
+            if country and country not in {"br", "bra", "brasil", "brazil"}:
+                continue
+            seen.add(native_id)
+            slug = str(attrs.get("slug") or "").strip()
+            url = f"{public_root}?slug={slug}" if slug else f"{public_root}?id={native_id}"
+            raw_model = " ".join(
+                str(value or "").strip()
+                for value in (attrs.get("work_type"), attrs.get("work_type_formatted"))
+            )
+            contract = str(attrs.get("contracting_regime") or "").strip()
+            description = " ".join(
+                str(attrs.get(field) or "")
+                for field in (
+                    "description", "role_description", "mandatory_requirements",
+                    "desirable_requirements", "results_and_deliveries",
+                )
+            )
+            rows.append(job(
+                source, native_id, title=title, company=company, url=url,
+                work_model=work_model_label(
+                    remote_flag=attrs.get("available_for_homeoffice") is True,
+                    raw=raw_model,
+                ),
+                city=str(attrs.get("city") or "Brasil").strip(),
+                state=str(attrs.get("state") or "").strip(),
+                country="BR", market="BR",
+                published_date=iso_date(
+                    attrs.get("republished_at") or attrs.get("published_at") or attrs.get("created_at")
+                ),
+                expires_date=iso_date(attrs.get("close_on")),
+                description=strip_html(description),
+                contract_types=[contract] if contract else [],
+            ))
+        meta = payload.get("meta") or {}
+        last_page = int(meta.get("last") or page)
+        if page >= last_page or not values:
+            break
+    if not rows:
+        raise RuntimeError(f"Abler/{subdomain} returned no public vacancies")
+    return rows
+
+
+def _board_fetcher(source, subdomain, company):
+    def fetch_board_source():
+        return fetch_board(source, subdomain, company)
+
+    fetch_board_source.__name__ = fetch_board_source.__qualname__ = f"fetch_{source}"
+    fetch_board_source.__doc__ = f"Collect the open Brazilian vacancies on {company}'s Abler board."
+    return fetch_board_source
+
+
+BOARD_FETCHERS = {source: _board_fetcher(source, sub, company) for source, sub, company in BOARDS}
+BOARD_TARGETS = tuple(BOARD_FETCHERS.items())

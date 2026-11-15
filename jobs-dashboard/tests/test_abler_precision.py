@@ -8,7 +8,7 @@ from unittest.mock import patch
 DASHBOARD = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(DASHBOARD))
 
-from sources import REGISTRY, requested_portals_27082026 as abler_portals  # noqa: E402
+from sources import REGISTRY, abler, requested_portals_27082026 as abler_portals  # noqa: E402
 import notify_telegram  # noqa: E402
 
 
@@ -38,7 +38,7 @@ class PrecisionRHAblerTests(unittest.TestCase):
             {"data": [vacancy(1001), vacancy(1002)], "meta": {"last": 2}},
             {"data": [vacancy(1003)], "meta": {"last": 2}},
         ]
-        with patch.object(abler_portals, "get_json", side_effect=pages) as request:
+        with patch.object(abler, "get_json", side_effect=pages) as request:
             rows = abler_portals.fetch_precisionrh()
 
         self.assertEqual([row["native_id"] for row in rows], ["1001", "1002", "1003"])

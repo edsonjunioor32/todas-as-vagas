@@ -1,3 +1,15 @@
+## 2026-11-15 — Quadros Workday, Abler e Lever consolidados por plataforma
+
+- Novo `jobs-dashboard/sources/workday.py`: os 7 tenants Workday (avanade, santander, iberdrola, iqvia, mdlz, edenred, acciona) passam a ser declarados em `TENANTS`, e `TARGETS` gera as fontes do registro. O Abler genérico (`talentodovalesc`, `precisionrh`) foi para `abler.py` (`BOARDS`/`BOARD_TARGETS`), e os quadros Lever por empresa (`flash`, `neon`, `zippi`, `bv`) para `ats_boards.py` (`LEVER_BOARDS`/`LEVER_BOARD_TARGETS`). Uma empresa nova nessas plataformas passa a exigir uma linha de configuração.
+- Código movido sem mudança de comportamento. `requested_portals_27082026.py` mantém apelidos (`WORKDAY`, `_workday_rows`, `fetch_avanade`…, `_abler_rows`, `fetch_lever_board`…) e o mesmo `TARGETS`, usados pelo validador e pelo mesclador de portais dinâmicos. `BRAZIL_WORDS` foi para `_common.py`.
+- O registro continua com os mesmos 318 nomes de fonte, sem duplicatas; só a ordem de 13 entradas mudou, o que afeta apenas a ordem de agendamento entre os workers.
+- **Comparação ao vivo antes de mesclar** (código do `main` x branch, em sequência, mesma máquina): linhas idênticas campo a campo em 12 das 13 fontes. As contagens foram santander 163, mdlz 43, iqvia 41, acciona 36, iberdrola 27, edenred 73, precisionrh 60, flash 19, talentodovalesc 12, bv 12, neon 9 e zippi 4. A avanade falhou da mesma forma nos dois lados (Workday respondeu HTTP 429), sem relação com a mudança.
+- `validate-dynamic-portals.yml` passa a disparar também por mudanças em `_common.py`, `_errors.py`, `workday.py`, `abler.py` e `ats_boards.py`, de que os portais dinâmicos dependem.
+- Os demais adaptadores dos módulos `requested_portals_<data>` são específicos de uma empresa ou renderizados (Pandapé, ASA, BTG) e ficaram onde estão; movê-los exige validação com navegador, portal a portal.
+- **Impacto por portal:** nenhum esperado para as 13 fontes acima; site, Telegram, `botwhats` e agente não são afetados.
+- **Checagem pós-implantação:** no próximo catálogo, conferir as 13 fontes no resumo (situação e vagas) contra o run anterior.
+- **Reversão:** `git revert`.
+
 ## 2026-11-15 — Falhas de fonte classificadas por categoria
 
 - Novo `jobs-dashboard/sources/_errors.py`: erros tipados (`SourceBlocked`, `SourceUnavailable`, `SourceTimeout`, `SourceFormatError`), todos subclasses de `RuntimeError` para manter compatibilidade, e `classify_error`, que segue a cadeia `__cause__`/`__context__` e reconhece códigos HTTP, falhas de transporte, JSON inválido e marcadores de bloqueio na mensagem.
@@ -465,14 +477,14 @@ Escopo: 173 arquivos rastreados da branch `main` nesta revisão, incluindo `AGEN
 O registro de adaptadores fica em `jobs-dashboard/sources/__init__.py`. Cada módulo abaixo implementa coleta de uma plataforma, empresa ou grupo; estar registrado **não comprova** alimentação saudável em produção. Algumas fontes podem estar pausadas ou preservando vagas anteriores após falha; verifique contagem/estado por portal. Módulos auxiliares são chamados pelos coletores, não têm agendamento próprio.
 
 - `jobs-dashboard/sources/__init__.py` — importa e registra as fontes ativas.
-- `jobs-dashboard/sources/_common.py` — utilitários comuns de normalização.
+- `jobs-dashboard/sources/_common.py` — utilitários comuns de normalização, incluindo `is_brazil_location` e o padrão amplo `BRAZIL_WORDS`.
 - `jobs-dashboard/sources/_errors.py` — taxonomia de falhas (`bloqueio`, `indisponivel`, `timeout`, `formato`…) e classificador usado pelo pipeline.
 - `jobs-dashboard/sources/_html.py` — extração/parsing HTML compartilhados.
 - `jobs-dashboard/sources/_http.py` — requisições HTTP compartilhadas.
 - `jobs-dashboard/sources/_rendered.py` — captura de páginas renderizadas.
-- `jobs-dashboard/sources/abler.py` — fontes da plataforma Abler.
+- `jobs-dashboard/sources/abler.py` — fontes da plataforma Abler: Agência Team (`fetch`) e quadros por empresa declarados em `BOARDS` (`talentodovalesc`, `precisionrh`).
 - `jobs-dashboard/sources/accenture.py` — vagas Accenture.
-- `jobs-dashboard/sources/ats_boards.py` — quadros Greenhouse, Lever e Ashby.
+- `jobs-dashboard/sources/ats_boards.py` — quadros Greenhouse, Lever e Ashby; inclui os quadros Lever por empresa declarados em `LEVER_BOARDS` (`flash`, `neon`, `zippi`, `bv`).
 - `jobs-dashboard/sources/bradesco.py` — vagas Bradesco.
 - `jobs-dashboard/sources/company_careers.py` — carreiras Stone e iFood.
 - `jobs-dashboard/sources/compleo.py` — empresas na plataforma Compleo.
@@ -505,7 +517,7 @@ O registro de adaptadores fica em `jobs-dashboard/sources/__init__.py`. Cada mó
 - `jobs-dashboard/sources/requested_careers.py` — empresas de carreira solicitadas individualmente.
 - `jobs-dashboard/sources/requested_portals_03092026.py` — grupo de portais incluídos em 03/09.
 - `jobs-dashboard/sources/requested_portals_16092026.py` — grupo de portais incluídos em 16/09.
-- `jobs-dashboard/sources/requested_portals_27082026.py` — grupo de portais incluídos em 27/08.
+- `jobs-dashboard/sources/requested_portals_27082026.py` — adaptadores específicos do grupo de 27/08 (huntit, forza, saleco, elis, beq) e apelidos de compatibilidade para os quadros movidos a `workday.py`, `abler.py` e `ats_boards.py`.
 - `jobs-dashboard/sources/requested_portals_28082026.py` — grupo de portais incluídos em 28/08.
 - `jobs-dashboard/sources/requested_portals_29082026.py` — grupo de portais incluídos em 29/08.
 - `jobs-dashboard/sources/requested_portals_aug2026.py` — demais portais solicitados em agosto.
@@ -524,6 +536,7 @@ O registro de adaptadores fica em `jobs-dashboard/sources/__init__.py`. Cada mó
 - `jobs-dashboard/sources/wise.py` — vagas Wise.
 - `jobs-dashboard/sources/workable.py` — vagas RecargaPay via Workable.
 - `jobs-dashboard/sources/workable_brazil.py` — busca Workable no Brasil.
+- `jobs-dashboard/sources/workday.py` — quadros Workday via API CXS; empresas declaradas em `TENANTS` (avanade, santander, iberdrola, iqvia, mdlz, edenred, acciona).
 - `jobs-dashboard/sources/wwr.py` — vagas We Work Remotely.
 
 ## 2026-11-05 — Inclusão do quadro Positivo S+ na Pandapé
@@ -562,6 +575,7 @@ Todos os arquivos desta seção são testes automatizados; não são coletores n
 - `jobs-dashboard/tests/test_notify_telegram.py` — notificação Telegram.
 - `jobs-dashboard/tests/test_ntconsult.py` — fonte NTConsult.
 - `jobs-dashboard/tests/test_pipeline.py` — orquestração e persistência.
+- `jobs-dashboard/tests/test_platform_targets.py` — fontes geradas pelas configurações Workday/Abler/Lever, nomes no registro e apelidos do módulo de 27/08.
 - `jobs-dashboard/tests/test_portal_source_resilience.py` — isolamento de falhas de fontes.
 - `jobs-dashboard/tests/test_prepare_fit_assets.py` — valida o ponto público de entrada e os ativos locais do analisador.
 - `jobs-dashboard/tests/test_publication_concurrency.py` — prevenção de publicações concorrentes.

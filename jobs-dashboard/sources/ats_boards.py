@@ -308,3 +308,53 @@ def fetch_ashby():
                 categories=[j.get("department", "") or j.get("teamName", "")]))
         time.sleep(0.2)
     return out
+
+
+# ---------------------------------------------------------------------------
+# Quadros Lever por empresa, cada um como fonte própria (diferente de
+# ``fetch_lever``, que agrega quadros globais na fonte "lever"). Migrados de
+# requested_portals_27082026 em 15/11/2026 sem mudança de comportamento.
+# Para incluir uma empresa, acrescente (fonte, quadro, empresa) em LEVER_BOARDS.
+# ---------------------------------------------------------------------------
+
+LEVER_BOARDS = (
+    ("flash", "flashapp", "Flash"),
+    ("neon", "neon", "Neon Pagamentos"),
+    ("zippi", "zippi", "Zippi"),
+    ("bv", "bv", "Banco BV"),
+)
+
+
+def fetch_lever_board(source, board, company):
+    payload = get_json(f"https://api.lever.co/v0/postings/{board}?mode=json", timeout=45, retries=3)
+    rows = []
+    for item in payload if isinstance(payload, list) else []:
+        categories = item.get("categories") or {}
+        location = str(categories.get("location") or "").strip()
+        rows.append(job(
+            source, item.get("id"), title=item.get("text"), company=company,
+            url=item.get("hostedUrl") or item.get("applyUrl") or "",
+            work_model=work_model_label(raw=f"{categories.get('commitment', '')} {location}"),
+            city=location or "Brasil", country="BR", market="BR",
+            published_date=iso_date(item.get("createdAt")),
+            categories=[str(categories.get("department") or "").strip()] if categories.get("department") else [],
+        ))
+    if not rows:
+        raise RuntimeError(f"Lever/{board} returned no vacancies")
+    return rows
+
+
+def _lever_board_fetcher(source, board, company):
+    def fetch_lever_board_source():
+        return fetch_lever_board(source, board, company)
+
+    fetch_lever_board_source.__name__ = fetch_lever_board_source.__qualname__ = f"fetch_{source}"
+    fetch_lever_board_source.__doc__ = f"Collect {company} vacancies from its Lever board."
+    return fetch_lever_board_source
+
+
+LEVER_BOARD_FETCHERS = {
+    source: _lever_board_fetcher(source, board, company)
+    for source, board, company in LEVER_BOARDS
+}
+LEVER_BOARD_TARGETS = tuple(LEVER_BOARD_FETCHERS.items())
