@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import sys
 import urllib.error
 import urllib.request
@@ -20,7 +19,6 @@ from zoneinfo import ZoneInfo
 
 BRASILIA = ZoneInfo("America/Sao_Paulo")
 DEFAULT_SNAPSHOT_URL = "https://edsonjunioor32.github.io/todas-as-vagas/data/vagas.json"
-DEFAULT_WEBHOOK_URL = "https://hook.us2.make.com/pmtttsu5fw61y2sjhyevac82zw74mwx0"
 DEFAULT_CARD_URL = "https://raw.githubusercontent.com/edsonjunioor32/todas-as-vagas/main/docs/assets/img/card_desperta_vagas.jpg"
 WHATSAPP_CHANNEL = "https://whatsapp.com/channel/0029Vb8RtiHEquiKyIFpqw1s"
 MAX_POST_CHARS = 3000
@@ -233,7 +231,10 @@ def publish_morning(dry_run: bool = False, force: bool = False, webhook_url: str
             print("Encerrando execução de forma segura para impedir publicações duplicadas.")
             return 0
 
-    webhook_url = webhook_url or os.environ.get("MAKE_LINKEDIN_WEBHOOK_URL") or DEFAULT_WEBHOOK_URL
+    webhook_url = utils.resolve_webhook_url(webhook_url)
+    if webhook_url is None and not dry_run:
+        return utils.report_missing_webhook()
+
     print(f"Buscando catálogo de vagas de {DEFAULT_SNAPSHOT_URL}...")
     req = urllib.request.Request(DEFAULT_SNAPSHOT_URL, headers={"User-Agent": "TodasAsVagasBot/1.0"})
     with urllib.request.urlopen(req, timeout=30) as resp:
@@ -269,7 +270,8 @@ def publish_morning(dry_run: bool = False, force: bool = False, webhook_url: str
         print(f"\nCard anexado: {DEFAULT_CARD_URL}")
         return 0
 
-    print(f"Enviando para o Webhook do Make ({webhook_url[:35]}...)...")
+    # Logs do Actions são públicos e só mascaram o secret inteiro: nenhum trecho da URL é impresso.
+    print("Enviando para o Webhook do Make (URL omitida do log)...")
     data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
     webhook_req = urllib.request.Request(webhook_url, data=data, headers={"Content-Type": "application/json; charset=utf-8"})
 
@@ -288,7 +290,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Publicador matinal Desperta Vagas para o LinkedIn")
     parser.add_argument("--dry-run", action="store_true", help="Apenas simula e exibe o post sem disparar o webhook")
     parser.add_argument("--force", action="store_true", help="Ignora a checagem de post matinal já publicado hoje e força o envio")
-    parser.add_argument("--webhook-url", type=str, default=None, help="URL customizada do webhook Make.com")
+    parser.add_argument(
+        "--webhook-url",
+        type=str,
+        default=None,
+        help="URL do webhook Make.com; se omitida, usa MAKE_LINKEDIN_WEBHOOK_URL (obrigatória fora do --dry-run)",
+    )
     args = parser.parse_args()
 
     sys.exit(publish_morning(dry_run=args.dry_run, force=args.force, webhook_url=args.webhook_url))

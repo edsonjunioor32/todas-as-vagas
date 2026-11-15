@@ -14,19 +14,47 @@ import re
 import sys
 import urllib.error
 import urllib.request
+from collections.abc import Mapping
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
 BRASILIA = ZoneInfo("America/Sao_Paulo")
 DEFAULT_SNAPSHOT_URL = "https://edsonjunioor32.github.io/todas-as-vagas/data/vagas.json"
-DEFAULT_WEBHOOK_URL = "https://hook.us2.make.com/pmtttsu5fw61y2sjhyevac82zw74mwx0"
+# O webhook do Make é um segredo: o repositório é público e quem tiver a URL
+# consegue publicar no LinkedIn. Não há valor padrão embutido no código.
+WEBHOOK_ENV_VAR = "MAKE_LINKEDIN_WEBHOOK_URL"
+MISSING_WEBHOOK_EXIT_CODE = 2
 DEFAULT_BANNER_URL = "https://raw.githubusercontent.com/edsonjunioor32/todas-as-vagas/main/docs/assets/img/banner_linkedin_semanal.jpg"
 WHATSAPP_CHANNEL = "https://whatsapp.com/channel/0029Vb8RtiHEquiKyIFpqw1s"
 MAX_POST_CHARS = 3000
 TARGET_CHARS = 2800
 
 STATE_PATH = Path("docs/data/linkedin_digest_state.json")
+
+
+def resolve_webhook_url(cli_value: str | None = None, env: Mapping[str, str] | None = None) -> str | None:
+    """Retorna a URL do webhook vinda de --webhook-url ou de MAKE_LINKEDIN_WEBHOOK_URL.
+
+    O argumento da linha de comando tem precedência; valores vazios ou só com
+    espaços contam como ausentes. Retorna None quando nenhum dos dois existe.
+    """
+    env = os.environ if env is None else env
+    for candidate in (cli_value, env.get(WEBHOOK_ENV_VAR)):
+        if candidate and candidate.strip():
+            return candidate.strip()
+    return None
+
+
+def report_missing_webhook() -> int:
+    """Explica a configuração ausente no stderr e devolve o código de saída."""
+    print(
+        f"Erro: webhook do Make não configurado. Defina o secret {WEBHOOK_ENV_VAR} no repositório "
+        "(ou a variável de ambiente de mesmo nome) ou informe --webhook-url. "
+        "Para apenas simular o post sem webhook, use --dry-run.",
+        file=sys.stderr,
+    )
+    return MISSING_WEBHOOK_EXIT_CODE
 
 # Portais confiáveis do ecossistema brasileiro
 VALID_BRAZIL_DOMAINS = [
@@ -370,7 +398,10 @@ def publish_weekly(dry_run: bool = False, force: bool = False, webhook_url: str 
             print("Encerrando execução de forma segura para impedir publicações duplicadas.")
             return 0
 
-    webhook_url = webhook_url or os.environ.get("MAKE_LINKEDIN_WEBHOOK_URL") or DEFAULT_WEBHOOK_URL
+    webhook_url = resolve_webhook_url(webhook_url)
+    if webhook_url is None and not dry_run:
+        return report_missing_webhook()
+
     print(f"Buscando catálogo de vagas de {DEFAULT_SNAPSHOT_URL}...")
     req = urllib.request.Request(DEFAULT_SNAPSHOT_URL, headers={"User-Agent": "TodasAsVagasBot/1.0"})
     with urllib.request.urlopen(req, timeout=30) as resp:
@@ -406,7 +437,8 @@ def publish_weekly(dry_run: bool = False, force: bool = False, webhook_url: str 
         print(f"\nBanner anexado: {DEFAULT_BANNER_URL}")
         return 0
 
-    print(f"Enviando para o Webhook do Make ({webhook_url[:35]}...)...")
+    # Logs do Actions são públicos e só mascaram o secret inteiro: nenhum trecho da URL é impresso.
+    print("Enviando para o Webhook do Make (URL omitida do log)...")
     data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
     webhook_req = urllib.request.Request(webhook_url, data=data, headers={"Content-Type": "application/json; charset=utf-8"})
 
@@ -425,7 +457,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Publicador semanal das melhores vagas executivas para o LinkedIn")
     parser.add_argument("--dry-run", action="store_true", help="Apenas simula e exibe o post sem disparar o webhook")
     parser.add_argument("--force", action="store_true", help="Ignora a checagem de semana já postada e força o envio")
-    parser.add_argument("--webhook-url", type=str, default=None, help="URL customizada do webhook Make.com")
+    parser.add_argument(
+        "--webhook-url",
+        type=str,
+        default=None,
+        help="URL do webhook Make.com; se omitida, usa MAKE_LINKEDIN_WEBHOOK_URL (obrigatória fora do --dry-run)",
+    )
     args = parser.parse_args()
 
     sys.exit(publish_weekly(dry_run=args.dry_run, force=args.force, webhook_url=args.webhook_url))
