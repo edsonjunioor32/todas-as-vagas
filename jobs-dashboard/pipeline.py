@@ -548,19 +548,36 @@ def discard_old_publications(rows, cutoff, today=None, max_age_months=2):
     return kept, dropped
 
 
-def write_actions_summary(source_metrics, phases, total_jobs, failed):
+def write_actions_summary(source_metrics, phases, total_jobs, failed, volume_alerts=None):
     """Expose timing and source health in the GitHub Actions run summary."""
     summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
     if not summary_path:
         return
     ordered = sorted(source_metrics, key=lambda item: item["seconds"], reverse=True)
+    volume_alerts = volume_alerts or []
     lines = [
         "## Atualização do Portal Todas as Vagas",
         "",
         f"- **Vagas consolidadas:** {total_jobs:,}".replace(",", "."),
         f"- **Fontes com falha:** {', '.join(failed) if failed else 'nenhuma'}",
+        f"- **Fontes com queda de volume:** "
+        f"{', '.join(a['source'] for a in volume_alerts) if volume_alerts else 'nenhuma'}",
         f"- **Tempo total do pipeline Python:** {phases.get('total', 0):.1f}s",
         "",
+    ]
+    if volume_alerts:
+        lines.extend([
+            "### Queda de volume (abaixo de 50% da mediana de 7 dias)",
+            "",
+            "| Fonte | Vagas agora | Mediana recente | Execuções na base |",
+            "|---|---:|---:|---:|",
+        ])
+        lines.extend(
+            f"| {a['source']} | {a['jobs']} | {a['baseline']:g} | {a['runs']} |"
+            for a in volume_alerts
+        )
+        lines.append("")
+    lines += [
         "### Tempos por etapa",
         "",
         "| Etapa | Tempo |",
@@ -703,6 +720,21 @@ def main(before_persist=None):
         failed_sources=set(failed) | set(PAUSED_SOURCES),
         observed_at=storage.utc_now_iso(),
     )
+    # Silent degradation: a source that "succeeds" with far fewer jobs than
+    # its recent median. Compared before recording this run's sample.
+    healthy_sources = set(selected_sources) - set(failed) - set(PAUSED_SOURCES)
+    volume_observed_at = storage.utc_now_iso()
+    volume_alerts = storage.source_volume_alerts(
+        conn, counts, healthy_sources, observed_at=volume_observed_at
+    )
+    storage.record_source_volumes(
+        conn, counts, healthy_sources, observed_at=volume_observed_at
+    )
+    for alert in volume_alerts:
+        print(
+            f"::warning title=Queda de volume::{alert['source']}: {alert['jobs']} vagas "
+            f"(mediana de {alert['baseline']:g} em {alert['runs']} execuções recentes)"
+        )
     recrutei_repaired = 0
     if "recrutei" in selected_sources and "recrutei" not in failed:
         candidates = conn.execute(
@@ -812,7 +844,7 @@ def main(before_persist=None):
         "  tempos: "
         + " · ".join(f"{name}: {seconds:.1f}s" for name, seconds in phases.items())
     )
-    write_actions_summary(source_metrics, phases, count, failed)
+    write_actions_summary(source_metrics, phases, count, failed, volume_alerts)
     print("=" * 72)
 
 

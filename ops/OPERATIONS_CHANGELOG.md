@@ -1,3 +1,11 @@
+## 2026-11-15 — Alerta de queda silenciosa de volume por fonte
+
+- `history-data/data/jobs.db` ganha a tabela `source_volume` (criada por `CREATE TABLE IF NOT EXISTS`, sem migração destrutiva): uma amostra de vagas por fonte saudável a cada coleta, com retenção de 30 dias.
+- Antes de gravar a amostra, `jobs-dashboard/pipeline.py` compara cada fonte que não falhou com a mediana das suas execuções dos últimos 7 dias. Abaixo de 50% da mediana (ignorando medianas menores que 10), emite `::warning` no run e lista a fonte em "Fontes com queda de volume" no resumo do Actions.
+- Complementa `source_health`, que só trata fontes com erro; nada é bloqueado, descartado ou notificado em canais externos (site, Telegram, `botwhats` e agente inalterados).
+- **Checagem pós-implantação:** após a primeira coleta completa, confirmar a tabela no `jobs.db` publicado e a linha "Fontes com queda de volume" no resumo; os alertas começam a valer quando houver histórico.
+- **Reversão:** `git revert`; a tabela extra pode ficar no banco sem efeito.
+
 ## 2026-11-15 — Menos acionamentos vazios dos digests do LinkedIn e higiene de CI
 
 - **Evidência (API pública de runs, 12–15/11):** o digest diário teve 58 execuções, todas via `workflow_run` e nenhuma via `schedule`; 30 delas no sábado 14/11. O matinal teve 43 e o semanal 36, quase todas sem publicar (≈9 s cada). Entre 14 e 15/11, `catalog-catchup.yml` concluiu 20 vezes (16 encadeadas ao fim do catálogo) e cada conclusão acionava os digests outra vez.
@@ -524,6 +532,7 @@ Todos os arquivos desta seção são testes automatizados; não são coletores n
 - `jobs-dashboard/tests/test_linkedin_digest_schedule.py` — trava de dias úteis do digest diário e ausência do recuperador como gatilho dos digests.
 - `jobs-dashboard/tests/test_linkedin_webhook_config.py` — webhook do Make só via configuração: sem URL embutida, erro sem secret, dry-run sem webhook e URL fora dos logs.
 - `jobs-dashboard/tests/test_mercadolivre.py` — fonte Mercado Livre.
+- `jobs-dashboard/tests/test_source_volume.py` — detecção de queda de volume por fonte e resumo do Actions.
 - `jobs-dashboard/tests/test_merge_dynamic_portals.py` — mesclagem dinâmica.
 - `jobs-dashboard/tests/test_new_sources.py` — fontes recém-incorporadas.
 - `jobs-dashboard/tests/test_ngcash.py` — fonte NG.CASH.
