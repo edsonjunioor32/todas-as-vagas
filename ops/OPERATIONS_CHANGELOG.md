@@ -1,3 +1,13 @@
+## 2026-11-15 — Retentativas HTTP com backoff exponencial, jitter e Retry-After
+
+- `jobs-dashboard/sources/_http.py` (usado por 49 módulos de fonte) trocou a espera linear fixa (2 s e 4 s com `retries=3`) por backoff exponencial com *equal jitter*: cada pausa cai entre metade e o passo inteiro (`backoff`, `2×`, `4×`…, teto de 30 s). Com `retries=3`, a espera média cai de 6 s para 4,5 s por requisição que falha, e fontes paralelas deixam de repetir em sincronia.
+- Respostas 429/503 com `Retry-After` (segundos ou data HTTP) passam a ser respeitadas quando pedem mais tempo, com teto de 30 s por tentativa; antes a fonte repetia em 2–4 s e costumava ser bloqueada de novo.
+- `sources/bradesco.py` usa o mesmo cálculo no seu POST ao CSOD.
+- Códigos que já eram permanentes (4xx fora dos configurados) continuam sem retentativa; número de tentativas, timeouts e cache por ETag não mudaram. As pausas curtas entre páginas dentro das fontes são limitação de cortesia e foram mantidas.
+- **Impacto por portal:** todas as fontes que usam `_http` (ATS, portais e APIs públicas) ganham o novo intervalo; Gupy MCP já tinha tratamento próprio de `Retry-After` e não muda. Site, Telegram, `botwhats` e agente não são afetados.
+- **Checagem pós-implantação:** comparar tempo da etapa "Coleta das fontes" e lista de fontes com falha no resumo do próximo catálogo com os runs anteriores.
+- **Reversão:** `git revert`.
+
 ## 2026-11-15 — Alerta de queda silenciosa de volume por fonte
 
 - `history-data/data/jobs.db` ganha a tabela `source_volume` (criada por `CREATE TABLE IF NOT EXISTS`, sem migração destrutiva): uma amostra de vagas por fonte saudável a cada coleta, com retenção de 30 dias.
@@ -528,6 +538,7 @@ Todos os arquivos desta seção são testes automatizados; não são coletores n
 - `jobs-dashboard/tests/test_fit_requirements.py` — extração de requisitos.
 - `jobs-dashboard/tests/test_gupy.py` — fonte Gupy.
 - `jobs-dashboard/tests/test_homepage_cta_styles.py` — CTAs da página inicial.
+- `jobs-dashboard/tests/test_http_retry.py` — backoff exponencial com jitter, `Retry-After` e não retentativa de erros permanentes no cliente HTTP compartilhado.
 - `jobs-dashboard/tests/test_linkedin.py` — contrato do snapshot LinkedIn, janela de 30 dias e rejeição de dados inválidos.
 - `jobs-dashboard/tests/test_linkedin_digest_schedule.py` — trava de dias úteis do digest diário e ausência do recuperador como gatilho dos digests.
 - `jobs-dashboard/tests/test_linkedin_webhook_config.py` — webhook do Make só via configuração: sem URL embutida, erro sem secret, dry-run sem webhook e URL fora dos logs.
