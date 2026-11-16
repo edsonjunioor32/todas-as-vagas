@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-16T14:31:57.047170+00:00",
+  "generated_at": "2026-11-16T18:31:42.637630+00:00",
   "candidate_count": 8331,
-  "company_count": 143,
+  "company_count": 157,
   "companies": [
     {
       "board": "abinbev",
       "company": "AB InBev  | Growth Group",
-      "brazil_jobs": 46
+      "brazil_jobs": 45
     },
     {
       "board": "abnormalsecurity",
@@ -127,7 +127,7 @@
     {
       "board": "bees",
       "company": "BEES",
-      "brazil_jobs": 52
+      "brazil_jobs": 49
     },
     {
       "board": "blip-global",
@@ -172,7 +172,7 @@
     {
       "board": "c6bank",
       "company": "C6 Bank",
-      "brazil_jobs": 156
+      "brazil_jobs": 157
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -182,7 +182,7 @@
     {
       "board": "capco",
       "company": "Capco",
-      "brazil_jobs": 134
+      "brazil_jobs": 135
     },
     {
       "board": "caronsale",
@@ -240,6 +240,11 @@
       "brazil_jobs": 1
     },
     {
+      "board": "sourcingcour",
+      "company": "Coursera Sourcing",
+      "brazil_jobs": 1
+    },
+    {
       "board": "databricks",
       "company": "Databricks",
       "brazil_jobs": 9
@@ -267,7 +272,7 @@
     {
       "board": "ebanx",
       "company": "EBANX",
-      "brazil_jobs": 21
+      "brazil_jobs": 22
     },
     {
       "board": "ebury",
@@ -457,7 +462,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 112
+      "brazil_jobs": 110
     },
     {
       "board": "interbrand",
@@ -560,11 +565,6 @@
       "brazil_jobs": 3
     },
     {
-      "board": "nice",
-      "company": "NICE",
-      "brazil_jobs": 1
-    },
-    {
       "board": "ohalogenetics",
       "company": "Ohalo",
       "brazil_jobs": 2
@@ -618,6 +618,11 @@
       "board": "platformscience",
       "company": "Platform Science",
       "brazil_jobs": 16
+    },
+    {
+      "board": "sonyinteractiveentertainmentglobal",
+      "company": "PlayStation Global",
+      "brazil_jobs": 1
     },
     {
       "board": "podium81",
@@ -700,6 +705,71 @@
       "brazil_jobs": 1
     },
     {
+      "board": "signifyd95",
+      "company": "Signifyd",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "smartlyio",
+      "company": "Smartly",
+      "brazil_jobs": 2
+    },
+    {
+      "board": "sohohouseco",
+      "company": "Soho House & Co.",
+      "brazil_jobs": 10
+    },
+    {
+      "board": "spacexglobal",
+      "company": "SpaceX_Global",
+      "brazil_jobs": 7
+    },
+    {
+      "board": "sterlingtonpllc",
+      "company": "Sterlington, PLLC",
+      "brazil_jobs": 4
+    },
+    {
+      "board": "stonepatrocina",
+      "company": "Stone - Indeed",
+      "brazil_jobs": 226
+    },
+    {
+      "board": "stripe",
+      "company": "Stripe",
+      "brazil_jobs": 3
+    },
+    {
+      "board": "studycontractors",
+      "company": "Study.com C",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "sumup",
+      "company": "SumUp",
+      "brazil_jobs": 33
+    },
+    {
+      "board": "syndigo",
+      "company": "Syndigo",
+      "brazil_jobs": 3
+    },
+    {
+      "board": "taboola",
+      "company": "Taboola",
+      "brazil_jobs": 2
+    },
+    {
+      "board": "takealotcom",
+      "company": "takealot.com",
+      "brazil_jobs": 2
+    },
+    {
+      "board": "telnyx54",
+      "company": "Telnyx",
+      "brazil_jobs": 2
+    },
+    {
       "board": "cloudbedsthirdpartyboard",
       "company": "Third-Party Job Posts",
       "brazil_jobs": 1
@@ -707,7 +777,7 @@
     {
       "board": "gympass",
       "company": "Wellhub",
-      "brazil_jobs": 39
+      "brazil_jobs": 38
     },
     {
       "board": "agencywithin",
@@ -717,7 +787,7 @@
     {
       "board": "ilia",
       "company": "ília",
-      "brazil_jobs": 10
+      "brazil_jobs": 11
     }
   ]
 }
