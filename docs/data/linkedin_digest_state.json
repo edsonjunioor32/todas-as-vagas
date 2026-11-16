@@ -43,9 +43,15 @@
       "type": "morning_desperta",
       "jobs_count": 12,
       "timestamp": "2026-11-15T09:13:32.503389-03:00"
+    },
+    {
+      "date": "2026-11-16",
+      "type": "morning_desperta",
+      "jobs_count": 12,
+      "timestamp": "2026-11-16T07:38:57.844739-03:00"
     }
   ],
-  "last_morning_posted_date": "2026-11-15",
+  "last_morning_posted_date": "2026-11-16",
   "posted_job_urls": [
     "https://centaurotalentos.gupy.io/job/eyjqb2jjzci6mti4nzk3ndasinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
     "https://localiza.gupy.io/job/eyjqb2jjzci6mti4njqxmtcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
@@ -174,7 +180,19 @@
     "https://eibeleza.gupy.io/job/eyjqb2jjzci6mti2nzg3nzysinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
     "https://qeevo.inhire.app/vagas/4179416c-f675-4dcd-85bd-aad0af73be7c/estagio-em-design-grafico-branding-e-marketing",
     "https://www.infojobs.com.br/vaga-de-operador-logistica-em-parana__12219981.aspx",
-    "https://www.infojobs.com.br/vaga-de-supervisor-compras-em-alagoas__12220013.aspx"
+    "https://www.infojobs.com.br/vaga-de-supervisor-compras-em-alagoas__12220013.aspx",
+    "https://riachuelo.inhire.app/vagas/8b3b5680-71b6-4020-a108-1ed25bc75aa9/atendente-de-vendas-i-shopping-santos-miramar",
+    "https://lojasrenner.gupy.io/job/eyjqb2jjzci6mti4otq2mzcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://grupolos.inhire.app/vagas/b1878555-ea3f-44a5-a63e-b9f2e1477187/banco-de-talentos-analista-de-rh-florestal-sao-paulo-sp",
+    "https://vector-unitech.gupy.io/job/eyjqb2jjzci6mti2nzq1mzmsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://extractta.inhire.app/vagas/4e04e086-76d1-4c30-b611-c8cdc6425ca4/analista-de-dados-e-bi-senior",
+    "https://solorecruiter.inhire.app/vagas/2ece76bb-a910-44ce-b8ea-a152378b7803/analista-de-suporte-e-implantacao-junior-crm-saas-banco-de-talentos",
+    "https://www.infojobs.com.br/vaga-de-agente-atendimento-ao-cliente-em-sao-paulo__12220515.aspx",
+    "https://www.infojobs.com.br/vaga-de-atendimento-ao-cliente-em-sao-paulo__12220459.aspx",
+    "https://vagas.solides.com.br/vaga/953425/gestor-de-trafego-pago-com-experiencia-assessoria-de-marketing-e-vendas",
+    "https://jobs.quickin.io/prologapp/jobs/6a7da65b36b478001333c624",
+    "https://emergentcoldlatam.gupy.io/job/eyjqb2jjzci6mti4ndiymzcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://eletromidia.gupy.io/job/eyjqb2jjzci6mti4otq1ntqsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq=="
   ],
   "posted_job_signatures": [
     "centauro talentos:vendedor a  bh shopping",
@@ -291,6 +309,18 @@
     "grupo ei beleza:assistente de trade marketing",
     "qeevo:estágio em design gráfico  bra",
     "mission brasil servicos m:operador de logistica",
-    "akuaba:supervisor de compras"
+    "akuaba:supervisor de compras",
+    "riachuelo:atendente de vendas i  shoppin",
+    "lojas renner:lojas renner assistente de ven",
+    "grupo los:banco de talentos  analista de",
+    "vector:estagiário de recursos humanos",
+    "extractta:analista de dados e bi sênior",
+    "solorecruiter:analista de suporte e implanta",
+    "af inteligência imobiliár:agente de atendimento ao clien",
+    "cosmo de amorim oliveira:atendimento ao cliente",
+    "mj negocios digitais ltda:gestor de tráfego pago com exp",
+    "prolog app:analista de marketing  eventos",
+    "emergent cold latam:assistente pcl  planejamento c",
+    "eletromidia:analista de planejamento e míd"
   ]
 }
