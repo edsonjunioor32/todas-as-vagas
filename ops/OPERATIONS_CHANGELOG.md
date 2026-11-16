@@ -1,3 +1,17 @@
+## 2026-11-15 — Publicação do catálogo resistente a commits de dados e à falha do artefato do Pages
+
+- **Evidência (API pública, 08–15/11):** 17 das 60 execuções do `pages.yml` falharam. Das 12 mais recentes:
+  - 6 pararam em "Confirmar que o código da coleta ainda é o commit disparador". Qualquer commit no `main` durante os ~35 min da coleta recusava a publicação, inclusive os commits automáticos (46 dos 158 commits do `main` na semana: snapshot do LinkedIn, estado dos digests e índices Greenhouse/InHire). Nesses casos nada era publicado.
+  - 6 pararam em "Publicar" com "No artifacts named github-pages-<run>-1 were found": o deploy procurou o artefato antes de ele aparecer na API. O `public-data` já estava publicado e só o site ficava para trás.
+- Novo `jobs-dashboard/publication_guard.py`: compara as árvores do commit disparador e da ponta do `main` e só bloqueia se mudou algo fora dos arquivos de dados automáticos (`docs/data/linkedin_vagas.json`, `docs/data/linkedin_digest_state.json`, `docs/data/greenhouse-watchlist.json`, índices em `jobs-dashboard/data/` e `busca_vagas/inhire_tenants_seed.json`) e de Markdown. Mudança de código continua recusando a publicação, como antes.
+- "Preservar histórico e fotografia pública" grava os índices sobre a ponta atual do `main` quando ele avançou só com dados. A etapa nunca sobrescreve índices alterados por outra execução (`--forbid`) e virou `continue-on-error`: se os índices não puderem ser registrados, o Pages é publicado mesmo assim, com aviso no run.
+- Os dois jobs que publicam no Pages esperam até 2 minutos o artefato aparecer na API de runs e, se o deploy falhar, repetem uma vez após 30 s.
+- **Impacto por canal:** site, Telegram, `botwhats` e agente passam a receber o catálogo nas execuções que antes eram recusadas por commits de dados. O conteúdo publicado não muda.
+- **Redundância restante:** recuperador `catalog-catchup.yml` e scheduler da VPS inalterados. As verificações de privacidade, preflight e confirmação do `public-data` seguem iguais.
+- **Checagem pós-implantação:** acompanhar as próximas execuções do `pages.yml`. Uma execução com commit de dados no meio deve mostrar "OK: o main avançou ... só com dados automáticos" e publicar. Uma falha de artefato deve aparecer como aviso seguido de "Repetir publicação no Pages".
+- **Reversão:** `git revert`. A etapa de índices volta a falhar o job quando o `main` avança.
+- **Próximo passo, fora deste PR:** tirar do `main` o snapshot do LinkedIn (~770 KB a cada coleta) e os índices exige migrar quem os lê (`pages.yml`, `linkedin-jobs.yml`, `sources/linkedin.py`). Com o guarda, esses commits deixam de derrubar a publicação; o custo restante é o tamanho do histórico.
+
 ## 2026-11-15 — Cache de detalhes entre coletas (Senior)
 
 - Novo `jobs-dashboard/sources/_detail_cache.py`: guarda, na tabela `detail_cache` do `jobs.db`, os campos de detalhe por vaga que uma fonte só obtém numa requisição individual. Nunca guarda descrições: campos com "description" no nome são descartados, e o `jobs.db` continua sem texto de descrição.
@@ -419,7 +433,7 @@ Escopo: 173 arquivos rastreados da branch `main` nesta revisão, incluindo `AGEN
 - `.github/workflows/linkedin-weekly-digest.yml` — publica a edição semanal executiva de sexta-feira no LinkedIn via webhook do Make (secret `MAKE_LINKEDIN_WEBHOOK_URL`) a partir das 19h15 BRT; ticks de cron mais conclusão do catálogo.
 - `.github/workflows/mercado-livre-isolated.yml` — validação isolada do coletor Mercado Livre.
 - `.github/workflows/merge-dynamic-portals.yml` — mesclagem controlada de portais dinâmicos.
-- `.github/workflows/pages.yml` — coleta em quatro horários diários e um horário semanal Greenhouse, acionamento manual/recuperação e deploy de interface em push; push comum pode publicar apenas a interface.
+- `.github/workflows/pages.yml` — coleta em quatro horários diários e um horário semanal Greenhouse, acionamento manual/recuperação e deploy de interface em push; push comum pode publicar apenas a interface. A publicação usa `publication_guard.py` para tolerar commits só de dados; o deploy espera o artefato e repete uma vez.
 - `.github/workflows/telegram.yml` — envio operacional/manual e estado do Telegram.
 - `.github/workflows/ux-preview.yml` — validação da interface em PRs.
 - `.github/workflows/validate-dynamic-portals.yml` — valida portais dinâmicos em PRs, varredura semanal e execução manual; não publica catálogo.
@@ -478,6 +492,7 @@ Escopo: 173 arquivos rastreados da branch `main` nesta revisão, incluindo `AGEN
 - `jobs-dashboard/notify_telegram.py` — formata e envia notificações Telegram com deduplicação.
 - `jobs-dashboard/pipeline.py` — coordena coletores, histórico e snapshot público.
 - `jobs-dashboard/pipeline_fit.py` — gera índice auxiliar de aderência.
+- `jobs-dashboard/publication_guard.py` — decide se o `main` avançou com mudanças de código durante a coleta; commits só de dados automáticos ou Markdown não bloqueiam a publicação.
 - `jobs-dashboard/requirements.txt` — dependências Python da coleta e validação.
 - `jobs-dashboard/storage.py` — histórico SQLite (inclui as tabelas `source_volume` e `detail_cache`) e exportação compacta do snapshot.
 - `jobs-dashboard/validate_dynamic_portals.py` — valida seleção/resultados dos portais dinâmicos.
@@ -593,6 +608,7 @@ Todos os arquivos desta seção são testes automatizados; não são coletores n
 - `jobs-dashboard/tests/test_portal_source_resilience.py` — isolamento de falhas de fontes.
 - `jobs-dashboard/tests/test_prepare_fit_assets.py` — valida o ponto público de entrada e os ativos locais do analisador.
 - `jobs-dashboard/tests/test_publication_concurrency.py` — prevenção de publicações concorrentes.
+- `jobs-dashboard/tests/test_publication_guard.py` — guarda de publicação (dados x código), índices sem bloquear o deploy e repetição do deploy do Pages.
 - `jobs-dashboard/tests/test_pwc_source.py` — fonte PwC.
 - `jobs-dashboard/tests/test_quickin_pagination.py` — paginação Quickin.
 - `jobs-dashboard/tests/test_recrut_ai_sources.py` — fontes Recrut.ai.

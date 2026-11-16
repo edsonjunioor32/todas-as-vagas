@@ -54,7 +54,7 @@ jobs:
     timeout-minutes: 20
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url || steps.deployment-retry.outputs.page_url }}
 
     steps:
       - name: Baixar o repositório
@@ -108,8 +108,45 @@ jobs:
           name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
           path: docs
 
+      - name: Aguardar o artefato do Pages na API
+        # deploy-pages procura o artefato pela API de runs; logo após o upload
+        # ele às vezes ainda não aparece ("No artifacts named ... were found").
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_NAME: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          set -uo pipefail
+          for attempt in $(seq 1 12); do
+            count="$(curl -fsS \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts?name=$ARTIFACT_NAME" \
+              | python -c 'import json, sys; print(json.load(sys.stdin).get("total_count", 0))' 2>/dev/null || echo 0)"
+            if [ "${count:-0}" -ge 1 ]; then
+              echo "Artefato $ARTIFACT_NAME disponível na tentativa $attempt."
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::warning::O artefato $ARTIFACT_NAME ainda não aparece na API; o deploy tentará assim mesmo."
+
       - name: Publicar
         id: deployment
+        continue-on-error: true
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: Aguardar antes de repetir a publicação
+        if: steps.deployment.outcome == 'failure'
+        run: |
+          echo "::warning::A primeira tentativa de publicar no Pages falhou; repetindo em 30 segundos."
+          sleep 30
+
+      - name: Repetir publicação no Pages
+        id: deployment-retry
+        if: steps.deployment.outcome == 'failure'
         uses: actions/deploy-pages@v4
         with:
           artifact_name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
@@ -120,7 +157,7 @@ jobs:
     timeout-minutes: 120
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url || steps.deployment-retry.outputs.page_url }}
 
     steps:
       - name: Baixar o repositório
@@ -449,12 +486,9 @@ jobs:
         run: |
           set -euo pipefail
           git fetch --depth=1 --no-tags origin +refs/heads/main:refs/remotes/origin/main
-          current_main_sha="$(git rev-parse origin/main)"
-          if [ "$current_main_sha" != "$GITHUB_SHA" ]; then
-            echo "ERRO: main avançou durante a coleta; recusando publicar um snapshot baseado em código defasado." >&2
-            exit 1
-          fi
-          echo "OK: a coleta será publicada a partir de $GITHUB_SHA."
+          # Commits automáticos de dados (LinkedIn, digests, índices) e de
+          # documentação não invalidam a coleta; mudança de código ainda recusa.
+          python jobs-dashboard/publication_guard.py --base "$GITHUB_SHA" --head origin/main
 
       - name: Publicar snapshots no ramo dedicado
         shell: bash
@@ -506,23 +540,47 @@ jobs:
           echo "OK: public-data mudou e os snapshots publicados correspondem à execução atual."
 
       - name: Preservar histórico e fotografia pública
+        # Os índices são otimização da próxima descoberta: se não puderem ser
+        # registrados, o Pages ainda deve ser publicado com o catálogo novo.
+        continue-on-error: true
         shell: bash
         run: |
+          set -euo pipefail
           cp jobs-dashboard/data/greenhouse_watchlist.json docs/data/greenhouse-watchlist.json
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add busca_vagas/inhire_tenants_seed.json jobs-dashboard/data/greenhouse_br_companies.json jobs-dashboard/data/greenhouse_watchlist.json docs/data/greenhouse-watchlist.json
-          if git diff --cached --quiet; then
+          index_files=(
+            busca_vagas/inhire_tenants_seed.json
+            jobs-dashboard/data/greenhouse_br_companies.json
+            jobs-dashboard/data/greenhouse_watchlist.json
+            docs/data/greenhouse-watchlist.json
+          )
+          git fetch --depth=1 --no-tags origin +refs/heads/main:refs/remotes/origin/main
+          # Grava sobre a ponta atual do main somente se ele avançou com dados
+          # automáticos ou documentação e ninguém mais alterou estes índices.
+          if ! python jobs-dashboard/publication_guard.py --base "$GITHUB_SHA" --head origin/main --forbid "${index_files[@]}"; then
+            echo "::warning::Índices Greenhouse/InHire desta execução não foram registrados no main; a próxima execução os recalcula."
+            echo "Índices Greenhouse/InHire não registrados: o main avançou com mudanças incompatíveis." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          index_worktree="$(mktemp -d)"
+          cleanup() {
+            git worktree remove --force "$index_worktree" >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+          git worktree add --detach "$index_worktree" origin/main
+          for path in "${index_files[@]}"; do
+            mkdir -p "$index_worktree/$(dirname "$path")"
+            cp "$path" "$index_worktree/$path"
+          done
+          git -C "$index_worktree" add "${index_files[@]}"
+          if git -C "$index_worktree" diff --cached --quiet; then
             echo "Nenhuma alteração para registrar."
-          else
-            git commit -m "Atualiza índice público de vagas [skip ci]"
-            git fetch --depth=1 --no-tags origin +refs/heads/main:refs/remotes/origin/main
-            current_main_sha="$(git rev-parse origin/main)"
-            if [ "$current_main_sha" != "$GITHUB_SHA" ]; then
-              echo "ERRO: main avançou antes do commit de manutenção; não faremos rebase silencioso." >&2
-              exit 1
-            fi
-            git push origin HEAD:main
+            exit 0
+          fi
+          git -C "$index_worktree" config user.name "github-actions[bot]"
+          git -C "$index_worktree" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C "$index_worktree" commit -m "Atualiza índice público de vagas [skip ci]"
+          if ! git -C "$index_worktree" push origin HEAD:main; then
+            echo "::warning::O main mudou durante o envio dos índices; a próxima execução os recalcula."
           fi
 
       - name: Preparar analisador para o site
@@ -537,8 +595,45 @@ jobs:
           name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
           path: docs
 
+      - name: Aguardar o artefato do Pages na API
+        # deploy-pages procura o artefato pela API de runs; logo após o upload
+        # ele às vezes ainda não aparece ("No artifacts named ... were found").
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_NAME: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          set -uo pipefail
+          for attempt in $(seq 1 12); do
+            count="$(curl -fsS \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts?name=$ARTIFACT_NAME" \
+              | python -c 'import json, sys; print(json.load(sys.stdin).get("total_count", 0))' 2>/dev/null || echo 0)"
+            if [ "${count:-0}" -ge 1 ]; then
+              echo "Artefato $ARTIFACT_NAME disponível na tentativa $attempt."
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::warning::O artefato $ARTIFACT_NAME ainda não aparece na API; o deploy tentará assim mesmo."
+
       - name: Publicar
         id: deployment
+        continue-on-error: true
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: Aguardar antes de repetir a publicação
+        if: steps.deployment.outcome == 'failure'
+        run: |
+          echo "::warning::A primeira tentativa de publicar no Pages falhou; repetindo em 30 segundos."
+          sleep 30
+
+      - name: Repetir publicação no Pages
+        id: deployment-retry
+        if: steps.deployment.outcome == 'failure'
         uses: actions/deploy-pages@v4
         with:
           artifact_name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
