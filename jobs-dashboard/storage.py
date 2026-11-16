@@ -256,6 +256,13 @@ CREATE TABLE IF NOT EXISTS source_volume (
     jobs         INTEGER NOT NULL,
     PRIMARY KEY (observed_at, source)
 );
+CREATE TABLE IF NOT EXISTS detail_cache (
+    source       TEXT NOT NULL,
+    native_id    TEXT NOT NULL,
+    payload      TEXT NOT NULL,
+    fetched_at   TEXT NOT NULL,
+    PRIMARY KEY (source, native_id)
+);
 """
 
 MIGRATION_COLUMNS = {

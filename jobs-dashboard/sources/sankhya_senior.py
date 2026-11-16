@@ -6,6 +6,7 @@ import re
 from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urljoin
 
+from . import _detail_cache as detail_cache
 from ._common import iso_date, job, work_model_label
 from ._http import get_text, post_json
 
@@ -201,6 +202,22 @@ def _senior_detail_vacancy(native_id):
     return vacancy if isinstance(vacancy, dict) else {}
 
 
+# Only these detail fields feed the catalogue row; none of them is free text.
+SENIOR_DETAIL_FIELDS = ("localization", "jobModel", "experience", "hiringRegime", "pcd")
+
+
+def _senior_detail_fields(native_id):
+    """Detail fields of one vacancy, reused from a recent run while still fresh."""
+    cached = detail_cache.get("senior", native_id)
+    if cached is not None:
+        return cached
+    vacancy = _senior_detail_vacancy(native_id)
+    fields = {key: vacancy[key] for key in SENIOR_DETAIL_FIELDS if key in vacancy}
+    if fields:
+        detail_cache.put("senior", native_id, fields)
+    return fields
+
+
 def _senior_rows():
     first = _senior_page(0)
     total_pages = int(first.get("totalPages") or 1)
@@ -234,11 +251,12 @@ def _senior_rows():
 
     # The search endpoint intentionally returns only card fields.  The public
     # detail endpoint is what exposes hiringRegime, the definitive jobModel,
-    # experience and PCD flag shown on the Senior page.
+    # experience and PCD flag shown on the Senior page.  Vacancies seen in a
+    # recent run reuse those fields from the detail cache instead of a request.
     details = {}
     with ThreadPoolExecutor(max_workers=min(6, len(catalogue))) as pool:
         futures = {
-            native_id: pool.submit(_senior_detail_vacancy, native_id)
+            native_id: pool.submit(_senior_detail_fields, native_id)
             for native_id, _title, _vacancy, _company in catalogue
         }
         for native_id, future in futures.items():
