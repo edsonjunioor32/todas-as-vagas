@@ -292,16 +292,16 @@
     "tenantName": "Bankme."
   },
   {
-    "slug": "barte",
-    "tenantName": "Barte"
-  },
-  {
     "slug": "banni",
     "tenantName": "Banni"
   },
   {
     "slug": "barrosadvogados",
     "tenantName": "Barros & Advogados"
+  },
+  {
+    "slug": "barte",
+    "tenantName": "Barte"
   },
   {
     "slug": "bemobi",

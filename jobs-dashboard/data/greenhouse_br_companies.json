@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-15T18:31:45.339784+00:00",
+  "generated_at": "2026-11-16T14:31:57.047170+00:00",
   "candidate_count": 8331,
-  "company_count": 149,
+  "company_count": 143,
   "companies": [
     {
       "board": "abinbev",
@@ -32,12 +32,12 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 101
+      "brazil_jobs": 104
     },
     {
       "board": "agilize",
       "company": "Agilize",
-      "brazil_jobs": 2
+      "brazil_jobs": 3
     },
     {
       "board": "airbnb",
@@ -240,11 +240,6 @@
       "brazil_jobs": 1
     },
     {
-      "board": "sourcingcour",
-      "company": "Coursera Sourcing",
-      "brazil_jobs": 1
-    },
-    {
       "board": "databricks",
       "company": "Databricks",
       "brazil_jobs": 9
@@ -287,7 +282,7 @@
     {
       "board": "encora10",
       "company": "Encora",
-      "brazil_jobs": 21
+      "brazil_jobs": 20
     },
     {
       "board": "enforce",
@@ -462,7 +457,7 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 111
+      "brazil_jobs": 112
     },
     {
       "board": "interbrand",
@@ -622,12 +617,7 @@
     {
       "board": "platformscience",
       "company": "Platform Science",
-      "brazil_jobs": 15
-    },
-    {
-      "board": "sonyinteractiveentertainmentglobal",
-      "company": "PlayStation Global",
-      "brazil_jobs": 1
+      "brazil_jobs": 16
     },
     {
       "board": "podium81",
@@ -637,7 +627,7 @@
     {
       "board": "powerdigitalmarketing",
       "company": "Power Digital",
-      "brazil_jobs": 44
+      "brazil_jobs": 45
     },
     {
       "board": "pfm",
@@ -710,26 +700,6 @@
       "brazil_jobs": 1
     },
     {
-      "board": "signifyd95",
-      "company": "Signifyd",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "smartlyio",
-      "company": "Smartly",
-      "brazil_jobs": 2
-    },
-    {
-      "board": "sohohouseco",
-      "company": "Soho House & Co.",
-      "brazil_jobs": 10
-    },
-    {
-      "board": "spacexglobal",
-      "company": "SpaceX_Global",
-      "brazil_jobs": 7
-    },
-    {
       "board": "cloudbedsthirdpartyboard",
       "company": "Third-Party Job Posts",
       "brazil_jobs": 1
@@ -737,7 +707,7 @@
     {
       "board": "gympass",
       "company": "Wellhub",
-      "brazil_jobs": 38
+      "brazil_jobs": 39
     },
     {
       "board": "agencywithin",
@@ -747,7 +717,7 @@
     {
       "board": "ilia",
       "company": "ília",
-      "brazil_jobs": 11
+      "brazil_jobs": 10
     }
   ]
 }
