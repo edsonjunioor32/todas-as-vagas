@@ -2,18 +2,20 @@ name: LinkedIn Morning Desperta Vagas
 
 on:
   schedule:
-    # 10:18 UTC = 07:18 BRT (Horário de Brasília com múltiplos ticks para imunidade a atrasos na fila do GitHub)
-    - cron: '18 10 * * *'
-    - cron: '28 10 * * *'
-    - cron: '38 10 * * *'
-    - cron: '48 10 * * *'
-    - cron: '08 11 * * *'
-  # O recuperador "Catálogo — recuperar agenda perdida" não é gatilho: ele já
-  # roda encadeado ao fim de cada catálogo e, quando recupera um slot, dispara o
-  # catálogo, cuja conclusão aciona este digest. Listá-lo duplicava os acionamentos.
+    # Horário de Brasília (07h17 nominal com ticks frequentes e pre-warming para contornar atrasos na fila do GitHub)
+    - cron: '12 10 * * *'
+    - cron: '17 10 * * *'
+    - cron: '22 10 * * *'
+    - cron: '27 10 * * *'
+    - cron: '32 10 * * *'
+    - cron: '37 10 * * *'
+    - cron: '47 10 * * *'
+    - cron: '07 11 * * *'
+  # Conclusão de workflows como gatilhos orientados a eventos para contornar a fila do cron
   workflow_run:
     workflows:
       - "Atualizar vagas multiportal e publicar GitHub Pages"
+      - "Coleta Diária LinkedIn (Vagas Públicas)"
     types: [completed]
     branches: [main]
   workflow_dispatch:
