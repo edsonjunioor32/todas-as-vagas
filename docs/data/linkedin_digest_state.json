@@ -49,6 +49,12 @@
       "type": "morning_desperta",
       "jobs_count": 12,
       "timestamp": "2026-11-16T07:38:57.844739-03:00"
+    },
+    {
+      "date": "2026-11-16",
+      "type": "morning_desperta",
+      "jobs_count": 12,
+      "timestamp": "2026-11-16T07:39:50.241392-03:00"
     }
   ],
   "last_morning_posted_date": "2026-11-16",
@@ -192,7 +198,19 @@
     "https://vagas.solides.com.br/vaga/953425/gestor-de-trafego-pago-com-experiencia-assessoria-de-marketing-e-vendas",
     "https://jobs.quickin.io/prologapp/jobs/6a7da65b36b478001333c624",
     "https://emergentcoldlatam.gupy.io/job/eyjqb2jjzci6mti4ndiymzcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
-    "https://eletromidia.gupy.io/job/eyjqb2jjzci6mti4otq1ntqsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq=="
+    "https://eletromidia.gupy.io/job/eyjqb2jjzci6mti4otq1ntqsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://riachuelo.inhire.app/vagas/bf063b4a-d1e1-4970-a9da-454e819b890e/atendente-de-vendas-part-time",
+    "https://skillconsultoria.gupy.io/job/eyjqb2jjzci6mti4otq1njesinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://www.infojobs.com.br/vaga-de-analista-fiscal-em-sao-paulo__12220537.aspx",
+    "https://www.infojobs.com.br/vaga-de-assistente-administrativo-facilites-em-bahia__12220437.aspx",
+    "https://vector-unitech.gupy.io/job/eyjqb2jjzci6mti4mty0mdasinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://extractta.inhire.app/vagas/f9cbfe02-9b35-4a58-9610-011ba68a7036/pessoa-desenvolvedora-backend-c-sql-server-senior",
+    "https://jobs.quickin.io/vitaedesenvolvimento/jobs/69790fd6b5303d001305c412",
+    "https://www.infojobs.com.br/vaga-de-atendimento-ao-cliente-sao-paulo-inicie-ja-em-sao-paulo__12220365.aspx",
+    "https://www.infojobs.com.br/vaga-de-web-designer-ia-freelancer-demanda-em-sao-paulo__12220388.aspx",
+    "https://www.infojobs.com.br/vaga-de-estagiario-marketing-em-paraiba__12220374.aspx",
+    "https://www.infojobs.com.br/vaga-de-auxiliar-planejamento-obras-em-minas-gerais__11960977.aspx",
+    "https://www.infojobs.com.br/vaga-de-auxiliar-logistica-em-sao-paulo__12220421.aspx"
   ],
   "posted_job_signatures": [
     "centauro talentos:vendedor a  bh shopping",
@@ -321,6 +339,18 @@
     "mj negocios digitais ltda:gestor de tráfego pago com exp",
     "prolog app:analista de marketing  eventos",
     "emergent cold latam:assistente pcl  planejamento c",
-    "eletromidia:analista de planejamento e míd"
+    "eletromidia:analista de planejamento e míd",
+    "riachuelo:atendente de vendas  part time",
+    "skill consultoria empresa:vendedor  são paulosp",
+    "inovare consultoria ltda:analista fiscal",
+    "luandre servicos temporar:assistente administrativo de f",
+    "vector:assistente de suporte operacio",
+    "extractta:pessoa desenvolvedora backend ",
+    "vitae desenvolvimento:supervisora de relacionamento ",
+    "empresa confidencial:atendimento ao cliente  são pa",
+    "magic web design:web designer com ia freelancer",
+    "expresso pb:estagiário de marketing",
+    "rvr serviços de engenhari:auxiliar de planejamento de ob",
+    "ymd comercial ltda:auxiliar de logistica"
   ]
 }
