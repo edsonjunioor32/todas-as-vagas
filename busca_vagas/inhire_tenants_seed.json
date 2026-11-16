@@ -292,6 +292,10 @@
     "tenantName": "Bankme."
   },
   {
+    "slug": "barte",
+    "tenantName": "Barte"
+  },
+  {
     "slug": "banni",
     "tenantName": "Banni"
   },
