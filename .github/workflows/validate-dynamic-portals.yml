@@ -8,6 +8,7 @@ on:
       - "jobs-dashboard/sources/_rendered.py"
       - "jobs-dashboard/sources/_common.py"
       - "jobs-dashboard/sources/_errors.py"
+      - "jobs-dashboard/sources/_detail_cache.py"
       - "jobs-dashboard/sources/workday.py"
       - "jobs-dashboard/sources/abler.py"
       - "jobs-dashboard/sources/ats_boards.py"

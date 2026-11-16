@@ -25,6 +25,7 @@ from sources import (
     recrutei as recrutei_source,
     solides as solides_source,
 )
+from sources import _detail_cache as detail_cache
 from sources import _errors as source_errors
 
 try:
@@ -558,7 +559,23 @@ def discard_old_publications(rows, cutoff, today=None, max_age_months=2):
     return kept, dropped
 
 
-def write_actions_summary(source_metrics, phases, total_jobs, failed, volume_alerts=None):
+def _detail_reuse_text(detail_stats):
+    """``senior 3.100 de 3.232 (96%)`` for each source that used the detail cache."""
+    parts = []
+    for source, stats in sorted((detail_stats or {}).items()):
+        hits, misses = int(stats.get("hits", 0)), int(stats.get("misses", 0))
+        looked_up = hits + misses
+        if not looked_up:
+            continue
+        share = round(100 * hits / looked_up)
+        parts.append(
+            f"{source} {hits:,} de {looked_up:,} ({share}%)".replace(",", ".")
+        )
+    return ", ".join(parts)
+
+
+def write_actions_summary(source_metrics, phases, total_jobs, failed, volume_alerts=None,
+                          detail_stats=None):
     """Expose timing and source health in the GitHub Actions run summary."""
     summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
     if not summary_path:
@@ -585,6 +602,9 @@ def write_actions_summary(source_metrics, phases, total_jobs, failed, volume_ale
             "- **Falhas por categoria:** "
             + ", ".join(f"{name} {count}" for name, count in sorted(by_category.items()))
         )
+    detail_reuse = _detail_reuse_text(detail_stats)
+    if detail_reuse:
+        lines.append(f"- **Detalhes reaproveitados do cache:** {detail_reuse}")
     lines += [
         f"- **Fontes com queda de volume:** "
         f"{', '.join(a['source'] for a in volume_alerts) if volume_alerts else 'nenhuma'}",
@@ -651,6 +671,12 @@ def main(before_persist=None):
     print(f"  Radar de Vagas — coleta de {len(registry)} fontes públicas")
     print("=" * 72)
     stage_started = time.perf_counter()
+    cached_details = detail_cache.start(str(DB_PATH))
+    if detail_cache.is_active():
+        print(
+            f"  cache de detalhes: {cached_details} entradas válidas "
+            f"(TTL {detail_cache.ttl_days():g} dias)"
+        )
     rows, failed, source_metrics = collect(
         registry,
         checkpoint_dir=os.environ.get(CHECKPOINT_ENV, "").strip(),
@@ -726,7 +752,11 @@ def main(before_persist=None):
         print(f"  amostra pública: {sample}")
         print("  dry-run: nenhum arquivo foi alterado")
         phases["total"] = time.perf_counter() - pipeline_started
-        write_actions_summary(source_metrics, phases, len(rows), failed)
+        detail_stats = detail_cache.summary()
+        detail_cache.stop()
+        write_actions_summary(
+            source_metrics, phases, len(rows), failed, detail_stats=detail_stats
+        )
         return
 
     stage_started = time.perf_counter()
@@ -758,6 +788,16 @@ def main(before_persist=None):
     storage.record_source_volumes(
         conn, counts, healthy_sources, observed_at=volume_observed_at
     )
+    detail_stats = detail_cache.summary()
+    detail_stored = detail_cache.persist(conn)
+    detail_cache.stop()
+    for source, stats in detail_stats.items():
+        print(
+            f"  detalhes {source}: {stats.get('hits', 0)} reaproveitados, "
+            f"{stats.get('misses', 0)} buscados, {stats.get('stored', 0)} guardados"
+        )
+    if detail_stored:
+        print(f"  cache de detalhes: {detail_stored} entradas gravadas")
     for alert in volume_alerts:
         print(
             f"::warning title=Queda de volume::{alert['source']}: {alert['jobs']} vagas "
@@ -872,7 +912,9 @@ def main(before_persist=None):
         "  tempos: "
         + " · ".join(f"{name}: {seconds:.1f}s" for name, seconds in phases.items())
     )
-    write_actions_summary(source_metrics, phases, count, failed, volume_alerts)
+    write_actions_summary(
+        source_metrics, phases, count, failed, volume_alerts, detail_stats=detail_stats
+    )
     print("=" * 72)
 
 

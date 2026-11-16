@@ -1,3 +1,15 @@
+## 2026-11-15 — Cache de detalhes entre coletas (Senior)
+
+- Novo `jobs-dashboard/sources/_detail_cache.py`: guarda, na tabela `detail_cache` do `jobs.db`, os campos de detalhe por vaga que uma fonte só obtém numa requisição individual. Nunca guarda descrições: campos com "description" no nome são descartados, e o `jobs.db` continua sem texto de descrição.
+- O cache fica inativo fora do pipeline; testes, validadores e coletas manuais seguem buscando tudo. Cada entrada vale 3 dias × fator determinístico entre 0,5 e 1,5 por vaga, para que as renovações se espalhem entre execuções. Entradas com mais de 30 dias são podadas, e `JOBS_DETAIL_CACHE_TTL_DAYS=0` desliga o reaproveitamento sem deploy.
+- A Senior (`sankhya_senior.py`) passa a pedir `findVacancyById` só para vagas novas ou vencidas, reaproveitando localização, modalidade, experiência, regime e PCD. Detalhes vazios ou com erro não entram no cache.
+- **Medição ao vivo antes de mesclar** (mesma máquina, coletas seguidas): sem cache, 3.729 vagas, 3.729 requisições de detalhe e 276,6 s; com o cache recém-preenchido, 3.739 vagas, 62 requisições (só as vagas novas) e 10,9 s. As 3.677 vagas presentes nas duas coletas geraram linhas idênticas. Entre as coletas, 52 vagas saíram e 62 entraram, variação do próprio catálogo ou da paginação, sem relação com o cache. Em regime, com validade média de 3 dias, a estimativa é de cerca de 90% menos requisições de detalhe da Senior por execução.
+- O resumo do Actions ganha a linha "Detalhes reaproveitados do cache", e o log mostra reaproveitados, buscados e guardados por fonte.
+- Por que não o coletor privado de descrições: `description_crawler.py` já é incremental (`description_store.pending_jobs` busca só vagas novas ou vencidas, com espera crescente entre tentativas).
+- **Impacto por portal:** só a Senior muda. Alterações de modalidade ou regime numa vaga já conhecida podem levar até a validade da entrada (1,5 a 4,5 dias) para aparecer. Site, Telegram, `botwhats` e agente não são afetados.
+- **Checagem pós-implantação:** na segunda coleta completa depois do merge, conferir a linha de reaproveitamento no resumo e o tempo da Senior em "Fontes mais demoradas".
+- **Reversão:** `JOBS_DETAIL_CACHE_TTL_DAYS=0` no workflow ou `git revert`; a tabela extra pode permanecer no banco sem efeito.
+
 ## 2026-11-15 — Quadros Workday, Abler e Lever consolidados por plataforma
 
 - Novo `jobs-dashboard/sources/workday.py`: os 7 tenants Workday (avanade, santander, iberdrola, iqvia, mdlz, edenred, acciona) passam a ser declarados em `TENANTS`, e `TARGETS` gera as fontes do registro. O Abler genérico (`talentodovalesc`, `precisionrh`) foi para `abler.py` (`BOARDS`/`BOARD_TARGETS`), e os quadros Lever por empresa (`flash`, `neon`, `zippi`, `bv`) para `ats_boards.py` (`LEVER_BOARDS`/`LEVER_BOARD_TARGETS`). Uma empresa nova nessas plataformas passa a exigir uma linha de configuração.
@@ -467,7 +479,7 @@ Escopo: 173 arquivos rastreados da branch `main` nesta revisão, incluindo `AGEN
 - `jobs-dashboard/pipeline.py` — coordena coletores, histórico e snapshot público.
 - `jobs-dashboard/pipeline_fit.py` — gera índice auxiliar de aderência.
 - `jobs-dashboard/requirements.txt` — dependências Python da coleta e validação.
-- `jobs-dashboard/storage.py` — histórico SQLite e exportação compacta do snapshot.
+- `jobs-dashboard/storage.py` — histórico SQLite (inclui as tabelas `source_volume` e `detail_cache`) e exportação compacta do snapshot.
 - `jobs-dashboard/validate_dynamic_portals.py` — valida seleção/resultados dos portais dinâmicos.
 - `jobs-dashboard/validate_fit.py` — valida índice de aderência antes da publicação.
 - `jobs-dashboard/validate_snapshot.py` — valida integridade e segurança do snapshot.
@@ -478,6 +490,7 @@ O registro de adaptadores fica em `jobs-dashboard/sources/__init__.py`. Cada mó
 
 - `jobs-dashboard/sources/__init__.py` — importa e registra as fontes ativas.
 - `jobs-dashboard/sources/_common.py` — utilitários comuns de normalização, incluindo `is_brazil_location` e o padrão amplo `BRAZIL_WORDS`.
+- `jobs-dashboard/sources/_detail_cache.py` — cache, entre execuções, dos campos de detalhe sem descrição (tabela `detail_cache` do `jobs.db`), ativado só pelo pipeline; `JOBS_DETAIL_CACHE_TTL_DAYS=0` desliga.
 - `jobs-dashboard/sources/_errors.py` — taxonomia de falhas (`bloqueio`, `indisponivel`, `timeout`, `formato`…) e classificador usado pelo pipeline.
 - `jobs-dashboard/sources/_html.py` — extração/parsing HTML compartilhados.
 - `jobs-dashboard/sources/_http.py` — requisições HTTP compartilhadas.
@@ -521,7 +534,7 @@ O registro de adaptadores fica em `jobs-dashboard/sources/__init__.py`. Cada mó
 - `jobs-dashboard/sources/requested_portals_28082026.py` — grupo de portais incluídos em 28/08.
 - `jobs-dashboard/sources/requested_portals_29082026.py` — grupo de portais incluídos em 29/08.
 - `jobs-dashboard/sources/requested_portals_aug2026.py` — demais portais solicitados em agosto.
-- `jobs-dashboard/sources/sankhya_senior.py` — vagas Sankhya e Senior.
+- `jobs-dashboard/sources/sankhya_senior.py` — vagas Sankhya e Senior; o detalhe por vaga da Senior reaproveita o cache de detalhes.
 - `jobs-dashboard/sources/smartrecruiters_brazil.py` — empresas SmartRecruiters no Brasil.
 - `jobs-dashboard/sources/solides.py` — vagas Sólides.
 - `jobs-dashboard/sources/spassu.py` — vagas Spassu.
@@ -558,6 +571,7 @@ Todos os arquivos desta seção são testes automatizados; não são coletores n
 - `jobs-dashboard/tests/test_inhire_descriptions.py` — contrato da API pública do InHire e classificação de anúncio removido.
 - `jobs-dashboard/tests/test_description_quality.py` — classificação de conteúdo, bloqueio, remoção e atualização.
 - `jobs-dashboard/tests/test_description_report.py` — relatório somente leitura e separação de removidas.
+- `jobs-dashboard/tests/test_detail_cache.py` — cache de detalhes: inatividade por padrão, validade com espalhamento, remoção de descrições, poda e reaproveitamento na Senior com linhas idênticas.
 - `jobs-dashboard/tests/test_private_descriptions.py` — persistência, backoff, crawler e integração das descrições privadas.
 - `jobs-dashboard/tests/test_dynamic_portals.py` — contratos dos portais dinâmicos.
 - `jobs-dashboard/tests/test_eightfold.py` — fonte Eightfold.
