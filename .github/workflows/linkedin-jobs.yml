@@ -86,6 +86,9 @@ jobs:
           pip install python-jobspy==1.4.1 pandas
 
       - name: Executar coleta pública do LinkedIn
+        env:
+          # Para de pedir páginas após 32 min e grava o parcial; o job tem 45.
+          LINKEDIN_TIME_BUDGET_MINUTES: "32"
         run: |
           RESULTS="${{ inputs.results_limit || '1000' }}"
           REMOTE_RESULTS="${{ inputs.remote_results_limit || '1200' }}"
@@ -136,7 +139,22 @@ jobs:
             echo "Nenhuma alteração nos dados do LinkedIn."
           else
             git commit -m "chore(linkedin): atualizar vagas públicas do LinkedIn [linkedin-refresh]"
-            git push origin main
+            # O main costuma avançar durante os ~25 min da coleta. Este commit só
+            # altera o snapshot, então rebase sobre a ponta atual é seguro.
+            pushed=false
+            for attempt in 1 2 3; do
+              git pull --rebase --no-edit origin main
+              if git push origin HEAD:main; then
+                pushed=true
+                break
+              fi
+              echo "Push recusado (tentativa $attempt); atualizando a base."
+              sleep $((attempt * 5))
+            done
+            if [ "$pushed" != true ]; then
+              echo "ERRO: não foi possível publicar o snapshot após 3 tentativas." >&2
+              exit 1
+            fi
           fi
 
           # GITHUB_TOKEN não inicia outro workflow por um simples git push.

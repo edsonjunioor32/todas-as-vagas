@@ -1,3 +1,14 @@
+## 2026-11-16 — Coleta LinkedIn com orçamento de tempo e publicação resistente
+
+- **Evidência (API pública, 13–16/11):** das 20 execuções recentes do `linkedin-jobs.yml`, só 9 terminaram bem.
+  - 4 foram canceladas ao atingir o limite de 45 min do job ainda em "Executar coleta pública do LinkedIn"; toda a coleta foi descartada.
+  - 7 falharam em "Publicar snapshot coletado no repositório". Nesses casos a coleta já tinha terminado, mas o `git push origin main` foi feito sem atualizar a base, e o `main` costuma avançar durante os ~25 min da coleta.
+- `tools/collect_linkedin.py` ganha um orçamento de tempo (`LINKEDIN_TIME_BUDGET_MINUTES`, padrão 32; 0 desliga). Passado o prazo, nenhuma página nova é pedida, a busca é marcada como "interrompida pelo orçamento de tempo" no log e no resumo, e o snapshot parcial segue para validação e publicação. Fora de `collect_linkedin` não há limite.
+- `linkedin-jobs.yml` define o orçamento em 32 min. A publicação passou a fazer `git pull --rebase` sobre a ponta atual do `main` e `git push origin HEAD:main`, com até 3 tentativas; o commit só altera o snapshot. O aviso `linkedin_refresh` ao `pages.yml` não mudou.
+- **Impacto por canal:** o LinkedIn passa a chegar ao catálogo nas execuções antes perdidas. Uma execução interrompida pelo orçamento publica menos vagas, mas preserva as já coletadas; as regras de validação (30 dias, snapshot não vazio) continuam valendo.
+- **Checagem pós-implantação:** próximas execuções do `linkedin-jobs.yml` sem cancelamento por tempo nem falha em "Publicar snapshot".
+- **Reversão:** `git revert`, ou `LINKEDIN_TIME_BUDGET_MINUTES: "0"` para desligar só o orçamento.
+
 ## 2026-11-16 — `glassdoor.py` dividido em módulos coesos
 
 - `jobs-dashboard/glassdoor.py` (2.107 linhas, o arquivo com mais correções recentes: 13 commits, 8 de correção, desde 08/11) foi dividido sem mudança de comportamento:
@@ -618,6 +629,7 @@ Todos os arquivos desta seção são testes automatizados; não são coletores n
 - `jobs-dashboard/tests/test_homepage_cta_styles.py` — CTAs da página inicial.
 - `jobs-dashboard/tests/test_http_retry.py` — backoff exponencial com jitter, `Retry-After` e não retentativa de erros permanentes no cliente HTTP compartilhado.
 - `jobs-dashboard/tests/test_linkedin.py` — contrato do snapshot LinkedIn, janela de 30 dias e rejeição de dados inválidos.
+- `jobs-dashboard/tests/test_linkedin_time_budget.py` — orçamento de tempo da coleta LinkedIn e publicação com rebase e repetição.
 - `jobs-dashboard/tests/test_linkedin_digest_schedule.py` — trava de dias úteis do digest diário e ausência do recuperador como gatilho dos digests.
 - `jobs-dashboard/tests/test_linkedin_webhook_config.py` — webhook do Make só via configuração: sem URL embutida, erro sem secret, dry-run sem webhook e URL fora dos logs.
 - `jobs-dashboard/tests/test_mercadolivre.py` — fonte Mercado Livre.
