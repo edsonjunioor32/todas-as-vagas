@@ -1,12 +1,14 @@
-## 2026-11-16 — Empregare volta a coletar pelo MCP oficial
+## 2026-11-17 — Glassdoor: segunda tentativa sem sufixo jurídico e nomes inválidos ignorados
 
-- **Sintoma:** a fonte `empregare` falha desde 2026-11-07 22:29 UTC (último sucesso 19:15 UTC); o catálogo preservava 4.143 vagas antigas.
-- **Causa:** o endpoint REST `/api/pt-br/vagas/buscar-novo` passou a ficar atrás de limite do Cloudflare: HTTP 429 já na 6ª requisição a ~1/s, com `Retry-After` de 83 s a 600 s, e aceita no máximo 30 itens por página (o adaptador pedia 100, gerando ~151 páginas). Com 4 workers paralelos e espera limitada a 30 s, as retentativas se esgotavam e a fonte inteira falhava.
-- **Correção:** `jobs-dashboard/sources/empregare.py` passa a usar o servidor MCP público anunciado em `llms.txt` (`POST /api/mcp`, ferramenta `buscar_vagas`, 50 itens por página, ~91 páginas), de forma sequencial, com pausa de 0,5 s (`EMPREGARE_PAGE_DELAY`) e retentativa que respeita `Retry-After`. Coleta completa local: 4.524 vagas em 65 s, sem bloqueio.
-- **Campos:** o MCP não traz data de publicação, expiração, descrição curta, tags nem seleção às cegas. `storage.upsert` passa a preservar `published_date` e `expires_date` já gravados quando a fonte envia vazio (vale para todas as fontes); vagas novas usam o primeiro avistamento como fallback.
-- **Impacto por canal:** site, Telegram, WhatsApp e agente recebem de novo vagas Empregare atualizadas; nenhum esquema, ID (`empregare:{id}`) ou URL mudou.
-- **Checagem pós-implantação:** no próximo catálogo, `source_last_success_at.empregare` deve avançar e `empregare` sair de `failed_sources`, com contagem próxima de 4.500.
-- **Reversão:** `git revert` do commit; o catálogo volta a preservar o último snapshot válido da fonte.
+- **Antes:** 10.793 empresas do catálogo sem nota. Cerca de 3,9 mil vêm como razão social ("Wiz, Inc.", "12 MIX SOLUCOES LTDA"), e o Glassdoor costuma listar a empresa sem o sufixo, o que fazia a correspondência exata falhar. Alguns nomes nem são empresas (textos do portal ou títulos de vaga).
+- `glassdoor_catalog.py`:
+  - `legal_suffix_free` remove sufixos finais (Ltda, Limitada, S.A., S/A, EIRELI, ME, EPP, Inc., LLC, Ltd., Pte., GmbH, AG, Corp., PLC, B.V., S.R.L. e similares).
+  - Quando a consulta pelo nome do catálogo não traz nota, `_fetch_rating` repete com o nome limpo. A resposta só é aceita se o nome devolvido bater exatamente, após normalização, com o nome original ou o limpo; nenhuma correspondência aproximada é aceita. O resumo conta `suffix_retry_succeeded`.
+  - `invalid_company_name` pula sem consulta e sem ocupar vaga do lote os nomes com "vaga(s)", "homologação", "processo seletivo", "banco de talentos", duração de contrato ("12 month", "FTC") ou com mais de 120 caracteres. Eles ficam `unavailable` com o motivo `invalid_company_name`, contados em `invalid_names`.
+- **Estimativa no cache atual:** 3.922 empresas ganham segunda tentativa e 61 nomes deixam de gastar consulta. Agências cujo nome contém "Vagas" (ex.: "BM Vagas") também são puladas; é a contrapartida aceita.
+- **Impacto por canal:** mais empresas com nota oficial no site; nada é inventado. Uma empresa com segunda tentativa custa uma consulta extra ao Omkar local.
+- **Checagem pós-implantação:** no resumo do `glassdoor-daily.yml`, conferir `suffix_retry_succeeded` e `invalid_names`.
+- **Reversão:** `git revert`.
 
 ## 2026-11-17 — Notas Glassdoor voltam a ser buscadas para o catálogo
 
@@ -32,6 +34,16 @@
 - **Impacto por canal:** o LinkedIn chega ao catálogo com mais vagas e coletas mais curtas. Uma vaga encerrada pode permanecer até a varredura de domingo ou até sair da janela de 30 dias.
 - **Checagem pós-implantação:** nas execuções agendadas, o log deve mostrar "Modo incremental" e "[Incremental] N vagas mantidas"; a duração deve cair e a contagem subir ao longo dos dias.
 - **Reversão:** `git revert`. Sem `--merge-previous-days`, o coletor volta a substituir o snapshot.
+
+## 2026-11-16 — Empregare volta a coletar pelo MCP oficial
+
+- **Sintoma:** a fonte `empregare` falha desde 2026-11-07 22:29 UTC (último sucesso 19:15 UTC); o catálogo preservava 4.143 vagas antigas.
+- **Causa:** o endpoint REST `/api/pt-br/vagas/buscar-novo` passou a ficar atrás de limite do Cloudflare: HTTP 429 já na 6ª requisição a ~1/s, com `Retry-After` de 83 s a 600 s, e aceita no máximo 30 itens por página (o adaptador pedia 100, gerando ~151 páginas). Com 4 workers paralelos e espera limitada a 30 s, as retentativas se esgotavam e a fonte inteira falhava.
+- **Correção:** `jobs-dashboard/sources/empregare.py` passa a usar o servidor MCP público anunciado em `llms.txt` (`POST /api/mcp`, ferramenta `buscar_vagas`, 50 itens por página, ~91 páginas), de forma sequencial, com pausa de 0,5 s (`EMPREGARE_PAGE_DELAY`) e retentativa que respeita `Retry-After`. Coleta completa local: 4.524 vagas em 65 s, sem bloqueio.
+- **Campos:** o MCP não traz data de publicação, expiração, descrição curta, tags nem seleção às cegas. `storage.upsert` passa a preservar `published_date` e `expires_date` já gravados quando a fonte envia vazio (vale para todas as fontes); vagas novas usam o primeiro avistamento como fallback.
+- **Impacto por canal:** site, Telegram, WhatsApp e agente recebem de novo vagas Empregare atualizadas; nenhum esquema, ID (`empregare:{id}`) ou URL mudou.
+- **Checagem pós-implantação:** no próximo catálogo, `source_last_success_at.empregare` deve avançar e `empregare` sair de `failed_sources`, com contagem próxima de 4.500.
+- **Reversão:** `git revert` do commit; o catálogo volta a preservar o último snapshot válido da fonte.
 
 ## 2026-11-16 — Coleta LinkedIn com orçamento de tempo e publicação resistente
 

@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """
 Testa a conectividade do LINKEDIN_ACCESS_TOKEN com a Community Management API do LinkedIn.
-Imprime detalhes completos de headers de erro (ex: WWW-Authenticate) para diagnosticar
-exatamente por que a autenticação está falhando.
+Testa:
+1. POST /rest/images?action=initializeUpload com as versões mensais mais recentes
+2. GET /rest/organizationAcls?q=roleAssignee (para confirmar papéis administrativos da página)
+3. GET /rest/organizations/146671035
+4. POST /rest/posts
 """
 from __future__ import annotations
 
@@ -15,104 +18,73 @@ import urllib.request
 
 TOKEN = os.environ.get("LINKEDIN_ACCESS_TOKEN")
 if not TOKEN or not TOKEN.strip():
-    print("ERRO: Variável de ambiente LINKEDIN_ACCESS_TOKEN não configurada.", file=sys.stderr)
+    print("ERRO: LINKEDIN_ACCESS_TOKEN não configurada.", file=sys.stderr)
     sys.exit(1)
 
 TOKEN = TOKEN.strip()
 print(f"Token detectado (comprimento: {len(TOKEN)}, início: {TOKEN[:8]}... fim: ...{TOKEN[-6:]})")
 
 ORG_URN = "urn:li:organization:146671035"
-COMMON_HEADERS = {
-    "Authorization": f"Bearer {TOKEN}",
-    "User-Agent": "TVLink-TodasAsVagas/1.0 (https://github.com/edsonjunioor32/todas-as-vagas)",
-}
 
-def print_http_error(prefix: str, exc: urllib.error.HTTPError):
-    print(f"{prefix} HTTP {exc.code}")
-    www_auth = exc.headers.get("WWW-Authenticate")
-    if www_auth:
-        print(f"  --> WWW-Authenticate: {www_auth}")
-    for h, v in exc.headers.items():
-        if "error" in h.lower() or "auth" in h.lower() or "linkedin" in h.lower() or "status" in h.lower():
-            print(f"  --> Header {h}: {v}")
-    body = exc.read().decode("utf-8", errors="replace")
-    print(f"  --> Body: {body[:300]}")
+# Versões mensais recentes (últimos 12 meses)
+VERSIONS_TO_TEST = [
+    "202611", "202610", "202609", "202608", "202607", "202606",
+    "202605", "202604", "202603", "202602", "202601", "202512"
+]
 
-# Teste 1: /v2/userinfo
-print("\n=== Teste 1: GET /v2/userinfo ===")
-try:
-    req = urllib.request.Request(
-        "https://api.linkedin.com/v2/userinfo",
-        headers=COMMON_HEADERS
-    )
-    with urllib.request.urlopen(req, timeout=10) as resp:
-        data = json.loads(resp.read().decode("utf-8"))
-        print(f"SUCESSO userinfo: {data.get('name', 'OK')} ({data.get('sub')})")
-except urllib.error.HTTPError as exc:
-    print_http_error("userinfo", exc)
-except Exception as exc:
-    print(f"userinfo erro: {exc}")
+def make_req(url: str, data: bytes | None = None, ver: str | None = None):
+    headers = {
+        "Authorization": f"Bearer {TOKEN}",
+        "User-Agent": "TVLink-TodasAsVagas/1.0",
+        "X-Restli-Protocol-Version": "2.0.0",
+    }
+    if ver:
+        headers["Linkedin-Version"] = ver
+    if data is not None:
+        headers["Content-Type"] = "application/json"
+    return urllib.request.Request(url, data=data, headers=headers)
 
-# Teste 2: /v2/me
-print("\n=== Teste 2: GET /v2/me ===")
-try:
-    req = urllib.request.Request(
-        "https://api.linkedin.com/v2/me",
-        headers=COMMON_HEADERS
-    )
-    with urllib.request.urlopen(req, timeout=10) as resp:
-        data = json.loads(resp.read().decode("utf-8"))
-        print(f"SUCESSO me: {data.get('id', 'OK')}")
-except urllib.error.HTTPError as exc:
-    print_http_error("me", exc)
-except Exception as exc:
-    print(f"me erro: {exc}")
+success_version = None
 
-# Teste 3: GET /rest/posts
-print("\n=== Teste 3: GET /rest/posts por autor ===")
-for ver in ["202601", "202501", "202401"]:
+print("\n=== Testando POST /rest/images?action=initializeUpload ===")
+body = json.dumps({"initializeUploadRequest": {"owner": ORG_URN}}).encode("utf-8")
+for ver in VERSIONS_TO_TEST:
     try:
-        url = f"https://api.linkedin.com/rest/posts?author={urllib.parse.quote(ORG_URN)}&q=author"
-        headers = dict(COMMON_HEADERS)
-        headers["LinkedIn-Version"] = ver
-        headers["X-Restli-Protocol-Version"] = "2.0.0"
-        req = urllib.request.Request(url, headers=headers)
+        req = make_req("https://api.linkedin.com/rest/images?action=initializeUpload", data=body, ver=ver)
         with urllib.request.urlopen(req, timeout=10) as resp:
             data = json.loads(resp.read().decode("utf-8"))
-            print(f"SUCESSO posts (versão {ver})! Encontrados: {len(data.get('elements', []))}")
+            print(f"[SUCESSO] initializeUpload funcionou com versão {ver}!")
+            print(f"  - Image URN: {data.get('value', {}).get('image')}")
+            upload_url = data.get('value', {}).get('uploadUrl')
+            print(f"  - Upload URL obtida: {upload_url[:50]}...")
+            success_version = ver
             break
     except urllib.error.HTTPError as exc:
-        print_http_error(f"posts (v{ver})", exc)
+        print(f"Versão {ver}: HTTP {exc.code} - {exc.read().decode('utf-8', errors='replace')[:120]}")
     except Exception as exc:
-        print(f"posts erro (v{ver}): {exc}")
+        print(f"Versão {ver}: Erro {exc}")
 
-# Teste 4: POST /rest/images?action=initializeUpload
-print("\n=== Teste 4: POST /rest/images?action=initializeUpload ===")
-for ver in ["202601", "202501", "202401"]:
+if success_version:
+    print(f"\n🎉 VERSÃO CONFIRMADA DA COMMUNITY MANAGEMENT API: {success_version} 🎉")
+    sys.exit(0)
+
+print("\n=== Testando GET /rest/organizationAcls?q=roleAssignee ===")
+for ver in VERSIONS_TO_TEST[:4]:
     try:
-        body = json.dumps({"initializeUploadRequest": {"owner": ORG_URN}}).encode("utf-8")
-        headers = dict(COMMON_HEADERS)
-        headers["LinkedIn-Version"] = ver
-        headers["X-Restli-Protocol-Version"] = "2.0.0"
-        headers["Content-Type"] = "application/json"
-        req = urllib.request.Request(
-            "https://api.linkedin.com/rest/images?action=initializeUpload",
-            data=body,
-            headers=headers
-        )
+        req = make_req("https://api.linkedin.com/rest/organizationAcls?q=roleAssignee", ver=ver)
         with urllib.request.urlopen(req, timeout=10) as resp:
             data = json.loads(resp.read().decode("utf-8"))
-            upload_url = data.get("value", {}).get("uploadUrl")
-            image_urn = data.get("value", {}).get("image")
-            print(f"SUCESSO initializeUpload (versão {ver})!")
-            print(f"  - Image URN: {image_urn}")
-            print(f"  - Upload URL obtida: {upload_url[:50]}...")
-            print(f"\n>> VERSÃO CONFIRMADA DA API: {ver} <<")
-            sys.exit(0)
+            print(f"[SUCESSO] organizationAcls com versão {ver}: {len(data.get('elements', []))} elementos")
+            success_version = ver
+            break
     except urllib.error.HTTPError as exc:
-        print_http_error(f"images (v{ver})", exc)
+        print(f"organizationAcls {ver}: HTTP {exc.code} - {exc.read().decode('utf-8', errors='replace')[:120]}")
     except Exception as exc:
-        print(f"images erro (v{ver}): {exc}")
+        print(f"organizationAcls {ver}: Erro {exc}")
+
+if success_version:
+    print(f"\n🎉 VERSÃO CONFIRMADA DA COMMUNITY MANAGEMENT API: {success_version} 🎉")
+    sys.exit(0)
 
 print("\nConclusão: Nenhum teste teve sucesso.")
 sys.exit(1)

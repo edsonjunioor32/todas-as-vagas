@@ -18,8 +18,23 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Testar Conexão com a Community Management API
+      - name: Testar Conexão com a Community Management API (Python)
+        id: test_python
+        continue-on-error: true
         env:
           LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
         run: |
           python tools/test_linkedin_token.py
+
+      - name: Diagnóstico cURL Direto (se necessário)
+        if: steps.test_python.outcome != 'success'
+        env:
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+        run: |
+          echo "=== Executando cURL direto para diagnosticar ==="
+          curl -i -X POST "https://api.linkedin.com/rest/images?action=initializeUpload" \
+            -H "Authorization: Bearer ${LINKEDIN_ACCESS_TOKEN}" \
+            -H "X-Restli-Protocol-Version: 2.0.0" \
+            -H "Linkedin-Version: 202611" \
+            -H "Content-Type: application/json" \
+            -d '{"initializeUploadRequest":{"owner":"urn:li:organization:146671035"}}'

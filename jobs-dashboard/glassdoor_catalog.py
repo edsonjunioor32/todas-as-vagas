@@ -7,6 +7,7 @@ Extraído de ``glassdoor.py`` em 16/11/2026 sem mudança de comportamento;
 from __future__ import annotations
 
 import copy
+import re
 import time
 from datetime import (
     date,
@@ -14,6 +15,7 @@ from datetime import (
 )
 
 from glassdoor_common import (
+    GlassdoorError,
     _CATALOG_RESOLUTION_SOURCES,
     _CATALOG_RESOLUTION_STATUSES,
     _iso_date,
@@ -45,6 +47,72 @@ from glassdoor_profiles import (
 )
 
 
+# Sufixos jurídicos que o Glassdoor costuma omitir ("Wiz, Inc." -> "Wiz").
+_LEGAL_SUFFIX_RE = re.compile(
+    r"[\s,.\-]+(?:ltda|limitada|s\.?\s?/?\s?a|eireli|epp|me|inc|incorporated|llc|"
+    r"ltd|limited|gmbh|ag|corp|corporation|co|plc|b\.?\s?v|s\.?\s?r\.?\s?l|"
+    r"s\.?\s?l|oy|ab|sas|spa|pte)\.?\s*$",
+    re.IGNORECASE,
+)
+# Textos do portal ou títulos de vaga que chegam no campo de empresa.
+_INVALID_COMPANY_RE = re.compile(
+    r"\bvagas?\b|homologa[cç][aã]o|processo seletivo|banco de talentos|"
+    r"\b\d+\s*(?:-\s*)?(?:month|months|meses|m[eê]s)\b|\bftc\b",
+    re.IGNORECASE,
+)
+MAX_COMPANY_NAME_LENGTH = 120
+
+
+def legal_suffix_free(name: str) -> str | None:
+    """Nome sem sufixos jurídicos finais, ou ``None`` se nada mudou."""
+    original = str(name or "").strip()
+    cleaned = original
+    while True:
+        stripped = _LEGAL_SUFFIX_RE.sub("", cleaned).strip(" ,.-")
+        if stripped == cleaned:
+            break
+        cleaned = stripped
+    if len(cleaned) < 2 or company_key(cleaned) == company_key(original):
+        return None
+    return cleaned
+
+
+def invalid_company_name(name: str) -> bool:
+    """Nome que é texto do portal ou título de vaga, não uma empresa."""
+    text = str(name or "").strip()
+    return len(text) > MAX_COMPANY_NAME_LENGTH or bool(_INVALID_COMPANY_RE.search(text))
+
+
+def _fetch_rating(fetcher, profile, company_name, alternative, **kwargs):
+    """Consulta pelo nome do catálogo e, sem nota, repete sem o sufixo jurídico.
+
+    A resposta da segunda tentativa só é aceita se o nome devolvido bater
+    exatamente (após normalização) com o nome original ou com o nome limpo.
+    Retorna ``(resultado, usou_nome_limpo)``.
+    """
+    first_error = None
+    result = None
+    try:
+        result = fetcher(profile, **kwargs)
+    except GlassdoorError as error:
+        first_error = error
+    has_rating = isinstance(result, dict) and _rating(result.get("rating")) is not None
+    if has_rating or not alternative or profile.get("url"):
+        if first_error is not None:
+            raise first_error
+        return result, False
+    retry_profile = {"company_names": [company_name, alternative], "scraper_company": alternative}
+    try:
+        retry = fetcher(retry_profile, **kwargs)
+    except GlassdoorError:
+        retry = None
+    if isinstance(retry, dict) and _rating(retry.get("rating")) is not None:
+        return retry, True
+    if first_error is not None:
+        raise first_error
+    return result, False
+
+
 def _catalog_cache_metrics(raw: object, company_name: str) -> dict:
     """Normalize one automatically discovered catalog company entry."""
     source = raw if isinstance(raw, dict) else {}
@@ -72,6 +140,7 @@ def _catalog_cache_metrics(raw: object, company_name: str) -> dict:
         "browserless_budget_exhausted",
         "browserless_search_error",
         "browserless_not_allowed",
+        "invalid_company_name",
     }:
         resolution_reason = None
     return {
@@ -262,6 +331,8 @@ def update_catalog_cache(
         "omkar_failed": 0,
         "browserless_succeeded": 0,
         "browserless_failed": 0,
+        "suffix_retry_succeeded": 0,
+        "invalid_names": 0,
         "queued": 0,
         "before_offset": 0,
         "offset": 0,
@@ -317,6 +388,13 @@ def update_catalog_cache(
             or entry.get("checked_at") == current_date
         ):
             summary["skipped"] += 1
+            continue
+        if invalid_company_name(company_name):
+            # Não gasta consulta nem vaga do lote com texto que não é empresa.
+            entry["status"] = "unavailable"
+            entry["last_attempted_date"] = current_date
+            entry["resolution_reason"] = "invalid_company_name"
+            summary["invalid_names"] += 1
             continue
         if selected >= limit:
             summary["queued"] += 1
@@ -416,13 +494,18 @@ def update_catalog_cache(
         attempt_source = ""
         failure_counted = False
         try:
-            result = fetcher(
+            result, via_clean_name = _fetch_rating(
+                fetcher,
                 profile,
+                company_name,
+                legal_suffix_free(company_name),
                 timeout=timeout,
                 retries=retries,
                 backoff=backoff,
                 sleeper=sleeper,
             )
+            if via_clean_name:
+                summary["suffix_retry_succeeded"] += 1
             if not isinstance(result, dict):
                 raise ProfileDataUnavailable("coletor não retornou métricas")
             attempt_source = str(result.get("source") or "").strip().casefold()
