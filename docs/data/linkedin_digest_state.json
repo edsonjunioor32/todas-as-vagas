@@ -61,9 +61,15 @@
       "type": "daily",
       "jobs_count": 12,
       "timestamp": "2026-11-16T18:46:10.309254-03:00"
+    },
+    {
+      "date": "2026-11-17",
+      "type": "morning_desperta",
+      "jobs_count": 12,
+      "timestamp": "2026-11-17T08:06:16.890806-03:00"
     }
   ],
-  "last_morning_posted_date": "2026-11-16",
+  "last_morning_posted_date": "2026-11-17",
   "posted_job_urls": [
     "https://centaurotalentos.gupy.io/job/eyjqb2jjzci6mti4nzk3ndasinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
     "https://localiza.gupy.io/job/eyjqb2jjzci6mti4njqxmtcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
@@ -228,7 +234,19 @@
     "https://extractta.inhire.app/vagas/681ac619-f978-4b13-9393-f996c996a1e1/engenheiro-de-software-harness-engenharia-do-caos",
     "https://leega.gupy.io/job/eyjqb2jjzci6mti4odg0ndesinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
     "https://jobs.quickin.io/iebtinovacao/jobs/6afb59993d3b67001357e8a4",
-    "https://db1.inhire.app/vagas/7d9a04ba-748a-4a88-b96e-aa2eacbd800b/analista-de-enablement-pleno"
+    "https://db1.inhire.app/vagas/7d9a04ba-748a-4a88-b96e-aa2eacbd800b/analista-de-enablement-pleno",
+    "https://unicredbr.gupy.io/job/eyjqb2jjzci6mti5mde0mdgsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://portabilis.gupy.io/job/eyjqb2jjzci6mti4nzg2mdusinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://www.infojobs.com.br/vaga-de-recepcionista-assistente-administrativo-em-rio-grande-do-sul__12225299.aspx",
+    "https://www.infojobs.com.br/vaga-de-assistente-administrativo-operacional-em-sao-paulo__12225225.aspx",
+    "https://vagas.solides.com.br/vaga/954166/tech-lead-gestao-de-pessoas-e-operacoes-cloud",
+    "https://vagas.solides.com.br/vaga/951055/analista-de-suporte-junior",
+    "https://www.vagas.com.br/vagas/v2831262/sp-atendimento-ao-cliente-segmento-de-beleza-5x2",
+    "https://sicoobsarom.gupy.io/job/eyjqb2jjzci6mti5mda0otgsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://afip.gupy.io/job/eyjqb2jjzci6mti5mdexnjisinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://jobs.quickin.io/npwdigital/jobs/6afb82deb2ea60001326ec1f",
+    "https://grupoboticario.gupy.io/job/eyjqb2jjzci6mti3odg5ntcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://credsystem.gupy.io/job/eyjqb2jjzci6mti5mda2otksinnvdxjjzsi6im1jcf9jyw5kawrhdguifq=="
   ],
   "posted_job_signatures": [
     "centauro talentos:vendedor a  bh shopping",
@@ -381,6 +399,18 @@
     "extractta:engenheiro de software harness",
     "leega consultoria:engenheiro de dados gcp especi",
     "iebt innovation:engenheiroa de dados senior  h",
-    "db1 group:analista de enablement pleno"
+    "db1 group:analista de enablement pleno",
+    "unicred:estágio comercial  agência cas",
+    "portábilis:pessoa executiva de vendas sên",
+    "empresa confidencial:recepcionista assistente admin",
+    "centro paulista de integr:assistente administrativo oper",
+    "kxc tecnologia da informa:tech lead  gestão de pessoas e",
+    "open labs sa:analista de suporte junior",
+    "confidencial:sp  atendimento ao cliente  se",
+    "sicoob sarom:gerente de relacionamento pf e",
+    "afip:designer instrucional pleno",
+    "npw digital:analista de marketing",
+    "grupo boticário:analista supply chain ii são j",
+    "credsystem:analista de tangíveis jr  meio"
   ]
 }
