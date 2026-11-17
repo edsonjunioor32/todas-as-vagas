@@ -148,5 +148,58 @@ class NameCleanupTests(unittest.TestCase):
         self.assertEqual(invalid["resolution_reason"], "invalid_company_name")
 
 
+class CatalogPriorityAndSloganTests(unittest.TestCase):
+    def test_alternative_name_strips_slogan_and_suffix(self):
+        alt = glassdoor_catalog.alternative_company_name
+        self.assertEqual(alt("Assaí Atacadista - O atacadista com 50 anos"), "Assaí Atacadista")
+        self.assertEqual(alt("CONDOR - CENTRAL"), "CONDOR")
+        self.assertEqual(alt("Drogal Farmaceutica LTDA"), "Drogal Farmaceutica")
+        self.assertEqual(alt("Atrio Hoteis SA"), "Atrio Hoteis")
+        self.assertIsNone(alt("Savegnago"))
+        self.assertIsNone(alt("Coca-Cola"))
+
+    def test_generic_career_pages_are_invalid(self):
+        self.assertTrue(glassdoor_catalog.invalid_company_name("Página de Carreira"))
+        self.assertTrue(glassdoor_catalog.invalid_company_name("Trabalhe Conosco"))
+        self.assertFalse(glassdoor_catalog.invalid_company_name("Concremat"))
+
+    def test_not_really_attempted_companies_return_to_front_of_queue(self):
+        snapshot = {"dict": {"company": ["Grande", "Antiga"]}, "jobs": {"cmp": [0, 0, 0, 1]}}
+        previous = {"profiles": {}, "catalog_profiles": {
+            glassdoor.company_key("Grande"): {**entry("Grande", "2026-11-16"),
+                                              "resolution_reason": "browserless_disabled"},
+            glassdoor.company_key("Antiga"): entry("Antiga", "2026-11-10"),
+        }}
+        calls = []
+
+        def fetch(profile, **kwargs):
+            calls.append(profile["scraper_company"])
+            return {"rating": 4.0, "source": "omkar"}
+
+        with patch.dict(os.environ, NO_BROWSERLESS):
+            glassdoor.update_catalog_cache(snapshot, previous, now=datetime(2026, 11, 17, 8, 0),
+                                           batch_size=1, fetcher=fetch,
+                                           sleeper=lambda _s: None, profile_delay=0)
+        self.assertEqual(calls, ["Grande"])
+
+    def test_slogan_retry_uses_clean_name(self):
+        snapshot = {"dict": {"company": ["Assaí Atacadista - O atacadista"]}, "jobs": {"cmp": [0]}}
+        calls = []
+
+        def fetch(profile, **kwargs):
+            calls.append(profile["scraper_company"])
+            if profile["scraper_company"] == "Assaí Atacadista":
+                return {"rating": 3.9, "source": "omkar"}
+            return {"rating": None, "source": "omkar"}
+
+        with patch.dict(os.environ, NO_BROWSERLESS):
+            updated, summary = glassdoor.update_catalog_cache(
+                snapshot, {"profiles": {}, "catalog_profiles": {}},
+                now=datetime(2026, 11, 17, 8, 0), batch_size=5, fetcher=fetch,
+                sleeper=lambda _s: None, profile_delay=0)
+        self.assertEqual(calls, ["Assaí Atacadista - O atacadista", "Assaí Atacadista"])
+        self.assertEqual(summary["succeeded"], 1)
+
+
 if __name__ == "__main__":
     unittest.main()
