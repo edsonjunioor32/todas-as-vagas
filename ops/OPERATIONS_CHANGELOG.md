@@ -1,3 +1,12 @@
+## 2026-11-17 — Glassdoor: perfis aprovados para as maiores empresas sem nota
+
+- **Motivo:** após o PR #251, 48% das vagas seguiam sem nota; as maiores empresas eram nomes do catálogo sem perfil (IEL MT, Vitru Educação, Atakarejo, Divisão Comércio do Grupo Águia Branca) ou variantes com slogan (Assaí).
+- **Mudança:** `jobs-dashboard/data/glassdoor_profiles.json` ganha 4 perfis aprovados com URL fornecida pelo responsável (IEL, Vitru, Atakarejo, Grupo Águia Branca) e dois aliases no perfil existente do Assaí.
+- **Impacto por canal:** só o cache e as notas do site (~1.700 vagas); sem efeito em coleta, Telegram, WhatsApp ou LinkedIn.
+- **Pendente:** McDonald's/Arcos Dorados e Savegnago dependem de URL aprovada.
+- **Checagem pós-implantação:** no próximo `glassdoor-daily`, os 4 perfis devem aparecer em `profiles` com nota e as vagas dessas empresas passam a exibi-la.
+- **Reversão:** reverter o commit.
+
 ## 2026-11-17 — Glassdoor: empresas com mais vagas sem nota voltam à frente da fila
 
 - **Motivo:** ~50% das vagas do catálogo estavam sem nota; das 200 maiores empresas sem nota, 197 tinham parado em `browserless_disabled` (não chegaram a ser consultadas) e a fila as tratava como já tentadas.
