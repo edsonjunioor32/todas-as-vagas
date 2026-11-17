@@ -217,8 +217,9 @@ def update_catalog_cache(
 ) -> tuple[dict, dict]:
     """Refresh exact-match ratings in relevance-ordered resumable batches.
 
-    Unrated companies are ordered by associated job count (descending), then
-    by normalized name and source position for deterministic fallback. Existing
+    Unrated companies never attempted come first, then the least recently
+    attempted; ties use job count (descending), normalized name and source
+    position. Without a URL resolver, companies are queried by name (Omkar). Existing
     ratings remain in the cache and are not queried again. A catalog company is
     resolved through the injected adapter or the explicit Browserless opt-in
     before any scraper call; without either, catalog enrichment stays disabled
@@ -292,8 +293,12 @@ def update_catalog_cache(
             continue
         pending.append((key, company_name, job_count, source_position, entry))
 
+    # Fila justa: empresas nunca tentadas primeiro, depois as tentadas há mais
+    # tempo; dentro do mesmo grupo, as com mais vagas. Antes, a ordem era só
+    # por vagas e as mesmas 100 empresas sem nota eram repetidas todo dia.
     pending.sort(
         key=lambda item: (
+            str(item[4].get("last_attempted_date") or ""),
             -item[2],
             item[1].casefold(),
             item[0],
@@ -339,11 +344,9 @@ def update_catalog_cache(
         elif resolver is not None:
             resolution = resolve_catalog_profile(company_name, resolver)
         elif not browserless_enabled():
-            resolution = {
-                "status": "disabled",
-                "reason": "browserless_disabled",
-                "source": "disabled",
-            }
+            # Sem resolvedor de URL configurado, segue a consulta pelo nome no
+            # Omkar, que exige correspondência exata e não precisa de URL.
+            resolution = {"status": "matched", "url": None, "source": "name"}
         elif browserless_budget <= 0:
             resolution = {
                 "status": "disabled",

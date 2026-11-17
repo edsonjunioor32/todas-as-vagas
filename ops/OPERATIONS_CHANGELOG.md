@@ -1,3 +1,14 @@
+## 2026-11-17 — Notas Glassdoor voltam a ser buscadas para o catálogo
+
+- **Evidência (`public-data/data/glassdoor_cache.json`):** 16.474 empresas no catálogo; só 5.681 com nota (34%), 8.600 `unavailable` e 2.193 nunca tentadas. As notas vieram da varredura de 13/11. Desde então, os lotes diários de 100 terminam todos `unavailable` com `browserless_disabled`.
+- **Causa 1:** a etapa de resolução de URL (13/11) exigia o Browserless. Desligado, a empresa era pulada antes de chegar ao Omkar, que busca pelo nome com correspondência exata e não precisa de URL. Agora, sem resolvedor configurado, a consulta segue pelo nome no Omkar (`resolution_source = "name"`). O Browserless continua opcional para resolver URLs, e a regra de correspondência exata não muda.
+- **Causa 2:** a fila de empresas sem nota era ordenada só pelo número de vagas, então as mesmas 100 eram repetidas todo dia e as nunca tentadas não andavam. A ordem passa a ser: nunca tentadas, depois as tentadas há mais tempo, com desempate por número de vagas.
+- **Impacto por canal:** mais vagas com nota oficial no site e nos filtros por avaliação. Nenhuma nota é inventada; as falhas continuam preservando a nota anterior.
+- **Ritmo:** com lotes de 100 por dia, as ~10,8 mil empresas pendentes levam cerca de 3,5 meses para uma passada. Lotes maiores podem ser rodados manualmente (`catalog_batch_size` até 1.000).
+- **Checagem pós-implantação:** no próximo `glassdoor-daily.yml`, o resumo deve mostrar tentativas com `succeeded` maior que zero e `resolution_disabled` igual a zero.
+- A trava de `except` amplos passa a ignorar arquivos `test_*.py` (testes e scripts de diagnóstico, como `tools/test_linkedin_token.py`, que recebe commits frequentes de outra frente e fazia o `main` falhar). A baseline volta a 100 no código de produção.
+- **Reversão:** `git revert`.
+
 ## 2026-11-17 — Coleta LinkedIn incremental
 
 - **Antes:** toda execução pedia 60 dias de vagas (`--hours-old 1440`), limitada a 1.200 únicas, e substituía o snapshot. As mesmas páginas eram varridas de novo, o que provocava bloqueios 429 do LinkedIn por volta da 10ª página do mesmo IP, e a cobertura nunca passava de 1.200.

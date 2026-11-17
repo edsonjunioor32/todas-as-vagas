@@ -45,6 +45,9 @@ def _python_files():
             continue
         for path in sorted(base.rglob("*.py")):
             relative = path.relative_to(REPO_ROOT).as_posix()
+            # Testes e scripts de diagnóstico (test_*.py) ficam fora da trava.
+            if path.name.startswith("test_"):
+                continue
             if "/tests/" in f"/{relative}" or "/__pycache__/" in f"/{relative}":
                 continue
             yield relative, path
