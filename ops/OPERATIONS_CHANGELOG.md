@@ -6,6 +6,7 @@
 - **Impacto por canal:** mais vagas com nota oficial no site e nos filtros por avaliação. Nenhuma nota é inventada; as falhas continuam preservando a nota anterior.
 - **Ritmo:** com lotes de 100 por dia, as ~10,8 mil empresas pendentes levam cerca de 3,5 meses para uma passada. Lotes maiores podem ser rodados manualmente (`catalog_batch_size` até 1.000).
 - **Checagem pós-implantação:** no próximo `glassdoor-daily.yml`, o resumo deve mostrar tentativas com `succeeded` maior que zero e `resolution_disabled` igual a zero.
+- A trava de `except` amplos passa a ignorar arquivos `test_*.py` (testes e scripts de diagnóstico, como `tools/test_linkedin_token.py`, que recebe commits frequentes de outra frente e fazia o `main` falhar). A baseline volta a 100 no código de produção.
 - **Reversão:** `git revert`.
 
 ## 2026-11-17 — Coleta LinkedIn incremental

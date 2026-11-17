@@ -50,6 +50,5 @@
   "tools/collect_linkedin.py": 7,
   "tools/publish_linkedin_daily.py": 2,
   "tools/publish_linkedin_morning.py": 2,
-  "tools/publish_linkedin_weekly.py": 3,
-  "tools/test_linkedin_token.py": 3
+  "tools/publish_linkedin_weekly.py": 3
 }
