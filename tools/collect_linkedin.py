@@ -14,7 +14,7 @@ import re
 import sys
 import time
 import unicodedata
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from html.parser import HTMLParser
 from urllib.parse import urlsplit
 
@@ -813,6 +813,43 @@ def normalize_linkedin_job(
 
 
 
+def _snapshot_job_key(job):
+    native_id = str(job.get("native_id") or "").strip().casefold().removeprefix("li-")
+    return f"id:{native_id}" if native_id else f"url:{str(job.get('url') or '').strip()}"
+
+
+def merge_previous_snapshot(collected, previous_path, keep_days, now=None):
+    """Acrescenta vagas recentes do snapshot anterior que esta coleta não trouxe.
+
+    A coleta diária pede só as últimas horas; sem isso, cada execução
+    substituiria o catálogo inteiro. Vagas novas prevalecem; do snapshot
+    anterior ficam só as publicadas há até ``keep_days`` dias.
+    """
+    if not keep_days or keep_days <= 0:
+        return collected, 0
+    try:
+        with open(previous_path, encoding="utf-8") as handle:
+            previous = json.load(handle).get("jobs") or []
+    except (OSError, ValueError, AttributeError):
+        return collected, 0
+    now = now or datetime.now(timezone.utc)
+    cutoff = (now - timedelta(days=keep_days)).isoformat()
+    seen = {_snapshot_job_key(job) for job in collected}
+    kept = []
+    for job in previous:
+        if not isinstance(job, dict):
+            continue
+        published = str(job.get("publishedAt") or "")
+        if not published or published.replace("Z", "+00:00") < cutoff:
+            continue
+        key = _snapshot_job_key(job)
+        if key in seen:
+            continue
+        seen.add(key)
+        kept.append(job)
+    return collected + kept, len(kept)
+
+
 def _raw_linkedin_job_key(raw):
     """Build a tracking-independent key for one LinkedIn ad."""
     native_id = str(clean_value(raw.get("id")) or "").strip()
@@ -981,6 +1018,7 @@ def collect_linkedin(
     easy_apply=False,
     max_jobs_per_company=MAX_JOBS_PER_COMPANY,
     priority_terms=None,
+    merge_previous_days=0,
 ):
     if scrape_jobs is None:
         raise RuntimeError("A biblioteca 'python-jobspy' é necessária para executar collect_linkedin")
@@ -1427,6 +1465,14 @@ def collect_linkedin(
     )
     print("==========================================")
 
+    collected_list, kept_previous = merge_previous_snapshot(
+        collected_list, out_path, merge_previous_days
+    )
+    if merge_previous_days:
+        print(
+            f"[Incremental] {kept_previous} vagas mantidas do snapshot anterior "
+            f"(até {merge_previous_days} dias); total {len(collected_list)}."
+        )
     collected_list.sort(key=lambda job: job.get("publishedAt") or "", reverse=True)
 
     payload = {
@@ -1443,6 +1489,10 @@ def collect_linkedin(
             "requested_remote": requested_remote_limit if include_remote_pass else 0,
             "requested_hybrid": (hybrid_results_limit or requested_remote_limit) if include_hybrid_pass else 0,
             "easy_apply": bool(easy_apply),
+        },
+        "incremental": {
+            "merge_previous_days": merge_previous_days,
+            "kept_from_previous": kept_previous,
         },
         "coverage": pass_coverage,
         "jobs": collected_list,
@@ -1559,6 +1609,10 @@ if __name__ == "__main__":
         help="Orçamento de candidatos da busca por palavras de modalidade; não classifica vagas; máximo 1.000 por consulta e 1.200 únicos por execução",
     )
     parser.add_argument("--hours-old", type=int, default=DEFAULT_HOURS_OLD, help="Horas desde a publicação (1440 = 60 dias)")
+    parser.add_argument(
+        "--merge-previous-days", type=int, default=0,
+        help="Mantém vagas do snapshot anterior publicadas há até N dias (0 = substituir)",
+    )
     parser.add_argument("--output", type=str, default="docs/data/linkedin_vagas.json", help="Caminho do arquivo de saída")
     parser.add_argument("--skip-remote-pass", action="store_true", help="Pular a busca complementar por vagas remotas (f_WT=2)")
     parser.add_argument(
@@ -1604,6 +1658,7 @@ if __name__ == "__main__":
         remote_results_limit=args.remote_results_limit,
         hours_old=args.hours_old,
         out_path=args.output,
+        merge_previous_days=args.merge_previous_days,
         include_remote_pass=not args.skip_remote_pass,
         include_hybrid_pass=args.include_hybrid_pass,
         hybrid_results_limit=args.hybrid_results_limit,
