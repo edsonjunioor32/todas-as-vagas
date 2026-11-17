@@ -1,6 +1,9 @@
 {
   "jobs-dashboard/discover_greenhouse_br.py": 1,
-  "jobs-dashboard/glassdoor.py": 9,
+  "jobs-dashboard/glassdoor.py": 2,
+  "jobs-dashboard/glassdoor_catalog.py": 2,
+  "jobs-dashboard/glassdoor_hasdata.py": 1,
+  "jobs-dashboard/glassdoor_profiles.py": 4,
   "jobs-dashboard/notify_telegram.py": 1,
   "jobs-dashboard/pipeline.py": 1,
   "jobs-dashboard/pipeline_fit.py": 1,

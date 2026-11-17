@@ -1,3 +1,20 @@
+## 2026-11-16 — `glassdoor.py` dividido em módulos coesos
+
+- `jobs-dashboard/glassdoor.py` (2.107 linhas, o arquivo com mais correções recentes: 13 commits, 8 de correção, desde 08/11) foi dividido sem mudança de comportamento:
+  - `glassdoor_common.py` (274 linhas): constantes, exceções e utilitários;
+  - `glassdoor_profiles.py` (645): busca e leitura de perfis;
+  - `glassdoor_hasdata.py` (270): MCP da HasData;
+  - `glassdoor_catalog.py` (456): cache das empresas do catálogo;
+  - `glassdoor.py` (697): fluxo diário e CLI.
+- O código foi movido por script, bloco a bloco. Os 98 nomes de nível superior continuam definidos uma única vez, com AST idêntica à original. `glassdoor` reexporta todos eles, então `pipeline.py`, `storage.py`, `validate_snapshot.py`, a CLI do `glassdoor-daily.yml` e os testes seguem usando `glassdoor.<nome>`. As dependências só vão no sentido comum → perfis → catálogo, sem import circular.
+- Testes: os dois `patch.object` de `resolve_catalog_profile_via_browserless` passaram a apontar para `glassdoor_catalog`, onde `update_catalog_cache` agora vive. A baseline de `except` amplos foi redistribuída sem mudar o total (100).
+- `test_publication_guard.py` desliga `commit.gpgsign` e os hooks no repositório git temporário. Numa máquina com assinatura GPG global, o teste esperava a senha da chave e travava a suíte; o CI não era afetado.
+- `catalog-ci.yml` compila também os quatro módulos novos.
+- **Impacto por canal:** nenhum. Mesmas saídas do índice Glassdoor, da exportação do catálogo e do site.
+- **Checagem pós-implantação:** próxima execução do `glassdoor-daily.yml` e próxima coleta completa com o Glassdoor no resumo, sem erro de import.
+- **Reversão:** `git revert`.
+- **Próximos passos (T11):** `tools/collect_linkedin.py` (1.579 linhas) e `jobs-dashboard/storage.py` (1.212) têm menos alterações recentes e ficam para PRs próprios.
+
 ## 2026-11-15 — Publicação do catálogo resistente a commits de dados e à falha do artefato do Pages
 
 - **Evidência (API pública, 08–15/11):** 17 das 60 execuções do `pages.yml` falharam. Das 12 mais recentes:
@@ -488,6 +505,12 @@ Escopo: 173 arquivos rastreados da branch `main` nesta revisão, incluindo `AGEN
 - `jobs-dashboard/discover_greenhouse_br.py` — descobre empresas/vagas Greenhouse no Brasil.
 - `jobs-dashboard/empregare_mcp.py` — consulta diagnóstica/manual da fonte Empregare via MCP.
 - `jobs-dashboard/fit_requirements.py` — extrai requisitos e termos do índice de aderência.
+- `jobs-dashboard/glassdoor.py` — fluxo diário das notas Glassdoor (manifesto, cache, enriquecimento do snapshot e CLI); reexporta os módulos `glassdoor_*`.
+- `jobs-dashboard/glassdoor_catalog.py` — cache de notas para as empresas do catálogo (lotes, resolução via Browserless e métricas).
+- `jobs-dashboard/glassdoor_common.py` — constantes, exceções, URLs canônicas e utilitários compartilhados do Glassdoor.
+- `jobs-dashboard/glassdoor_hasdata.py` — complemento das notas pelo MCP Glassdoor da HasData.
+- `jobs-dashboard/glassdoor_profiles.py` — busca e leitura de perfis públicos (página, Omkar e Browserless) com robots.txt.
+- `jobs-dashboard/hasdata_glassdoor_mcp.py` — cliente do MCP Glassdoor da HasData.
 - `jobs-dashboard/merge_dynamic_portals.py` — mescla resultados dos portais dinâmicos.
 - `jobs-dashboard/notify_telegram.py` — formata e envia notificações Telegram com deduplicação.
 - `jobs-dashboard/pipeline.py` — coordena coletores, histórico e snapshot público.

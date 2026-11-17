@@ -58,6 +58,11 @@ class GuardCommandTests(unittest.TestCase):
         cls._git("init", "-q")
         cls._git("config", "user.email", "teste@example.com")
         cls._git("config", "user.name", "Teste")
+        # Repositório descartável: sem assinatura nem hooks herdados da máquina,
+        # senão um commit.gpgsign global espera a senha da chave e trava o teste.
+        cls._git("config", "commit.gpgsign", "false")
+        cls._git("config", "tag.gpgsign", "false")
+        cls._git("config", "core.hooksPath", os.devnull)
         cls._write("jobs-dashboard/pipeline.py", "print('v1')\n")
         cls._write("docs/data/linkedin_vagas.json", "[]\n")
         cls.base = cls._commit("base")

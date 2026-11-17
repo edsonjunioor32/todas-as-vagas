@@ -51,6 +51,10 @@ jobs:
             jobs-dashboard/pipeline.py \
             jobs-dashboard/pipeline_fit.py \
             jobs-dashboard/glassdoor.py \
+            jobs-dashboard/glassdoor_common.py \
+            jobs-dashboard/glassdoor_profiles.py \
+            jobs-dashboard/glassdoor_hasdata.py \
+            jobs-dashboard/glassdoor_catalog.py \
             jobs-dashboard/hasdata_glassdoor_mcp.py
 
       - name: Validar script do navegador nativo
