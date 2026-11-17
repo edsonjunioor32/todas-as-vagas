@@ -1,3 +1,17 @@
+## 2026-11-17 — Verificação do token LinkedIn sem vazamento e sem falso verde
+
+- **Run 43995037241 (`verify-linkedin-token.yml`):** terminou "succeeded", mas o teste do token saiu com código 1 (nenhuma chamada à Community Management API passou). `continue-on-error` na etapa Python e um `curl -i` sem `--fail` deixavam o job verde mesmo com o token falhando.
+- `tools/test_linkedin_token.py` imprimia os 8 primeiros e os 6 últimos caracteres do `LINKEDIN_ACCESS_TOKEN`, e os logs do Actions deste repositório público ficaram com esses trechos nos runs #1 a #5. Agora imprime só o comprimento. **Recomendação:** gerar um novo token e atualizar o secret.
+- O script classifica cada resposta com a causa provável:
+  - 401: token inválido, expirado ou revogado;
+  - 403: falta o produto Community Management API no app, os escopos `w_organization_social`/`r_organization_admin` ou o papel de administrador da página;
+  - 400 ou 426: versão da API;
+  - 404 e 429.
+  Erros que não dependem da versão encerram a varredura de versões. O diagnóstico sai como anotação `::error`, legível no resumo do run sem abrir o log.
+- O workflow perdeu o `continue-on-error` e o passo de `curl`, e ganhou `permissions: contents: read`; o job fica vermelho quando o token falha.
+- **Causa do lado do LinkedIn:** o log do run #5 exige login para ser lido. O próximo run mostra o código HTTP e a causa provável na anotação.
+- **Reversão:** `git revert`.
+
 ## 2026-11-17 — Glassdoor: segunda tentativa sem sufixo jurídico e nomes inválidos ignorados
 
 - **Antes:** 10.793 empresas do catálogo sem nota. Cerca de 3,9 mil vêm como razão social ("Wiz, Inc.", "12 MIX SOLUCOES LTDA"), e o Glassdoor costuma listar a empresa sem o sufixo, o que fazia a correspondência exata falhar. Alguns nomes nem são empresas (textos do portal ou títulos de vaga).
@@ -678,6 +692,7 @@ Todos os arquivos desta seção são testes automatizados; não são coletores n
 - `jobs-dashboard/tests/test_http_retry.py` — backoff exponencial com jitter, `Retry-After` e não retentativa de erros permanentes no cliente HTTP compartilhado.
 - `jobs-dashboard/tests/test_linkedin.py` — contrato do snapshot LinkedIn, janela de 30 dias e rejeição de dados inválidos.
 - `jobs-dashboard/tests/test_linkedin_incremental.py` — junção da coleta LinkedIn com o snapshot anterior e modos do workflow.
+- `jobs-dashboard/tests/test_linkedin_token_check.py` — verificação do token da Community Management API sem expor o token e com diagnóstico por código HTTP.
 - `jobs-dashboard/tests/test_linkedin_time_budget.py` — orçamento de tempo da coleta LinkedIn e publicação com rebase e repetição.
 - `jobs-dashboard/tests/test_linkedin_digest_schedule.py` — trava de dias úteis do digest diário e ausência do recuperador como gatilho dos digests.
 - `jobs-dashboard/tests/test_linkedin_webhook_config.py` — webhook do Make só via configuração: sem URL embutida, erro sem secret, dry-run sem webhook e URL fora dos logs.
