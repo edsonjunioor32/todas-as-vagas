@@ -1,0 +1,25 @@
+name: Validar Token do LinkedIn (Community Management API)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  validate-token:
+    name: Validar Autenticação Oficial LinkedIn
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Testar Conexão com a Community Management API
+        env:
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+        run: |
+          python tools/test_linkedin_token.py
