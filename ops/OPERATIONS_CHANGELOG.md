@@ -1,3 +1,15 @@
+## 2026-11-17 — Glassdoor: segunda tentativa sem sufixo jurídico e nomes inválidos ignorados
+
+- **Antes:** 10.793 empresas do catálogo sem nota. Cerca de 3,9 mil vêm como razão social ("Wiz, Inc.", "12 MIX SOLUCOES LTDA"), e o Glassdoor costuma listar a empresa sem o sufixo, o que fazia a correspondência exata falhar. Alguns nomes nem são empresas (textos do portal ou títulos de vaga).
+- `glassdoor_catalog.py`:
+  - `legal_suffix_free` remove sufixos finais (Ltda, Limitada, S.A., S/A, EIRELI, ME, EPP, Inc., LLC, Ltd., Pte., GmbH, AG, Corp., PLC, B.V., S.R.L. e similares).
+  - Quando a consulta pelo nome do catálogo não traz nota, `_fetch_rating` repete com o nome limpo. A resposta só é aceita se o nome devolvido bater exatamente, após normalização, com o nome original ou o limpo; nenhuma correspondência aproximada é aceita. O resumo conta `suffix_retry_succeeded`.
+  - `invalid_company_name` pula sem consulta e sem ocupar vaga do lote os nomes com "vaga(s)", "homologação", "processo seletivo", "banco de talentos", duração de contrato ("12 month", "FTC") ou com mais de 120 caracteres. Eles ficam `unavailable` com o motivo `invalid_company_name`, contados em `invalid_names`.
+- **Estimativa no cache atual:** 3.922 empresas ganham segunda tentativa e 61 nomes deixam de gastar consulta. Agências cujo nome contém "Vagas" (ex.: "BM Vagas") também são puladas; é a contrapartida aceita.
+- **Impacto por canal:** mais empresas com nota oficial no site; nada é inventado. Uma empresa com segunda tentativa custa uma consulta extra ao Omkar local.
+- **Checagem pós-implantação:** no resumo do `glassdoor-daily.yml`, conferir `suffix_retry_succeeded` e `invalid_names`.
+- **Reversão:** `git revert`.
+
 ## 2026-11-17 — Notas Glassdoor voltam a ser buscadas para o catálogo
 
 - **Evidência (`public-data/data/glassdoor_cache.json`):** 16.474 empresas no catálogo; só 5.681 com nota (34%), 8.600 `unavailable` e 2.193 nunca tentadas. As notas vieram da varredura de 13/11. Desde então, os lotes diários de 100 terminam todos `unavailable` com `browserless_disabled`.
