@@ -1,0 +1,15 @@
+[Unit]
+Description=Grava no banco privado as descricoes ja entregues pelos coletores publicos
+Wants=network-online.target
+After=network-online.target
+[Service]
+Type=oneshot
+User=ubuntu
+Group=ubuntu
+RuntimeDirectory=todas-as-vagas-collector-descriptions
+WorkingDirectory=/home/ubuntu/todas-as-vagas
+Environment=PRIVATE_DESCRIPTIONS_DB=/home/ubuntu/todas-as-vagas-private/descriptions.sqlite3
+Environment=COLLECTOR_DESCRIPTION_SOURCES=solides,arbeitnow,himalayas,vagascom,themuse
+ExecStart=/usr/bin/flock --nonblock /run/todas-as-vagas-collector-descriptions/run.lock /usr/bin/python3 jobs-dashboard/collector_descriptions.py
+UMask=0077
+TimeoutStartSec=1800
