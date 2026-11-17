@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import urllib.error
 import urllib.request
@@ -27,6 +28,7 @@ TARGET_CHARS = 2800
 STATE_PATH = Path("docs/data/linkedin_digest_state.json")
 
 import publish_linkedin_weekly as utils
+import linkedin_api
 
 # Categorias mais buscadas no mercado nacional de trabalho
 POPULAR_CATEGORIES = [
@@ -231,8 +233,9 @@ def publish_morning(dry_run: bool = False, force: bool = False, webhook_url: str
             print("Encerrando execução de forma segura para impedir publicações duplicadas.")
             return 0
 
+    linkedin_token = os.environ.get("LINKEDIN_ACCESS_TOKEN", "").strip()
     webhook_url = utils.resolve_webhook_url(webhook_url)
-    if webhook_url is None and not dry_run:
+    if not linkedin_token and webhook_url is None and not dry_run:
         return utils.report_missing_webhook()
 
     print(f"Buscando catálogo de vagas de {DEFAULT_SNAPSHOT_URL}...")
@@ -270,20 +273,46 @@ def publish_morning(dry_run: bool = False, force: bool = False, webhook_url: str
         print(f"\nCard anexado: {DEFAULT_CARD_URL}")
         return 0
 
-    # Logs do Actions são públicos e só mascaram o secret inteiro: nenhum trecho da URL é impresso.
-    print("Enviando para o Webhook do Make (URL omitida do log)...")
-    data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-    webhook_req = urllib.request.Request(webhook_url, data=data, headers={"Content-Type": "application/json; charset=utf-8"})
-
-    try:
-        with urllib.request.urlopen(webhook_req, timeout=25) as resp:
-            print(f"Resposta do Webhook: HTTP {resp.status} - {resp.read().decode('utf-8')}")
-            print("Publicação do Desperta Vagas enviada com sucesso ao LinkedIn!")
+    # 1. Tentativa nativa direta via LinkedIn Community Management API
+    if linkedin_token:
+        print("LINKEDIN_ACCESS_TOKEN detectado. Publicando diretamente via LinkedIn Community Management API...")
+        try:
+            card_path = Path("docs/assets/img/card_desperta_vagas.jpg")
+            img_source = str(card_path) if card_path.exists() else DEFAULT_CARD_URL
+            post_urn = linkedin_api.publish_to_linkedin(
+                commentary=post_text,
+                image_path_or_url=img_source,
+                token=linkedin_token,
+                media_title="Desperta Vagas - Todas as Vagas"
+            )
+            print(f"Publicação do Desperta Vagas realizada com SUCESSO nativo no LinkedIn! Post URN: {post_urn}")
             mark_posted_this_morning(today, vacancies)
             return 0
-    except Exception as exc:
-        print(f"Erro ao disparar webhook: {exc}", file=sys.stderr)
-        return 1
+        except Exception as exc:
+            print(f"Aviso: Erro na publicação nativa do LinkedIn ({exc}).", file=sys.stderr)
+            if not webhook_url:
+                print("Nenhum webhook Make.com configurado para fallback.", file=sys.stderr)
+                return 1
+            print("Tentando fallback para Make.com...", file=sys.stderr)
+
+    if webhook_url:
+        # Logs do Actions são públicos e só mascaram o secret inteiro: nenhum trecho da URL é impresso.
+        print("Enviando para o Webhook do Make (URL omitida do log)...")
+        data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+        webhook_req = urllib.request.Request(webhook_url, data=data, headers={"Content-Type": "application/json; charset=utf-8"})
+
+        try:
+            with urllib.request.urlopen(webhook_req, timeout=25) as resp:
+                print(f"Resposta do Webhook: HTTP {resp.status} - {resp.read().decode('utf-8')}")
+                print("Publicação do Desperta Vagas enviada com sucesso ao LinkedIn!")
+                mark_posted_this_morning(today, vacancies)
+                return 0
+        except Exception as exc:
+            print(f"Erro ao disparar webhook: {exc}", file=sys.stderr)
+            return 1
+
+    print("Erro: Nenhum método de envio (API nativa ou webhook) foi bem-sucedido.", file=sys.stderr)
+    return 1
 
 
 def main() -> None:

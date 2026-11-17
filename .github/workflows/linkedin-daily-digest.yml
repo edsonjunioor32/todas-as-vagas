@@ -58,6 +58,7 @@ jobs:
       - name: Executar Curadoria e Disparo da Edição Diária
         env:
           PYTHONPATH: tools
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
           MAKE_LINKEDIN_WEBHOOK_URL: ${{ secrets.MAKE_LINKEDIN_WEBHOOK_URL }}
         run: |
           FLAGS=""
