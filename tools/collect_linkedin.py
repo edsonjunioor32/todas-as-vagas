@@ -67,6 +67,24 @@ WORKPLACE_EVIDENCE_PRIORITY = {
 }
 _CURRENT_PASS_F_WT = None
 _CURRENT_EASY_APPLY = False
+# Orçamento de tempo da coleta: o workflow mata o job em 45 min e descarta
+# tudo. Passado o prazo, nenhuma página nova é pedida e o snapshot parcial
+# é gravado. ``None`` (padrão fora de collect_linkedin) não limita.
+TIME_BUDGET_ENV = "LINKEDIN_TIME_BUDGET_MINUTES"
+DEFAULT_TIME_BUDGET_MINUTES = 32.0
+_DEADLINE = None
+
+
+def _time_budget_minutes():
+    try:
+        value = float(os.environ.get(TIME_BUDGET_ENV, DEFAULT_TIME_BUDGET_MINUTES))
+    except (TypeError, ValueError):
+        return DEFAULT_TIME_BUDGET_MINUTES
+    return value if value > 0 else None
+
+
+def _time_budget_exhausted():
+    return _DEADLINE is not None and time.monotonic() >= _DEADLINE
 APPLICATION_EVIDENCE_PRIORITY = {
     "manual_override": 50,
     "user_screenshot_2026-11-03": 50,
@@ -855,8 +873,13 @@ def _scrape_jobs_in_pages(
     page_count = 0
     source_exhausted = False
     stopped_without_progress = False
+    stopped_by_time_budget = False
 
     for page_number in range(max_pages):
+        if _time_budget_exhausted():
+            stopped_by_time_budget = True
+            print("  -> Orçamento de tempo esgotado; nenhuma página nova será pedida.")
+            break
         offset = page_number * batch_size
         page_kwargs = dict(kwargs)
         page_kwargs["results_wanted"] = min(batch_size, target - offset)
@@ -910,6 +933,7 @@ def _scrape_jobs_in_pages(
     limit_reached = (
         (len(records) >= target or (page_count >= max_pages and not source_exhausted))
         and not stopped_without_progress
+        and not stopped_by_time_budget
     )
     if coverage is not None:
         coverage.update({
@@ -922,6 +946,7 @@ def _scrape_jobs_in_pages(
             "pages": page_count,
             "source_exhausted": source_exhausted,
             "stopped_without_progress": stopped_without_progress,
+            "stopped_by_time_budget": stopped_by_time_budget,
             "limit_reached": limit_reached,
         })
     return collected
@@ -960,8 +985,11 @@ def collect_linkedin(
     if scrape_jobs is None:
         raise RuntimeError("A biblioteca 'python-jobspy' é necessária para executar collect_linkedin")
 
-    global _CURRENT_EASY_APPLY
+    global _CURRENT_EASY_APPLY, _DEADLINE
     _CURRENT_EASY_APPLY = bool(easy_apply)
+    budget_minutes = _time_budget_minutes()
+    _DEADLINE = time.monotonic() + budget_minutes * 60 if budget_minutes else None
+    print(f"[Tempo] Orçamento da coleta: {budget_minutes or 'sem limite'} min.")
     requested_general_limit = max(0, int(results_limit))
     requested_remote_limit = max(0, int(remote_results_limit))
     CAPTURED_LINKEDIN_WORKPLACE.clear()
@@ -1029,6 +1057,10 @@ def collect_linkedin(
                     f"  [Aviso] A busca '{name}' atingiu seu limite efetivo de "
                     f"{coverage['effective_limit']} resultados; podem existir "
                     f"vagas fora do lote consultado."
+                )
+            if coverage.get("stopped_by_time_budget"):
+                print(
+                    f"  [Aviso] A busca '{name}' foi interrompida pelo orçamento de tempo; snapshot parcial."
                 )
             if coverage.get("stopped_without_progress"):
                 print(
@@ -1471,7 +1503,9 @@ def collect_linkedin(
                     statuses.append(
                         f"corte pelo teto agregado {MAX_UNIQUE_RESULTS_PER_RUN}"
                     )
-                if item.get("source_exhausted"):
+                if item.get("stopped_by_time_budget"):
+                    statuses.append("interrompida pelo orçamento de tempo")
+                elif item.get("source_exhausted"):
                     statuses.append("fonte encerrou antes do limite")
                 elif item.get("stopped_without_progress"):
                     statuses.append("paginação sem novos IDs; cobertura incerta")
