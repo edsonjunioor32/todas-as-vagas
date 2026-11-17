@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "jobs-dashboard"))
 
 import glassdoor
+import glassdoor_catalog
 import storage
 
 
@@ -783,7 +784,7 @@ class GlassdoorTests(unittest.TestCase):
                 "BROWSERLESS_TOKEN": "test-token",
             },
         ), patch.object(
-            glassdoor,
+            glassdoor_catalog,
             "resolve_catalog_profile_via_browserless",
             side_effect=resolved,
         ):
@@ -834,7 +835,7 @@ class GlassdoorTests(unittest.TestCase):
                 "BROWSERLESS_TOKEN": "test-token",
             },
         ), patch.object(
-            glassdoor,
+            glassdoor_catalog,
             "resolve_catalog_profile_via_browserless",
             side_effect=AssertionError("URL resolvida em cache não deve ser consultada"),
         ):
