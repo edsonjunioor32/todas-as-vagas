@@ -64,7 +64,7 @@ _OMKAR_ENABLED_VALUES = {"1", "true", "yes", "on"}
 _BROWSERLESS_ENABLED_VALUES = {"1", "true", "yes", "on"}
 _BROWSERLESS_LOCAL_HOSTS = {"127.0.0.1", "localhost", "::1"}
 _CATALOG_RESOLUTION_STATUSES = {"matched", "missing", "ambiguous", "disabled", "error"}
-_CATALOG_RESOLUTION_SOURCES = {"cache", "injected", "browserless", "disabled"}
+_CATALOG_RESOLUTION_SOURCES = {"cache", "injected", "browserless", "disabled", "name"}
 _COMPANY_PROFILE_PATH_RE = re.compile(
     r"^/(?:avalia(?:coes|ções)|reviews|vis(?:ao|ão)-geral|overview|"
     r"sal(?:arios|ários)|salaries|benefits|entrevistas|interviews)/"
