@@ -245,6 +245,29 @@ def is_verified_public_listing(item):
     )
 
 
+# Algumas empresas cadastram a Página de Carreira com um nome genérico; o
+# subdomínio do portal (hapvidandi.gupy.io) identifica o empregador de verdade.
+GENERIC_CAREER_PAGE_RE = re.compile(
+    r"^(?:p[aá]gina de carreiras?|carreiras?|trabalhe conosco|vagas)$", re.IGNORECASE
+)
+KNOWN_CAREER_SUBDOMAINS = {"hapvidandi": "Hapvida NotreDame Intermédica"}
+GUPY_SUBDOMAIN_RE = re.compile(r"^https?://([a-z0-9-]+)\.gupy\.io", re.IGNORECASE)
+
+
+def career_page_company(name, job_url):
+    """Nome da empresa; troca nomes genéricos pelo derivado do subdomínio Gupy."""
+    clean = str(name or "").strip()
+    if clean and not GENERIC_CAREER_PAGE_RE.match(clean):
+        return clean
+    match = GUPY_SUBDOMAIN_RE.match(str(job_url or "").strip())
+    if not match:
+        return clean
+    subdomain = match.group(1).lower()
+    if subdomain in {"portal", "www", "jobs", "app"}:
+        return clean
+    return KNOWN_CAREER_SUBDOMAINS.get(subdomain) or subdomain.replace("-", " ").title()
+
+
 def _api_row(item):
     if not is_verified_public_listing(item):
         return None
@@ -260,7 +283,7 @@ def _api_row(item):
     return job(
         "gupy", jid,
         title=item.get("name", ""),
-        company=item.get("careerPageName", ""),
+        company=career_page_company(item.get("careerPageName", ""), item.get("jobUrl", "")),
         url=item.get("jobUrl", ""),
         work_model=work_model_label(remote, item.get("workplaceType")),
         city=item.get("city", "") or "",
@@ -393,7 +416,9 @@ def _career_page_rows(page_url):
     if not match:
         raise RuntimeError(f"Gupy career page without __NEXT_DATA__: {page_url}")
     props = json.loads(match.group(1)).get("props", {}).get("pageProps", {})
-    company = str((props.get("careerPage") or {}).get("name") or "").strip()
+    company = career_page_company(
+        (props.get("careerPage") or {}).get("name"), page_url
+    )
     base_url = page_url.rstrip("/")
     rows = []
     for item in props.get("jobs") or []:

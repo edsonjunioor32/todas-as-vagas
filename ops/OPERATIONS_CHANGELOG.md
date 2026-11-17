@@ -1,3 +1,11 @@
+## 2026-11-17 — Gupy: nome real da Hapvida e perfil Glassdoor
+
+- **Motivo:** 428 vagas de `hapvidandi.gupy.io` apareciam com a empresa "Página de Carreira" (nome cadastrado no Gupy), sem nota Glassdoor e com nome errado no site.
+- **Mudança:** `jobs-dashboard/sources/gupy.py` troca nomes genéricos (Página de Carreira, Carreiras, Trabalhe Conosco, Vagas) pelo derivado do subdomínio Gupy, com mapa explícito para `hapvidandi` (Hapvida NotreDame Intermédica); `glassdoor_profiles.json` ganha o perfil aprovado da Hapvida com a URL informada pelo responsável.
+- **Impacto por canal:** nome da empresa e nota das ~430 vagas Hapvida no site; sem efeito em agenda, Telegram, WhatsApp ou LinkedIn. Vagas já publicadas por outros canais não mudam de identidade (chave por fonte e ID).
+- **Checagem pós-implantação:** na próxima coleta, não deve restar vaga com empresa "Página de Carreira" no `vagas.json`; no próximo `glassdoor-daily`, as vagas Hapvida exibem nota.
+- **Reversão:** reverter o commit.
+
 ## 2026-11-17 — Glassdoor: perfis aprovados para as maiores empresas sem nota
 
 - **Motivo:** após o PR #251, 48% das vagas seguiam sem nota; as maiores empresas eram nomes do catálogo sem perfil (IEL MT, Vitru Educação, Atakarejo, Divisão Comércio do Grupo Águia Branca) ou variantes com slogan (Assaí).
