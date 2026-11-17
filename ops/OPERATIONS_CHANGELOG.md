@@ -1,3 +1,11 @@
+## 2026-11-17 — Glassdoor: empresas com mais vagas sem nota voltam à frente da fila
+
+- **Motivo:** ~50% das vagas do catálogo estavam sem nota; das 200 maiores empresas sem nota, 197 tinham parado em `browserless_disabled` (não chegaram a ser consultadas) e a fila as tratava como já tentadas.
+- **Mudança:** em `jobs-dashboard/glassdoor_catalog.py`, motivos de "não consultada" (`browserless_disabled`, `browserless_misconfigured`, `browserless_budget_exhausted`, `resolver_not_configured`) contam como nunca tentadas, e dentro do grupo a ordem continua por número de vagas; a segunda tentativa agora remove slogan/unidade após " - " além do sufixo jurídico; "Página de Carreira" e "Trabalhe Conosco" são nomes inválidos.
+- **Impacto por canal:** só o cache `glassdoor_cache.json` (branch `public-data`) e as notas exibidas no site; sem efeito em coleta, Telegram, WhatsApp ou LinkedIn.
+- **Checagem pós-implantação:** no próximo `glassdoor-daily`, as empresas do topo (ex.: Arcos Dorados, Condor, Assaí) devem ter `last_attempted_date` do dia e o `succeeded` do resumo deve subir.
+- **Reversão:** reverter o commit; o cache continua compatível.
+
 ## 2026-11-17 — Verificação do token LinkedIn sem vazamento e sem falso verde
 
 - **Run 43995037241 (`verify-linkedin-token.yml`):** terminou "succeeded", mas o teste do token saiu com código 1 (nenhuma chamada à Community Management API passou). `continue-on-error` na etapa Python e um `curl -i` sem `--fail` deixavam o job verde mesmo com o token falhando.

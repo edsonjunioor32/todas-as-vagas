@@ -57,7 +57,8 @@ _LEGAL_SUFFIX_RE = re.compile(
 # Textos do portal ou títulos de vaga que chegam no campo de empresa.
 _INVALID_COMPANY_RE = re.compile(
     r"\bvagas?\b|homologa[cç][aã]o|processo seletivo|banco de talentos|"
-    r"\b\d+\s*(?:-\s*)?(?:month|months|meses|m[eê]s)\b|\bftc\b",
+    r"\b\d+\s*(?:-\s*)?(?:month|months|meses|m[eê]s)\b|\bftc\b|"
+    r"p[aá]gina de carreiras?|trabalhe conosco",
     re.IGNORECASE,
 )
 MAX_COMPANY_NAME_LENGTH = 120
@@ -75,6 +76,36 @@ def legal_suffix_free(name: str) -> str | None:
     if len(cleaned) < 2 or company_key(cleaned) == company_key(original):
         return None
     return cleaned
+
+
+# Slogan ou unidade após o nome ("Assaí Atacadista - O atacadista com...").
+_SLOGAN_SEPARATOR_RE = re.compile(r"\s+[-–—|]\s+")
+# Motivos em que a empresa não chegou a ser consultada; voltam à frente da fila.
+_NOT_REALLY_ATTEMPTED_REASONS = frozenset({
+    "browserless_disabled",
+    "browserless_misconfigured",
+    "browserless_budget_exhausted",
+    "resolver_not_configured",
+})
+
+
+def alternative_company_name(name: str) -> str | None:
+    """Nome sem slogan final e sem sufixo jurídico, ou ``None`` se nada mudou."""
+    original = str(name or "").strip()
+    base = _SLOGAN_SEPARATOR_RE.split(original, maxsplit=1)[0].strip()
+    if len(base) < 3:
+        base = original
+    cleaned = legal_suffix_free(base) or base
+    if company_key(cleaned) == company_key(original):
+        return None
+    return cleaned
+
+
+def _queue_attempt_date(entry: dict) -> str:
+    """Data usada na fila; tentativas que nem consultaram contam como nunca feitas."""
+    if entry.get("resolution_reason") in _NOT_REALLY_ATTEMPTED_REASONS:
+        return ""
+    return str(entry.get("last_attempted_date") or "")
 
 
 def invalid_company_name(name: str) -> bool:
@@ -369,7 +400,7 @@ def update_catalog_cache(
     # por vagas e as mesmas 100 empresas sem nota eram repetidas todo dia.
     pending.sort(
         key=lambda item: (
-            str(item[4].get("last_attempted_date") or ""),
+            _queue_attempt_date(item[4]),
             -item[2],
             item[1].casefold(),
             item[0],
@@ -498,7 +529,7 @@ def update_catalog_cache(
                 fetcher,
                 profile,
                 company_name,
-                legal_suffix_free(company_name),
+                alternative_company_name(company_name),
                 timeout=timeout,
                 retries=retries,
                 backoff=backoff,
