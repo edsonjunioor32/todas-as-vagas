@@ -67,7 +67,9 @@
       "approved": true,
       "enabled": true,
       "company_names": [
-        "Assaí Atacadista"
+        "Assaí Atacadista",
+        "Assaí",
+        "Assaí Atacadista - O atacadista com 50 anos de tradição! #VemserAssaí"
       ],
       "scraper_company": "Assaí Atacadista",
       "browserless_fallback": true,
@@ -96,6 +98,57 @@
       "scraper_company": "Minsait",
       "browserless_fallback": true,
       "url": "https://www.glassdoor.com.br/Avalia%C3%A7%C3%B5es/Minsait-Avalia%C3%A7%C3%B5es-E1201389.htm"
+    },
+    {
+      "id": "iel-instituto-euvaldo-lodi",
+      "approved": true,
+      "enabled": true,
+      "company_names": [
+        "IEL MT",
+        "IEL",
+        "Instituto Euvaldo Lodi"
+      ],
+      "scraper_company": "Instituto Euvaldo Lodi",
+      "url": "https://www.glassdoor.com.br/Vis%C3%A3o-geral/Trabalhar-na-Instituto-Euvaldo-Lodi-EI_IE2982632.13,35.htm",
+      "browserless_fallback": true
+    },
+    {
+      "id": "vitru",
+      "approved": true,
+      "enabled": true,
+      "company_names": [
+        "Vitru Educação",
+        "Vitru"
+      ],
+      "scraper_company": "Vitru",
+      "url": "https://www.glassdoor.com.br/Vis%C3%A3o-geral/Trabalhar-na-Vitru-EI_IE4550431.13,18.htm",
+      "browserless_fallback": true
+    },
+    {
+      "id": "atakarejo",
+      "approved": true,
+      "enabled": true,
+      "company_names": [
+        "Atakarejo",
+        "Atakadão Atakarejo"
+      ],
+      "scraper_company": "Atakarejo",
+      "url": "https://www.glassdoor.com.br/Vis%C3%A3o-geral/Trabalhar-na-Atakad%C3%A3o-Atakarejo-EI_IE2483527.13,31.htm",
+      "browserless_fallback": true
+    },
+    {
+      "id": "grupo-aguia-branca",
+      "approved": true,
+      "enabled": true,
+      "company_names": [
+        "DIVISÃO COMÉRCIO DO GRUPO ÁGUIA BRANCA",
+        "Grupo Águia Branca Divisão Comércio",
+        "Grupo Águia Branca",
+        "Águia Branca"
+      ],
+      "scraper_company": "Grupo Águia Branca",
+      "url": "https://www.glassdoor.com.br/Vis%C3%A3o-geral/Trabalhar-na-Grupo-%C3%81guia-Branca-EI_IE2602811.13,31.htm",
+      "browserless_fallback": true
     }
   ]
 }

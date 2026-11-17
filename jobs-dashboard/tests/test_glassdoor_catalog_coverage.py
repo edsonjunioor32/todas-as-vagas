@@ -201,5 +201,24 @@ class CatalogPriorityAndSloganTests(unittest.TestCase):
         self.assertEqual(summary["succeeded"], 1)
 
 
+class LargestCompaniesManifestTests(unittest.TestCase):
+    def test_largest_unrated_companies_have_approved_profiles(self):
+        manifest = glassdoor.load_manifest()
+        aliases = {}
+        for profile in manifest["profiles"].values():
+            for key in profile["company_keys"]:
+                aliases[key] = profile["id"]
+        expected = {
+            "IEL MT": "iel-instituto-euvaldo-lodi",
+            "Vitru Educação": "vitru",
+            "Atakarejo": "atakarejo",
+            "DIVISÃO COMÉRCIO DO GRUPO ÁGUIA BRANCA": "grupo-aguia-branca",
+            "Assaí Atacadista - O atacadista com 50 anos de tradição! #VemserAssaí": "assai-atacadista",
+        }
+        for name, profile_id in expected.items():
+            with self.subTest(name=name):
+                self.assertEqual(aliases.get(glassdoor.company_key(name)), profile_id)
+
+
 if __name__ == "__main__":
     unittest.main()
