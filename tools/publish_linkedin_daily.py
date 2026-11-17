@@ -15,6 +15,7 @@ import urllib.error
 import urllib.request
 from datetime import date, datetime
 from pathlib import Path
+from typing import Any
 from zoneinfo import ZoneInfo
 
 BRASILIA = ZoneInfo("America/Sao_Paulo")
@@ -49,16 +50,19 @@ def is_already_posted_today(today: date) -> bool:
     return state.get("last_daily_posted_date") == today.isoformat()
 
 
-def mark_posted_today(today: date, vacancies: list[dict]) -> None:
+def mark_posted_today(today: date, vacancies: list[dict], post_urn: str | None = None) -> None:
     state = load_state()
     state["last_daily_posted_date"] = today.isoformat()
     history = state.setdefault("history", [])
-    history.append({
+    entry: dict[str, Any] = {
         "date": today.isoformat(),
         "type": "daily",
         "jobs_count": len(vacancies),
         "timestamp": datetime.now(BRASILIA).isoformat()
-    })
+    }
+    if post_urn:
+        entry["urn"] = post_urn
+    history.append(entry)
     # Manter no máximo 60 dias de histórico
     state["history"] = history[-60:]
     utils.record_posted_jobs(state, vacancies)
@@ -165,7 +169,7 @@ def compose_daily_digest(vacancies: list[dict], today: date | None = None) -> st
     return header + "\n\n".join(blocks) + footer
 
 
-def publish_daily(dry_run: bool = False, force: bool = False, webhook_url: str | None = None) -> int:
+def publish_daily(dry_run: bool = False, force: bool = False, webhook_url: str | None = None, delete_urn: str | None = None) -> int:
     now_brt = datetime.now(BRASILIA)
     today = now_brt.date()
 
@@ -192,6 +196,15 @@ def publish_daily(dry_run: bool = False, force: bool = False, webhook_url: str |
     webhook_url = utils.resolve_webhook_url(webhook_url)
     if not linkedin_token and webhook_url is None and not dry_run:
         return utils.report_missing_webhook()
+
+    # Se solicitado, exclui post anterior no LinkedIn antes de publicar o novo
+    if delete_urn and linkedin_token and not dry_run:
+        print(f"Excluindo post anterior no LinkedIn: {delete_urn}...")
+        try:
+            if linkedin_api.delete_post(delete_urn, linkedin_token):
+                print(f"Post anterior {delete_urn} excluído com sucesso do LinkedIn!")
+        except Exception as exc:
+            print(f"Aviso: Não foi possível excluir post anterior {delete_urn}: {exc}", file=sys.stderr)
 
     print(f"Buscando catálogo de vagas de {DEFAULT_SNAPSHOT_URL}...")
     req = urllib.request.Request(DEFAULT_SNAPSHOT_URL, headers={"User-Agent": "TodasAsVagasBot/1.0"})
@@ -240,7 +253,7 @@ def publish_daily(dry_run: bool = False, force: bool = False, webhook_url: str |
                 token=linkedin_token,
             )
             print(f"Publicação diária realizada com SUCESSO nativo no LinkedIn! Post URN: {post_urn}")
-            mark_posted_today(today, vacancies)
+            mark_posted_today(today, vacancies, post_urn=post_urn)
             return 0
         except Exception as exc:
             print(f"Aviso: Erro na publicação nativa do LinkedIn ({exc}).", file=sys.stderr)
@@ -274,6 +287,12 @@ def main() -> None:
     parser.add_argument("--dry-run", action="store_true", help="Apenas simula e exibe o post sem disparar o webhook")
     parser.add_argument("--force", action="store_true", help="Ignora a checagem de post já publicado hoje e força o envio")
     parser.add_argument(
+        "--delete-urn",
+        type=str,
+        default=None,
+        help="URN de post anterior para excluir antes de publicar o novo",
+    )
+    parser.add_argument(
         "--webhook-url",
         type=str,
         default=None,
@@ -281,7 +300,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    sys.exit(publish_daily(dry_run=args.dry_run, force=args.force, webhook_url=args.webhook_url))
+    sys.exit(publish_daily(dry_run=args.dry_run, force=args.force, webhook_url=args.webhook_url, delete_urn=args.delete_urn))
 
 
 if __name__ == "__main__":

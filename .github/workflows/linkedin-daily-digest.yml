@@ -30,6 +30,11 @@ on:
         required: false
         type: boolean
         default: false
+      delete_urn:
+        description: 'URN de post anterior para excluir antes de publicar (opcional)'
+        required: false
+        type: string
+        default: ''
 
 permissions:
   contents: write
@@ -67,6 +72,9 @@ jobs:
           fi
           if [ "${{ inputs.dry_run }}" = "true" ]; then
             FLAGS="$FLAGS --dry-run"
+          fi
+          if [ -n "${{ inputs.delete_urn }}" ]; then
+            FLAGS="$FLAGS --delete-urn ${{ inputs.delete_urn }}"
           fi
           python tools/publish_linkedin_daily.py $FLAGS
 

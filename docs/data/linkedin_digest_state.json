@@ -1,5 +1,5 @@
 {
-  "last_daily_posted_date": "2026-11-17",
+  "last_daily_posted_date": "2026-11-16",
   "last_weekly_posted_date": "2026-11-13",
   "history": [
     {
@@ -67,12 +67,6 @@
       "type": "morning_desperta",
       "jobs_count": 12,
       "timestamp": "2026-11-17T08:06:16.890806-03:00"
-    },
-    {
-      "date": "2026-11-17",
-      "type": "daily",
-      "jobs_count": 12,
-      "timestamp": "2026-11-17T18:51:54.447431-03:00"
     }
   ],
   "last_morning_posted_date": "2026-11-17",
@@ -252,19 +246,7 @@
     "https://afip.gupy.io/job/eyjqb2jjzci6mti5mdexnjisinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
     "https://jobs.quickin.io/npwdigital/jobs/6afb82deb2ea60001326ec1f",
     "https://grupoboticario.gupy.io/job/eyjqb2jjzci6mti3odg5ntcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
-    "https://credsystem.gupy.io/job/eyjqb2jjzci6mti5mda2otksinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
-    "https://nexatecnologia.gupy.io/job/eyjqb2jjzci6mti5mdc2mzusinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
-    "https://grupogcbinvestimentos.inhire.app/vagas/8474a680-9505-4c3d-8279-9999c8040df4/desenvolvedor-pleno",
-    "https://carreiras-semantix.inhire.app/vagas/c59fbb3c-793a-43ad-ac00-13ffd2ef40f5/engenheiro-a-de-ia-generativa-genai-engineer",
-    "https://gruposysmap.gupy.io/job/eyjqb2jjzci6mti5mda3mjqsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
-    "https://venturus.inhire.app/vagas/20d9cb44-eb88-4554-94ac-94805ee96b60/1334-pessoa-desenvolvedora-android-pl-meios-de-pagamento-remoto",
-    "https://infotecbrasil.inhire.app/vagas/fbd035aa-ed61-4690-bf9a-227175e82ef1/analista-de-design-instrucional-home-office",
-    "https://radix.inhire.app/vagas/4ba12487-c9e2-43bc-b551-e257ecd14059/senior-data-e-information-management-sme",
-    "https://allset.inhire.app/vagas/106db7c0-7b0c-4736-a8d7-0518209b9851/pessoa-analista-de-financas-pleno-generalista",
-    "https://gera.gupy.io/job/eyjqb2jjzci6mti5mdu4ntqsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
-    "https://brivia.inhire.app/vagas/0be54979-ae33-4a76-a0ec-04b5fc95c812/analista-de-midia-pleno",
-    "https://olist.inhire.app/vagas/c69ed57f-eed0-4c06-9a04-d6128c4a6a07/gerente-de-platform-engineering-e-cybersecurity-engineering",
-    "https://www.geekhunter.com/pt/ntt-data/jobs/desenvolvedor-java-fullstack-pleno-3"
+    "https://credsystem.gupy.io/job/eyjqb2jjzci6mti5mda2otksinnvdxjjzsi6im1jcf9jyw5kawrhdguifq=="
   ],
   "posted_job_signatures": [
     "centauro talentos:vendedor a  bh shopping",
@@ -429,18 +411,6 @@
     "afip:designer instrucional pleno",
     "npw digital:analista de marketing",
     "grupo boticário:analista supply chain ii são j",
-    "credsystem:analista de tangíveis jr  meio",
-    "nexa vagas:arquiteto de soluções  resiliê",
-    "grupo gcb:desenvolvedor pleno",
-    "semantix:engenheiroa de ia generativa g",
-    "grupo sysmap:arquiteto de soluções sr",
-    "venturus:1334 pessoa desenvolvedora and",
-    "infotec brasil:analista de design instruciona",
-    "radix:senior data  information manag",
-    "all set:pessoa analista de finanças pl",
-    "gera sales ecosystem:analista de infraestrutura ple",
-    "brivia:analista de mídia pleno",
-    "olist:gerente de platform engineerin",
-    "ntt data:desenvolvedor java fullstack p"
+    "credsystem:analista de tangíveis jr  meio"
   ]
 }

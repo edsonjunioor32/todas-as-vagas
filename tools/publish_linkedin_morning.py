@@ -84,16 +84,19 @@ def is_already_posted_this_morning(today: date) -> bool:
     return state.get("last_morning_posted_date") == today.isoformat()
 
 
-def mark_posted_this_morning(today: date, vacancies: list[dict]) -> None:
+def mark_posted_this_morning(today: date, vacancies: list[dict], post_urn: str | None = None) -> None:
     state = load_state()
     state["last_morning_posted_date"] = today.isoformat()
     history = state.setdefault("history", [])
-    history.append({
+    entry: dict[str, Any] = {
         "date": today.isoformat(),
         "type": "morning_desperta",
         "jobs_count": len(vacancies),
         "timestamp": datetime.now(BRASILIA).isoformat()
-    })
+    }
+    if post_urn:
+        entry["urn"] = post_urn
+    history.append(entry)
     state["history"] = history[-60:]
     utils.record_posted_jobs(state, vacancies)
     save_state(state)
@@ -286,7 +289,7 @@ def publish_morning(dry_run: bool = False, force: bool = False, webhook_url: str
                 media_title="Desperta Vagas - Todas as Vagas"
             )
             print(f"Publicação do Desperta Vagas realizada com SUCESSO nativo no LinkedIn! Post URN: {post_urn}")
-            mark_posted_this_morning(today, vacancies)
+            mark_posted_this_morning(today, vacancies, post_urn=post_urn)
             return 0
         except Exception as exc:
             print(f"Aviso: Erro na publicação nativa do LinkedIn ({exc}).", file=sys.stderr)

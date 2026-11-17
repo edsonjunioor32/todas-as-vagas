@@ -169,16 +169,19 @@ def is_already_posted_this_week(today: date) -> bool:
         return last == today.isoformat()
 
 
-def mark_posted_this_week(today: date, jobs_count: int) -> None:
+def mark_posted_this_week(today: date, jobs_count: int, post_urn: str | None = None) -> None:
     state = load_state()
     state["last_weekly_posted_date"] = today.isoformat()
     history = state.setdefault("history", [])
-    history.append({
+    entry: dict[str, Any] = {
         "date": today.isoformat(),
         "type": "weekly_executive",
         "jobs_count": jobs_count,
         "timestamp": datetime.now(BRASILIA).isoformat()
-    })
+    }
+    if post_urn:
+        entry["urn"] = post_urn
+    history.append(entry)
     state["history"] = history[-60:]
     save_state(state)
 
@@ -452,7 +455,7 @@ def publish_weekly(dry_run: bool = False, force: bool = False, webhook_url: str 
                 media_title="Melhores Vagas da Semana - Todas as Vagas"
             )
             print(f"Publicação semanal realizada com SUCESSO nativo no LinkedIn! Post URN: {post_urn}")
-            mark_posted_this_week(today, len(vacancies))
+            mark_posted_this_week(today, len(vacancies), post_urn=post_urn)
             return 0
         except Exception as exc:
             print(f"Aviso: Erro na publicação nativa do LinkedIn ({exc}).", file=sys.stderr)

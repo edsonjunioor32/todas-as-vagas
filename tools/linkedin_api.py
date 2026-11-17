@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import mimetypes
 import os
+import re
 import sys
 import urllib.error
 import urllib.parse
@@ -120,6 +121,20 @@ def upload_image(image_path_or_url: str, token: str, org_urn: str = DEFAULT_ORG_
     return image_urn
 
 
+def escape_little_text(text: str) -> str:
+    """
+    Escapa caracteres reservados pelo Little Text Format da LinkedIn Posts API.
+    Caracteres como |, {, }, @, [, ], (, ), <, > e \\ são usados pelo LinkedIn
+    para marcações estruturais (mentions, templates, links). Se não forem escapados,
+    o parser do LinkedIn interrompe o processamento e trunca silenciosamente o post.
+    Nota: O '#' não é escapado para manter hashtags clicáveis.
+    """
+    if not text:
+        return ""
+    text = text.replace("\\", "\\\\")
+    return re.sub(r"([|{}@\[\]()<>])", r"\\\1", text)
+
+
 def create_post(
     commentary: str,
     image_urn: str | None = None,
@@ -132,9 +147,11 @@ def create_post(
     Retorna o URN do post criado (extraído do cabeçalho x-restli-id).
     """
     url = f"{LINKEDIN_REST_BASE}/posts"
+    safe_commentary = escape_little_text(commentary)
+
     payload: dict[str, Any] = {
         "author": org_urn,
-        "commentary": commentary,
+        "commentary": safe_commentary,
         "visibility": "PUBLIC",
         "distribution": {
             "feedDistribution": "MAIN_FEED",
@@ -163,6 +180,25 @@ def create_post(
     except urllib.error.HTTPError as exc:
         body = exc.read().decode("utf-8", errors="replace")
         raise LinkedInAPIError(f"HTTP {exc.code} ao criar post: {body}", status_code=exc.code, response_body=body) from exc
+
+
+def delete_post(post_urn: str, token: str) -> bool:
+    """
+    Exclui uma publicação no LinkedIn via DELETE /rest/posts/{encoded_urn}.
+    Retorna True se excluído com sucesso (HTTP 204) ou se já não existe (HTTP 404).
+    """
+    encoded_urn = urllib.parse.quote(post_urn.strip(), safe="")
+    url = f"{LINKEDIN_REST_BASE}/posts/{encoded_urn}"
+    req = urllib.request.Request(url, headers=_make_headers(token), method="DELETE")
+
+    try:
+        with urllib.request.urlopen(req, timeout=25) as resp:
+            return resp.status in (200, 204)
+    except urllib.error.HTTPError as exc:
+        if exc.code == 404:
+            return True  # Já não existe / já foi excluído
+        body = exc.read().decode("utf-8", errors="replace")
+        raise LinkedInAPIError(f"HTTP {exc.code} ao excluir post {post_urn}: {body}", status_code=exc.code, response_body=body) from exc
 
 
 def publish_to_linkedin(
