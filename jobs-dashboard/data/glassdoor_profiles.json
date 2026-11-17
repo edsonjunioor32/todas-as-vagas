@@ -149,6 +149,18 @@
       "scraper_company": "Grupo Águia Branca",
       "url": "https://www.glassdoor.com.br/Vis%C3%A3o-geral/Trabalhar-na-Grupo-%C3%81guia-Branca-EI_IE2602811.13,31.htm",
       "browserless_fallback": true
+    },
+    {
+      "id": "hapvida-notredame-intermedica",
+      "approved": true,
+      "enabled": true,
+      "company_names": [
+        "Hapvida NotreDame Intermédica",
+        "Hapvida"
+      ],
+      "scraper_company": "Hapvida NotreDame Intermédica",
+      "url": "https://www.glassdoor.com.br/Vis%C3%A3o-geral/Trabalhar-na-HapVida-Notredame-Interm%C3%A9dica-EI_IE9340094.13,42.htm",
+      "browserless_fallback": true
     }
   ]
 }

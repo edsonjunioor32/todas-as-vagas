@@ -220,5 +220,21 @@ class GupyEligibilityTests(unittest.TestCase):
         self.assertEqual(search.call_args.args[1], None)
 
 
+class CareerPageCompanyTests(unittest.TestCase):
+    def test_generic_name_uses_gupy_subdomain(self):
+        fn = gupy.career_page_company
+        self.assertEqual(
+            fn("Página de Carreira", "https://hapvidandi.gupy.io/job/abc?jobBoardSource=x"),
+            "Hapvida NotreDame Intermédica",
+        )
+        self.assertEqual(fn("Carreiras", "https://grupo-exemplo.gupy.io/job/1"), "Grupo Exemplo")
+
+    def test_real_names_and_unknown_hosts_are_kept(self):
+        fn = gupy.career_page_company
+        self.assertEqual(fn("Acme S.A.", "https://acme.gupy.io/job/1"), "Acme S.A.")
+        self.assertEqual(fn("Página de Carreira", "https://exemplo.com/job/1"), "Página de Carreira")
+        self.assertEqual(fn("", "https://portal.gupy.io/job/1"), "")
+
+
 if __name__ == "__main__":
     unittest.main()
