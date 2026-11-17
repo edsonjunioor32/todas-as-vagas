@@ -102,7 +102,21 @@ jobs:
           if [ "${{ inputs.include_hybrid_pass }}" != "false" ]; then
             EXTRA_FLAGS="$EXTRA_FLAGS --include-hybrid-pass"
           fi
+          # Coleta incremental: as execuções agendadas pedem só as últimas 48 h e
+          # mantêm as vagas de até 30 dias do snapshot anterior. A execução de
+          # domingo às 10h UTC, manuais e por push fazem a varredura completa,
+          # que substitui o snapshot e remove vagas encerradas.
+          MERGE_DAYS=0
+          if [ "${{ github.event_name }}" = "schedule" ] && \
+             ! { [ "$(date -u +%u)" = "7" ] && [ "$(date -u +%H)" = "10" ]; }; then
+            HOURS=48
+            MERGE_DAYS=30
+            echo "Modo incremental: últimas $HOURS h + snapshot anterior de até $MERGE_DAYS dias."
+          else
+            echo "Modo varredura completa: últimas $HOURS h, snapshot substituído."
+          fi
           python tools/collect_linkedin.py \
+            --merge-previous-days "$MERGE_DAYS" \
             --results-limit "$RESULTS" \
             --remote-results-limit "$REMOTE_RESULTS" \
             --hours-old "$HOURS" \

@@ -1,3 +1,17 @@
+## 2026-11-17 — Coleta LinkedIn incremental
+
+- **Antes:** toda execução pedia 60 dias de vagas (`--hours-old 1440`), limitada a 1.200 únicas, e substituía o snapshot. As mesmas páginas eram varridas de novo, o que provocava bloqueios 429 do LinkedIn por volta da 10ª página do mesmo IP, e a cobertura nunca passava de 1.200.
+- `tools/collect_linkedin.py` ganha `--merge-previous-days N`. A coleta nova é unida ao snapshot anterior, mantendo deste só as vagas publicadas há até N dias que a coleta não trouxe; a versão nova de cada vaga prevalece. O snapshot registra `incremental.kept_from_previous`.
+- `linkedin-jobs.yml` usa três modos:
+  - execuções agendadas: só as últimas 48 h, mais as vagas de até 30 dias do snapshot anterior;
+  - domingo às 10h UTC: varredura completa de 60 dias, que substitui o snapshot e remove vagas encerradas;
+  - execuções manuais e por push: varredura completa, como antes.
+- Pesquisa de alternativas: a API oficial do LinkedIn é restrita a parceiros que publicam vagas, e os scrapers abertos e pagos usam os mesmos endpoints públicos de visitante que o `python-jobspy`. O ganho estava na estratégia de coleta, não em trocar de ferramenta.
+- `tools/test_linkedin_token.py`, chegado ao `main` depois da trava de `except` amplos, entrou na baseline (3); o `main` falhava nessa trava.
+- **Impacto por canal:** o LinkedIn chega ao catálogo com mais vagas e coletas mais curtas. Uma vaga encerrada pode permanecer até a varredura de domingo ou até sair da janela de 30 dias.
+- **Checagem pós-implantação:** nas execuções agendadas, o log deve mostrar "Modo incremental" e "[Incremental] N vagas mantidas"; a duração deve cair e a contagem subir ao longo dos dias.
+- **Reversão:** `git revert`. Sem `--merge-previous-days`, o coletor volta a substituir o snapshot.
+
 ## 2026-11-16 — Coleta LinkedIn com orçamento de tempo e publicação resistente
 
 - **Evidência (API pública, 13–16/11):** das 20 execuções recentes do `linkedin-jobs.yml`, só 9 terminaram bem.
@@ -629,6 +643,7 @@ Todos os arquivos desta seção são testes automatizados; não são coletores n
 - `jobs-dashboard/tests/test_homepage_cta_styles.py` — CTAs da página inicial.
 - `jobs-dashboard/tests/test_http_retry.py` — backoff exponencial com jitter, `Retry-After` e não retentativa de erros permanentes no cliente HTTP compartilhado.
 - `jobs-dashboard/tests/test_linkedin.py` — contrato do snapshot LinkedIn, janela de 30 dias e rejeição de dados inválidos.
+- `jobs-dashboard/tests/test_linkedin_incremental.py` — junção da coleta LinkedIn com o snapshot anterior e modos do workflow.
 - `jobs-dashboard/tests/test_linkedin_time_budget.py` — orçamento de tempo da coleta LinkedIn e publicação com rebase e repetição.
 - `jobs-dashboard/tests/test_linkedin_digest_schedule.py` — trava de dias úteis do digest diário e ausência do recuperador como gatilho dos digests.
 - `jobs-dashboard/tests/test_linkedin_webhook_config.py` — webhook do Make só via configuração: sem URL embutida, erro sem secret, dry-run sem webhook e URL fora dos logs.
