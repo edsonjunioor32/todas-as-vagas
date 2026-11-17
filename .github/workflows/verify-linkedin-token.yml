@@ -3,6 +3,9 @@ name: Validar Token do LinkedIn (Community Management API)
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   validate-token:
     name: Validar Autenticação Oficial LinkedIn
@@ -18,23 +21,10 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Testar Conexão com a Community Management API (Python)
-        id: test_python
-        continue-on-error: true
+      # O script imprime a resposta e a causa provável de cada falha, como
+      # anotação ::error visível no resumo do run, e sai com 1 quando nenhum
+      # teste passa; o job fica vermelho em vez de esconder a falha.
+      - name: Testar Conexão com a Community Management API
         env:
           LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
-        run: |
-          python tools/test_linkedin_token.py
-
-      - name: Diagnóstico cURL Direto (se necessário)
-        if: steps.test_python.outcome != 'success'
-        env:
-          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
-        run: |
-          echo "=== Executando cURL direto para diagnosticar ==="
-          curl -i -X POST "https://api.linkedin.com/rest/images?action=initializeUpload" \
-            -H "Authorization: Bearer ${LINKEDIN_ACCESS_TOKEN}" \
-            -H "X-Restli-Protocol-Version: 2.0.0" \
-            -H "Linkedin-Version: 202611" \
-            -H "Content-Type: application/json" \
-            -d '{"initializeUploadRequest":{"owner":"urn:li:organization:146671035"}}'
+        run: python tools/test_linkedin_token.py
