@@ -43,6 +43,12 @@ DEFAULT_MIN_DESCRIPTION_CHARS = 120
 ROBOTS_RETRY_BASE_SECONDS = 24 * 60 * 60
 DEFAULT_OBSCURA_BIN = "/usr/local/bin/obscura"
 OBSCURA_FALLBACK_STATUSES = {"http_403", "network_error", "response_too_large"}
+# Consecutive Obscura failures on one host after which the rest of the run
+# skips the rendered fallback for that host (0 disables the breaker).
+DEFAULT_OBSCURA_HOST_FAILURE_LIMIT = 3
+# HTTP statuses that confirm the posting was removed by the portal.
+GONE_HTTP_STATUSES = frozenset({404, 410})
+GONE_RETRY_SECONDS = 30 * 86400
 ORACLE_HCM_URL_MARKER = ".oraclecloud.com/hcmui/candidateexperience/"
 SKIP_TAGS = {"script", "style", "noscript", "svg", "nav", "footer", "header", "form"}
 VOID_TAGS = {
@@ -593,6 +599,17 @@ def parse_args() -> argparse.Namespace:
         default=float(os.environ.get("DESCRIPTION_OBSCURA_TIMEOUT", "45")),
     )
     parser.add_argument(
+        "--obscura-host-failure-limit",
+        type=int,
+        default=int(
+            os.environ.get(
+                "DESCRIPTION_OBSCURA_HOST_FAILURE_LIMIT",
+                str(DEFAULT_OBSCURA_HOST_FAILURE_LIMIT),
+            )
+        ),
+        help="falhas seguidas do Obscura por host antes de pular o fallback nesta execução (0 desliga)",
+    )
+    parser.add_argument(
         "--disable-obscura-fallback",
         action="store_true",
         help="não renderizar páginas problemáticas com o Obscura",
@@ -648,9 +665,17 @@ def main() -> None:
     failures_by_status: Counter[str] = Counter()
     processed_job_uids: list[str] = []
 
+    obscura_host_failures: Counter = Counter()
+    obscura_skipped_by_breaker = 0
+
     def obscura_fallback(job: dict) -> tuple[str, str]:
-        nonlocal obscura_failed
+        nonlocal obscura_failed, obscura_skipped_by_breaker
         if args.disable_obscura_fallback:
+            return "", ""
+        host = (urllib.parse.urlsplit(job["url"]).hostname or "").lower()
+        limit = max(0, args.obscura_host_failure_limit)
+        if limit and obscura_host_failures[host] >= limit:
+            obscura_skipped_by_breaker += 1
             return "", ""
         description, kind, error = fetch_description_with_obscura(
             job["url"],
@@ -660,6 +685,9 @@ def main() -> None:
         )
         if error:
             obscura_failed += 1
+            obscura_host_failures[host] += 1
+        elif description:
+            obscura_host_failures[host] = 0
         return description, kind
 
     def inhire_fallback(
@@ -836,6 +864,18 @@ def main() -> None:
                 )
                 fetched += 1
                 obscura_fetched += 1
+            elif error.http_status in GONE_HTTP_STATUSES:
+                description_store.record_failure(
+                    connection,
+                    job,
+                    status="gone",
+                    error=str(error),
+                    http_status=error.http_status,
+                    retry_after_seconds=GONE_RETRY_SECONDS,
+                    permanent=True,
+                )
+                failed += 1
+                failures_by_status["gone"] += 1
             else:
                 description_store.record_failure(
                     connection,
@@ -895,6 +935,7 @@ def main() -> None:
         "descriptions_fetched_this_run": fetched,
         "descriptions_fetched_with_obscura": obscura_fetched,
         "obscura_failed_attempts": obscura_failed,
+        "obscura_skipped_by_host_breaker": obscura_skipped_by_breaker,
         "descriptions_fetched_with_inhire_api": inhire_fetched,
         "inhire_gone": inhire_gone,
         "inhire_api_failed_attempts": inhire_failed,
