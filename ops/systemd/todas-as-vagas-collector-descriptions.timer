@@ -1,0 +1,11 @@
+[Unit]
+Description=Ingestao privada de descricoes dos coletores apos cada coleta publica
+
+[Timer]
+# Coleta publica (pages.yml): 11:07, 14:07, 18:07 e 23:07 UTC.
+OnCalendar=*-*-* 11,14,18,23:40:00 UTC
+Persistent=true
+RandomizedDelaySec=120
+
+[Install]
+WantedBy=timers.target

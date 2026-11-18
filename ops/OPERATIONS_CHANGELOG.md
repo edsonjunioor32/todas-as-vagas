@@ -607,6 +607,7 @@ Escopo: 173 arquivos rastreados da branch `main` nesta revisão, incluindo `AGEN
 - `jobs-dashboard/description_store.py` — persistência e estado da coleta privada.
 - `jobs-dashboard/description_quality.py` — classificação determinística de qualidade, bloqueio, remoção e atualização.
 - `jobs-dashboard/description_report.py` — relatório somente leitura por portal e categoria.
+- `jobs-dashboard/collector_descriptions.py` — ingestão privada das descrições já entregues pelos coletores públicos (APIs), com cache de pendentes e casamento por URL.
 - `jobs-dashboard/discover_greenhouse_br.py` — descobre empresas/vagas Greenhouse no Brasil.
 - `jobs-dashboard/empregare_mcp.py` — consulta diagnóstica/manual da fonte Empregare via MCP.
 - `jobs-dashboard/fit_requirements.py` — extrai requisitos e termos do índice de aderência.
@@ -716,6 +717,7 @@ Todos os arquivos desta seção são testes automatizados; não são coletores n
 - `jobs-dashboard/tests/test_description_report.py` — relatório somente leitura e separação de removidas.
 - `jobs-dashboard/tests/test_detail_cache.py` — cache de detalhes: inatividade por padrão, validade com espalhamento, remoção de descrições, poda e reaproveitamento na Senior com linhas idênticas.
 - `jobs-dashboard/tests/test_private_descriptions.py` — persistência, backoff, crawler e integração das descrições privadas.
+- `jobs-dashboard/tests/test_collector_descriptions.py` — casamento por URL, preservação de descrições válidas, simulação sem escrita, cache de pendentes e isolamento por fonte.
 - `jobs-dashboard/tests/test_dynamic_portals.py` — contratos dos portais dinâmicos.
 - `jobs-dashboard/tests/test_eightfold.py` — fonte Eightfold.
 - `jobs-dashboard/tests/test_empregare.py` — adaptador Empregare via MCP (paginação sequencial, 429, erros tipados) e preservação de datas no upsert.
@@ -765,6 +767,8 @@ Todos os arquivos desta seção são testes automatizados; não são coletores n
 - `ops/systemd/actions-runner-restart.conf` — política de reinício do runner.
 - `ops/systemd/todas-as-vagas-descriptions.service` — serviço de coleta privada de descrições.
 - `ops/systemd/todas-as-vagas-descriptions.timer` — agenda da coleta privada.
+- `ops/systemd/todas-as-vagas-collector-descriptions.service` — execução da ingestão privada das descrições dos coletores.
+- `ops/systemd/todas-as-vagas-collector-descriptions.timer` — agenda às :40 após cada coleta pública (11, 14, 18 e 23 UTC).
 - `ops/systemd/todas-as-vagas-github-scheduler.service` — unidade do agendador GitHub na VPS.
 - `ops/systemd/todas-as-vagas-github-scheduler.timer` — timer de verificação da agenda.
 - `ops/systemd/todas-as-vagas-docker-cache-prune.service` — confirma a disponibilidade do daemon e limpa cache de build Docker antigo, sem tocar em imagens, containers ou volumes.
