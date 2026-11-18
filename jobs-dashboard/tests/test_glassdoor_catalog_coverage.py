@@ -214,6 +214,13 @@ class LargestCompaniesManifestTests(unittest.TestCase):
             "Atakarejo": "atakarejo",
             "DIVISÃO COMÉRCIO DO GRUPO ÁGUIA BRANCA": "grupo-aguia-branca",
             "Assaí Atacadista - O atacadista com 50 anos de tradição! #VemserAssaí": "assai-atacadista",
+            "McDonald's Restaurante - Arcos Dorados": "arcos-dorados-mcdonalds",
+            "Savegnago": "savegnago-supermercados",
+            "ORBENK": "grupo-orbenk",
+            "DROGAL FARMACEUTICA LTDA": "drogal",
+            "Concremat": "concremat",
+            "RD Saúde - Farmácias": "rd-saude",
+            "Priner": "priner",
         }
         for name, profile_id in expected.items():
             with self.subTest(name=name):
