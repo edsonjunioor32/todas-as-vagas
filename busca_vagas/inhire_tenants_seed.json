@@ -412,6 +412,10 @@
     "tenantName": "CAF"
   },
   {
+    "slug": "camorim",
+    "tenantName": "camorim"
+  },
+  {
     "slug": "capef",
     "tenantName": "CAPEF"
   },
@@ -1064,6 +1068,10 @@
     "tenantName": "Dunorte"
   },
   {
+    "slug": "grupomoovenfornax",
+    "tenantName": "grupomoovenfornax"
+  },
+  {
     "slug": "grupopermaneo",
     "tenantName": "Grupo Permaneo"
   },
@@ -1586,6 +1594,10 @@
   {
     "slug": "nexaas",
     "tenantName": "Nexaas"
+  },
+  {
+    "slug": "nexco",
+    "tenantName": "nexco"
   },
   {
     "slug": "nexforce-trial",
