@@ -161,6 +161,91 @@
       "scraper_company": "Hapvida NotreDame Intermédica",
       "url": "https://www.glassdoor.com.br/Vis%C3%A3o-geral/Trabalhar-na-HapVida-Notredame-Interm%C3%A9dica-EI_IE9340094.13,42.htm",
       "browserless_fallback": true
+    },
+    {
+      "id": "arcos-dorados-mcdonalds",
+      "approved": true,
+      "enabled": true,
+      "company_names": [
+        "McDonald's Restaurante - Arcos Dorados",
+        "Arcos Dorados"
+      ],
+      "scraper_company": "Arcos Dorados",
+      "url": "https://www.glassdoor.com.br/Avalia%C3%A7%C3%B5es/Arcos-Dorados-Avalia%C3%A7%C3%B5es-E2482734.htm",
+      "browserless_fallback": true
+    },
+    {
+      "id": "savegnago-supermercados",
+      "approved": true,
+      "enabled": true,
+      "company_names": [
+        "Savegnago",
+        "Grupo Savegnago",
+        "Savegnago Supermercados"
+      ],
+      "scraper_company": "Savegnago Supermercados",
+      "url": "https://www.glassdoor.com.br/Avalia%C3%A7%C3%B5es/Savegnago-Supermercados-Avalia%C3%A7%C3%B5es-E2482986.htm",
+      "browserless_fallback": true
+    },
+    {
+      "id": "grupo-orbenk",
+      "approved": true,
+      "enabled": true,
+      "company_names": [
+        "ORBENK",
+        "Grupo Orbenk"
+      ],
+      "scraper_company": "Grupo Orbenk",
+      "url": "https://www.glassdoor.com.br/Avalia%C3%A7%C3%B5es/Grupo-Orbenk-Avalia%C3%A7%C3%B5es-E2483656.htm",
+      "browserless_fallback": true
+    },
+    {
+      "id": "drogal",
+      "approved": true,
+      "enabled": true,
+      "company_names": [
+        "Drogal Farmacêutica Ltda",
+        "Drogal"
+      ],
+      "scraper_company": "Drogal",
+      "url": "https://www.glassdoor.com.br/Avalia%C3%A7%C3%B5es/Drogal-Avalia%C3%A7%C3%B5es-E2483176.htm",
+      "browserless_fallback": true
+    },
+    {
+      "id": "concremat",
+      "approved": true,
+      "enabled": true,
+      "company_names": [
+        "Concremat",
+        "Empresas Concremat"
+      ],
+      "scraper_company": "Empresas Concremat",
+      "url": "https://www.glassdoor.com.br/Avalia%C3%A7%C3%B5es/Empresas-Concremat-Avalia%C3%A7%C3%B5es-E1173591.htm",
+      "browserless_fallback": true
+    },
+    {
+      "id": "rd-saude",
+      "approved": true,
+      "enabled": true,
+      "company_names": [
+        "RD Saúde - Farmácias",
+        "RD Saúde"
+      ],
+      "scraper_company": "RD Saúde",
+      "url": "https://www.glassdoor.com.br/Avalia%C3%A7%C3%B5es/RD-Sa%C3%BAde-Avalia%C3%A7%C3%B5es-E1028758.htm",
+      "browserless_fallback": true
+    },
+    {
+      "id": "priner",
+      "approved": true,
+      "enabled": true,
+      "company_names": [
+        "Priner",
+        "Priner Serviços Industriais"
+      ],
+      "scraper_company": "Priner Serviços Industriais",
+      "url": "https://www.glassdoor.com.br/Avalia%C3%A7%C3%B5es/Priner-Servi%C3%A7os-Industriais-Avalia%C3%A7%C3%B5es-E2487123.htm",
+      "browserless_fallback": true
     }
   ]
 }

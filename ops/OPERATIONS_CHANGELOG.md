@@ -1,3 +1,11 @@
+## 2026-11-17 — Glassdoor: segundo lote de perfis aprovados
+
+- **Motivo:** maiores empresas ainda sem nota após o #252: McDonald's/Arcos Dorados (~1.800 vagas), Savegnago, ORBENK, Drogal, Concremat, RD Saúde e Priner.
+- **Mudança:** `jobs-dashboard/data/glassdoor_profiles.json` ganha 7 perfis aprovados com URLs informadas pelo responsável. Conscer, Vitae e Pavago ficaram de fora (páginas sem avaliações publicadas); "Rede Drogal" (perfil distinto) não foi consolidado com a Drogal; o perfil global do McDonald's não é combinado com o da Arcos Dorados.
+- **Impacto por canal:** só o cache de notas e as notas exibidas no site (~2.700 vagas); sem efeito em coleta, Telegram, WhatsApp ou LinkedIn.
+- **Checagem pós-implantação:** no próximo `glassdoor-daily`, os 7 perfis devem aparecer com nota; se algum vier sem nota, a URL é a primeira suspeita.
+- **Reversão:** reverter o commit.
+
 ## 2026-11-17 — Gupy: nome real da Hapvida e perfil Glassdoor
 
 - **Motivo:** 428 vagas de `hapvidandi.gupy.io` apareciam com a empresa "Página de Carreira" (nome cadastrado no Gupy), sem nota Glassdoor e com nome errado no site.
