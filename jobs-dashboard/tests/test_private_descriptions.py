@@ -680,6 +680,101 @@ class PrivateDescriptionTests(unittest.TestCase):
         self.assertEqual(metrics["descriptions_fetched_with_obscura"], 1)
         self.assertEqual(metrics["http_failures"], 0)
 
+    def test_obscura_breaker_skips_host_after_consecutive_failures(self):
+        jobs = [
+            {
+                "source": "blocked",
+                "native_id": f"blocked-{index}",
+                "title": "Vaga bloqueada",
+                "company": "Empresa",
+                "url": f"https://blocked.example.com/jobs/{index}",
+            }
+            for index in range(5)
+        ]
+        output = io.StringIO()
+        args = [
+            "description_crawler.py", "--db", str(self.path), "--min-interval", "0",
+            "--obscura-host-failure-limit", "2",
+        ]
+        with (
+            patch.object(sys, "argv", args),
+            patch.object(description_crawler, "load_catalog", return_value=jobs),
+            patch.object(
+                description_crawler,
+                "fetch_page",
+                side_effect=description_crawler.FetchError(
+                    "http_403", "HTTP Error 403", retryable=False, http_status=403,
+                ),
+            ),
+            patch.object(
+                description_crawler,
+                "fetch_description_with_obscura",
+                return_value=("", "", "bloqueado"),
+            ) as obscura,
+            patch.object(description_crawler.RobotsCache, "allowed", return_value=True),
+            contextlib.redirect_stdout(output),
+        ):
+            description_crawler.main()
+        metrics = json.loads(output.getvalue().strip().split(" ", 1)[1])
+        self.assertEqual(obscura.call_count, 2)
+        self.assertEqual(metrics["obscura_failed_attempts"], 2)
+        self.assertEqual(metrics["obscura_skipped_by_host_breaker"], 3)
+        statuses = {
+            row["status"]
+            for row in self.connection.execute("SELECT status FROM job_descriptions")
+        }
+        self.assertEqual(statuses, {"http_403"})
+
+    def test_http_404_and_410_are_recorded_as_gone_with_long_backoff(self):
+        jobs = [
+            {
+                "source": "portal",
+                "native_id": f"removed-{code}",
+                "title": "Vaga encerrada",
+                "company": "Empresa",
+                "url": f"https://example.com/jobs/{code}",
+            }
+            for code in (404, 410)
+        ]
+        errors = {
+            job["url"]: description_crawler.FetchError(
+                f"http_{code}", f"HTTP Error {code}", retryable=False, http_status=code,
+            )
+            for job, code in zip(jobs, (404, 410))
+        }
+
+        def fake_fetch(url, **_kwargs):
+            raise errors[url]
+
+        output = io.StringIO()
+        args = ["description_crawler.py", "--db", str(self.path), "--min-interval", "0"]
+        with (
+            patch.object(sys, "argv", args),
+            patch.object(description_crawler, "load_catalog", return_value=jobs),
+            patch.object(description_crawler, "fetch_page", side_effect=fake_fetch),
+            patch.object(
+                description_crawler,
+                "fetch_description_with_obscura",
+                side_effect=AssertionError("vaga removida não deveria usar navegador"),
+            ),
+            patch.object(description_crawler.RobotsCache, "allowed", return_value=True),
+            contextlib.redirect_stdout(output),
+        ):
+            description_crawler.main()
+        rows = self.connection.execute(
+            "SELECT status, http_status, next_attempt_at, checked_at FROM job_descriptions"
+            " ORDER BY http_status"
+        ).fetchall()
+        metrics = json.loads(output.getvalue().strip().split(" ", 1)[1])
+        self.assertEqual([row["status"] for row in rows], ["gone", "gone"])
+        self.assertEqual([row["http_status"] for row in rows], [404, 410])
+        self.assertEqual(metrics["failures_by_status"], {"gone": 2})
+        for row in rows:
+            delay = datetime.fromisoformat(row["next_attempt_at"]) - datetime.fromisoformat(
+                row["checked_at"]
+            )
+            self.assertGreaterEqual(delay.days, 29)
+
     def test_crawler_uses_inhire_public_api_before_obscura(self):
         jobs = [{
             "source": "inhire",
