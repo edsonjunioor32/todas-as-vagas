@@ -1,5 +1,5 @@
 {
-  "last_daily_posted_date": "2026-11-17",
+  "last_daily_posted_date": "2026-11-18",
   "last_weekly_posted_date": "2026-11-13",
   "history": [
     {
@@ -80,6 +80,13 @@
       "type": "morning_desperta",
       "jobs_count": 12,
       "timestamp": "2026-11-18T08:03:14.150250-03:00"
+    },
+    {
+      "date": "2026-11-18",
+      "type": "daily",
+      "jobs_count": 12,
+      "timestamp": "2026-11-18T20:05:14.184697-03:00",
+      "urn": "urn:li:share:7528956511155511296"
     }
   ],
   "last_morning_posted_date": "2026-11-18",
@@ -283,7 +290,19 @@
     "https://mouras.inhire.app/vagas/77432f15-be27-445e-bfb4-7586669edbcb/social-media",
     "https://www.infojobs.com.br/vaga-de-gerente-marketing-comunicacao-em-sao-paulo__12229691.aspx",
     "https://www.vagas.com.br/vagas/v2835661/supervisor-de-logistica",
-    "https://vivo.gupy.io/job/eyjqb2jjzci6mti4nzawotcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq=="
+    "https://vivo.gupy.io/job/eyjqb2jjzci6mti4nzawotcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://nibo.inhire.app/vagas/758aec32-4f70-49a2-8625-f92415744c17/analista-de-atendimento-clt-100-remoto",
+    "https://pagseguro.gupy.io/job/eyjqb2jjzci6mti5mdq0mjcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://grupofoodnation.inhire.app/vagas/18f459de-084f-4df2-8463-b060138b46eb/analista-de-contas-a-receber",
+    "https://radix.inhire.app/vagas/dc28f7e2-0768-4fa0-8a68-8adc3ae3c18a/profissional-coordenador-de-projetos-de-software",
+    "https://jobs.quickin.io/sinqia/jobs/6afdf431fcdb660013430d30",
+    "https://solutis.inhire.app/vagas/a50057e7-388e-4eaf-a4fb-c02004fc3462/engenheiro-a-de-seguranca-de-aplicacoes-appsec-devsecops-remoto",
+    "https://vivodigital.gupy.io/job/eyjqb2jjzci6mte2odyzotasinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://grupomoovenfornax.inhire.app/vagas/b393b734-c57c-4a57-a782-d42f1938b3b0/desenvolvedor-a-full-stack-pleno",
+    "https://jota.inhire.app/vagas/b6d2beea-28cb-4cc8-b5b5-68a1ebc49c70/engenheiro-a-de-software-back-end-ia",
+    "https://vtal.gupy.io/job/eyjqb2jjzci6mti4mtixmzesinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://confitec.gupy.io/job/eyjqb2jjzci6mti4odi5odmsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://ecore.inhire.app/vagas/fd2b3336-024a-47ae-a3a5-e2470f70c4c3/analista-de-infraestrutura-cloud-senior-gcp"
   ],
   "posted_job_signatures": [
     "centauro talentos:vendedor a  bh shopping",
@@ -472,6 +491,18 @@
     "mouras rs:social media",
     "elo rs talentos:gerente de marketing e comunic",
     "fiorde group:supervisor de logistica",
-    "vem pra vivo:analista planejamento de deman"
+    "vem pra vivo:analista planejamento de deman",
+    "nibo:analista de atendimento  clt  ",
+    "pagbank:engenheiro de dados sr",
+    "grupo food nation:analista de contas a receber",
+    "radix:profissional coordenador de pr",
+    "evertec brasil:analista de qualidade funciona",
+    "solutis:engenheiroa de segurança de ap",
+    "vivo digital:arquitetoa de dados  consultor",
+    "grupo mooven fornax:desenvolvedora full stack plen",
+    "jota:engenheiroa de software backen",
+    "vtal  o futuro passa por :desenvolvedor pleno",
+    "confitec:desenvolvedora java pleno  sus",
+    "ecore:analista de infraestrutura clo"
   ]
 }
