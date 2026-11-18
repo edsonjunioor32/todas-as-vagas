@@ -74,9 +74,15 @@
       "jobs_count": 12,
       "timestamp": "2026-11-17T19:20:01.181018-03:00",
       "urn": "urn:li:share:7528582743916597248"
+    },
+    {
+      "date": "2026-11-18",
+      "type": "morning_desperta",
+      "jobs_count": 12,
+      "timestamp": "2026-11-18T08:03:14.150250-03:00"
     }
   ],
-  "last_morning_posted_date": "2026-11-17",
+  "last_morning_posted_date": "2026-11-18",
   "posted_job_urls": [
     "https://centaurotalentos.gupy.io/job/eyjqb2jjzci6mti4nzk3ndasinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
     "https://localiza.gupy.io/job/eyjqb2jjzci6mti4njqxmtcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
@@ -265,7 +271,19 @@
     "https://gera.gupy.io/job/eyjqb2jjzci6mti5mdu4ntqsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
     "https://brivia.inhire.app/vagas/0be54979-ae33-4a76-a0ec-04b5fc95c812/analista-de-midia-pleno",
     "https://olist.inhire.app/vagas/c69ed57f-eed0-4c06-9a04-d6128c4a6a07/gerente-de-platform-engineering-e-cybersecurity-engineering",
-    "https://www.geekhunter.com/pt/ntt-data/jobs/desenvolvedor-java-fullstack-pleno-3"
+    "https://www.geekhunter.com/pt/ntt-data/jobs/desenvolvedor-java-fullstack-pleno-3",
+    "https://jobs.quickin.io/saulopedrosocoach/jobs/6afcf236fcdb660013de10d0",
+    "https://inbrands.gupy.io/job/eyjqb2jjzci6mti5mdawmdgsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://jobs.quickin.io/humtech/jobs/6afcf799fcdb660013df5c39",
+    "https://vagas.solides.com.br/vaga/954582/analista-de-recursos-humanos-generalista",
+    "https://vagas.solides.com.br/vaga/954910/platform-engineer-devops-engineer-gcp-azure-devops",
+    "https://jobs.quickin.io/beltis/jobs/6afcd758c0caeb0013a241b8",
+    "https://atentoacredita.gupy.io/job/eyjqb2jjzci6mti5mdg3mzksinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://randoncorp.gupy.io/job/eyjqb2jjzci6mti0ntkzntqsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://mouras.inhire.app/vagas/77432f15-be27-445e-bfb4-7586669edbcb/social-media",
+    "https://www.infojobs.com.br/vaga-de-gerente-marketing-comunicacao-em-sao-paulo__12229691.aspx",
+    "https://www.vagas.com.br/vagas/v2835661/supervisor-de-logistica",
+    "https://vivo.gupy.io/job/eyjqb2jjzci6mti4nzawotcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq=="
   ],
   "posted_job_signatures": [
     "centauro talentos:vendedor a  bh shopping",
@@ -442,6 +460,18 @@
     "gera sales ecosystem:analista de infraestrutura ple",
     "brivia:analista de mídia pleno",
     "olist:gerente de platform engineerin",
-    "ntt data:desenvolvedor java fullstack p"
+    "ntt data:desenvolvedor java fullstack p",
+    "saulo pedroso coach:gerente de vendas rede de rest",
+    "inbrands:vendedora de loja",
+    "humtech  recrutando para :analista financeiro júnior",
+    "gráfica forma certa:analista de recursos humanos g",
+    "qi network soluções tecno:platform engineer  devops engi",
+    "beltis tecnologia:analista júnior de suporte eco",
+    "atento acredita do primei:especialista em relacionamento",
+    "randoncorp:analista de pessoas e cultura ",
+    "mouras rs:social media",
+    "elo rs talentos:gerente de marketing e comunic",
+    "fiorde group:supervisor de logistica",
+    "vem pra vivo:analista planejamento de deman"
   ]
 }
