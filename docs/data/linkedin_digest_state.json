@@ -1,5 +1,5 @@
 {
-  "last_daily_posted_date": "2026-11-18",
+  "last_daily_posted_date": "2026-11-19",
   "last_weekly_posted_date": "2026-11-13",
   "history": [
     {
@@ -93,6 +93,13 @@
       "type": "morning_desperta",
       "jobs_count": 12,
       "timestamp": "2026-11-19T08:03:07.858938-03:00"
+    },
+    {
+      "date": "2026-11-19",
+      "type": "daily",
+      "jobs_count": 12,
+      "timestamp": "2026-11-19T20:04:23.319322-03:00",
+      "urn": "urn:li:share:7529318685853908992"
     }
   ],
   "last_morning_posted_date": "2026-11-19",
@@ -320,7 +327,19 @@
     "https://rankmyapp.inhire.app/vagas/ee060a47-f20b-4330-bc71-42102f190ae7/analista-de-conteudo",
     "https://dafiti.inhire.app/vagas/25d40ebb-6353-4ade-961a-1be751530a79/service-designer-senior-prazo-determinado-12-meses",
     "https://turbi.inhire.app/vagas/601fe5ef-a0c5-4c08-aaed-c3a7d3d2008d/analista-de-planejamento-de-operacoes-real-estate",
-    "https://idg.inhire.app/vagas/82390c6c-859c-4ecc-82c0-98f8dba7ac30/pessoa-coordenadora-de-compras"
+    "https://idg.inhire.app/vagas/82390c6c-859c-4ecc-82c0-98f8dba7ac30/pessoa-coordenadora-de-compras",
+    "https://bibliotecacatolica.inhire.app/vagas/a31ffd15-1816-49ce-a53f-d56e2bd4441e/designer-digital-bibliotequinha",
+    "https://solutis.inhire.app/vagas/cf4feb9f-26ff-4b11-accb-55ff5d5a3025/analista-de-dados-e-business-inteligence-senior-remoto",
+    "https://stefanini.gupy.io/job/eyjqb2jjzci6mti5mjmxmtisinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://www.geekhunter.com/pt/crp-tecnologia/jobs/analista-de-testes-179",
+    "https://grupoboticario.gupy.io/job/eyjqb2jjzci6mti4odi4otqsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://iventis.inhire.app/vagas/dbeb83fa-604a-4888-b6ae-13f677362d0c/analista-de-dataviz-power-bi-sr-home-office",
+    "https://dtidigital.inhire.app/vagas/c447c2b7-65ba-4119-b27f-e03b9e00ad6d/analista-de-dados-pleno-power-bi",
+    "https://mazzatech.inhire.app/vagas/18e4bebf-5259-4016-8fe7-7d585610b186/3745-desenvolvedor-java-senior",
+    "https://radix.inhire.app/vagas/737e5251-0ecd-488b-b93d-46046b3cce20/profissional-analista-seeq-trend-miner-sr",
+    "https://jobs.quickin.io/relourh/jobs/6aff31d5fcdb660013bc91a3",
+    "https://v4company.inhire.app/vagas/1e725a7e-4e97-41a4-87b1-23796b1e2160/bdr-sdr-junior-v4-garcia-e-co",
+    "https://vemsergran.gupy.io/job/eyjqb2jjzci6mti4nte1nzesinnvdxjjzsi6im1jcf9jyw5kawrhdguifq=="
   ],
   "posted_job_signatures": [
     "centauro talentos:vendedor a  bh shopping",
@@ -533,6 +552,18 @@
     "rankmyapp:analista de conteudo",
     "dafiti:service designer sênior  prazo",
     "turbi:analista de planejamento de op",
-    "idg:pessoa coordenadora de compras"
+    "idg:pessoa coordenadora de compras",
+    "mbc:designer digital  bibliotequin",
+    "solutis:analista de dados e business i",
+    "stefanini group:cientista de dados sr",
+    "crp tecnologia:analista de testes",
+    "grupo boticário:pessoa desenvolvedora mobile r",
+    "iventis:analista de dataviz power bi s",
+    "dti digital:analista de dados  pleno  powe",
+    "mazzatech:desenvolvedor java sênior",
+    "radix:profissional analista seeqtren",
+    "relou rh especializado lt:customer success  produtos dig",
+    "v4 company:bdrsdr  júnior  v4 garcia  co",
+    "gran:analista administrativo júnior"
   ]
 }
