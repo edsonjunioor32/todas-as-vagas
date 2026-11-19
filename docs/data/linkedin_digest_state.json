@@ -87,9 +87,15 @@
       "jobs_count": 12,
       "timestamp": "2026-11-18T20:05:14.184697-03:00",
       "urn": "urn:li:share:7528956511155511296"
+    },
+    {
+      "date": "2026-11-19",
+      "type": "morning_desperta",
+      "jobs_count": 12,
+      "timestamp": "2026-11-19T08:03:07.858938-03:00"
     }
   ],
-  "last_morning_posted_date": "2026-11-18",
+  "last_morning_posted_date": "2026-11-19",
   "posted_job_urls": [
     "https://centaurotalentos.gupy.io/job/eyjqb2jjzci6mti4nzk3ndasinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
     "https://localiza.gupy.io/job/eyjqb2jjzci6mti4njqxmtcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
@@ -302,7 +308,19 @@
     "https://jota.inhire.app/vagas/b6d2beea-28cb-4cc8-b5b5-68a1ebc49c70/engenheiro-a-de-software-back-end-ia",
     "https://vtal.gupy.io/job/eyjqb2jjzci6mti4mtixmzesinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
     "https://confitec.gupy.io/job/eyjqb2jjzci6mti4odi5odmsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
-    "https://ecore.inhire.app/vagas/fd2b3336-024a-47ae-a3a5-e2470f70c4c3/analista-de-infraestrutura-cloud-senior-gcp"
+    "https://ecore.inhire.app/vagas/fd2b3336-024a-47ae-a3a5-e2470f70c4c3/analista-de-infraestrutura-cloud-senior-gcp",
+    "https://gruporomabrasil.gupy.io/job/eyjqb2jjzci6mti5mtgwmdusinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://skillconsultoria.gupy.io/job/eyjqb2jjzci6mti5mtc5otqsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://guiderh.gupy.io/job/eyjqb2jjzci6mti5mtc4njesinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://grupolider.inhire.app/vagas/f0afe19d-fec8-41a2-94b8-c5fc4a7b2a36/aprendiz-assistente-administrativo-jeep-eagle-nova-iguacu-rj",
+    "https://zallpy.inhire.app/vagas/dea1c808-0549-4f3f-92b8-73f23f262b75/pessoa-desenvolvedora-back-end-sr",
+    "https://objective.inhire.app/vagas/13668108-d253-4af1-a04b-4b9e4688ff61/desenvolvedor-a-de-software-jr-pl-inteligencia-artificial-e-llms-remoto",
+    "https://pottencial.inhire.app/vagas/910c8eca-65c6-4251-83eb-438771c9818d/assistente-de-ouvidoria",
+    "https://tahto.gupy.io/job/eyjqb2jjzci6mti5mtc2nzgsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://rankmyapp.inhire.app/vagas/ee060a47-f20b-4330-bc71-42102f190ae7/analista-de-conteudo",
+    "https://dafiti.inhire.app/vagas/25d40ebb-6353-4ade-961a-1be751530a79/service-designer-senior-prazo-determinado-12-meses",
+    "https://turbi.inhire.app/vagas/601fe5ef-a0c5-4c08-aaed-c3a7d3d2008d/analista-de-planejamento-de-operacoes-real-estate",
+    "https://idg.inhire.app/vagas/82390c6c-859c-4ecc-82c0-98f8dba7ac30/pessoa-coordenadora-de-compras"
   ],
   "posted_job_signatures": [
     "centauro talentos:vendedor a  bh shopping",
@@ -503,6 +521,18 @@
     "jota:engenheiroa de software backen",
     "vtal  o futuro passa por :desenvolvedor pleno",
     "confitec:desenvolvedora java pleno  sus",
-    "ecore:analista de infraestrutura clo"
+    "ecore:analista de infraestrutura clo",
+    "grupo roma brasil:assistente de vendas  afirmati",
+    "skill consultoria empresa:recepcionista comercial  belo ",
+    "guide rh:coordenadora de recursos human",
+    "grupo lider:aprendiz assistente administra",
+    "zallpy digital:pessoa desenvolvedora back end",
+    "objective:desenvolvedora de software jrp",
+    "pottencial:assistente de ouvidoria",
+    "tahto:especialista em atendimento ao",
+    "rankmyapp:analista de conteudo",
+    "dafiti:service designer sênior  prazo",
+    "turbi:analista de planejamento de op",
+    "idg:pessoa coordenadora de compras"
   ]
 }
