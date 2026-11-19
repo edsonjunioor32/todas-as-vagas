@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-19T14:33:02.466523+00:00",
+  "generated_at": "2026-11-19T18:33:46.172700+00:00",
   "candidate_count": 8331,
-  "company_count": 183,
+  "company_count": 181,
   "companies": [
     {
       "board": "abinbev",
       "company": "AB InBev  | Growth Group",
-      "brazil_jobs": 44
+      "brazil_jobs": 43
     },
     {
       "board": "abnormalsecurity",
@@ -32,7 +32,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 97
+      "brazil_jobs": 93
     },
     {
       "board": "agilize",
@@ -77,7 +77,7 @@
     {
       "board": "arcoeducacao",
       "company": "Arco Educação",
-      "brazil_jobs": 39
+      "brazil_jobs": 36
     },
     {
       "board": "arctouch",
@@ -127,7 +127,7 @@
     {
       "board": "bees",
       "company": "BEES",
-      "brazil_jobs": 49
+      "brazil_jobs": 48
     },
     {
       "board": "blip-global",
@@ -177,7 +177,7 @@
     {
       "board": "capco",
       "company": "Capco",
-      "brazil_jobs": 143
+      "brazil_jobs": 119
     },
     {
       "board": "caronsale",
@@ -217,7 +217,7 @@
     {
       "board": "css",
       "company": "CloudKitchens",
-      "brazil_jobs": 2
+      "brazil_jobs": 1
     },
     {
       "board": "coinbase",
@@ -380,11 +380,6 @@
       "brazil_jobs": 1
     },
     {
-      "board": "globalenergyallianceforpeopleandplanetgeappllc",
-      "company": "Global Energy Alliance for People and Planet (Global Energy Alliance) LLC",
-      "brazil_jobs": 1
-    },
-    {
       "board": "globalli",
       "company": "Globalli",
       "brazil_jobs": 4
@@ -392,7 +387,7 @@
     {
       "board": "quintoandar",
       "company": "Grupo QuintoAndar",
-      "brazil_jobs": 71
+      "brazil_jobs": 70
     },
     {
       "board": "harnessinc",
@@ -447,16 +442,11 @@
     {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 100
+      "brazil_jobs": 99
     },
     {
       "board": "interbrand",
       "company": "Interbrand",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "ibuglobal",
-      "company": "International Business University (Outside Canada)",
       "brazil_jobs": 1
     },
     {
@@ -727,7 +717,7 @@
     {
       "board": "sohohouseco",
       "company": "Soho House & Co.",
-      "brazil_jobs": 10
+      "brazil_jobs": 11
     },
     {
       "board": "spacexglobal",
@@ -747,7 +737,7 @@
     {
       "board": "stonepatrocina",
       "company": "Stone - Indeed",
-      "brazil_jobs": 195
+      "brazil_jobs": 194
     },
     {
       "board": "stripe",
@@ -867,7 +857,7 @@
     {
       "board": "vmlenterprisesolutions",
       "company": "VML/WPP Enterprise Solutions",
-      "brazil_jobs": 22
+      "brazil_jobs": 21
     },
     {
       "board": "vtex",
@@ -902,7 +892,7 @@
     {
       "board": "wppmedia",
       "company": "WPP Media",
-      "brazil_jobs": 36
+      "brazil_jobs": 39
     },
     {
       "board": "xpinc",
