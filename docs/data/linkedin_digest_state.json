@@ -1,5 +1,5 @@
 {
-  "last_daily_posted_date": "2026-11-19",
+  "last_daily_posted_date": "2026-11-20",
   "last_weekly_posted_date": "2026-11-13",
   "history": [
     {
@@ -106,6 +106,13 @@
       "type": "morning_desperta",
       "jobs_count": 12,
       "timestamp": "2026-11-20T08:08:12.556161-03:00"
+    },
+    {
+      "date": "2026-11-20",
+      "type": "daily",
+      "jobs_count": 12,
+      "timestamp": "2026-11-20T20:08:47.172666-03:00",
+      "urn": "urn:li:share:7529682180004925441"
     }
   ],
   "last_morning_posted_date": "2026-11-20",
@@ -357,7 +364,19 @@
     "https://vitru.inhire.app/vagas/ba38bf17-9ecb-42fe-aff0-86ecb61cd3dd/coordenador-de-growth-sao-paulo-sp",
     "https://cobli.inhire.app/vagas/f47e1dcd-090d-41b8-ba3a-a8da1724388c/gerente-de-marketing-comunicacao-e-eventos",
     "https://refrigas.gupy.io/job/eyjqb2jjzci6mti0ndexnjcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
-    "https://contaazul.inhire.app/vagas/c726621f-ac45-4af4-a9b8-16e14c11e8d1/analista-de-compras-pleno"
+    "https://contaazul.inhire.app/vagas/c726621f-ac45-4af4-a9b8-16e14c11e8d1/analista-de-compras-pleno",
+    "https://sejaglobalweb.gupy.io/job/eyjqb2jjzci6mti4mzgwnzksinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://nstech.inhire.app/vagas/d9d9c593-2645-4080-9f6a-629f18296016/qa-senior",
+    "https://solutis.inhire.app/vagas/0a8b6930-7dc1-47bc-bf16-e313064b3baa/analista-de-sustentacao-de-aplicacoes-pleno-remoto",
+    "https://skopiadigital.inhire.app/vagas/d588dbe3-0afe-4d73-a8de-e29e77991094/analista-de-suporte-e-infraestrutura-junior",
+    "https://mazzatech.inhire.app/vagas/1e1130ca-c98f-4bf4-9219-ff8058b4745a/3750-analista-help-desk",
+    "https://db1.inhire.app/vagas/22573662-ab2c-4201-93d1-be107c5ded02/desenvolvedor-fullstack-pleno-java-e-angular",
+    "https://elogroup.inhire.app/vagas/a63391b7-374a-4274-9c4f-617a3b6ec863/engenheiro-a-de-dados-senior",
+    "https://zerezes.inhire.app/vagas/0a53532a-b14d-4f96-a7c4-16cb541e1dfd/engenheiro-de-dados-senior",
+    "https://technomar.gupy.io/job/eyjqb2jjzci6mti5mjm4nzisinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://spread.gupy.io/job/eyjqb2jjzci6mti5mjq0mjcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://dwsbrazil.gupy.io/job/eyjqb2jjzci6mti5mjm2njcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://verity.gupy.io/job/eyjqb2jjzci6mti5mjm2mjcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq=="
   ],
   "posted_job_signatures": [
     "centauro talentos:vendedor a  bh shopping",
@@ -594,6 +613,18 @@
     "vitru educação:coordenador de growth  são pau",
     "cobli:gerente de marketing  comunica",
     "refrigás:coordenação de compras  baurus",
-    "conta azul:analista de compras pleno"
+    "conta azul:analista de compras pleno",
+    "globalweb:desenvolvedor java sr",
+    "nstech:qa sênior",
+    "solutis:analista de sustentação de apl",
+    "skopia digital:analista de suporte e infraest",
+    "mazzatech:analista help desk",
+    "db1 group:desenvolvedor fullstack pleno ",
+    "elogroup:engenheiroa de dados sênior",
+    "zerezes:engenheiro de dados sênior",
+    "technomar engenharia:analista de simulção e navegaç",
+    "spread tecnologia:especialista em dados certific",
+    "dentsu world services bra:senior back end developer  int",
+    "sejaveriter:ai developer sênior"
   ]
 }
