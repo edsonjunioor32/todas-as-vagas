@@ -100,9 +100,15 @@
       "jobs_count": 12,
       "timestamp": "2026-11-19T20:04:23.319322-03:00",
       "urn": "urn:li:share:7529318685853908992"
+    },
+    {
+      "date": "2026-11-20",
+      "type": "morning_desperta",
+      "jobs_count": 12,
+      "timestamp": "2026-11-20T08:08:12.556161-03:00"
     }
   ],
-  "last_morning_posted_date": "2026-11-19",
+  "last_morning_posted_date": "2026-11-20",
   "posted_job_urls": [
     "https://centaurotalentos.gupy.io/job/eyjqb2jjzci6mti4nzk3ndasinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
     "https://localiza.gupy.io/job/eyjqb2jjzci6mti4njqxmtcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
@@ -339,7 +345,19 @@
     "https://radix.inhire.app/vagas/737e5251-0ecd-488b-b93d-46046b3cce20/profissional-analista-seeq-trend-miner-sr",
     "https://jobs.quickin.io/relourh/jobs/6aff31d5fcdb660013bc91a3",
     "https://v4company.inhire.app/vagas/1e725a7e-4e97-41a4-87b1-23796b1e2160/bdr-sdr-junior-v4-garcia-e-co",
-    "https://vemsergran.gupy.io/job/eyjqb2jjzci6mti4nte1nzesinnvdxjjzsi6im1jcf9jyw5kawrhdguifq=="
+    "https://vemsergran.gupy.io/job/eyjqb2jjzci6mti4nte1nzesinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://jobs.quickin.io/matrizrh/jobs/6affa8da96ed4700133bc420",
+    "https://redemoura.gupy.io/job/eyjqb2jjzci6mti5mtm5mtcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://tecsul.inhire.app/vagas/fe7f540d-2888-4ad1-800f-9b108a5bbb97/assistente-administrativo-curitiba-pr",
+    "https://slcagricola.gupy.io/job/eyjqb2jjzci6mti5mjq0mjksinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://mazzatech.inhire.app/vagas/ca5e4737-d1e7-4b67-99e0-49c120993d38/3749-analista-de-qualidade-de-software",
+    "https://qualitydigital.gupy.io/job/eyjqb2jjzci6mti5mdayntisinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://mouras.inhire.app/vagas/ee7aa3a4-a394-4961-ae77-1b1ac79c7032/customer-success",
+    "https://cinemark.gupy.io/job/eyjqb2jjzci6mti5mjq5ndksinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://vitru.inhire.app/vagas/ba38bf17-9ecb-42fe-aff0-86ecb61cd3dd/coordenador-de-growth-sao-paulo-sp",
+    "https://cobli.inhire.app/vagas/f47e1dcd-090d-41b8-ba3a-a8da1724388c/gerente-de-marketing-comunicacao-e-eventos",
+    "https://refrigas.gupy.io/job/eyjqb2jjzci6mti0ndexnjcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://contaazul.inhire.app/vagas/c726621f-ac45-4af4-a9b8-16e14c11e8d1/analista-de-compras-pleno"
   ],
   "posted_job_signatures": [
     "centauro talentos:vendedor a  bh shopping",
@@ -564,6 +582,18 @@
     "radix:profissional analista seeqtren",
     "relou rh especializado lt:customer success  produtos dig",
     "v4 company:bdrsdr  júnior  v4 garcia  co",
-    "gran:analista administrativo júnior"
+    "gran:analista administrativo júnior",
+    "matriz rh:assistente de vendas internas",
+    "baterias moura:vendedor trainee",
+    "tecsul:assistente administrativo  cur",
+    "slc agrícola:estagiárioa de recursos humano",
+    "mazzatech:analista de qualidade de softw",
+    "quality digital:técnico de suporte júnior",
+    "mouras rs:customer success",
+    "cinemark brasil:atendente  profissional de ate",
+    "vitru educação:coordenador de growth  são pau",
+    "cobli:gerente de marketing  comunica",
+    "refrigás:coordenação de compras  baurus",
+    "conta azul:analista de compras pleno"
   ]
 }
