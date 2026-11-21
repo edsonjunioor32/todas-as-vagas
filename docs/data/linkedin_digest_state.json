@@ -113,9 +113,15 @@
       "jobs_count": 12,
       "timestamp": "2026-11-20T20:08:47.172666-03:00",
       "urn": "urn:li:share:7529682180004925441"
+    },
+    {
+      "date": "2026-11-21",
+      "type": "morning_desperta",
+      "jobs_count": 12,
+      "timestamp": "2026-11-21T08:11:00.721693-03:00"
     }
   ],
-  "last_morning_posted_date": "2026-11-20",
+  "last_morning_posted_date": "2026-11-21",
   "posted_job_urls": [
     "https://centaurotalentos.gupy.io/job/eyjqb2jjzci6mti4nzk3ndasinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
     "https://localiza.gupy.io/job/eyjqb2jjzci6mti4njqxmtcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
@@ -376,7 +382,19 @@
     "https://technomar.gupy.io/job/eyjqb2jjzci6mti5mjm4nzisinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
     "https://spread.gupy.io/job/eyjqb2jjzci6mti5mjq0mjcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
     "https://dwsbrazil.gupy.io/job/eyjqb2jjzci6mti5mjm2njcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
-    "https://verity.gupy.io/job/eyjqb2jjzci6mti5mjm2mjcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq=="
+    "https://verity.gupy.io/job/eyjqb2jjzci6mti5mjm2mjcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://skillconsultoria.gupy.io/job/eyjqb2jjzci6mti5mjywndysinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://vagas.solides.com.br/vaga/956317/vendedor-de-loja-sao-paulo-aeroporto-viracopos-20h",
+    "https://gruporamirocampelo.gupy.io/job/eyjqb2jjzci6mti5mjyxnzgsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://vagas.solides.com.br/vaga/956307/analista-de-rh-generalista-pleno-presencial",
+    "https://jobs.quickin.io/humtech/jobs/687f9e0f85c8ad001355e923",
+    "https://nstech.inhire.app/vagas/abd581d9-7036-49b2-a6bb-c48892603d68/desenvolvedor-backend-net-pleno",
+    "https://carbigdata.inhire.app/vagas/8adf699e-71ba-468b-8eb0-91e92d92b379/estagio-em-atendimento-ao-cliente",
+    "https://jobs.quickin.io/relourh/jobs/6b004f54d520200012d381b6",
+    "https://alvoarlacteos.gupy.io/job/eyjqb2jjzci6mti5mju2otmsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://melnick.inhire.app/vagas/4df9cf62-6c69-4701-b255-891ec2799f1c/analista-de-marketing-pleno-arcadia",
+    "https://www.infojobs.com.br/vaga-de-analista-compras-em-sao-paulo__12238912.aspx",
+    "https://vitru.inhire.app/vagas/7a2ea26a-7c01-4a59-93ba-3246e42ebf4f/analista-de-planejamento-e-operacoes-pleno-foco-em-dados-maringa-pr"
   ],
   "posted_job_signatures": [
     "centauro talentos:vendedor a  bh shopping",
@@ -625,6 +643,18 @@
     "technomar engenharia:analista de simulção e navegaç",
     "spread tecnologia:especialista em dados certific",
     "dentsu world services bra:senior back end developer  int",
-    "sejaveriter:ai developer sênior"
+    "sejaveriter:ai developer sênior",
+    "skill consultoria empresa:bdr pleno  belo horizontemg",
+    "chico rei:vendedor de loja  são paulo ae",
+    "grupo ramiro campelo:assistente administrativo  val",
+    "g7 editora e sistemas ger:analista de rh generalista  pl",
+    "humtech  recrutando para :engenheiro devops sênior",
+    "nstech:desenvolvedor backend net plen",
+    "carbigdata:estágio em atendimento ao clie",
+    "relou rh especializado lt:analista cs",
+    "alvoar lácteos:pessoa promotor de trade marke",
+    "melnick:analista de marketing pleno  a",
+    "empresa confidencial:analista de compras",
+    "vitru educação:analista de planejamento e ope"
   ]
 }
