@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-22T14:32:41.863077+00:00",
+  "generated_at": "2026-11-22T15:43:33.630636+00:00",
   "candidate_count": 8331,
-  "company_count": 177,
+  "company_count": 181,
   "companies": [
     {
       "board": "abinbev",
@@ -300,11 +300,6 @@
       "brazil_jobs": 9
     },
     {
-      "board": "programaestferias",
-      "company": "Estágio de Férias Stone Co.",
-      "brazil_jobs": 1
-    },
-    {
       "board": "externaljobboards",
       "company": "Exadel",
       "brazil_jobs": 19
@@ -560,6 +555,46 @@
       "brazil_jobs": 2
     },
     {
+      "board": "ohalogenetics",
+      "company": "Ohalo",
+      "brazil_jobs": 2
+    },
+    {
+      "board": "okx",
+      "company": "OKX",
+      "brazil_jobs": 7
+    },
+    {
+      "board": "oliverbrazil",
+      "company": "OLIVER - Brasil",
+      "brazil_jobs": 7
+    },
+    {
+      "board": "oneacrefund",
+      "company": "One Acre Fund",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "openfx",
+      "company": "OpenFX",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "orderly",
+      "company": "Orderly",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "otter",
+      "company": "Otter",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "ouihelp",
+      "company": "Ouihelp",
+      "brazil_jobs": 1
+    },
+    {
       "board": "payoneer",
       "company": "Payoneer",
       "brazil_jobs": 2
@@ -590,24 +625,9 @@
       "brazil_jobs": 1
     },
     {
-      "board": "podium81",
-      "company": "Podium",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "powerdigitalmarketing",
-      "company": "Power Digital",
-      "brazil_jobs": 39
-    },
-    {
       "board": "pfm",
       "company": "Precision for Medicine",
       "brazil_jobs": 4
-    },
-    {
-      "board": "precisionmedicinegroup",
-      "company": "Precision Medicine Group",
-      "brazil_jobs": 3
     },
     {
       "board": "rdstation",
