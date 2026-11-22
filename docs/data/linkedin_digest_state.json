@@ -119,9 +119,15 @@
       "type": "morning_desperta",
       "jobs_count": 12,
       "timestamp": "2026-11-21T08:11:00.721693-03:00"
+    },
+    {
+      "date": "2026-11-22",
+      "type": "morning_desperta",
+      "jobs_count": 12,
+      "timestamp": "2026-11-22T08:04:24.840490-03:00"
     }
   ],
-  "last_morning_posted_date": "2026-11-21",
+  "last_morning_posted_date": "2026-11-22",
   "posted_job_urls": [
     "https://centaurotalentos.gupy.io/job/eyjqb2jjzci6mti4nzk3ndasinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
     "https://localiza.gupy.io/job/eyjqb2jjzci6mti4njqxmtcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
@@ -394,7 +400,19 @@
     "https://alvoarlacteos.gupy.io/job/eyjqb2jjzci6mti5mju2otmsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
     "https://melnick.inhire.app/vagas/4df9cf62-6c69-4701-b255-891ec2799f1c/analista-de-marketing-pleno-arcadia",
     "https://www.infojobs.com.br/vaga-de-analista-compras-em-sao-paulo__12238912.aspx",
-    "https://vitru.inhire.app/vagas/7a2ea26a-7c01-4a59-93ba-3246e42ebf4f/analista-de-planejamento-e-operacoes-pleno-foco-em-dados-maringa-pr"
+    "https://vitru.inhire.app/vagas/7a2ea26a-7c01-4a59-93ba-3246e42ebf4f/analista-de-planejamento-e-operacoes-pleno-foco-em-dados-maringa-pr",
+    "https://jobs.quickin.io/crhconsultoria/jobs/6b021b2a96ed470013837985",
+    "https://riachuelo.inhire.app/vagas/890cbf7d-4e0c-4ffb-b4dc-55b6ec03930c/atendente-de-vendas-intermitente-teresina-sh",
+    "https://jobs.quickin.io/tatianalisehumana/jobs/6b01fe8ed52020001209d680",
+    "https://albierieassociados.gupy.io/job/eyjqb2jjzci6mti5mju1mtasinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://jobs.quickin.io/humtech/jobs/6a3af50e476e6b0012da6344",
+    "https://www.infojobs.com.br/vaga-de-analista-suporte-operacional-logistico-em-sao-paulo__12239014.aspx",
+    "https://www.infojobs.com.br/vaga-de-especialista-relacionamento-comercial-em-rio-grande-do-sul__12238980.aspx",
+    "https://www.infojobs.com.br/vaga-de-central-atendimento-ao-cliente-em-distrito-federal__12239077.aspx",
+    "https://www.infojobs.com.br/vaga-de-analista-marketing-em-sao-paulo__12239286.aspx",
+    "https://vagas-mrveco.gupy.io/job/eyjqb2jjzci6mti5mtq5mzusinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://vagas.solides.com.br/vaga/956321/auxiliar-de-compras",
+    "https://time-now.gupy.io/job/eyjqb2jjzci6mti5mdg4njqsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq=="
   ],
   "posted_job_signatures": [
     "centauro talentos:vendedor a  bh shopping",
@@ -655,6 +673,18 @@
     "alvoar lácteos:pessoa promotor de trade marke",
     "melnick:analista de marketing pleno  a",
     "empresa confidencial:analista de compras",
-    "vitru educação:analista de planejamento e ope"
+    "vitru educação:analista de planejamento e ope",
+    "crh consultoria em recrut:estágio em gestão comercial",
+    "riachuelo:atendente de vendas  intermite",
+    "tati análise humana:assistente administrativo  bel",
+    "albieri e associados:analista fiscal pl  diretos",
+    "humtech  recrutando para :desenvolvedora qlik sense",
+    "enfok:analista de suporte operaciona",
+    "empresa confidencial:especialista em relacionamento",
+    "elleve odontologia:central atendimento ao cliente",
+    "sideral corretora de segu:analista de marketing",
+    "venha construir o futuro :gerente trade e marketing to",
+    "rede aristides daniel ort:auxiliar de compras",
+    "timenow:pessoa coordenadora de planeja"
   ]
 }
