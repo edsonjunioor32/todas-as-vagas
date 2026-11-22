@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-21T14:32:56.820655+00:00",
+  "generated_at": "2026-11-22T14:32:41.863077+00:00",
   "candidate_count": 8331,
-  "company_count": 185,
+  "company_count": 177,
   "companies": [
     {
       "board": "abinbev",
@@ -558,46 +558,6 @@
       "board": "newsela",
       "company": "Newsela",
       "brazil_jobs": 2
-    },
-    {
-      "board": "ohalogenetics",
-      "company": "Ohalo",
-      "brazil_jobs": 2
-    },
-    {
-      "board": "okx",
-      "company": "OKX",
-      "brazil_jobs": 7
-    },
-    {
-      "board": "oliverbrazil",
-      "company": "OLIVER - Brasil",
-      "brazil_jobs": 7
-    },
-    {
-      "board": "oneacrefund",
-      "company": "One Acre Fund",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "openfx",
-      "company": "OpenFX",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "orderly",
-      "company": "Orderly",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "otter",
-      "company": "Otter",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "ouihelp",
-      "company": "Ouihelp",
-      "brazil_jobs": 1
     },
     {
       "board": "payoneer",
