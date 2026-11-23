@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-22T15:43:33.630636+00:00",
+  "generated_at": "2026-11-23T14:33:38.241920+00:00",
   "candidate_count": 8331,
-  "company_count": 181,
+  "company_count": 184,
   "companies": [
     {
       "board": "abinbev",
       "company": "AB InBev  | Growth Group",
-      "brazil_jobs": 43
+      "brazil_jobs": 42
     },
     {
       "board": "abnormalsecurity",
@@ -27,7 +27,7 @@
     {
       "board": "aestudio",
       "company": "AE Studio",
-      "brazil_jobs": 2
+      "brazil_jobs": 3
     },
     {
       "board": "agibank",
@@ -72,7 +72,7 @@
     {
       "board": "arcoeducacao",
       "company": "Arco Educação",
-      "brazil_jobs": 36
+      "brazil_jobs": 35
     },
     {
       "board": "arctouch",
@@ -97,7 +97,7 @@
     {
       "board": "assessoriadeinvestimentosxp",
       "company": "Assessoria de Investimentos - XP Inc.",
-      "brazil_jobs": 21
+      "brazil_jobs": 20
     },
     {
       "board": "awin",
@@ -122,7 +122,7 @@
     {
       "board": "bees",
       "company": "BEES",
-      "brazil_jobs": 48
+      "brazil_jobs": 47
     },
     {
       "board": "blip-global",
@@ -172,7 +172,7 @@
     {
       "board": "capco",
       "company": "Capco",
-      "brazil_jobs": 120
+      "brazil_jobs": 109
     },
     {
       "board": "caronsale",
@@ -202,7 +202,7 @@
     {
       "board": "clara",
       "company": "Clara",
-      "brazil_jobs": 68
+      "brazil_jobs": 70
     },
     {
       "board": "clinchoice",
@@ -297,7 +297,12 @@
     {
       "board": "epicgames",
       "company": "Epic Games",
-      "brazil_jobs": 9
+      "brazil_jobs": 8
+    },
+    {
+      "board": "programaestferias",
+      "company": "Estágio de Férias Stone Co.",
+      "brazil_jobs": 1
     },
     {
       "board": "externaljobboards",
@@ -435,14 +440,9 @@
       "brazil_jobs": 2
     },
     {
-      "board": "innovecs",
-      "company": "Innovecs",
-      "brazil_jobs": 1
-    },
-    {
       "board": "inter",
       "company": "Inter Carreiras",
-      "brazil_jobs": 97
+      "brazil_jobs": 98
     },
     {
       "board": "interbrand",
@@ -472,7 +472,7 @@
     {
       "board": "artefactlinkedin",
       "company": "LinkedIn Job Wrapping",
-      "brazil_jobs": 25
+      "brazil_jobs": 29
     },
     {
       "board": "lumimeds",
@@ -625,9 +625,24 @@
       "brazil_jobs": 1
     },
     {
+      "board": "podium81",
+      "company": "Podium",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "powerdigitalmarketing",
+      "company": "Power Digital",
+      "brazil_jobs": 37
+    },
+    {
       "board": "pfm",
       "company": "Precision for Medicine",
       "brazil_jobs": 4
+    },
+    {
+      "board": "precisionmedicinegroup",
+      "company": "Precision Medicine Group",
+      "brazil_jobs": 3
     },
     {
       "board": "rdstation",
@@ -707,12 +722,12 @@
     {
       "board": "sohohouseco",
       "company": "Soho House & Co.",
-      "brazil_jobs": 11
+      "brazil_jobs": 10
     },
     {
       "board": "spacexglobal",
       "company": "SpaceX_Global",
-      "brazil_jobs": 7
+      "brazil_jobs": 6
     },
     {
       "board": "xai",
@@ -742,7 +757,7 @@
     {
       "board": "sumup",
       "company": "SumUp",
-      "brazil_jobs": 30
+      "brazil_jobs": 31
     },
     {
       "board": "syndigo",
@@ -757,7 +772,7 @@
     {
       "board": "takealotcom",
       "company": "takealot.com",
-      "brazil_jobs": 3
+      "brazil_jobs": 1
     },
     {
       "board": "telnyx54",
@@ -792,7 +807,7 @@
     {
       "board": "toradex",
       "company": "Toradex",
-      "brazil_jobs": 7
+      "brazil_jobs": 6
     },
     {
       "board": "trinks",
@@ -822,7 +837,7 @@
     {
       "board": "valtech",
       "company": "Valtech",
-      "brazil_jobs": 7
+      "brazil_jobs": 6
     },
     {
       "board": "vectranetworks",
@@ -862,12 +877,12 @@
     {
       "board": "gympass",
       "company": "Wellhub",
-      "brazil_jobs": 44
+      "brazil_jobs": 45
     },
     {
       "board": "wildlifestudios",
       "company": "Wildlife Studios",
-      "brazil_jobs": 15
+      "brazil_jobs": 14
     },
     {
       "board": "agencywithin",
@@ -907,7 +922,7 @@
     {
       "board": "ilia",
       "company": "ília",
-      "brazil_jobs": 14
+      "brazil_jobs": 12
     }
   ]
 }
