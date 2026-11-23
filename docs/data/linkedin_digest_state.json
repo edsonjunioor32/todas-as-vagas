@@ -1,5 +1,5 @@
 {
-  "last_daily_posted_date": "2026-11-20",
+  "last_daily_posted_date": "2026-11-23",
   "last_weekly_posted_date": "2026-11-13",
   "history": [
     {
@@ -131,6 +131,13 @@
       "type": "morning_desperta",
       "jobs_count": 12,
       "timestamp": "2026-11-23T08:05:37.647062-03:00"
+    },
+    {
+      "date": "2026-11-23",
+      "type": "daily",
+      "jobs_count": 12,
+      "timestamp": "2026-11-23T19:26:00.527552-03:00",
+      "urn": "urn:li:share:7530758578291351553"
     }
   ],
   "last_morning_posted_date": "2026-11-23",
@@ -430,7 +437,19 @@
     "https://ecolab.gupy.io/job/eyjqb2jjzci6mti5mjy3mzasinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
     "https://vagas.solides.com.br/vaga/956365/gerente-de-marketing-b2b",
     "https://voeazul.gupy.io/job/eyjqb2jjzci6mti4mdy5ndasinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
-    "https://jobs.quickin.io/principiaskin/jobs/6aac2500f348d300135a48ba"
+    "https://jobs.quickin.io/principiaskin/jobs/6aac2500f348d300135a48ba",
+    "https://www.geekhunter.com/pt/locaweb/jobs/bling---especialista-de-produto---foco-em-sistemas-de-gestao---remoto-1",
+    "https://agriness.gupy.io/job/eyjqb2jjzci6mti5mza2mjksinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://carreiras-semantix.inhire.app/vagas/d8ec7fd9-8553-4db9-8a1c-a9efcba40468/engenheiro-a-de-dados-senior",
+    "https://www.geekhunter.com/pt/ntt-data/jobs/desenvolvedor-fico-pleno-1",
+    "https://caju.gupy.io/job/eyjqb2jjzci6mti5mjk3mtesinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://mazzatech.inhire.app/vagas/2f79c829-8286-4658-bcc0-fdd8324245af/3756-cyber-security-coordinator",
+    "https://contabilizei.inhire.app/vagas/c592e4e8-1e91-4095-bdcf-b87c37a472f5/tecnologia-desenvolvedor-a-backend-senior-atendimento-ia",
+    "https://softdesign.gupy.io/job/eyjqb2jjzci6mti5mjgwmjcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://vemsertahto.gupy.io/job/eyjqb2jjzci6mti4mzm2njqsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://olist.inhire.app/vagas/31b8b304-b5ff-495d-ab38-04298ee2bdc6/analista-de-ciberseguranca-pleno-blue-team-e-resposta-a-incidentes",
+    "https://radix.inhire.app/vagas/c65142d6-c08b-4a5e-8c22-04c66c2743cd/profissional-de-arquitetura-senior-de-redes-e-infraestrutura-ti-ot",
+    "https://neogridcarreiras.gupy.io/job/eyjqb2jjzci6mti4ndy3ntisinnvdxjjzsi6im1jcf9jyw5kawrhdguifq=="
   ],
   "posted_job_signatures": [
     "centauro talentos:vendedor a  bh shopping",
@@ -715,6 +734,18 @@
     "ecolab:estágio em marketing estratégi",
     "bowe ltda:gerente de marketing b2b",
     "azul linhas aéreas brasil:gerente planejamento operacion",
-    "principia:auxiliar de logistica jr princ"
+    "principia:auxiliar de logistica jr princ",
+    "locaweb:bling  especialista de produto",
+    "agriness:analista de requisitos júnior",
+    "semantix:engenheiroa de dados sênior",
+    "ntt data:desenvolvedor fico pleno",
+    "caju:analista de sucesso do cliente",
+    "mazzatech:cyber security coordinator",
+    "contabilizei:tecnologia desenvolvedora back",
+    "softdesign:software engineer backend java",
+    "tahto  staff e executivo :especialista em arquitetura e ",
+    "olist:analista de cibersegurança ple",
+    "radix:profissional de arquitetura sê",
+    "neogrid carreiras:desenvolvedora plenoa"
   ]
 }
