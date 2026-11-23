@@ -125,9 +125,15 @@
       "type": "morning_desperta",
       "jobs_count": 12,
       "timestamp": "2026-11-22T08:04:24.840490-03:00"
+    },
+    {
+      "date": "2026-11-23",
+      "type": "morning_desperta",
+      "jobs_count": 12,
+      "timestamp": "2026-11-23T08:05:37.647062-03:00"
     }
   ],
-  "last_morning_posted_date": "2026-11-22",
+  "last_morning_posted_date": "2026-11-23",
   "posted_job_urls": [
     "https://centaurotalentos.gupy.io/job/eyjqb2jjzci6mti4nzk3ndasinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
     "https://localiza.gupy.io/job/eyjqb2jjzci6mti4njqxmtcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
@@ -412,7 +418,19 @@
     "https://www.infojobs.com.br/vaga-de-analista-marketing-em-sao-paulo__12239286.aspx",
     "https://vagas-mrveco.gupy.io/job/eyjqb2jjzci6mti5mtq5mzusinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
     "https://vagas.solides.com.br/vaga/956321/auxiliar-de-compras",
-    "https://time-now.gupy.io/job/eyjqb2jjzci6mti5mdg4njqsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq=="
+    "https://time-now.gupy.io/job/eyjqb2jjzci6mti5mdg4njqsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://riachuelo.inhire.app/vagas/9e73f605-1c74-4d85-a498-e166c839c826/atendente-de-vendas-financeiro",
+    "https://multi7.inhire.app/vagas/b5384186-2192-4840-95fd-bda0088991d7/executivo-a-comercial-propaganda-medica",
+    "https://vagas.solides.com.br/vaga/956362/assistente-administrativo-setor-de-licitacoes",
+    "https://www.infojobs.com.br/vaga-de-analista-financeiro-em-santa-catarina__12239322.aspx",
+    "https://mazzatech.inhire.app/vagas/e06d5e58-a3c1-4d25-add1-0fe26fec1bec/3746-analista-de-sistemas-desenvolvedor-pleno-senior",
+    "https://www.infojobs.com.br/vaga-de-desenvolvedor-protheus-em-sao-paulo__12239383.aspx",
+    "https://jobs.quickin.io/cadmus/jobs/6a5f8685e796e40013f186a9",
+    "https://www.infojobs.com.br/vaga-de-atendimento-ao-cliente-vendas-experiencia-inicio-imediato-c-em-sao-paulo__12239348.aspx",
+    "https://ecolab.gupy.io/job/eyjqb2jjzci6mti5mjy3mzasinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://vagas.solides.com.br/vaga/956365/gerente-de-marketing-b2b",
+    "https://voeazul.gupy.io/job/eyjqb2jjzci6mti4mdy5ndasinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://jobs.quickin.io/principiaskin/jobs/6aac2500f348d300135a48ba"
   ],
   "posted_job_signatures": [
     "centauro talentos:vendedor a  bh shopping",
@@ -685,6 +703,18 @@
     "sideral corretora de segu:analista de marketing",
     "venha construir o futuro :gerente trade e marketing to",
     "rede aristides daniel ort:auxiliar de compras",
-    "timenow:pessoa coordenadora de planeja"
+    "timenow:pessoa coordenadora de planeja",
+    "riachuelo:atendente de vendas financeiro",
+    "m7 soluções financeiras:executivoa comercial  propagan",
+    "purah medical  co:assistente administrativo  set",
+    "wb soluções rh:analista financeiro",
+    "mazzatech:analista de sistemas  desenvol",
+    "interbrands foods:desenvolvedor protheus",
+    "cadmus:analista funcional de dynamics",
+    "empresa confidencial:atendimento ao cliente e venda",
+    "ecolab:estágio em marketing estratégi",
+    "bowe ltda:gerente de marketing b2b",
+    "azul linhas aéreas brasil:gerente planejamento operacion",
+    "principia:auxiliar de logistica jr princ"
   ]
 }
