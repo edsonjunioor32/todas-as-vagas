@@ -138,9 +138,15 @@
       "jobs_count": 12,
       "timestamp": "2026-11-23T19:26:00.527552-03:00",
       "urn": "urn:li:share:7530758578291351553"
+    },
+    {
+      "date": "2026-11-24",
+      "type": "morning_desperta",
+      "jobs_count": 12,
+      "timestamp": "2026-11-24T08:06:25.547180-03:00"
     }
   ],
-  "last_morning_posted_date": "2026-11-23",
+  "last_morning_posted_date": "2026-11-24",
   "posted_job_urls": [
     "https://centaurotalentos.gupy.io/job/eyjqb2jjzci6mti4nzk3ndasinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
     "https://localiza.gupy.io/job/eyjqb2jjzci6mti4njqxmtcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
@@ -449,7 +455,19 @@
     "https://vemsertahto.gupy.io/job/eyjqb2jjzci6mti4mzm2njqsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
     "https://olist.inhire.app/vagas/31b8b304-b5ff-495d-ab38-04298ee2bdc6/analista-de-ciberseguranca-pleno-blue-team-e-resposta-a-incidentes",
     "https://radix.inhire.app/vagas/c65142d6-c08b-4a5e-8c22-04c66c2743cd/profissional-de-arquitetura-senior-de-redes-e-infraestrutura-ti-ot",
-    "https://neogridcarreiras.gupy.io/job/eyjqb2jjzci6mti4ndy3ntisinnvdxjjzsi6im1jcf9jyw5kawrhdguifq=="
+    "https://neogridcarreiras.gupy.io/job/eyjqb2jjzci6mti4ndy3ntisinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://yolo.inhire.app/vagas/2b83faf3-f5f9-4616-bca6-6620bf3d3c32/representante-comercial-autonomo-energia-guarulhos-e-alto-tiete",
+    "https://vivaralojas.gupy.io/job/eyjqb2jjzci6mti3mjqxmjgsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://lightsolucoes.gupy.io/job/eyjqb2jjzci6mti2njuymjisinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://www.infojobs.com.br/vaga-de-analista-financeiro-pleno-em-minas-gerais__12243728.aspx",
+    "https://stefanini.gupy.io/job/eyjqb2jjzci6mti4nzi4mdmsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://equanimus.inhire.app/vagas/80d7063f-a4fd-4420-a2c2-c561de45fe18/devops-sre-monitoramento",
+    "https://tarken.inhire.app/vagas/3460bc88-135e-4ff3-a52d-c4fe0eafa472/customer-success",
+    "https://vagas.solides.com.br/vaga/957087/analista-de-customer-success",
+    "https://mouras.inhire.app/vagas/ac13938c-ad03-4f17-b2a8-3ec8b1cfdae0/coordenador-de-marketing-com-foco-em-perfomance",
+    "https://vagas.solides.com.br/vaga/957104/analista-de-marketing",
+    "https://vagas.solides.com.br/vaga/957096/analista-de-planejamento-e-viabilidade",
+    "https://grupoprotege.inhire.app/vagas/9dbb457e-2a9f-4544-86e9-4ca7dfe8a42a/analista-de-compras-sao-paulo-sp"
   ],
   "posted_job_signatures": [
     "centauro talentos:vendedor a  bh shopping",
@@ -746,6 +764,18 @@
     "tahto  staff e executivo :especialista em arquitetura e ",
     "olist:analista de cibersegurança ple",
     "radix:profissional de arquitetura sê",
-    "neogrid carreiras:desenvolvedora plenoa"
+    "neogrid carreiras:desenvolvedora plenoa",
+    "yolo recruit:representante comercial autôno",
+    "vivara lojas:vendedora  shopping patio bele",
+    "light soluções:analista de recursos humanos",
+    "yapp:analista financeiro pleno",
+    "stefanini group:analista desenvolvedor sr",
+    "equanimus:devops sre monitoramento",
+    "tarken:customer success",
+    "bonifiq:analista de customer success",
+    "mouras rs:coordenador de marketing com f",
+    "kelvin educação:analista de marketing",
+    "empresa confidencial:analista de planejamento e via",
+    "grupo protege:analista de compras  são paulo"
   ]
 }
