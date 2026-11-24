@@ -12,7 +12,7 @@
     <link rel="icon" href="../favicon.svg?v=4" type="image/svg+xml">
     <script src="../theme.js?v=2"></script>
     <link rel="stylesheet" href="../styles.css?v=14">
-    <link rel="stylesheet" href="./styles.css?v=2">
+    <link rel="stylesheet" href="./styles.css?v=3">
   </head>
   <body>
     <a class="skip-link" href="#analisador">Pular para o analisador</a>
@@ -84,11 +84,34 @@
           <article class="analysis-card optional-card"><h3>☆ Diferenciais não encontrados</h3><div class="chip-list" id="optionalList"></div></article>
           <article class="analysis-card manual-card"><h3>☑ Confirme manualmente</h3><div class="chip-list" id="manualList"></div></article>
         </div>
+        <article class="analysis-card adjustment-card" aria-labelledby="adjustmentTitle">
+          <div class="adjustment-heading">
+            <div><p class="section-kicker">PRÓXIMO PASSO</p><h3 id="adjustmentTitle">Plano de ajuste baseado em evidências</h3></div>
+            <button class="secondary-button" id="copyAdjustmentPlan" type="button">Copiar plano</button>
+          </div>
+          <p class="adjustment-intro">Use somente experiências e resultados que sejam verdadeiros. Uma lacuna significa apenas que o item não apareceu no texto enviado — não que você não tenha essa experiência.</p>
+          <div class="adjustment-grid">
+            <section class="adjustment-group evidence-group" aria-labelledby="adjustmentEvidenceTitle"><h4 id="adjustmentEvidenceTitle">Evidências que vale destacar</h4><ul id="adjustmentEvidence" class="adjustment-list"></ul></section>
+            <section class="adjustment-group gap-group" aria-labelledby="adjustmentGapsTitle"><h4 id="adjustmentGapsTitle">Requisitos para validar</h4><ul id="adjustmentGaps" class="adjustment-list"></ul></section>
+            <section class="adjustment-group optional-group" aria-labelledby="adjustmentOptionalTitle"><h4 id="adjustmentOptionalTitle">Diferenciais opcionais</h4><ul id="adjustmentOptional" class="adjustment-list"></ul></section>
+          </div>
+          <section class="application-checklist" aria-labelledby="applicationChecklistTitle">
+            <h4 id="applicationChecklistTitle">Revisão final antes de se candidatar</h4>
+            <ul>
+              <li>Confirme no portal oficial da empresa se a vaga continua aberta.</li>
+              <li>Revise requisitos eliminatórios, localidade, modalidade e senioridade diretamente no anúncio.</li>
+              <li>Adapte o currículo com exemplos concretos e verdadeiros; não acrescente palavras-chave ou experiências que não representem seu histórico.</li>
+              <li>Confira o documento final e decida por conta própria se quer se candidatar. O analisador não envia candidaturas.</li>
+            </ul>
+          </section>
+          <p class="adjustment-attribution">Recurso gratuito e local, com método próprio inspirado nas orientações para candidatos da <a href="https://github.com/gupy-io/gupy-skills-candidato" target="_blank" rel="noopener noreferrer">Gupy Skills Candidato</a>, no tailoring do <a href="https://github.com/srbhr/Resume-Matcher" target="_blank" rel="noopener noreferrer">Resume Matcher</a> e na abordagem de evidências e decisão humana do <a href="https://github.com/career-ops-hq/career-ops" target="_blank" rel="noopener noreferrer">Career Ops</a>. Os projetos não são instalados nem recebem seus dados.</p>
+          <p class="adjustment-status" id="adjustmentStatus" role="status" aria-live="polite"></p>
+        </article>
       </section>
     </main>
 
     <footer class="site-footer fit-footer"><div class="shell footer-grid"><div><strong>Todas as Vagas</strong><p>O analisador não envia nem armazena o currículo ou a descrição da vaga. Fechar ou atualizar a página encerra a sessão.</p></div><p>Confirme requisitos, elegibilidade e condições diretamente no anúncio original.</p></div></footer>
     <script src="../vendor/mammoth.browser.min.js"></script>
-    <script type="module" src="./app.js?v=2"></script>
+    <script type="module" src="./app.js?v=3"></script>
   </body>
 </html>
