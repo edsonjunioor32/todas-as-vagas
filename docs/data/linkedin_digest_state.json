@@ -1,5 +1,5 @@
 {
-  "last_daily_posted_date": "2026-11-23",
+  "last_daily_posted_date": "2026-11-24",
   "last_weekly_posted_date": "2026-11-13",
   "history": [
     {
@@ -144,6 +144,13 @@
       "type": "morning_desperta",
       "jobs_count": 12,
       "timestamp": "2026-11-24T08:06:25.547180-03:00"
+    },
+    {
+      "date": "2026-11-24",
+      "type": "daily",
+      "jobs_count": 12,
+      "timestamp": "2026-11-24T18:43:38.255053-03:00",
+      "urn": "urn:li:share:7531110303078498304"
     }
   ],
   "last_morning_posted_date": "2026-11-24",
@@ -467,7 +474,19 @@
     "https://mouras.inhire.app/vagas/ac13938c-ad03-4f17-b2a8-3ec8b1cfdae0/coordenador-de-marketing-com-foco-em-perfomance",
     "https://vagas.solides.com.br/vaga/957104/analista-de-marketing",
     "https://vagas.solides.com.br/vaga/957096/analista-de-planejamento-e-viabilidade",
-    "https://grupoprotege.inhire.app/vagas/9dbb457e-2a9f-4544-86e9-4ca7dfe8a42a/analista-de-compras-sao-paulo-sp"
+    "https://grupoprotege.inhire.app/vagas/9dbb457e-2a9f-4544-86e9-4ca7dfe8a42a/analista-de-compras-sao-paulo-sp",
+    "https://zallpy.inhire.app/vagas/5fe60be1-639f-4ca2-afbd-c3297095ee18/desenvolvedor-salesforce-pleno",
+    "https://compass.gupy.io/job/eyjqb2jjzci6mti5mzkzntusinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://yandeh.inhire.app/vagas/33b2ba44-2c42-488d-aa72-cb1d59558df7/data-science-senior-ml-e-ia-generativa",
+    "https://jobs.quickin.io/seidor/jobs/6b05f516b9b0f40014d2992d",
+    "https://www.geekhunter.com/pt/kyndryl/jobs/network-automation-and-platform-engineer-1",
+    "https://certta.inhire.app/vagas/4127eabf-5853-4ae8-83ab-e1964ad08005/fullstack-engineer-pleno-time-datasources",
+    "https://stefanini.gupy.io/job/eyjqb2jjzci6mti5mzk3ndmsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://riachuelo.inhire.app/vagas/ba8abd35-ab30-4071-95b9-32929a188d82/analista-governanca-ti-sr-i-fp-e-a",
+    "https://ninecon.inhire.app/vagas/bbe1627a-896f-449b-b8b9-1db92a10a216/gerente-de-projetos-erp-oracle-cloud",
+    "https://jobs.quickin.io/evtit/jobs/6b05e7ecb9b0f40014c6f528",
+    "https://fcamara.gupy.io/job/eyjqb2jjzci6mti5mzg5ntusinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://quartavia.inhire.app/vagas/4b29a65d-5817-423e-af38-669c903fb1d9/banco-de-talentos-sdr-pleno"
   ],
   "posted_job_signatures": [
     "centauro talentos:vendedor a  bh shopping",
@@ -776,6 +795,18 @@
     "mouras rs:coordenador de marketing com f",
     "kelvin educação:analista de marketing",
     "empresa confidencial:analista de planejamento e via",
-    "grupo protege:analista de compras  são paulo"
+    "grupo protege:analista de compras  são paulo",
+    "zallpy digital:desenvolvedor salesforce pleno",
+    "compass uol:java analista de aplicaçãosupo",
+    "yandeh:data science sênior ml  ia gen",
+    "seidor:analista de suporte itsm jr  l",
+    "kyndryl:engenheiro de automação de red",
+    "caf:fullstack engineer  pleno time",
+    "stefanini group:analista linux sênior",
+    "riachuelo:analista governança ti sr i fp",
+    "ninecon:gerente de projetos  erp oracl",
+    "evt:engenheiro de ia  mlops  69546",
+    "venha ser sanguelaranja:pessoa desenvolvedora typescri",
+    "quartavia:banco de talentos sdr  pleno"
   ]
 }
