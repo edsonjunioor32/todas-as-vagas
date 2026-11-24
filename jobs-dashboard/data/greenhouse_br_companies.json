@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-24T14:32:50.470494+00:00",
+  "generated_at": "2026-11-24T18:31:52.753881+00:00",
   "candidate_count": 8331,
-  "company_count": 72,
+  "company_count": 45,
   "companies": [
     {
       "board": "abinbev",
       "company": "AB InBev  | Growth Group",
-      "brazil_jobs": 42
+      "brazil_jobs": 41
     },
     {
       "board": "abnormalsecurity",
@@ -32,7 +32,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 90
+      "brazil_jobs": 93
     },
     {
       "board": "agilize",
@@ -62,7 +62,7 @@
     {
       "board": "amyrisinc",
       "company": "Amyris, Inc.",
-      "brazil_jobs": 3
+      "brazil_jobs": 2
     },
     {
       "board": "appnovation",
@@ -122,47 +122,7 @@
     {
       "board": "bees",
       "company": "BEES",
-      "brazil_jobs": 46
-    },
-    {
-      "board": "blip-global",
-      "company": "Blip Global",
-      "brazil_jobs": 12
-    },
-    {
-      "board": "boldmetrics",
-      "company": "Bold Metrics",
-      "brazil_jobs": 2
-    },
-    {
-      "board": "braze",
-      "company": "Braze",
-      "brazil_jobs": 14
-    },
-    {
-      "board": "brex",
-      "company": "Brex",
-      "brazil_jobs": 14
-    },
-    {
-      "board": "bryantparkconsulting",
-      "company": "Bryant Park Consulting",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "bursonglobalcareers",
-      "company": "Burson",
-      "brazil_jobs": 7
-    },
-    {
-      "board": "bvnk",
-      "company": "BVNK",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "c6bank",
-      "company": "C6 Bank",
-      "brazil_jobs": 162
+      "brazil_jobs": 45
     },
     {
       "board": "candidaturasdirecionadasxpinc",
@@ -172,7 +132,7 @@
     {
       "board": "capco",
       "company": "Capco",
-      "brazil_jobs": 108
+      "brazil_jobs": 110
     },
     {
       "board": "caronsale",
@@ -245,9 +205,9 @@
       "brazil_jobs": 11
     },
     {
-      "board": "programaestferias",
-      "company": "Estágio de Férias Stone Co.",
-      "brazil_jobs": 1
+      "board": "doordashinternational",
+      "company": "DoorDash Brazil",
+      "brazil_jobs": 19
     },
     {
       "board": "artefactlinkedin",
@@ -258,101 +218,6 @@
       "board": "agency",
       "company": "Meridial",
       "brazil_jobs": 8
-    },
-    {
-      "board": "napratica",
-      "company": "Na Prática",
-      "brazil_jobs": 4
-    },
-    {
-      "board": "netcracker",
-      "company": "Netcracker",
-      "brazil_jobs": 5
-    },
-    {
-      "board": "netskope",
-      "company": "Netskope",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "ohalogenetics",
-      "company": "Ohalo",
-      "brazil_jobs": 2
-    },
-    {
-      "board": "okx",
-      "company": "OKX",
-      "brazil_jobs": 6
-    },
-    {
-      "board": "oliverbrazil",
-      "company": "OLIVER - Brasil",
-      "brazil_jobs": 7
-    },
-    {
-      "board": "oneacrefund",
-      "company": "One Acre Fund",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "openfx",
-      "company": "OpenFX",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "orderly",
-      "company": "Orderly",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "otter",
-      "company": "Otter",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "ouihelp",
-      "company": "Ouihelp",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "payoneer",
-      "company": "Payoneer",
-      "brazil_jobs": 2
-    },
-    {
-      "board": "phdata",
-      "company": "phData",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "pinterest",
-      "company": "Pinterest",
-      "brazil_jobs": 2
-    },
-    {
-      "board": "platformscience",
-      "company": "Platform Science",
-      "brazil_jobs": 16
-    },
-    {
-      "board": "podium81",
-      "company": "Podium",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "powerdigitalmarketing",
-      "company": "Power Digital",
-      "brazil_jobs": 37
-    },
-    {
-      "board": "pfm",
-      "company": "Precision for Medicine",
-      "brazil_jobs": 4
-    },
-    {
-      "board": "precisionmedicinegroup",
-      "company": "Precision Medicine Group",
-      "brazil_jobs": 3
     },
     {
       "board": "cloudbedsthirdpartyboard",
