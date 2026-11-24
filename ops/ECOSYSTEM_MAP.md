@@ -1,6 +1,6 @@
 # Mapa operacional do ecossistema Todas as Vagas
 
-Revisão: 2026-11-11. Este documento complementa o inventário **arquivo a arquivo dos arquivos rastreados de `todas-as-vagas/main`** em [OPERATIONS_CHANGELOG.md](OPERATIONS_CHANGELOG.md#mapa-dos-arquivos-rastreados). As listas abaixo incluem todos os arquivos rastreados na branch padrão dos demais repositórios vinculados, não apenas os executáveis. A classificação descreve a função observada; não autoriza ativar, desativar ou excluir nada. Antes de mudar um componente, confira também o código e os runs atuais: o mapa é uma fotografia, não um substituto para validação em produção.
+Revisão: 2026-11-24. Este documento complementa o inventário **arquivo a arquivo dos arquivos rastreados de `todas-as-vagas/main`** em [OPERATIONS_CHANGELOG.md](OPERATIONS_CHANGELOG.md#mapa-dos-arquivos-rastreados). As listas abaixo incluem todos os arquivos rastreados na branch padrão dos demais repositórios vinculados, não apenas os executáveis. A classificação descreve a função observada; não autoriza ativar, desativar ou excluir nada. Antes de mudar um componente, confira também o código e os runs atuais: o mapa é uma fotografia, não um substituto para validação em produção.
 
 ## Fronteiras e fluxo de dados
 
