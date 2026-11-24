@@ -161,10 +161,8 @@ jobs:
           if git -C "$data_worktree" diff --cached --quiet; then
             echo "Snapshot e cache Glassdoor já estão atualizados."
           else
-            git -C "$data_worktree" config user.name "github-actions[bot]"
-            git -C "$data_worktree" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git -C "$data_worktree" commit -m "Atualiza cache público do Glassdoor"
-            git -C "$data_worktree" push origin HEAD:public-data
+            # Commit órfão único: o ramo guarda só a fotografia atual, sem histórico.
+            bash tools/publish_orphan_commit.sh "$data_worktree" public-data "Atualiza cache público do Glassdoor"
           fi
 
       - name: Preparar Pages
