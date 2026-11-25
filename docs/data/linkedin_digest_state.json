@@ -1,5 +1,5 @@
 {
-  "last_daily_posted_date": "2026-11-24",
+  "last_daily_posted_date": "2026-11-25",
   "last_weekly_posted_date": "2026-11-13",
   "history": [
     {
@@ -157,6 +157,13 @@
       "type": "morning_desperta",
       "jobs_count": 12,
       "timestamp": "2026-11-25T08:13:15.385753-03:00"
+    },
+    {
+      "date": "2026-11-25",
+      "type": "daily",
+      "jobs_count": 12,
+      "timestamp": "2026-11-25T20:07:01.869749-03:00",
+      "urn": "urn:li:share:7531493677840502785"
     }
   ],
   "last_morning_posted_date": "2026-11-25",
@@ -504,7 +511,19 @@
     "https://quartavia.inhire.app/vagas/4374fe2c-1b3b-4468-a6c9-3955ddad3544/banco-de-talentos-copywriter-especialista-em-infoproduto-e-marketing",
     "https://aarin.inhire.app/vagas/77dc48c8-94c4-44c4-b979-9ba7aae205b4/product-designer-pleno",
     "https://assai.gupy.io/job/eyjqb2jjzci6mti5mdcxotgsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
-    "https://atlantico.inhire.app/vagas/c236c754-7f35-475c-89ee-2abd1cc12f2a/estagio-em-compras"
+    "https://atlantico.inhire.app/vagas/c236c754-7f35-475c-89ee-2abd1cc12f2a/estagio-em-compras",
+    "https://iconit.inhire.app/vagas/f24f156c-5895-4136-92f7-aa4e235bb4e4/desenvolvedor-a-full-stack-java-react-remoto",
+    "https://programmers.inhire.app/vagas/c6169578-2b13-42c0-afaf-067e06e2aab3/devops-engineer-sre-pleno-home-office-brasil",
+    "https://priner.inhire.app/vagas/1312a6d3-2dbf-4ad7-b00f-c06d212a05a1/tecnico-de-seguranca-do-trabalho-brotas",
+    "https://asaas.gupy.io/job/eyjqb2jjzci6mti4nja2mjcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://www.geekhunter.com/pt/dugu/jobs/software-engineer-ii-2",
+    "https://frameworkdigital.inhire.app/vagas/6c79a677-0383-460e-8dbc-5cb80a4cc74a/desenvolvedor-net-senior",
+    "https://dtidigital.inhire.app/vagas/a77e8066-089f-411b-bfcd-46dd861d02e6/data-engineer-senior",
+    "https://trabalhenacontaja.gupy.io/job/eyjqb2jjzci6mti5ndu0ntysinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://it4us-trial.inhire.app/vagas/11587c57-7d2e-4037-863d-ef8c496589b0/analista-de-soc-trellix",
+    "https://aiko.inhire.app/vagas/8c418c4a-a3b7-4c34-a10c-1e8bf42d5ab6/desenvolvedor-backend-remoto",
+    "https://upflux.inhire.app/vagas/f78fc9ac-0697-4e57-b391-53999517735a/analista-de-performance-cross",
+    "https://objective.inhire.app/vagas/7064bb75-80f4-4c9e-ab79-73fb410bf094/engenheiro-a-de-dados-pl-sr-sap-hana-xsa-e-s-4hana-remoto"
   ],
   "posted_job_signatures": [
     "centauro talentos:vendedor a  bh shopping",
@@ -837,6 +856,18 @@
     "quartavia:banco de talentos copywriter e",
     "aarin techfin:product designer pleno",
     "assaí atacadista  o ataca:analista planejamento sr colab",
-    "atlântico:estágio em compras"
+    "atlântico:estágio em compras",
+    "icon solutions do brasil:desenvolvedor a full stack jav",
+    "programmers  ai data  sof:devops engineersre pleno home ",
+    "priner:tecnico de segurança do trabal",
+    "asaas:analista de prévendas pleno bd",
+    "dugu:engenheiro de software nível i",
+    "framework:desenvolvedor net sênior",
+    "dti digital:data engineer senior",
+    "contajá contabilidade onl:analista contábil",
+    "it4us cyber security:analista de soc  trellix",
+    "aiko:desenvolvedor backend",
+    "upflux:analista de performance cross",
+    "objective:engenheiroa de dados plsr  sap"
   ]
 }
