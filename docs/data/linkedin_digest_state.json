@@ -164,9 +164,15 @@
       "jobs_count": 12,
       "timestamp": "2026-11-25T20:07:01.869749-03:00",
       "urn": "urn:li:share:7531493677840502785"
+    },
+    {
+      "date": "2026-11-26",
+      "type": "morning_desperta",
+      "jobs_count": 12,
+      "timestamp": "2026-11-26T08:07:10.673952-03:00"
     }
   ],
-  "last_morning_posted_date": "2026-11-25",
+  "last_morning_posted_date": "2026-11-26",
   "posted_job_urls": [
     "https://centaurotalentos.gupy.io/job/eyjqb2jjzci6mti4nzk3ndasinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
     "https://localiza.gupy.io/job/eyjqb2jjzci6mti4njqxmtcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
@@ -523,7 +529,19 @@
     "https://it4us-trial.inhire.app/vagas/11587c57-7d2e-4037-863d-ef8c496589b0/analista-de-soc-trellix",
     "https://aiko.inhire.app/vagas/8c418c4a-a3b7-4c34-a10c-1e8bf42d5ab6/desenvolvedor-backend-remoto",
     "https://upflux.inhire.app/vagas/f78fc9ac-0697-4e57-b391-53999517735a/analista-de-performance-cross",
-    "https://objective.inhire.app/vagas/7064bb75-80f4-4c9e-ab79-73fb410bf094/engenheiro-a-de-dados-pl-sr-sap-hana-xsa-e-s-4hana-remoto"
+    "https://objective.inhire.app/vagas/7064bb75-80f4-4c9e-ab79-73fb410bf094/engenheiro-a-de-dados-pl-sr-sap-hana-xsa-e-s-4hana-remoto",
+    "https://prizmamidia.inhire.app/vagas/7a1895da-198b-412f-9357-6521923cf0ee/bdr-brasil-prizma-midia",
+    "https://representaargalit.gupy.io/job/eyjqb2jjzci6mti5ndy3mtksinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://solarcocacola.gupy.io/job/eyjqb2jjzci6mti5mdqwmdesinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://guiderh.gupy.io/job/eyjqb2jjzci6mti5ndy2odesinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://rpo-deloitte.inhire.app/vagas/f065c8bc-c47c-4341-8431-f14a66f34b2f/lider-de-solucoes-oracle-procurement-cloud-porto-alegre",
+    "https://vagasstefanini.gupy.io/job/eyjqb2jjzci6mti5ndaxmjisinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://olist.inhire.app/vagas/46927768-5909-4150-a7fe-f66a238a2343/analista-de-customer-success-pleno-credito",
+    "https://grupoaldo.gupy.io/job/eyjqb2jjzci6mti5ndu4njusinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://emergeventures.inhire.app/vagas/04ef80f6-60be-439a-84d9-e82695240e76/analista-de-marketing-360-e-commerce-e-operacoes-pleno",
+    "https://mena.inhire.app/vagas/6bb8247c-9aab-4177-b44a-1a8c2faf5308/estagio-marketing-e-desenvolvimento-comercial",
+    "https://movecta.inhire.app/vagas/d9b44c00-49dc-4507-9a2b-d221323a54a0/assistente-de-planejamento-controle-operacional-guaruja-sp",
+    "https://nauterra.gupy.io/job/eyjqb2jjzci6mti4nzq3mtesinnvdxjjzsi6im1jcf9jyw5kawrhdguifq=="
   ],
   "posted_job_signatures": [
     "centauro talentos:vendedor a  bh shopping",
@@ -868,6 +886,18 @@
     "it4us cyber security:analista de soc  trellix",
     "aiko:desenvolvedor backend",
     "upflux:analista de performance cross",
-    "objective:engenheiroa de dados plsr  sap"
+    "objective:engenheiroa de dados plsr  sap",
+    "prizma mídia:bdr  brasil prizma midia",
+    "representa argalit:representante comercial pj  re",
+    "solar cocacola:assistente administrativo  alm",
+    "guide rh:analista fiscal",
+    "deloitterpo:líder de soluções oracle procu",
+    "administrador de redes:analista suporte jr",
+    "olist:analista de customer success p",
+    "ga service  gestao admini:especialista em relacionamento",
+    "emerge ventures:analista de marketing 360  eco",
+    "mena:estágio  marketing e desenvolv",
+    "movecta:assistente de planejamento con",
+    "nauterra:analista de logistica pleno"
   ]
 }
