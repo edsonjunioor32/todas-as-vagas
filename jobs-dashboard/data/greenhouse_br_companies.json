@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-26T14:31:36.736620+00:00",
+  "generated_at": "2026-11-26T18:31:30.555430+00:00",
   "candidate_count": 8331,
-  "company_count": 51,
+  "company_count": 52,
   "companies": [
     {
       "board": "abinbev",
@@ -32,7 +32,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 96
+      "brazil_jobs": 91
     },
     {
       "board": "agilize",
@@ -90,11 +90,6 @@
       "brazil_jobs": 1
     },
     {
-      "board": "artefact",
-      "company": "Artefact",
-      "brazil_jobs": 4
-    },
-    {
       "board": "assessoriadeinvestimentosxp",
       "company": "Assessoria de Investimentos - XP Inc.",
       "brazil_jobs": 20
@@ -107,7 +102,7 @@
     {
       "board": "axon",
       "company": "Axon",
-      "brazil_jobs": 4
+      "brazil_jobs": 3
     },
     {
       "board": "b12",
@@ -122,7 +117,47 @@
     {
       "board": "bees",
       "company": "BEES",
-      "brazil_jobs": 44
+      "brazil_jobs": 45
+    },
+    {
+      "board": "fanaticscollectibles",
+      "company": "Fanatics Collectibles",
+      "brazil_jobs": 2
+    },
+    {
+      "board": "feedzai",
+      "company": "Feedzai",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "feverup",
+      "company": "FeverUp",
+      "brazil_jobs": 23
+    },
+    {
+      "board": "figma",
+      "company": "Figma",
+      "brazil_jobs": 5
+    },
+    {
+      "board": "figureai",
+      "company": "Figure",
+      "brazil_jobs": 8
+    },
+    {
+      "board": "flamingo",
+      "company": "Flamingo",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "flexport",
+      "company": "Flexport",
+      "brazil_jobs": 3
+    },
+    {
+      "board": "flipp",
+      "company": "Flipp",
+      "brazil_jobs": 1
     },
     {
       "board": "globalizationpartners",
@@ -195,38 +230,8 @@
       "brazil_jobs": 1
     },
     {
-      "board": "inflect",
-      "company": "Inflect",
-      "brazil_jobs": 2
-    },
-    {
-      "board": "infuse",
-      "company": "INFUSE",
-      "brazil_jobs": 2
-    },
-    {
-      "board": "inter",
-      "company": "Inter Carreiras",
-      "brazil_jobs": 91
-    },
-    {
-      "board": "interbrand",
-      "company": "Interbrand",
-      "brazil_jobs": 1
-    },
-    {
       "board": "ibuglobal",
       "company": "International Business University (Outside Canada)",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "interviewengineering",
-      "company": "Interview Engineering",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "invgate",
-      "company": "InvGate",
       "brazil_jobs": 1
     },
     {
@@ -247,7 +252,7 @@
     {
       "board": "gympass",
       "company": "Wellhub",
-      "brazil_jobs": 47
+      "brazil_jobs": 46
     },
     {
       "board": "agencywithin",
