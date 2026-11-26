@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-25T18:31:40.232738+00:00",
+  "generated_at": "2026-11-26T14:31:36.736620+00:00",
   "candidate_count": 8331,
-  "company_count": 48,
+  "company_count": 51,
   "companies": [
     {
       "board": "abinbev",
       "company": "AB InBev  | Growth Group",
-      "brazil_jobs": 42
+      "brazil_jobs": 40
     },
     {
       "board": "abnormalsecurity",
@@ -32,7 +32,7 @@
     {
       "board": "agibank",
       "company": "Agibank",
-      "brazil_jobs": 98
+      "brazil_jobs": 96
     },
     {
       "board": "agilize",
@@ -72,7 +72,7 @@
     {
       "board": "arcoeducacao",
       "company": "Arco Educação",
-      "brazil_jobs": 33
+      "brazil_jobs": 26
     },
     {
       "board": "arctouch",
@@ -92,7 +92,7 @@
     {
       "board": "artefact",
       "company": "Artefact",
-      "brazil_jobs": 5
+      "brazil_jobs": 4
     },
     {
       "board": "assessoriadeinvestimentosxp",
@@ -117,107 +117,117 @@
     {
       "board": "bancopan",
       "company": "Banco PAN",
-      "brazil_jobs": 9
+      "brazil_jobs": 8
     },
     {
       "board": "bees",
       "company": "BEES",
-      "brazil_jobs": 46
+      "brazil_jobs": 44
     },
     {
-      "board": "clara",
-      "company": "Clara",
-      "brazil_jobs": 70
-    },
-    {
-      "board": "clinchoice",
-      "company": "ClinChoice",
-      "brazil_jobs": 4
-    },
-    {
-      "board": "css",
-      "company": "CloudKitchens",
+      "board": "globalizationpartners",
+      "company": "G-P",
       "brazil_jobs": 1
     },
     {
-      "board": "coinbase",
-      "company": "Coinbase",
-      "brazil_jobs": 3
+      "board": "gacampus",
+      "company": "General Atlantic - Campus",
+      "brazil_jobs": 2
     },
     {
-      "board": "counterpart",
-      "company": "Counterpart",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "coursera",
-      "company": "Coursera",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "databricks",
-      "company": "Databricks",
-      "brazil_jobs": 7
-    },
-    {
-      "board": "datacamp",
-      "company": "DataCamp",
-      "brazil_jobs": 1
-    },
-    {
-      "board": "datadog",
-      "company": "Datadog",
-      "brazil_jobs": 11
-    },
-    {
-      "board": "doordashinternational",
-      "company": "DoorDash Brazil",
-      "brazil_jobs": 19
-    },
-    {
-      "board": "dunnhumby",
-      "company": "dunnhumby",
-      "brazil_jobs": 3
-    },
-    {
-      "board": "ebanx",
-      "company": "EBANX",
-      "brazil_jobs": 24
-    },
-    {
-      "board": "ebury",
-      "company": "Ebury",
+      "board": "gitlab",
+      "company": "GitLab",
       "brazil_jobs": 6
     },
     {
-      "board": "elastic",
-      "company": "Elastic",
+      "board": "gleanwork",
+      "company": "Glean",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "globalaccelerator",
+      "company": "Global Accelerator",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "globalenergyallianceforpeopleandplanetgeappllc",
+      "company": "Global Energy Alliance for People and Planet (Global Energy Alliance) LLC",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "globalli",
+      "company": "Globalli",
+      "brazil_jobs": 4
+    },
+    {
+      "board": "harnessinc",
+      "company": "Harness",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "harrys",
+      "company": "Harry's",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "hotmartcareersbr",
+      "company": "Hotmart",
+      "brazil_jobs": 16
+    },
+    {
+      "board": "housebuyersofamerica",
+      "company": "House Buyers of America",
+      "brazil_jobs": 4
+    },
+    {
+      "board": "housecall",
+      "company": "Housecall Pro",
+      "brazil_jobs": 6
+    },
+    {
+      "board": "humanrightswatch",
+      "company": "Human Rights Watch",
       "brazil_jobs": 2
     },
     {
-      "board": "encora10",
-      "company": "Encora",
-      "brazil_jobs": 19
+      "board": "impinjexternal",
+      "company": "Impinj",
+      "brazil_jobs": 1
     },
     {
-      "board": "enforce",
-      "company": "Enforce",
-      "brazil_jobs": 11
-    },
-    {
-      "board": "enova",
-      "company": "Enova International",
+      "board": "inflect",
+      "company": "Inflect",
       "brazil_jobs": 2
     },
     {
-      "board": "ensono",
-      "company": "Ensono",
+      "board": "infuse",
+      "company": "INFUSE",
       "brazil_jobs": 2
     },
     {
-      "board": "epicgames",
-      "company": "Epic Games",
-      "brazil_jobs": 8
+      "board": "inter",
+      "company": "Inter Carreiras",
+      "brazil_jobs": 91
+    },
+    {
+      "board": "interbrand",
+      "company": "Interbrand",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "ibuglobal",
+      "company": "International Business University (Outside Canada)",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "interviewengineering",
+      "company": "Interview Engineering",
+      "brazil_jobs": 1
+    },
+    {
+      "board": "invgate",
+      "company": "InvGate",
+      "brazil_jobs": 1
     },
     {
       "board": "artefactlinkedin",
@@ -235,14 +245,19 @@
       "brazil_jobs": 8
     },
     {
-      "board": "cloudbedsthirdpartyboard",
-      "company": "Third-Party Job Posts",
-      "brazil_jobs": 1
+      "board": "gympass",
+      "company": "Wellhub",
+      "brazil_jobs": 47
     },
     {
       "board": "agencywithin",
       "company": "WITHIN",
       "brazil_jobs": 1
+    },
+    {
+      "board": "ilia",
+      "company": "ília",
+      "brazil_jobs": 9
     }
   ]
 }
