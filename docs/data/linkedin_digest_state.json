@@ -1,5 +1,5 @@
 {
-  "last_daily_posted_date": "2026-11-25",
+  "last_daily_posted_date": "2026-11-26",
   "last_weekly_posted_date": "2026-11-13",
   "history": [
     {
@@ -170,6 +170,13 @@
       "type": "morning_desperta",
       "jobs_count": 12,
       "timestamp": "2026-11-26T08:07:10.673952-03:00"
+    },
+    {
+      "date": "2026-11-26",
+      "type": "daily",
+      "jobs_count": 12,
+      "timestamp": "2026-11-26T20:03:01.296448-03:00",
+      "urn": "urn:li:share:7531855056615280640"
     }
   ],
   "last_morning_posted_date": "2026-11-26",
@@ -541,7 +548,19 @@
     "https://emergeventures.inhire.app/vagas/04ef80f6-60be-439a-84d9-e82695240e76/analista-de-marketing-360-e-commerce-e-operacoes-pleno",
     "https://mena.inhire.app/vagas/6bb8247c-9aab-4177-b44a-1a8c2faf5308/estagio-marketing-e-desenvolvimento-comercial",
     "https://movecta.inhire.app/vagas/d9b44c00-49dc-4507-9a2b-d221323a54a0/assistente-de-planejamento-controle-operacional-guaruja-sp",
-    "https://nauterra.gupy.io/job/eyjqb2jjzci6mti4nzq3mtesinnvdxjjzsi6im1jcf9jyw5kawrhdguifq=="
+    "https://nauterra.gupy.io/job/eyjqb2jjzci6mti4nzq3mtesinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://cibra.gupy.io/job/eyjqb2jjzci6mti5nteymdcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://contaazul.inhire.app/vagas/c539c984-a7a2-4ff5-a93b-9b7574e72151/engenheiro-a-backend-senior-java",
+    "https://carreiras-semantix.inhire.app/vagas/1ee2bc13-e837-47a0-802f-cfe38e6d42ec/forward-deployed-engineer-fde-ia-aplicada-e-engenharia-de-software",
+    "https://frameworkdigital.inhire.app/vagas/b431ca3e-8e4c-46c9-89e6-7db3f3178e91/desenvolvedor-a-backend-senior-java",
+    "https://spread.gupy.io/job/eyjqb2jjzci6mti5ndkzmjasinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://jobs.quickin.io/mollicait/jobs/6b087e50010332001322f62b",
+    "https://zallpy.inhire.app/vagas/bc6f520b-1b56-467a-a4cb-b30acee86e9a/frontend-software-engineer-latin-america-brazil-colombia-or-peru",
+    "https://brivia.inhire.app/vagas/3cd6a41a-5c8f-4f8f-aa84-1fb1578bd2bc/analista-de-aplicacoes-lyric-supply-chain-remoto",
+    "https://www.geekhunter.com/pt/kyndryl/jobs/s-34339",
+    "https://amcom.inhire.app/vagas/18dd3501-87ec-4cf5-a063-0d363971968f/pessoa-analista-de-suporte-salesforce-junior",
+    "https://ipiranga.gupy.io/job/eyjqb2jjzci6mti5mzgznzesinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://qive.inhire.app/vagas/f3ca9cd0-3141-4bd7-b22e-1e07404f6ecb/analista-abm-senior"
   ],
   "posted_job_signatures": [
     "centauro talentos:vendedor a  bh shopping",
@@ -898,6 +917,18 @@
     "emerge ventures:analista de marketing 360  eco",
     "mena:estágio  marketing e desenvolv",
     "movecta:assistente de planejamento con",
-    "nauterra:analista de logistica pleno"
+    "nauterra:analista de logistica pleno",
+    "cibra:analista sop pl",
+    "conta azul:engenheiroa backend senior  ja",
+    "semantix:forward deployed engineer fde ",
+    "framework:desenvolvedora backend senior ",
+    "spread tecnologia:engenheiro de dados pl",
+    "mollica it:analista de sistemas  pleno",
+    "zallpy digital:frontend software engineer  la",
+    "brivia:analista de aplicações lyric s",
+    "kyndryl:especialista sênior em banco d",
+    "amcom:pessoa analista de suporte sal",
+    "ipiranga:engenheiroa especialista de in",
+    "qive:analista abm sênior"
   ]
 }
