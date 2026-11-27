@@ -177,9 +177,15 @@
       "jobs_count": 12,
       "timestamp": "2026-11-26T20:03:01.296448-03:00",
       "urn": "urn:li:share:7531855056615280640"
+    },
+    {
+      "date": "2026-11-27",
+      "type": "morning_desperta",
+      "jobs_count": 12,
+      "timestamp": "2026-11-27T08:06:54.127118-03:00"
     }
   ],
-  "last_morning_posted_date": "2026-11-26",
+  "last_morning_posted_date": "2026-11-27",
   "posted_job_urls": [
     "https://centaurotalentos.gupy.io/job/eyjqb2jjzci6mti4nzk3ndasinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
     "https://localiza.gupy.io/job/eyjqb2jjzci6mti4njqxmtcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
@@ -560,7 +566,19 @@
     "https://www.geekhunter.com/pt/kyndryl/jobs/s-34339",
     "https://amcom.inhire.app/vagas/18dd3501-87ec-4cf5-a063-0d363971968f/pessoa-analista-de-suporte-salesforce-junior",
     "https://ipiranga.gupy.io/job/eyjqb2jjzci6mti5mzgznzesinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
-    "https://qive.inhire.app/vagas/f3ca9cd0-3141-4bd7-b22e-1e07404f6ecb/analista-abm-senior"
+    "https://qive.inhire.app/vagas/f3ca9cd0-3141-4bd7-b22e-1e07404f6ecb/analista-abm-senior",
+    "https://poliedroeducacao.inhire.app/vagas/c3ec90ef-a574-4ee1-ade4-9dd24da33fe6/consultor-a-comercial-interno-a-sdr",
+    "https://guiderh.gupy.io/job/eyjqb2jjzci6mti5nti2otasinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://kpmg.inhire.app/vagas/88adf52b-9124-439d-bdec-1d8885df9102/analista-fiscal-junior-bpo-sao-paulo-sp-modelo-hibrido",
+    "https://instacarro.inhire.app/vagas/02db69fa-73bd-46e7-9690-9cb5616fdffa/analista-financeiro",
+    "https://dock.inhire.app/vagas/b137e5e3-3975-44b4-85bb-d9b29242a273/software-engineering-specialist",
+    "https://oceanpact.inhire.app/vagas/23900ff0-d491-47f4-9896-ce89bfe9668f/analista-de-dados-senior-rio-de-janeiro-rj",
+    "https://contabilizei.inhire.app/vagas/e2530fc8-795b-4129-a189-887674882713/cross-sell-analista-de-business-performance-analytics",
+    "https://gruposinosserra.gupy.io/job/eyjqb2jjzci6mti5nte3mzgsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://jobs.quickin.io/relourh/jobs/6b08d51301033200134e75b5",
+    "https://eyxo.inhire.app/vagas/bbea1790-3e15-46e5-bb4b-e69fa8adfcce/social-media-senior-hibrido-sp",
+    "https://appmax.inhire.app/vagas/f76bb48c-036a-4d3b-aa57-fe1c1f14e9a1/analista-de-compras-junior",
+    "https://carvalima.gupy.io/job/eyjqb2jjzci6mti5mje5mdisinnvdxjjzsi6im1jcf9jyw5kawrhdguifq=="
   ],
   "posted_job_signatures": [
     "centauro talentos:vendedor a  bh shopping",
@@ -929,6 +947,18 @@
     "kyndryl:especialista sênior em banco d",
     "amcom:pessoa analista de suporte sal",
     "ipiranga:engenheiroa especialista de in",
-    "qive:analista abm sênior"
+    "qive:analista abm sênior",
+    "poliedro educação:consultora comercial internoa ",
+    "guide rh:vendedora",
+    "kpmg:analista fiscal junior bpo  sã",
+    "instacarro:analista financeiro",
+    "dock:software engineering specialis",
+    "oceanpact:analista de dados sênior  rio ",
+    "contabilizei:cross sell analista de busines",
+    "grupo sinosserra:coordenadora de relacionamento",
+    "relou rh especializado lt:analista de perfomance growth ",
+    "eyxo content co:social media sênior híbrido sp",
+    "appmax:analista de compras júnior",
+    "carvalima transportes:assistente de logistica  campo"
   ]
 }
