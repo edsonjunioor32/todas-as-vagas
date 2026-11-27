@@ -1,5 +1,5 @@
 {
-  "last_daily_posted_date": "2026-11-26",
+  "last_daily_posted_date": "2026-11-27",
   "last_weekly_posted_date": "2026-11-13",
   "history": [
     {
@@ -183,6 +183,13 @@
       "type": "morning_desperta",
       "jobs_count": 12,
       "timestamp": "2026-11-27T08:06:54.127118-03:00"
+    },
+    {
+      "date": "2026-11-27",
+      "type": "daily",
+      "jobs_count": 12,
+      "timestamp": "2026-11-27T20:15:38.244367-03:00",
+      "urn": "urn:li:share:7532220619887673344"
     }
   ],
   "last_morning_posted_date": "2026-11-27",
@@ -578,7 +585,19 @@
     "https://jobs.quickin.io/relourh/jobs/6b08d51301033200134e75b5",
     "https://eyxo.inhire.app/vagas/bbea1790-3e15-46e5-bb4b-e69fa8adfcce/social-media-senior-hibrido-sp",
     "https://appmax.inhire.app/vagas/f76bb48c-036a-4d3b-aa57-fe1c1f14e9a1/analista-de-compras-junior",
-    "https://carvalima.gupy.io/job/eyjqb2jjzci6mti5mje5mdisinnvdxjjzsi6im1jcf9jyw5kawrhdguifq=="
+    "https://carvalima.gupy.io/job/eyjqb2jjzci6mti5mje5mdisinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://radix.inhire.app/vagas/a10b2bac-4bd5-4e0a-824b-6541ef1fa33c/profissional-de-product-design-sr",
+    "https://brq.inhire.app/vagas/0f2e1fca-98b7-4d22-b194-a70e9b159df8/desenvolvedor-a-c-senior",
+    "https://befly.gupy.io/job/eyjqb2jjzci6mti5mtmyotqsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://amcom.inhire.app/vagas/61335004-f6bf-49d9-98c6-190bb0dd43c0/pessoa-analista-tecnico-ibm-maximo-e-cognos-analytics-pleno",
+    "https://nuvidio.inhire.app/vagas/07f1f431-5fd0-45e8-8776-4e66ee1da765/assistente-de-qualidade-de-produto",
+    "https://qualitydigital.gupy.io/job/eyjqb2jjzci6mti5nti4odqsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://mjv.inhire.app/vagas/c7acec06-2d3f-42d2-b797-77e22647335d/pessoa-tester-qa-automatizado",
+    "https://clicksign.gupy.io/job/eyjqb2jjzci6mti5ntu2ntcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://carreiras-semantix.inhire.app/vagas/9e536428-ed40-4c72-8174-e2d878ae5359/desenvolvedor-gis-smallworld-magik",
+    "https://ciee.gupy.io/job/eyjqb2jjzci6mti5mtk1odusinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://atlantico.inhire.app/vagas/168d44b2-c6d2-4130-832e-989178f81826/pessoa-coordenadora-de-governanca-de-ai-e-dados-especialista-remoto",
+    "https://v4company.inhire.app/vagas/0eb26c28-27c4-4355-9d91-b2af75053c76/analista-financeiro-junior-v4-lima-e-co"
   ],
   "posted_job_signatures": [
     "centauro talentos:vendedor a  bh shopping",
@@ -959,6 +978,18 @@
     "relou rh especializado lt:analista de perfomance growth ",
     "eyxo content co:social media sênior híbrido sp",
     "appmax:analista de compras júnior",
-    "carvalima transportes:assistente de logistica  campo"
+    "carvalima transportes:assistente de logistica  campo",
+    "radix:profissional de product design",
+    "brq:desenvolvedora c sênior",
+    "befly:analista de operações emergenc",
+    "amcom:pessoa analista técnico ibm ma",
+    "nuvidio:assistente de qualidade de pro",
+    "quality digital:pessoa desenvolvedora sênior b",
+    "mjv innovation:pessoa tester  qa automatizado",
+    "clicksign:desenvolvedora fullstack sênio",
+    "semantix:desenvolvedor gis smallworld m",
+    "ciee  centro de integraçã:estagiárioa  privacidade de da",
+    "atlântico:pessoa coordenadora de governa",
+    "v4 company:analista financeiro  júnior  v"
   ]
 }
