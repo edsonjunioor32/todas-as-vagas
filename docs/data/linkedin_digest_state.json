@@ -1,6 +1,6 @@
 {
   "last_daily_posted_date": "2026-11-27",
-  "last_weekly_posted_date": "2026-11-13",
+  "last_weekly_posted_date": "2026-11-27",
   "history": [
     {
       "date": "2026-11-12",
@@ -190,6 +190,12 @@
       "jobs_count": 12,
       "timestamp": "2026-11-27T20:15:38.244367-03:00",
       "urn": "urn:li:share:7532220619887673344"
+    },
+    {
+      "date": "2026-11-27",
+      "type": "weekly_executive",
+      "jobs_count": 12,
+      "timestamp": "2026-11-27T21:09:24.420763-03:00"
     }
   ],
   "last_morning_posted_date": "2026-11-27",
