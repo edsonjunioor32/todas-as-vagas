@@ -196,9 +196,15 @@
       "type": "weekly_executive",
       "jobs_count": 12,
       "timestamp": "2026-11-27T21:09:24.420763-03:00"
+    },
+    {
+      "date": "2026-11-28",
+      "type": "morning_desperta",
+      "jobs_count": 12,
+      "timestamp": "2026-11-28T08:03:07.591691-03:00"
     }
   ],
-  "last_morning_posted_date": "2026-11-27",
+  "last_morning_posted_date": "2026-11-28",
   "posted_job_urls": [
     "https://centaurotalentos.gupy.io/job/eyjqb2jjzci6mti4nzk3ndasinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
     "https://localiza.gupy.io/job/eyjqb2jjzci6mti4njqxmtcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
@@ -603,7 +609,19 @@
     "https://carreiras-semantix.inhire.app/vagas/9e536428-ed40-4c72-8174-e2d878ae5359/desenvolvedor-gis-smallworld-magik",
     "https://ciee.gupy.io/job/eyjqb2jjzci6mti5mtk1odusinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
     "https://atlantico.inhire.app/vagas/168d44b2-c6d2-4130-832e-989178f81826/pessoa-coordenadora-de-governanca-de-ai-e-dados-especialista-remoto",
-    "https://v4company.inhire.app/vagas/0eb26c28-27c4-4355-9d91-b2af75053c76/analista-financeiro-junior-v4-lima-e-co"
+    "https://v4company.inhire.app/vagas/0eb26c28-27c4-4355-9d91-b2af75053c76/analista-financeiro-junior-v4-lima-e-co",
+    "https://vempraestacio.gupy.io/job/eyjqb2jjzci6mti4nza5ntisinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://cellularcom.gupy.io/job/eyjqb2jjzci6mti5ntgymtcsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://vagasstefanini.gupy.io/job/eyjqb2jjzci6mti5ntgynjysinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://vagas.solides.com.br/vaga/959662/analista-de-recursos-humanos-pleno-grupo-empresarial",
+    "https://smarthis.gupy.io/job/eyjqb2jjzci6mti5ntgynjusinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://mjv.inhire.app/vagas/94cead63-6d05-4ea5-9142-64edb651b1a2/analista-de-qa",
+    "https://redeamericas.gupy.io/job/eyjqb2jjzci6mti2otiwndisinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://jobcenterbrasil.gupy.io/job/eyjqb2jjzci6mti5ntc0ndesinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://bynv.gupy.io/job/eyjqb2jjzci6mti5ntq1ntgsinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://ecossis.inhire.app/vagas/ed26a723-b864-429a-bd66-903d08e4342f/coordenacao-de-marketing",
+    "https://vagasconfidencial-01.gupy.io/job/eyjqb2jjzci6mti5ntc1njusinnvdxjjzsi6im1jcf9jyw5kawrhdguifq==",
+    "https://aramis.gupy.io/job/eyjqb2jjzci6mti5ntcwmdysinnvdxjjzsi6im1jcf9jyw5kawrhdguifq=="
   ],
   "posted_job_signatures": [
     "centauro talentos:vendedor a  bh shopping",
@@ -996,6 +1014,18 @@
     "semantix:desenvolvedor gis smallworld m",
     "ciee  centro de integraçã:estagiárioa  privacidade de da",
     "atlântico:pessoa coordenadora de governa",
-    "v4 company:analista financeiro  júnior  v"
+    "v4 company:analista financeiro  júnior  v",
+    "estácio:pessoa consultor comercial  es",
+    "cellularcom:consultor de vendas  lojas cla",
+    "administrador de redes:recrutadora sênior  tech supor",
+    "atos edicoes ltda:analista de recursos humanos p",
+    "smarthis:sr cloud platform  devops engi",
+    "mjv innovation:analista de qa",
+    "rede américas:supervisora de atendimento ao ",
+    "jobcenter do brasil:atendente de relacionamento i ",
+    "nv:nv  analista de marketing  soc",
+    "ecossis soluções ambienta:coordenação de marketing",
+    "empresa confidencial:gerente de compras",
+    "aramis:analista de compras"
   ]
 }
